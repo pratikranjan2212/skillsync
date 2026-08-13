@@ -25,7 +25,7 @@ import {
   CheckCircle2,
   FilePlus2,
 } from "lucide-react";
-import Navbar from "@/app/components/Navbar";
+import Navbar from "@/app/components/layout/Navbar";
 import EvidenceCard from "@/app/components/evidence/EvidenceCard";
 import ShareExportButtons from "@/app/components/passport/ShareExportButtons";
 import OpportunityCard from "@/app/components/opportunities/OpportunityCard";

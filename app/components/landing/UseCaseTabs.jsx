@@ -2,9 +2,9 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { USE_CASE_TABS } from "../data/skillsyncData.js";
+import { USE_CASE_TABS } from "@/app/data/skillsyncData.js";
 import { GraduationCap, Briefcase, Users, Shield, ArrowRight } from "lucide-react";
-import RollingText from "./RollingText";
+import RollingText from "@/app/components/ui/RollingText";
 
 export default function UseCaseTabs() {
   const [activeTabId, setActiveTabId] = useState("students");
@@ -85,7 +85,7 @@ export default function UseCaseTabs() {
               href="/signup"
               onMouseEnter={() => setHoveredCta(true)}
               onMouseLeave={() => setHoveredCta(false)}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-neutral-900 text-white rounded-2xl font-bold text-xs hover:bg-neutral-800 transition-colors shadow-md"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-neutral-900 text-white rounded-2xl font-bold text-xs hover:bg-neutral-800 transition-all hover:scale-95 active:scale-90 shadow-md"
             >
               <RollingText
                 text="Get Started Now"

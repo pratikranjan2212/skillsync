@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { MARQUEE_ITEMS_TOP, MARQUEE_ITEMS_BOTTOM } from '../data/skillsyncData.js';
+import { MARQUEE_ITEMS_TOP, MARQUEE_ITEMS_BOTTOM } from '@/app/data/skillsyncData.js';
 import { Star, Apple, Play, TrendingUp, Sparkles, Zap, Moon, CheckCircle2, Droplets } from 'lucide-react';
-import RollingText from "./RollingText";
+import RollingText from "@/app/components/ui/RollingText";
 
 export default function PhoneMarquee({ onOpenAppModal }) {
   const [hovered, setHovered] = useState(null);
@@ -160,11 +160,11 @@ export default function PhoneMarquee({ onOpenAppModal }) {
               {/* Two Stat Tiles */}
               <div className="grid grid-cols-2 gap-2.5 mb-4">
                 <div className="p-3 rounded-2xl bg-white/5 border border-white/5">
-                  <span className="text-xl font-extrabold text-white">12</span>
+                  <span className="text-xl font-extrabold text-[#FFFFFF]">12</span>
                   <p className="text-[10px] text-neutral-400 font-medium">Streaks completed</p>
                 </div>
                 <div className="p-3 rounded-2xl bg-white/5 border border-white/5">
-                  <span className="text-xl font-extrabold text-white">07</span>
+                  <span className="text-xl font-extrabold text-[#FFFFFF]">07</span>
                   <p className="text-[10px] text-neutral-400 font-medium">Focused sessions</p>
                 </div>
               </div>
@@ -212,7 +212,7 @@ export default function PhoneMarquee({ onOpenAppModal }) {
           {/* Download Buttons */}
           <div className="flex flex-wrap items-center justify-center gap-4">
             <button
-              onClick={() => onOpenAppModal()}
+              onClick={() => onOpenAppModal && onOpenAppModal()}
               onMouseEnter={() => setHovered('iphone')}
               onMouseLeave={() => setHovered(null)}
               className="px-8 py-4 rounded-[20px] bg-[#131515] hover:bg-black text-white text-[15px] font-bold shadow-xl transition-all hover:scale-95 active:scale-90 flex items-center gap-3"
@@ -230,7 +230,7 @@ export default function PhoneMarquee({ onOpenAppModal }) {
             </button>
             
             <button
-              onClick={() => onOpenAppModal()}
+              onClick={() => onOpenAppModal && onOpenAppModal()}
               onMouseEnter={() => setHovered('android')}
               onMouseLeave={() => setHovered(null)}
               className="px-8 py-4 rounded-[20px] bg-[#EAEAEA] hover:bg-[#D9D9D9] text-[#131515] text-[15px] font-bold shadow-sm transition-all hover:scale-95 active:scale-90 flex items-center gap-3"
@@ -253,5 +253,3 @@ export default function PhoneMarquee({ onOpenAppModal }) {
     </section>
   );
 }
-
-

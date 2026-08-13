@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { FAQ_ITEMS } from "../data/skillsyncData.js";
+import { FAQ_ITEMS } from "@/app/data/skillsyncData.js";
 import { Plus, X, Headphones, HelpCircle } from "lucide-react";
-import RollingText from "./RollingText";
+import RollingText from "@/app/components/ui/RollingText";
 
 export default function FAQSection() {
   const [openId, setOpenId] = useState("faq1");

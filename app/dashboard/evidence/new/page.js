@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import jsQR from "jsqr";
 import { FilePlus, QrCode, Sparkles, Check, ArrowRight, ShieldCheck, Loader2, Link2, FileUp } from "lucide-react";
-import Navbar from "@/app/components/Navbar";
+import Navbar from "@/app/components/layout/Navbar";
 import Badge from "@/app/components/ui/Badge";
 
 const SKILL_TAXONOMY_OPTIONS = [

@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { VIDEO_TESTIMONIALS } from '../data/skillsyncData.js';
+import { VIDEO_TESTIMONIALS } from '@/app/data/skillsyncData.js';
 import { Play, VolumeX, ChevronLeft, ChevronRight, Star, Maximize, MoreVertical } from 'lucide-react';
 
 export default function VideoTestimonials() {

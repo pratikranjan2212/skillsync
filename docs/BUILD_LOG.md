@@ -3,6 +3,62 @@ Running log of every change made to the frontend, in chronological order (newest
 Each entry explains *what* changed and *why*, plus a section-by-section explanation of any new or modified code.
 
 ---
+## [2026-08-13 22:10] Component Folder Re-Organization & Structure Cleanup
+
+**Files changed:**
+- `app/components/ui/RollingText.jsx` (created)
+- `app/components/ui/AnimatedButton.jsx` (created)
+- `app/components/modals/AppModal.jsx` (created)
+- `app/components/modals/DemoModal.jsx` (created)
+- `app/components/layout/Navbar.jsx` (created)
+- `app/components/layout/Footer.jsx` (created)
+- `app/components/landing/Hero.jsx` (created)
+- `app/components/landing/FeatureBento.jsx` (created)
+- `app/components/landing/UseCaseTabs.jsx` (created)
+- `app/components/landing/Metrics.jsx` (created)
+- `app/components/landing/SmartAssist.jsx` (created)
+- `app/components/landing/FAQSection.jsx` (created)
+- `app/components/landing/FinalCTA.jsx` (created)
+- `app/components/landing/SocialProof.jsx` (created)
+- `app/components/landing/TestimonialMasonry.jsx` (created)
+- `app/components/landing/TestimonialPhotoCarousel.jsx` (created)
+- `app/components/landing/VideoTestimonials.jsx` (created)
+- `app/components/landing/PhoneMarquee.jsx` (created)
+- `app/page.js` (modified - updated imports)
+- `app/(auth)/signin/page.js` (modified - updated imports)
+- `app/(auth)/signup/page.js` (modified - updated imports)
+- `app/dashboard/evidence/new/page.js` (modified - updated imports)
+- `app/dashboard/page.js` (modified - updated imports)
+- `app/opportunities/[id]/page.js` (modified - updated imports)
+- `app/opportunities/page.js` (modified - updated imports)
+- `app/passport/page.js` (modified - updated imports)
+- `app/components/evidence/EvidenceCard.jsx` (modified - updated imports)
+- `app/components/passport/ShareExportButtons.jsx` (modified - updated imports)
+- `app/components/layout/HeaderNav.jsx` (modified - updated imports)
+- Unorganized root-level files in `app/components/` (deleted)
+
+**What changed and why:**
+Organized all root-level component files in `app/components/` into clean, semantic feature subdirectories (`landing/`, `layout/`, `modals/`, `ui/`) to eliminate clutter and maintain a clear, modular architecture. Updated all relative and alias imports across 12 app pages and components to point to the new organized paths. Removed all loose root-level component files in `app/components/`.
+
+**Code explanation (section by section):**
+`app/components/landing/*`
+- **Landing section components** — Moved `Hero`, `FeatureBento`, `UseCaseTabs`, `Metrics`, `SmartAssist`, `FAQSection`, `FinalCTA`, `SocialProof`, `TestimonialMasonry`, `TestimonialPhotoCarousel`, `VideoTestimonials`, and `PhoneMarquee` under `app/components/landing/`.
+
+`app/components/layout/*`
+- **Header & Footer** — Moved `Navbar` and `Footer` under `app/components/layout/`.
+
+`app/components/modals/*`
+- **Dialogs & Modals** — Moved `AppModal` and `DemoModal` under `app/components/modals/`.
+
+`app/components/ui/*`
+- **UI Primitives & Animation** — Moved `RollingText` and `AnimatedButton` under `app/components/ui/`.
+
+`app/*` Pages & Components
+- **Import Path Updates** — Updated all import statements across `app/page.js`, auth screens, dashboard, passport, opportunities feed, and feature cards to consume components from their respective subdirectories (`@/app/components/landing/...`, `@/app/components/layout/...`, `@/app/components/ui/...`, etc.).
+
+**Open items / follow-ups:**
+Next.js production build verified cleanly with exit code 0 across all 19 app routes.
+---
 ## [2026-08-13 20:58] Directory Structure Cleanup: Moved src/ to app/
 
 **Files changed:**

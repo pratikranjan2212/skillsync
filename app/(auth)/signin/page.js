@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { LogIn, Mail, Lock, ArrowRight, ShieldCheck, UserCheck } from "lucide-react";
-import Navbar from "@/app/components/Navbar";
+import Navbar from "@/app/components/layout/Navbar";
 
 /**
  * Sign In Screen.

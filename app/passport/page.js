@@ -3,7 +3,7 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Award, ShieldCheck, Layers, FileCheck, RefreshCw, AlertCircle } from "lucide-react";
-import Navbar from "@/app/components/Navbar";
+import Navbar from "@/app/components/layout/Navbar";
 import ShareExportButtons from "@/app/components/passport/ShareExportButtons";
 import Badge from "@/app/components/ui/Badge";
 

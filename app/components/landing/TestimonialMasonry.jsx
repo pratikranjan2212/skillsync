@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { MASONRY_REVIEWS } from '../data/skillsyncData.js';
+import { MASONRY_REVIEWS } from '@/app/data/skillsyncData.js';
 import { X } from 'lucide-react';
-import RollingText from './RollingText';
+import RollingText from "@/app/components/ui/RollingText";
 
 export default function TestimonialMasonry() {
   const [reviews, setReviews] = useState(MASONRY_REVIEWS);

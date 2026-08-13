@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { ArrowRight, ShieldCheck, Award } from "lucide-react";
-import RollingText from "./RollingText";
+import RollingText from "@/app/components/ui/RollingText";
 
 export default function FinalCTA() {
   const [hoveredButton, setHoveredButton] = useState(null);
@@ -46,7 +46,7 @@ export default function FinalCTA() {
             href="/opportunities"
             onMouseEnter={() => setHoveredButton("cta2")}
             onMouseLeave={() => setHoveredButton(null)}
-            className="px-8 py-4 bg-white/10 hover:bg-white/20 text-white font-bold text-sm rounded-3xl backdrop-blur-md border border-white/15 transition-all flex items-center gap-2"
+            className="px-8 py-4 bg-white/10 hover:bg-white/20 text-white font-bold text-sm rounded-3xl backdrop-blur-md border border-white/15 transition-all hover:scale-95 active:scale-90 flex items-center gap-2"
           >
             <Award className="w-4 h-4 text-amber-400" />
             <RollingText
@@ -64,4 +64,3 @@ export default function FinalCTA() {
     </section>
   );
 }
-

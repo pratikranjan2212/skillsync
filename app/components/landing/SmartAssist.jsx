@@ -2,9 +2,9 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { SMART_ASSIST_CARDS } from "../data/skillsyncData.js";
+import { SMART_ASSIST_CARDS } from "@/app/data/skillsyncData.js";
 import { Sparkles, CheckCircle2, Award, Briefcase, Scale, ArrowRight } from "lucide-react";
-import RollingText from "./RollingText";
+import RollingText from "@/app/components/ui/RollingText";
 
 export default function SmartAssist() {
   const [hovered, setHovered] = useState(false);
@@ -69,7 +69,7 @@ export default function SmartAssist() {
             href="/opportunities"
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-neutral-900 text-white rounded-2xl font-bold text-xs hover:bg-neutral-800 transition-colors shadow-md"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-neutral-900 text-white rounded-2xl font-bold text-xs hover:bg-neutral-800 transition-all hover:scale-95 active:scale-90 shadow-md"
           >
             <RollingText
               text="Explore Opportunities Feed"

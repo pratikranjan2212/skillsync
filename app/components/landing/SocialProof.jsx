@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AUDIENCE_TAGS } from '../data/skillsyncData.js';
+import { AUDIENCE_TAGS } from '@/app/data/skillsyncData.js';
 
 export default function SocialProof() {
   const [activeTag, setActiveTag] = useState('#Founders');
@@ -43,5 +43,3 @@ export default function SocialProof() {
     </section>
   );
 }
-
-

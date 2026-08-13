@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { Check, Sparkles, Award, ShieldCheck, ArrowRight, Play, QrCode, Database, Code2 } from "lucide-react";
 import Badge from "@/app/components/ui/Badge";
-import RollingText from "./RollingText";
+import RollingText from "@/app/components/ui/RollingText";
 
 export default function Hero({ onOpenAppModal, onOpenDemoModal }) {
   const [hoveredButton, setHoveredButton] = useState(null);
@@ -22,8 +22,26 @@ export default function Hero({ onOpenAppModal, onOpenDemoModal }) {
             />
           </div>
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-160 h-160 bg-emerald-600/20 rounded-full blur-[160px]"></div>
-          {/* Fading overlay to blend into pure white background below */}
-          <div className="absolute bottom-0 left-0 right-0 h-96 bg-linear-to-t from-[#F5F5F3] via-[#F5F5F3]/80 to-transparent"></div>
+          {/* Radial Convex Upward Soft Blur Fade (No Hard Border Lines) */}
+          <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-[140%] sm:w-[125%] md:w-[115%] h-64 sm:h-80 md:h-96 pointer-events-none">
+            {/* Multi-layered soft glowing radial curves */}
+            <div 
+              className="absolute inset-0 bg-[#F5F5F3] blur-3xl opacity-60"
+              style={{ borderRadius: "50% 50% 0 0 / 100% 100% 0 0" }}
+            ></div>
+            <div 
+              className="absolute top-12 bottom-0 left-4 right-4 bg-[#F5F5F3] blur-2xl opacity-80"
+              style={{ borderRadius: "50% 50% 0 0 / 100% 100% 0 0" }}
+            ></div>
+            <div 
+              className="absolute top-24 bottom-0 left-8 right-8 bg-[#F5F5F3] blur-xl opacity-95"
+              style={{ borderRadius: "50% 50% 0 0 / 100% 100% 0 0" }}
+            ></div>
+            <div 
+              className="absolute top-36 bottom-0 left-12 right-12 bg-[#F5F5F3]"
+              style={{ borderRadius: "50% 50% 0 0 / 100% 100% 0 0" }}
+            ></div>
+          </div>
         </div>
 
         {/* Hero Text Content */}
@@ -170,7 +188,7 @@ export default function Hero({ onOpenAppModal, onOpenDemoModal }) {
       </div>
 
       {/* Bottom White Section */}
-      <div className="relative z-20 bg-[#F5F5F3] -mt-32 pt-28 pb-16 px-4 sm:px-6 rounded-t-[48px]">
+      <div className="relative z-20 bg-[#F5F5F3] pt-12 sm:pt-16 pb-16 px-4 sm:px-6">
         <div className="max-w-4xl mx-auto text-center flex flex-col items-center">
           <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-[#111111] leading-[1.15] mb-8">
             Verifiable evidence replaces manual resumes with <span className="underline decoration-emerald-500 decoration-4">100% transparent</span> skill matching.

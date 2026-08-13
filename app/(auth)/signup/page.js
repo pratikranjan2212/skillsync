@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { Sparkles, User, Mail, Lock, ArrowRight, ShieldCheck } from "lucide-react";
-import Navbar from "@/app/components/Navbar";
+import Navbar from "@/app/components/layout/Navbar";
 
 /**
  * Student Registration Screen.

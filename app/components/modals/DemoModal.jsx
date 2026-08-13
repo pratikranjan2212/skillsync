@@ -42,5 +42,3 @@ export default function DemoModal({ isOpen, onClose }) {
     </div>
   );
 }
-
-

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Download, FileJson, Share2, Check, Lock, Globe } from "lucide-react";
-import RollingText from "../RollingText";
+import RollingText from "@/app/components/ui/RollingText";
 
 /**
  * Share & Export Buttons for Skill Passport.

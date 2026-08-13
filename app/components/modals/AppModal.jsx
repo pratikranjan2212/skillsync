@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, Apple, Play, Sparkles, CheckCircle2, QrCode } from 'lucide-react';
-import RollingText from './RollingText';
+import RollingText from "@/app/components/ui/RollingText";
 
 export default function AppModal({ isOpen, onClose }) {
   const [email, setEmail] = useState('');
@@ -144,6 +144,3 @@ export default function AppModal({ isOpen, onClose }) {
     </div>
   );
 }
-
-
-

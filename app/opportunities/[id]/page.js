@@ -4,7 +4,7 @@ import React, { use } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Sparkles, AlertCircle, Building2, MapPin } from "lucide-react";
-import Navbar from "@/app/components/Navbar";
+import Navbar from "@/app/components/layout/Navbar";
 import MatchExplanationCard from "@/app/components/opportunities/MatchExplanationCard";
 
 async function fetchMatchDetail(id) {

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FileCheck, ExternalLink, Calendar, Key, ShieldCheck } from "lucide-react";
 import Badge from "@/app/components/ui/Badge";
-import RollingText from "../RollingText";
+import RollingText from "@/app/components/ui/RollingText";
 
 /**
  * Evidence Card Component.

@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Briefcase, Search, Sparkles, Filter, RefreshCw, AlertCircle } from "lucide-react";
-import Navbar from "@/app/components/Navbar";
+import Navbar from "@/app/components/layout/Navbar";
 import OpportunityCard from "@/app/components/opportunities/OpportunityCard";
 
 async function fetchOpportunitiesFeed() {

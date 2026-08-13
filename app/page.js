@@ -1,14 +1,15 @@
 "use client";
+
 import React from "react";
-import Navbar from "./components/Navbar.jsx";
-import Hero from "./components/Hero.jsx";
-import FeatureBento from "./components/FeatureBento.jsx";
-import UseCaseTabs from "./components/UseCaseTabs.jsx";
-import Metrics from "./components/Metrics.jsx";
-import SmartAssist from "./components/SmartAssist.jsx";
-import FAQSection from "./components/FAQSection.jsx";
-import FinalCTA from "./components/FinalCTA.jsx";
-import Footer from "./components/Footer.jsx";
+import Navbar from "@/app/components/layout/Navbar";
+import Hero from "@/app/components/landing/Hero";
+import FeatureBento from "@/app/components/landing/FeatureBento";
+import UseCaseTabs from "@/app/components/landing/UseCaseTabs";
+import Metrics from "@/app/components/landing/Metrics";
+import SmartAssist from "@/app/components/landing/SmartAssist";
+import FAQSection from "@/app/components/landing/FAQSection";
+import FinalCTA from "@/app/components/landing/FinalCTA";
+import Footer from "@/app/components/layout/Footer";
 
 export default function App() {
   return (
