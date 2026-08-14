@@ -28,7 +28,7 @@ export default function Providers({ children }) {
   return (
     <SessionProvider>
       <QueryClientProvider client={queryClient}>
-        <ClickSpark sparkColor="#111111" sparkRadius={26} sparkSize={16} className="min-h-screen w-full flex flex-col flex-1">
+        <ClickSpark sparkColor="#111111" sparkRadius={28} sparkSize={13} extraScale={1.2} className="min-h-screen w-full flex flex-col flex-1">
           {children}
         </ClickSpark>
       </QueryClientProvider>

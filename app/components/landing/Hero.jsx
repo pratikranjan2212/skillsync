@@ -9,9 +9,9 @@ import RollingText from "@/app/components/ui/RollingText";
 export default function Hero({ onOpenAppModal, onOpenDemoModal }) {
   const [hoveredButton, setHoveredButton] = useState(null);
   return (
-    <section className="relative overflow-hidden w-full">
+    <section className="relative overflow-hidden w-full bg-[#0d1f18]">
       {/* Top Dark Section with Floating Verified Cards */}
-      <div className="relative pt-36 pb-48 md:pb-60 lg:pb-72">
+      <div className="relative pt-36 pb-48 md:pb-60 lg:pb-72 bg-[#0d1f18]">
         {/* Background Gradients */}
         <div className="absolute inset-0 bg-linear-to-b from-[#0d1f18] via-[#091510] to-[#111111] overflow-hidden pointer-events-none">
           <div className="absolute inset-0 opacity-20 mix-blend-overlay">

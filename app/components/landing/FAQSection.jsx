@@ -79,7 +79,7 @@ export default function FAQSection() {
                   <span className="leading-snug">{faq.question}</span>
                   <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-neutral-100 group-hover:bg-neutral-200/80 flex items-center justify-center shrink-0 transition-colors">
                     <Plus
-                      className={`w-5 h-5 sm:w-6 sm:h-6 text-neutral-700 stroke-[2.5] transition-transform duration-300 ease-in-out ${
+                      className={`w-5 h-5 sm:w-6 sm:h-6 text-neutral-700 stroke-[2.5] transition-transform duration-500 ease-out ${
                         isOpen ? "rotate-45" : "rotate-0"
                       }`}
                     />
