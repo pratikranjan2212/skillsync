@@ -3,6 +3,21 @@ Running log of every change made to the frontend, in chronological order (newest
 Each entry explains *what* changed and *why*, plus a section-by-section explanation of any new or modified code.
 
 ---
+## [2026-08-14 19:37] Legacy Hero Component Deletion
+
+**Files changed:**
+- `app/components/Hero.jsx` (deleted)
+
+**What changed and why:**
+Deleted redundant legacy root-level `app/components/Hero.jsx` to prevent confusion and maintain a clean component structure. The active, updated Hero component is hosted under `app/components/landing/Hero.jsx`.
+
+**Code explanation (section by section):**
+`app/components/Hero.jsx`
+- **File removal** — Safely deleted the unreferenced duplicate component.
+
+**Open items / follow-ups:**
+Production build verified cleanly with exit code 0 across all 19 app routes.
+---
 ## [2026-08-14 15:42] Button Border Radius Enhancement
 
 **Files changed:**
