@@ -14,14 +14,30 @@ export default function Navbar() {
   const { data: session } = useSession();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isScrollingUp, setIsScrollingUp] = useState(false);
+
+  const isHomePage = pathname === "/";
 
   useEffect(() => {
+    let lastScrollY = window.scrollY;
+
     const handleScroll = () => {
-      if (window.scrollY > 20) {
+      const currentScrollY = window.scrollY;
+      
+      if (currentScrollY > 20) {
         setIsScrolled(true);
       } else {
         setIsScrolled(false);
       }
+
+      // Detect scrolling up vs scrolling down anywhere on the landing page
+      if (currentScrollY < lastScrollY && currentScrollY > 50) {
+        setIsScrollingUp(true);
+      } else {
+        setIsScrollingUp(false);
+      }
+
+      lastScrollY = currentScrollY;
     };
 
     handleScroll();
@@ -29,21 +45,29 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // On individual pages, components are permanently stuck together with no scroll-driven expansion/animation
+  const isDocked = !isHomePage || (isScrolled && !isScrollingUp);
+
   return (
     <>
       <nav
         id="top-navbar"
-        className={`fixed left-0 right-0 z-50 w-full max-w-7xl mx-auto px-4 sm:px-6 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          isScrolled ? "top-3" : "top-6"
-        }`}
+        className={`fixed left-0 right-0 z-50 w-full max-w-7xl mx-auto px-4 sm:px-6 pointer-events-none ${
+          isHomePage ? "transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]" : ""
+        } ${isDocked ? "top-3" : "top-6"}`}
       >
         <div
-          className={`flex items-stretch justify-center transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-            isScrolled ? "gap-2 sm:gap-3" : "gap-5 md:gap-8 lg:gap-12"
-          }`}
+          className={`flex items-stretch justify-center ${
+            isHomePage ? "transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]" : ""
+          } ${isDocked ? "gap-2 sm:gap-3" : "gap-5 md:gap-8 lg:gap-12"}`}
         >
           {/* Left Pill: Logo */}
-          <div className="bg-white rounded-2xl flex items-center shadow-lg border border-black/5 px-5 py-3.5 hover:scale-95 transition-all duration-500 shrink-0">
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className={`pointer-events-auto bg-white rounded-2xl flex items-center shadow-lg border border-black/5 px-5 py-[18px] hover:scale-95 shrink-0 ${
+              isHomePage ? "transition-all duration-500" : ""
+            }`}
+          >
             <Link href="/" className="flex items-center gap-2.5 group whitespace-nowrap">
               <img src="/logo.svg" alt="SkillSync Logo" className="h-7 w-auto object-contain shrink-0" />
               <span className="text-xl font-extrabold text-[#111111] tracking-tight whitespace-nowrap">SkillSync</span>
@@ -52,44 +76,54 @@ export default function Navbar() {
 
           {/* Center Pill: Navigation Links (Desktop) */}
           <div
-            className={`hidden lg:flex items-center bg-white rounded-2xl shadow-lg border border-black/5 px-8 py-3.5 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] shrink-0 ${
-              isScrolled ? "gap-6" : "gap-9"
-            }`}
+            onClick={(e) => e.stopPropagation()}
+            className={`pointer-events-auto hidden lg:flex items-center bg-white rounded-2xl shadow-lg border border-black/5 px-1.5 py-1 shrink-0 ${
+              isHomePage ? "transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]" : ""
+            } ${isDocked ? "gap-1" : "gap-2"}`}
           >
             <Link
               href="/dashboard"
-              className={`text-sm font-bold transition-colors flex items-center gap-2 whitespace-nowrap shrink-0 ${
-                pathname === "/dashboard" ? "text-[#111111]" : "text-[#494D4D] hover:text-[#111111]"
+              className={`text-sm font-bold transition-all duration-500 ease-out px-5 py-[18px] rounded-xl flex items-center gap-2 whitespace-nowrap shrink-0 ${
+                pathname === "/dashboard"
+                  ? "bg-[#D5D5D2] text-[#111111]"
+                  : "text-[#494D4D] hover:text-[#111111] hover:bg-[#E2E2E0]"
               }`}
             >
-              <LayoutDashboard className={`w-4 h-4 shrink-0 ${pathname === "/dashboard" ? "text-emerald-600" : "text-neutral-500"}`} />
+              <LayoutDashboard className={`w-4 h-4 shrink-0 transition-colors duration-500 ${pathname === "/dashboard" ? "text-emerald-600" : "text-neutral-500"}`} />
               <span className="whitespace-nowrap">Dashboard</span>
             </Link>
 
             <Link
               href="/passport"
-              className={`text-sm font-bold transition-colors flex items-center gap-2 whitespace-nowrap shrink-0 ${
-                pathname.startsWith("/passport") ? "text-[#111111]" : "text-[#494D4D] hover:text-[#111111]"
+              className={`text-sm font-bold transition-all duration-500 ease-out px-5 py-[18px] rounded-xl flex items-center gap-2 whitespace-nowrap shrink-0 ${
+                pathname.startsWith("/passport")
+                  ? "bg-[#D5D5D2] text-[#111111]"
+                  : "text-[#494D4D] hover:text-[#111111] hover:bg-[#E2E2E0]"
               }`}
             >
-              <Award className={`w-4 h-4 shrink-0 ${pathname.startsWith("/passport") ? "text-amber-600" : "text-neutral-500"}`} />
+              <Award className={`w-4 h-4 shrink-0 transition-colors duration-500 ${pathname.startsWith("/passport") ? "text-amber-600" : "text-neutral-500"}`} />
               <span className="whitespace-nowrap">Skill Passport</span>
             </Link>
 
             <Link
               href="/opportunities"
-              className={`text-sm font-bold transition-colors flex items-center gap-2 whitespace-nowrap shrink-0 ${
-                pathname.startsWith("/opportunities") ? "text-[#111111]" : "text-[#494D4D] hover:text-[#111111]"
+              className={`text-sm font-bold transition-all duration-500 ease-out px-5 py-[18px] rounded-xl flex items-center gap-2 whitespace-nowrap shrink-0 ${
+                pathname.startsWith("/opportunities")
+                  ? "bg-[#D5D5D2] text-[#111111]"
+                  : "text-[#494D4D] hover:text-[#111111] hover:bg-[#E2E2E0]"
               }`}
             >
-              <Briefcase className={`w-4 h-4 shrink-0 ${pathname.startsWith("/opportunities") ? "text-emerald-600" : "text-neutral-500"}`} />
+              <Briefcase className={`w-4 h-4 shrink-0 transition-colors duration-500 ${pathname.startsWith("/opportunities") ? "text-emerald-600" : "text-neutral-500"}`} />
               <span className="whitespace-nowrap">Opportunities</span>
             </Link>
           </div>
 
           {/* Right Pill: Auth Buttons */}
           <div className="flex items-center gap-2 shrink-0">
-            <div className="hidden sm:flex items-center gap-2 bg-white rounded-2xl shadow-lg border border-black/5 px-3.5 py-3.5 transition-all duration-500 shrink-0">
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="pointer-events-auto hidden sm:flex items-center gap-2 bg-white rounded-2xl shadow-lg border border-black/5 px-3.5 py-[18px] transition-all duration-500 shrink-0"
+            >
               {session?.user ? (
                 <button
                   onClick={() => signOut({ callbackUrl: "/" })}
@@ -119,7 +153,10 @@ export default function Navbar() {
             </div>
 
             {/* Mobile Hamburger Toggle */}
-            <div className="lg:hidden bg-white rounded-2xl shadow-lg border border-black/5 p-1.5 transition-all duration-500 shrink-0">
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="pointer-events-auto lg:hidden bg-white rounded-2xl shadow-lg border border-black/5 p-1.5 transition-all duration-500 shrink-0"
+            >
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="p-2.5 rounded-xl text-[#111111] hover:bg-[#EAEAEA] transition-colors"
@@ -133,7 +170,10 @@ export default function Navbar() {
 
         {/* Mobile Dropdown Drawer */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden mt-2 bg-white border border-black/5 rounded-2xl p-4 shadow-xl flex flex-col gap-2 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="pointer-events-auto lg:hidden mt-2 bg-white border border-black/5 rounded-2xl p-4 shadow-xl flex flex-col gap-2 animate-in fade-in slide-in-from-top-2 duration-200"
+          >
             <Link
               href="/dashboard"
               className="px-4 py-2.5 rounded-xl text-base font-bold text-[#494D4D] hover:text-[#111111] hover:bg-[#F5F5F3]"

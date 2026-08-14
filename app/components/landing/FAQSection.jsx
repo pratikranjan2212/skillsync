@@ -74,23 +74,37 @@ export default function FAQSection() {
               >
                 <button
                   onClick={() => toggle(faq.id)}
-                  className="w-full flex items-center justify-between gap-4 text-left font-bold text-base sm:text-lg text-[#111111] group"
+                  className="w-full flex items-center justify-between gap-4 text-left font-bold text-[17px] sm:text-xl text-[#111111] group"
                 >
                   <span className="leading-snug">{faq.question}</span>
-                  <div className="w-8 h-8 rounded-full bg-neutral-100 group-hover:bg-neutral-200/80 flex items-center justify-center shrink-0 transition-colors">
-                    {isOpen ? (
-                      <X className="w-4 h-4 text-neutral-700 stroke-[2.5]" />
-                    ) : (
-                      <Plus className="w-4 h-4 text-neutral-700 stroke-[2.5]" />
-                    )}
+                  <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-neutral-100 group-hover:bg-neutral-200/80 flex items-center justify-center shrink-0 transition-colors">
+                    <Plus
+                      className={`w-5 h-5 sm:w-6 sm:h-6 text-neutral-700 stroke-[2.5] transition-transform duration-300 ease-in-out ${
+                        isOpen ? "rotate-45" : "rotate-0"
+                      }`}
+                    />
                   </div>
                 </button>
 
-                {isOpen && (
-                  <p className="text-xs sm:text-sm text-[#494D4D] mt-3.5 leading-relaxed font-medium transition-all">
-                    {faq.answer}
-                  </p>
-                )}
+                <div
+                  className={`grid transition-all duration-500 ease-in-out ${
+                    isOpen
+                      ? "grid-rows-[1fr] opacity-100 mt-3.5"
+                      : "grid-rows-[0fr] opacity-0 mt-0"
+                  }`}
+                >
+                  <div className="overflow-hidden">
+                    <p
+                      className={`text-sm sm:text-[15px] text-[#494D4D] leading-relaxed font-medium transition-all duration-500 ease-out transform ${
+                        isOpen
+                          ? "translate-y-0 opacity-100"
+                          : "translate-y-3 opacity-0"
+                      }`}
+                    >
+                      {faq.answer}
+                    </p>
+                  </div>
+                </div>
               </div>
             );
           })}

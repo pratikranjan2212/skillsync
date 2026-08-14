@@ -69,7 +69,7 @@ export default function SmartAssist() {
             href="/opportunities"
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-neutral-900 text-white rounded-2xl font-bold text-xs hover:bg-neutral-800 transition-all hover:scale-95 active:scale-90 shadow-md"
+            className="inline-flex items-center gap-2 px-6.5 py-4.5 bg-neutral-900 text-white rounded-full font-extrabold text-sm hover:bg-neutral-800 transition-all hover:scale-95 active:scale-90 shadow-md"
           >
             <RollingText
               text="Explore Opportunities Feed"
@@ -78,9 +78,9 @@ export default function SmartAssist() {
               rollDuration={0.8}
               staggerDelay={0.02}
               textColor="#FFFFFF"
-              font={{ fontSize: "12px", fontWeight: "700", lineHeight: "1.2em" }}
+              font={{ fontSize: "15px", fontWeight: "800", lineHeight: "1.2em" }}
             />
-            <ArrowRight className="w-4 h-4 text-emerald-400" />
+            <ArrowRight className="w-4.5 h-4.5 text-emerald-400" />
           </Link>
 
         </div>

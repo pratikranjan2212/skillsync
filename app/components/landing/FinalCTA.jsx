@@ -28,7 +28,7 @@ export default function FinalCTA() {
             href="/signup"
             onMouseEnter={() => setHoveredButton("cta1")}
             onMouseLeave={() => setHoveredButton(null)}
-            className="px-8 py-4 bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-sm rounded-3xl shadow-xl transition-all hover:scale-95 active:scale-90 flex items-center gap-2"
+            className="px-8 py-5.5 bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-base rounded-full shadow-xl transition-all hover:scale-95 active:scale-90 flex items-center gap-2.5"
           >
             <RollingText
               text="Create Student Passport — Free"
@@ -37,18 +37,18 @@ export default function FinalCTA() {
               rollDuration={0.4}
               staggerDelay={0.015}
               textColor="#000000"
-              font={{ fontSize: "14px", fontWeight: "800", lineHeight: "1.2em" }}
+              font={{ fontSize: "16px", fontWeight: "800", lineHeight: "1.2em" }}
             />
-            <ArrowRight className="w-4 h-4 stroke-3" />
+            <ArrowRight className="w-4.5 h-4.5 stroke-3" />
           </Link>
 
           <Link
             href="/opportunities"
             onMouseEnter={() => setHoveredButton("cta2")}
             onMouseLeave={() => setHoveredButton(null)}
-            className="px-8 py-4 bg-white/10 hover:bg-white/20 text-white font-bold text-sm rounded-3xl backdrop-blur-md border border-white/15 transition-all hover:scale-95 active:scale-90 flex items-center gap-2"
+            className="px-8 py-5.5 bg-white/10 hover:bg-white/20 text-white font-bold text-base rounded-full backdrop-blur-md border border-white/15 transition-all hover:scale-95 active:scale-90 flex items-center gap-2.5"
           >
-            <Award className="w-4 h-4 text-amber-400" />
+            <Award className="w-4.5 h-4.5 text-amber-400" />
             <RollingText
               text="Browse Ingested Opportunities"
               autoPlay={hoveredButton === "cta2"}
@@ -56,7 +56,7 @@ export default function FinalCTA() {
               rollDuration={0.4}
               staggerDelay={0.015}
               textColor="#FFFFFF"
-              font={{ fontSize: "14px", fontWeight: "700", lineHeight: "1.2em" }}
+              font={{ fontSize: "16px", fontWeight: "700", lineHeight: "1.2em" }}
             />
           </Link>
         </div>

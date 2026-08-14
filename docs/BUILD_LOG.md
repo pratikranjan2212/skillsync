@@ -3,6 +3,99 @@ Running log of every change made to the frontend, in chronological order (newest
 Each entry explains *what* changed and *why*, plus a section-by-section explanation of any new or modified code.
 
 ---
+## [2026-08-14 15:42] Button Border Radius Enhancement
+
+**Files changed:**
+- `app/components/landing/Hero.jsx` (modified)
+- `app/components/landing/FeatureBento.jsx` (modified)
+- `app/components/landing/UseCaseTabs.jsx` (modified)
+- `app/components/landing/SmartAssist.jsx` (modified)
+- `app/components/landing/FinalCTA.jsx` (modified)
+
+**What changed and why:**
+Updated all call-to-action buttons across the landing page components to use fully rounded pill-shaped border radii (`rounded-full`) to match modern design system standards and deliver smooth curvature.
+
+**Code explanation (section by section):**
+`app/components/landing/Hero.jsx`
+- **Hero buttons** — Updated from `rounded-3xl` to `rounded-full`.
+
+`app/components/landing/FeatureBento.jsx`
+- **Passport CTAs** — Updated from `rounded-2xl` to `rounded-full`.
+
+`app/components/landing/UseCaseTabs.jsx`
+- **Use Case CTA** — Updated from `rounded-2xl` to `rounded-full`.
+
+`app/components/landing/SmartAssist.jsx`
+- **Match Engine CTA** — Updated from `rounded-2xl` to `rounded-full`.
+
+`app/components/landing/FinalCTA.jsx`
+- **Bottom Banner CTAs** — Updated from `rounded-3xl` to `rounded-full`.
+
+**Open items / follow-ups:**
+Production build verified cleanly with exit code 0.
+---
+## [2026-08-14 15:40] Button Text Size Enhancement
+
+**Files changed:**
+- `app/components/landing/Hero.jsx` (modified)
+- `app/components/landing/FeatureBento.jsx` (modified)
+- `app/components/landing/UseCaseTabs.jsx` (modified)
+- `app/components/landing/SmartAssist.jsx` (modified)
+- `app/components/landing/FinalCTA.jsx` (modified)
+
+**What changed and why:**
+Increased font sizes and corresponding `RollingText` `fontSize` props across all call-to-action buttons (Hero buttons from `15px` to `17px`, Feature Bento buttons from `text-xs` to `text-sm`, Use Case & SmartAssist buttons from `12px`/`text-xs` to `15px`/`text-sm`, and Final CTA buttons from `14px`/`text-sm` to `16px`/`text-base`) to complement the expanded Y-padding and enhance legibility.
+
+**Code explanation (section by section):**
+`app/components/landing/Hero.jsx`
+- **Hero buttons** — Increased text size to `17px` (`text-[17px]` and `font={{ fontSize: "17px" }}`) and scaled icon sizes to `w-4.5 h-4.5`.
+
+`app/components/landing/FeatureBento.jsx`
+- **Passport CTAs** — Increased text size from `text-xs` to `text-sm` font-extrabold and scaled icon sizes to `w-4.5 h-4.5`.
+
+`app/components/landing/UseCaseTabs.jsx`
+- **Use Case CTA** — Increased text size to `15px`/`text-sm` font-extrabold and scaled icon size to `w-4.5 h-4.5`.
+
+`app/components/landing/SmartAssist.jsx`
+- **Match Engine CTA** — Increased text size to `15px`/`text-sm` font-extrabold and scaled icon size to `w-4.5 h-4.5`.
+
+`app/components/landing/FinalCTA.jsx`
+- **Bottom Banner CTAs** — Increased text size to `16px`/`text-base` and scaled icon sizes to `w-4.5 h-4.5`.
+
+**Open items / follow-ups:**
+Production build verified cleanly with exit code 0.
+---
+## [2026-08-14 15:39] Button Vertical Padding (Y-Padding) Enhancement
+
+**Files changed:**
+- `app/components/landing/Hero.jsx` (modified)
+- `app/components/landing/FeatureBento.jsx` (modified)
+- `app/components/landing/UseCaseTabs.jsx` (modified)
+- `app/components/landing/SmartAssist.jsx` (modified)
+- `app/components/landing/FinalCTA.jsx` (modified)
+
+**What changed and why:**
+Increased vertical padding (`py-5.5` / `py-5` / `py-4.5`) across all primary and secondary call-to-action buttons shown in the target sections (Hero CTAs, Feature Bento action buttons, Use Case focus button, SmartAssist opportunity feed button, and Final CTA section buttons) for improved visual touch target accessibility and premium UI spacing.
+
+**Code explanation (section by section):**
+`app/components/landing/Hero.jsx`
+- **Hero CTAs** — Updated `py-4` to `py-5.5` on "Build Your Passport — Free" and "View Match Explanation" buttons.
+
+`app/components/landing/FeatureBento.jsx`
+- **Passport CTAs** — Updated `py-3.5` to `py-5` on "View Skill Passport View" and "Try Public Share Link" buttons.
+
+`app/components/landing/UseCaseTabs.jsx`
+- **Use Case CTA** — Updated `py-3` to `py-4.5` on "Get Started Now" button.
+
+`app/components/landing/SmartAssist.jsx`
+- **Match Engine CTA** — Updated `py-3` to `py-4.5` on "Explore Opportunities Feed" button.
+
+`app/components/landing/FinalCTA.jsx`
+- **Bottom Banner CTAs** — Updated `py-4` to `py-5.5` on "Create Student Passport — Free" and "Browse Ingested Opportunities" buttons.
+
+**Open items / follow-ups:**
+Production build verified cleanly with exit code 0.
+---
 ## [2026-08-13 22:10] Component Folder Re-Organization & Structure Cleanup
 
 **Files changed:**

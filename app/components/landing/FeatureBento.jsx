@@ -137,17 +137,17 @@ export default function FeatureBento() {
             <div className="flex flex-wrap items-center gap-4">
               <Link
                 href="/passport"
-                className="px-6 py-3.5 rounded-2xl bg-white text-neutral-900 font-extrabold text-xs hover:bg-neutral-200 transition-all hover:scale-95 active:scale-90 flex items-center gap-2 shadow-lg"
+                className="px-6 py-5 rounded-full bg-white text-neutral-900 font-extrabold text-sm hover:bg-neutral-200 transition-all hover:scale-95 active:scale-90 flex items-center gap-2 shadow-lg"
               >
-                <Award className="w-4 h-4 text-amber-600" />
+                <Award className="w-4.5 h-4.5 text-amber-600" />
                 <span>View Skill Passport View</span>
               </Link>
               <Link
                 href="/passport/sp-token-9942a"
-                className="px-6 py-3.5 rounded-2xl bg-white/10 text-white font-bold text-xs hover:bg-white/20 border border-white/15 transition-all hover:scale-95 active:scale-90 flex items-center gap-2"
+                className="px-6 py-5 rounded-full bg-white/10 text-white font-bold text-sm hover:bg-white/20 border border-white/15 transition-all hover:scale-95 active:scale-90 flex items-center gap-2"
               >
                 <span>Try Public Share Link</span>
-                <ExternalLink className="w-3.5 h-3.5 text-emerald-400" />
+                <ExternalLink className="w-4 h-4 text-emerald-400" />
               </Link>
             </div>
           </div>

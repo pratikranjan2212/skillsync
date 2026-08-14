@@ -70,7 +70,7 @@ export default function Hero({ onOpenAppModal, onOpenDemoModal }) {
               href="/signup"
               onMouseEnter={() => setHoveredButton("hero1")}
               onMouseLeave={() => setHoveredButton(null)}
-              className="px-8 py-4 rounded-3xl bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-[15px] shadow-xl transition-all hover:scale-95 active:scale-90 flex items-center gap-2"
+              className="px-8 py-5.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-[17px] shadow-xl transition-all hover:scale-95 active:scale-90 flex items-center gap-2.5"
             >
               <RollingText
                 text="Build Your Passport — Free"
@@ -79,18 +79,18 @@ export default function Hero({ onOpenAppModal, onOpenDemoModal }) {
                 rollDuration={0.4}
                 staggerDelay={0.015}
                 textColor="#000000"
-                font={{ fontSize: "15px", fontWeight: "800", lineHeight: "1.2em" }}
+                font={{ fontSize: "17px", fontWeight: "800", lineHeight: "1.2em" }}
               />
-              <ArrowRight className="w-4 h-4 stroke-3" />
+              <ArrowRight className="w-4.5 h-4.5 stroke-3" />
             </Link>
 
             <Link
               href="/opportunities/opt-1"
               onMouseEnter={() => setHoveredButton("hero2")}
               onMouseLeave={() => setHoveredButton(null)}
-              className="px-8 py-4 rounded-3xl bg-white/10 text-white font-bold text-[15px] shadow-sm backdrop-blur-md border border-white/15 hover:bg-white/20 transition-all hover:scale-95 active:scale-90 flex items-center gap-2.5"
+              className="px-8 py-5.5 rounded-full bg-white/10 text-white font-bold text-[17px] shadow-sm backdrop-blur-md border border-white/15 hover:bg-white/20 transition-all hover:scale-95 active:scale-90 flex items-center gap-2.5"
             >
-              <Sparkles className="w-4 h-4 text-emerald-400" />
+              <Sparkles className="w-4.5 h-4.5 text-emerald-400" />
               <RollingText
                 text="View Match Explanation"
                 autoPlay={hoveredButton === "hero2"}
@@ -98,7 +98,7 @@ export default function Hero({ onOpenAppModal, onOpenDemoModal }) {
                 rollDuration={0.4}
                 staggerDelay={0.015}
                 textColor="#FFFFFF"
-                font={{ fontSize: "15px", fontWeight: "700", lineHeight: "1.2em" }}
+                font={{ fontSize: "17px", fontWeight: "700", lineHeight: "1.2em" }}
               />
             </Link>
           </div>

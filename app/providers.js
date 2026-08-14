@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { SessionProvider } from "next-auth/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
+import ClickSpark from "@/app/components/ui/ClickSpark";
+
 /**
  * Client App Providers Wrapper.
  * Wraps the application with Auth.js SessionProvider and TanStack React Query QueryClientProvider.
@@ -26,7 +28,9 @@ export default function Providers({ children }) {
   return (
     <SessionProvider>
       <QueryClientProvider client={queryClient}>
-        {children}
+        <ClickSpark sparkColor="#111111" sparkRadius={26} sparkSize={16} className="min-h-screen w-full flex flex-col flex-1">
+          {children}
+        </ClickSpark>
       </QueryClientProvider>
     </SessionProvider>
   );
