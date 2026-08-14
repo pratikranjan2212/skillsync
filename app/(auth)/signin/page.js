@@ -46,9 +46,10 @@ export default function SignInPage() {
 
       if (res.ok) {
         document.cookie = `skillsync_session=active-token; path=/;`;
+        document.cookie = `next-auth.session-token=active-token; path=/;`;
         document.cookie = `skillsync_role=${roleType}; path=/;`;
 
-        router.push("/dashboard");
+        window.location.href = "/dashboard";
       } else {
         setErrorMsg("Demo sign in failed.");
       }
@@ -72,9 +73,10 @@ export default function SignInPage() {
 
       if (res.ok) {
         document.cookie = `skillsync_session=active-token; path=/;`;
+        document.cookie = `next-auth.session-token=active-token; path=/;`;
         document.cookie = `skillsync_role=${assignedRole}; path=/;`;
 
-        router.push("/dashboard");
+        window.location.href = "/dashboard";
       } else {
         setErrorMsg("Invalid credentials.");
       }

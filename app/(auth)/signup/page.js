@@ -39,10 +39,11 @@ export default function SignUpPage() {
       });
 
       if (res.ok) {
-        // Set client fallback session cookie
+        // Set client fallback session cookies
         document.cookie = "skillsync_session=active-token; path=/;";
+        document.cookie = "next-auth.session-token=active-token; path=/;";
         document.cookie = "skillsync_role=student; path=/;";
-        router.push("/dashboard");
+        window.location.href = "/dashboard";
       } else {
         setErrorMsg("Registration failed. Please try again.");
       }

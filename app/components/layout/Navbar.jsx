@@ -48,6 +48,51 @@ export default function Navbar() {
   // On individual pages, components are permanently stuck together with no scroll-driven expansion/animation
   const isDocked = !isHomePage || (isScrolled && !isScrollingUp);
 
+  const [hasAuthCookie, setHasAuthCookie] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = () => {
+      const cookies = typeof document !== "undefined" ? document.cookie : "";
+      const hasCookie =
+        cookies.includes("skillsync_session=") ||
+        cookies.includes("next-auth.session-token=");
+      setHasAuthCookie(hasCookie);
+    };
+
+    checkAuth();
+  }, [pathname]);
+
+  const isAuthenticated = Boolean(session?.user || hasAuthCookie);
+
+  const handleSignOut = async (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    try {
+      // Clear all authentication cookies client-side
+      document.cookie = "skillsync_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+      document.cookie = "next-auth.session-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+      document.cookie = "skillsync_role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+      document.cookie = "__Secure-next-auth.session-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+
+      // Clear server-side session cookies
+      await fetch("/api/auth/signout", { method: "POST" }).catch(() => {});
+
+      // Trigger NextAuth signOut
+      try {
+        await signOut({ redirect: false });
+      } catch {
+        // continue
+      }
+
+      // Force full reload and redirect to landing page
+      window.location.href = "/";
+    } catch {
+      window.location.href = "/";
+    }
+  };
+
   return (
     <>
       <nav
@@ -124,10 +169,11 @@ export default function Navbar() {
               onClick={(e) => e.stopPropagation()}
               className="pointer-events-auto hidden sm:flex items-center gap-2 bg-white rounded-2xl shadow-lg border border-black/5 px-3.5 py-[18px] transition-all duration-500 shrink-0"
             >
-              {session?.user ? (
+              {isAuthenticated ? (
                 <button
-                  onClick={() => signOut({ callbackUrl: "/" })}
-                  className="px-4 py-2.5 rounded-xl bg-[#F5F5F3] hover:bg-[#EAEAEA] flex items-center gap-1.5 text-sm font-bold text-[#111111] transition-colors whitespace-nowrap shrink-0"
+                  type="button"
+                  onClick={handleSignOut}
+                  className="px-4 py-2.5 rounded-xl bg-[#F5F5F3] hover:bg-[#EAEAEA] flex items-center gap-1.5 text-sm font-bold text-[#111111] transition-colors whitespace-nowrap shrink-0 cursor-pointer"
                 >
                   <LogOut className="w-4 h-4 shrink-0 text-neutral-600" />
                   <span className="whitespace-nowrap">Sign Out</span>
@@ -193,10 +239,11 @@ export default function Navbar() {
               Opportunities Feed
             </Link>
             <div className="pt-2 border-t border-neutral-100 flex items-center justify-between gap-2">
-              {session?.user ? (
+              {isAuthenticated ? (
                 <button
-                  onClick={() => signOut({ callbackUrl: "/" })}
-                  className="w-full py-2.5 text-center bg-neutral-100 rounded-xl text-sm font-bold text-[#111111]"
+                  type="button"
+                  onClick={handleSignOut}
+                  className="w-full py-2.5 text-center bg-neutral-100 rounded-xl text-sm font-bold text-[#111111] cursor-pointer"
                 >
                   Sign Out
                 </button>
