@@ -109,7 +109,7 @@ export default function Navbar() {
           {/* Left Pill: Logo */}
           <div
             onClick={(e) => e.stopPropagation()}
-            className={`pointer-events-auto bg-white rounded-2xl flex items-center shadow-lg border border-black/5 px-5 py-[18px] hover:scale-95 shrink-0 ${
+            className={`pointer-events-auto bg-white rounded-2xl flex items-center shadow-lg border border-black/5 px-5 py-[18px] shrink-0 ${
               isHomePage ? "transition-all duration-500" : ""
             }`}
           >

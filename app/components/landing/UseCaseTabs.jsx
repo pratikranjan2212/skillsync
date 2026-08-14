@@ -82,22 +82,28 @@ export default function UseCaseTabs() {
             className="absolute inset-0 w-full h-full object-cover object-center transition-all duration-700 ease-out"
           />
 
-          {/* Cinematic Vignette Overlays */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/20 pointer-events-none" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-black/40 pointer-events-none" />
+          {/* Soft Cinematic Ambient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/15 pointer-events-none" />
+          <div className="absolute inset-0 bg-black/10 pointer-events-none" />
 
-          {/* Floating Glassmorphic Stat & Details Card on Right */}
-          <div className="relative z-10 w-full sm:max-w-[400px] md:max-w-[420px] bg-neutral-950/75 backdrop-blur-xl border border-white/15 rounded-2xl sm:rounded-3xl p-6 sm:p-7 text-white shadow-2xl transition-all duration-300 flex flex-col gap-3.5 sm:gap-4">
-            <p className="text-sm sm:text-base md:text-[16px] font-medium text-white/95 leading-relaxed">
+          {/* Floating Frosted Glass Card with Image Blur */}
+          <div 
+            className="relative z-10 w-full sm:max-w-[460px] md:max-w-[490px] bg-black/35 backdrop-blur-md sm:backdrop-blur-xl border border-white/20 rounded-2xl sm:rounded-3xl p-6 sm:p-7 text-white shadow-2xl transition-all duration-300 flex flex-col gap-3.5 sm:gap-4"
+            style={{
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+            }}
+          >
+            <p className="text-sm sm:text-base md:text-[16px] font-medium text-white/95 leading-relaxed drop-shadow-xs">
               {activeTab.title}
             </p>
 
             {/* Metric & Label Row */}
-            <div className="flex items-baseline gap-3">
-              <span className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight">
+            <div className="flex items-baseline gap-3 flex-nowrap">
+              <span className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight whitespace-nowrap drop-shadow-sm">
                 {activeTab.metric}
               </span>
-              <span className="text-xs sm:text-sm md:text-base font-semibold text-white/80">
+              <span className="text-xs sm:text-sm md:text-[15px] font-semibold text-white/90 whitespace-nowrap drop-shadow-xs">
                 {activeTab.metricLabel}
               </span>
             </div>
@@ -110,7 +116,7 @@ export default function UseCaseTabs() {
             href="/signup"
             onMouseEnter={() => setHoveredCta(true)}
             onMouseLeave={() => setHoveredCta(false)}
-            className="inline-flex items-center gap-2.5 px-6 py-3.5 bg-neutral-900 text-white rounded-full font-bold text-sm hover:bg-neutral-800 transition-all hover:scale-95 active:scale-90 shadow-md group border border-black/10"
+            className="inline-flex items-center gap-2.5 px-6 py-3.5 bg-neutral-900 text-white rounded-full font-bold text-sm hover:bg-neutral-800 transition-all hover:scale-95 active:scale-90 shadow-[0_18px_40px_rgba(0,0,0,0.35)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.25)] group border border-black/10"
           >
             <RollingText
               text="Get Started Now"

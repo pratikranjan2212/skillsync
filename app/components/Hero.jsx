@@ -70,7 +70,7 @@ export default function Hero({ onOpenAppModal, onOpenDemoModal }) {
               href="/opportunities/opt-1"
               onMouseEnter={() => setHoveredButton("hero2")}
               onMouseLeave={() => setHoveredButton(null)}
-              className="px-8 py-4 rounded-3xl bg-white/10 text-white font-bold text-[15px] shadow-sm backdrop-blur-md border border-white/15 hover:bg-white/20 transition-all hover:scale-95 active:scale-90 flex items-center gap-2.5"
+              className="px-8 py-4 rounded-3xl bg-white/5 text-white font-bold text-[15px] shadow-sm backdrop-blur-md border border-white/10 hover:bg-white/10 transition-all hover:scale-95 active:scale-90 flex items-center gap-2.5"
             >
               <Sparkles className="w-4 h-4 text-emerald-400" />
               <RollingText

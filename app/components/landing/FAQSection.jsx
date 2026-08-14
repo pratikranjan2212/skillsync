@@ -47,7 +47,7 @@ export default function FAQSection() {
               href="mailto:support@skillsync.dev"
               onMouseEnter={() => setHovered(true)}
               onMouseLeave={() => setHovered(false)}
-              className="px-6 py-3.5 bg-[#111111] hover:bg-black text-white text-xs sm:text-sm font-bold rounded-full shadow-md shadow-black/15 transition-all hover:scale-95 active:scale-90 inline-flex items-center justify-center"
+              className="px-6 py-3.5 bg-[#111111] hover:bg-black text-white text-xs sm:text-sm font-bold rounded-full shadow-[0_18px_40px_rgba(0,0,0,0.35)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.25)] transition-all hover:scale-95 active:scale-90 inline-flex items-center justify-center"
             >
               <RollingText
                 text="Contact us"
