@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Download, FileJson, Share2, Check, Lock, Globe } from "lucide-react";
+import { Download, Share2, Check, Lock, Globe } from "lucide-react";
 import RollingText from "@/app/components/ui/RollingText";
 
 /**
@@ -31,18 +31,6 @@ export default function ShareExportButtons({ passportData, isPublic: initialPubl
     navigator.clipboard.writeText(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
-  };
-
-  const handleExportJson = () => {
-    const jsonString = `data:text/json;charset=utf-8,${encodeURIComponent(
-      JSON.stringify(passportData, null, 2)
-    )}`;
-    const downloadAnchor = document.createElement("a");
-    downloadAnchor.setAttribute("href", jsonString);
-    downloadAnchor.setAttribute("download", `SkillSync_Passport_${passportData?.studentId || "export"}.json`);
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
   };
 
   const handleExportPdf = async () => {
@@ -142,25 +130,6 @@ export default function ShareExportButtons({ passportData, isPublic: initialPubl
           )}
         </button>
       )}
-
-      {/* Export JSON Button */}
-      <button
-        onClick={handleExportJson}
-        onMouseEnter={() => setHovered('json')}
-        onMouseLeave={() => setHovered(null)}
-        className="flex items-center gap-2 px-4 py-2.5 bg-white text-[#111111] hover:bg-neutral-50 border border-black/10 rounded-2xl font-bold text-xs shadow-xs transition-all"
-      >
-        <FileJson className="w-4 h-4 text-amber-600" />
-        <RollingText
-          text="Export JSON"
-          autoPlay={hovered === 'json'}
-          animationTrigger="onAppear"
-          rollDuration={0.4}
-          staggerDelay={0.015}
-          textColor="#111111"
-          font={{ fontSize: '12px', fontWeight: '700', lineHeight: '1.2em' }}
-        />
-      </button>
 
       {/* Export PDF Button */}
       <button

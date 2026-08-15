@@ -3,9 +3,11 @@
 import React, { use } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Sparkles, AlertCircle, Building2, MapPin } from "lucide-react";
+import { ArrowLeft, Sparkles, AlertCircle, Building2, MapPin, ShieldCheck, Layers, FileCheck } from "lucide-react";
 import Navbar from "@/app/components/layout/Navbar";
 import MatchExplanationCard from "@/app/components/opportunities/MatchExplanationCard";
+import AuthRequiredView from "@/app/components/auth/AuthRequiredView";
+import { useAuth } from "@/app/hooks/useAuth";
 
 async function fetchMatchDetail(id) {
   const res = await fetch(`/api/opportunities/${id}`);
@@ -17,10 +19,12 @@ async function fetchMatchDetail(id) {
  * Match Detail Screen - The Demo Centerpiece.
  * Fetches and renders full explanation object including matched evidence citations,
  * missing skills breakdown, and explicit rendering of excludedFromRanking parameters.
+ * Protected: Displays match explanation when signed in, or AuthRequiredView when signed out.
  */
 export default function MatchDetailPage({ params: paramsPromise }) {
   const params = use(paramsPromise);
   const { id } = params;
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
 
   const {
     data,
@@ -30,7 +34,45 @@ export default function MatchDetailPage({ params: paramsPromise }) {
   } = useQuery({
     queryKey: ["match-detail", id],
     queryFn: () => fetchMatchDetail(id),
+    enabled: isAuthenticated,
   });
+
+  if (!authLoading && !isAuthenticated) {
+    return (
+      <div className="h-screen overflow-hidden bg-[#F5F5F3] text-[#111111] flex flex-col justify-start">
+        <Navbar />
+        <main className="max-w-5xl mx-auto px-4 sm:px-6 w-full">
+          <AuthRequiredView
+            badgeText="Explainable Match Verification"
+            badgeIcon={Sparkles}
+            badgeColor="emerald"
+            title="Opportunity Match Detail Access"
+            subtitle="Sign in to inspect full skill match breakdown, verified citations, and demographic audit details for this opportunity."
+            sectionName="Match Explanation"
+            backLink="/opportunities"
+            backText="Back to Opportunities Feed"
+            features={[
+              {
+                icon: ShieldCheck,
+                title: "Transparent Evidence Mapping",
+                desc: "Inspect precisely which verified coursework and projects satisfy each individual job requirement.",
+              },
+              {
+                icon: Layers,
+                title: "Missing Skill Gap Analysis",
+                desc: "Actionable recommendations on skills to acquire to maximize your application match rate.",
+              },
+              {
+                icon: FileCheck,
+                title: "Bias-Free Audit Checklist",
+                desc: "Verified exclusion of sensitive demographic markers from ranking computations.",
+              },
+            ]}
+          />
+        </main>
+      </div>
+    );
+  }
 
   const opportunity = data?.opportunity;
   const explanation = data?.explanation;
