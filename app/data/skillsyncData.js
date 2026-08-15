@@ -139,7 +139,7 @@ export const USE_CASE_TABS = [
     title: "Get matched with public internship listings ranked strictly against verified evidence.",
     metric: "0.95",
     metricLabel: "Top match accuracy",
-    imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1200&auto=format&fit=crop",
+    imageUrl: "/job-seeker.png",
     quote: "Every match recommendation cites the exact project or transcript grade behind it and tells me what skills I'm missing.",
   },
   {
@@ -149,7 +149,7 @@ export const USE_CASE_TABS = [
     title: "Access pre-verified candidates with transparent evidence citations and zero demographic bias.",
     metric: "Zero",
     metricLabel: "Demographic bias",
-    imageUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=1200&auto=format&fit=crop",
+    imageUrl: "/recruiter.jpg",
     quote: "SkillSync's explicit fairness guarantee excludes gender, college tier, name, and photo from ranking models.",
   },
   {
@@ -159,7 +159,7 @@ export const USE_CASE_TABS = [
     title: "Review automated evidence pipelines, override tiers, and monitor real-time fairness audits.",
     metric: "Real-time",
     metricLabel: "Fairness audit logging",
-    imageUrl: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?q=80&w=1200&auto=format&fit=crop",
+    imageUrl: "/admin-auditor.jpg",
     quote: "The admin audit suite lets us inspect score distribution charts and enforce policy compliance effortless.",
   },
 ];
