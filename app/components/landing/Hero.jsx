@@ -194,7 +194,7 @@ export default function Hero({ onOpenAppModal, onOpenDemoModal }) {
                     </div>
                   </div>
                   <span className="px-3 py-1.5 rounded-full bg-emerald-400/15 text-emerald-300 text-[10px] sm:text-[11px] font-extrabold border border-emerald-400/30 whitespace-nowrap">
-                    verified-high (QR-confirmed)
+                    verified-high
                   </span>
                 </div>
 
@@ -210,7 +210,7 @@ export default function Hero({ onOpenAppModal, onOpenDemoModal }) {
                     </div>
                   </div>
                   <span className="px-3 py-1.5 rounded-full bg-amber-400/15 text-amber-300 text-[10px] sm:text-[11px] font-extrabold border border-amber-400/30 whitespace-nowrap">
-                    verified-medium (OCR-parsed)
+                    verified-medium
                   </span>
                 </div>
 
@@ -226,7 +226,7 @@ export default function Hero({ onOpenAppModal, onOpenDemoModal }) {
                     </div>
                   </div>
                   <span className="px-3 py-1.5 rounded-full bg-teal-400/15 text-teal-300 text-[10px] sm:text-[11px] font-extrabold border border-teal-400/30 whitespace-nowrap">
-                    verified-high (API-verified)
+                    verified-high
                   </span>
                 </div>
               </div>

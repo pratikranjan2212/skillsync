@@ -147,9 +147,9 @@ export default function AdminPipelinePage() {
               <label className="block text-xs font-bold text-[#111111] mb-2">Select New Verification Tier</label>
               <div className="flex flex-col gap-2">
                 {[
-                  { value: "verified-high", label: "verified-high (High Confidence / QR)" },
-                  { value: "verified-medium", label: "verified-medium (Medium Confidence / OCR)" },
-                  { value: "flagged-low", label: "flagged-low (Low Confidence / Flagged)" },
+                  { value: "verified-high", label: "verified-high" },
+                  { value: "verified-medium", label: "verified-medium" },
+                  { value: "flagged-low", label: "flagged-low" },
                 ].map((tierOpt) => (
                   <button
                     type="button"

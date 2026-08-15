@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, LayoutDashboard, Award, Briefcase, LogIn, UserPlus, LogOut } from "lucide-react";
+import { Menu, X, LayoutDashboard, Award, Briefcase, LogIn, UserPlus, LogOut, User } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 
 /**
@@ -109,7 +109,7 @@ export default function Navbar() {
           {/* Left Pill: Logo */}
           <div
             onClick={(e) => e.stopPropagation()}
-            className={`pointer-events-auto bg-white rounded-2xl flex items-center shadow-lg border border-black/5 px-5 py-[18px] shrink-0 ${
+            className={`pointer-events-auto bg-white rounded-2xl flex items-center shadow-lg border border-black/5 px-5 py-[18px] hover:scale-95 shrink-0 ${
               isHomePage ? "transition-all duration-500" : ""
             }`}
           >
@@ -170,14 +170,28 @@ export default function Navbar() {
               className="pointer-events-auto hidden sm:flex items-center gap-2 bg-white rounded-2xl shadow-lg border border-black/5 px-3.5 py-[18px] transition-all duration-500 shrink-0"
             >
               {isAuthenticated ? (
-                <button
-                  type="button"
-                  onClick={handleSignOut}
-                  className="px-4 py-2.5 rounded-xl bg-[#F5F5F3] hover:bg-[#EAEAEA] flex items-center gap-1.5 text-sm font-bold text-[#111111] transition-colors whitespace-nowrap shrink-0 cursor-pointer"
-                >
-                  <LogOut className="w-4 h-4 shrink-0 text-neutral-600" />
-                  <span className="whitespace-nowrap">Sign Out</span>
-                </button>
+                <>
+                  <Link
+                    href="/profile"
+                    className={`px-4 py-2.5 rounded-xl flex items-center gap-1.5 text-sm font-bold transition-all whitespace-nowrap shrink-0 ${
+                      pathname === "/profile"
+                        ? "bg-[#D5D5D2] text-[#111111]"
+                        : "bg-[#F5F5F3] hover:bg-[#EAEAEA] text-[#111111]"
+                    }`}
+                  >
+                    <User className={`w-4 h-4 shrink-0 ${pathname === "/profile" ? "text-emerald-600" : "text-neutral-600"}`} />
+                    <span className="whitespace-nowrap">My Profile</span>
+                  </Link>
+
+                  <button
+                    type="button"
+                    onClick={handleSignOut}
+                    className="px-4 py-2.5 rounded-xl bg-[#F5F5F3] hover:bg-[#EAEAEA] flex items-center gap-1.5 text-sm font-bold text-[#111111] transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+                  >
+                    <LogOut className="w-4 h-4 shrink-0 text-neutral-600" />
+                    <span className="whitespace-nowrap">Sign Out</span>
+                  </button>
+                </>
               ) : (
                 <>
                   <Link
@@ -238,15 +252,24 @@ export default function Navbar() {
             >
               Opportunities Feed
             </Link>
-            <div className="pt-2 border-t border-neutral-100 flex items-center justify-between gap-2">
+            <div className="pt-2 border-t border-neutral-100 flex flex-col gap-2">
               {isAuthenticated ? (
-                <button
-                  type="button"
-                  onClick={handleSignOut}
-                  className="w-full py-2.5 text-center bg-neutral-100 rounded-xl text-sm font-bold text-[#111111] cursor-pointer"
-                >
-                  Sign Out
-                </button>
+                <>
+                  <Link
+                    href="/profile"
+                    className="w-full py-2.5 text-center bg-neutral-900 text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2"
+                  >
+                    <User className="w-4 h-4 text-emerald-400" />
+                    <span>My Profile</span>
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={handleSignOut}
+                    className="w-full py-2.5 text-center bg-neutral-100 rounded-xl text-sm font-bold text-[#111111] cursor-pointer"
+                  >
+                    Sign Out
+                  </button>
+                </>
               ) : (
                 <>
                   <Link href="/signin" className="w-full py-2.5 text-center bg-neutral-100 rounded-xl text-sm font-bold text-[#111111]">

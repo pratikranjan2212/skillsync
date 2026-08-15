@@ -105,11 +105,11 @@ export default function FeatureBento() {
                   <div className="space-y-2 text-xs" data-spark-color="#ffffff">
                     <div className="p-2.5 bg-white/5 rounded-xl border border-white/10 flex items-center gap-2" data-spark-color="#ffffff">
                       <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                      <span>Python: 'Data Pipeline Project' — verified-high (QR-confirmed)</span>
+                      <span>Python: 'Data Pipeline Project' — verified-high</span>
                     </div>
                     <div className="p-2.5 bg-white/5 rounded-xl border border-white/10 flex items-center gap-2" data-spark-color="#ffffff">
                       <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                      <span>SQL: DBMS coursework, 92% — verified-medium (OCR-parsed)</span>
+                      <span>SQL: DBMS coursework, 92% — verified-medium</span>
                     </div>
                   </div>
 

@@ -118,41 +118,42 @@ export default function UseCaseTabs() {
             </div>
           </FadeIn>
 
-          {/* CTA Button placed below the hero card */}
-          <FadeIn delay={0.05} distance={14} duration={0.35}>
-            <div className="flex justify-center mt-8 sm:mt-10">
-              <Link
-                href="/signup"
-                onMouseEnter={() => setHoveredCta(true)}
-                onMouseLeave={() => setHoveredCta(false)}
-                className="inline-flex items-center gap-2.5 px-6 py-3.5 bg-neutral-900 text-white rounded-full font-bold text-sm hover:bg-neutral-800 transition-all hover:scale-95 active:scale-90 shadow-[0_18px_40px_rgba(0,0,0,0.35)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.25)] group border border-black/10"
-              >
-                <RollingText
-                  text="Get Started Now"
-                  autoPlay={hoveredCta}
-                  animationTrigger="onAppear"
-                  rollDuration={0.4}
-                  staggerDelay={0.015}
-                  textColor="#FFFFFF"
-                  font={{ fontSize: '14px', fontWeight: '800', lineHeight: '1.2em' }}
-                />
-                <ArrowRight className="w-4 h-4 text-emerald-400 transition-transform group-hover:translate-x-0.5" />
-              </Link>
-            </div>
-          </FadeIn>
+          {/* Bottom Action & Hashtags Section - CTA button and subtext appear at once together */}
+          <FadeIn delay={0.06} distance={14} duration={0.35}>
+            <div>
+              {/* CTA Button placed below the hero card */}
+              <div className="flex justify-center mt-8 sm:mt-10">
+                <Link
+                  href="/signup"
+                  onMouseEnter={() => setHoveredCta(true)}
+                  onMouseLeave={() => setHoveredCta(false)}
+                  className="inline-flex items-center gap-2.5 px-6 py-3.5 bg-neutral-900 text-white rounded-full font-bold text-sm hover:bg-neutral-800 transition-all hover:scale-95 active:scale-90 shadow-[0_18px_40px_rgba(0,0,0,0.35)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.25)] group border border-black/10"
+                >
+                  <RollingText
+                    text="Get Started Now"
+                    autoPlay={hoveredCta}
+                    animationTrigger="onAppear"
+                    rollDuration={0.4}
+                    staggerDelay={0.015}
+                    textColor="#FFFFFF"
+                    font={{ fontSize: '14px', fontWeight: '800', lineHeight: '1.2em' }}
+                  />
+                  <ArrowRight className="w-4 h-4 text-emerald-400 transition-transform group-hover:translate-x-0.5" />
+                </Link>
+              </div>
 
-          {/* Bottom Hashtags Section */}
-          <FadeIn delay={0.1} distance={12} duration={0.35}>
-            <div className="text-center mt-6 sm:mt-8">
-              <p className="text-xs sm:text-sm text-neutral-500 font-medium mb-2.5">
-                And for every kind of daily rhythm
-              </p>
-              <div className="flex flex-wrap items-center justify-center gap-x-4 sm:gap-x-6 gap-y-2 text-xs sm:text-sm text-neutral-600 font-medium">
-                {AUDIENCE_TAGS.map((tag) => (
-                  <span key={tag} className="hover:text-neutral-950 transition-colors cursor-default">
-                    {tag.toLowerCase()}
-                  </span>
-                ))}
+              {/* Bottom Hashtags Section */}
+              <div className="text-center mt-6 sm:mt-8">
+                <p className="text-xs sm:text-sm text-neutral-500 font-medium mb-2.5">
+                  And for every kind of daily rhythm
+                </p>
+                <div className="flex flex-wrap items-center justify-center gap-x-4 sm:gap-x-6 gap-y-2 text-xs sm:text-sm text-neutral-600 font-medium">
+                  {AUDIENCE_TAGS.map((tag) => (
+                    <span key={tag} className="hover:text-neutral-950 transition-colors cursor-default">
+                      {tag.toLowerCase()}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
           </FadeIn>

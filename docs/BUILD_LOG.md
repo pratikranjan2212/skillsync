@@ -3,6 +3,57 @@ Running log of every change made to the frontend, in chronological order (newest
 Each entry explains *what* changed and *why*, plus a section-by-section explanation of any new or modified code.
 
 ---
+## [2026-08-15 22:50] Synchronized UseCaseTabs "Get Started Now" Button & Bottom Subtext Animation
+
+**Files changed:**
+- `app/components/landing/UseCaseTabs.jsx` (modified)
+
+**What changed and why:**
+Synchronized the entrance animation of the "Get Started Now" CTA button and the bottom subtext ("And for every kind of daily rhythm") with audience tags so that they both glide into view simultaneously all at once instead of in sequential steps.
+
+**Code explanation (section by section):**
+`app/components/landing/UseCaseTabs.jsx`
+- **Simultaneous Action & Rhythm Subtext Entrance** — Combined the standalone CTA button and the bottom hashtags subtext container under a single `<FadeIn delay={0.06} distance={14} duration={0.35}>`. Both elements now smoothly appear together at the exact same moment.
+
+**Open items / follow-ups:**
+Production build verified with exit code 0.
+
+## [2026-08-15 22:48] Synchronized SmartAssist 4 Feature Cards & Action Bar Entrance Animation
+
+**Files changed:**
+- `app/components/landing/SmartAssist.jsx` (modified)
+
+**What changed and why:**
+Configured the 4 feature cards and the bottom opportunities feed action bar (subtext and CTA button) to animate in simultaneously all at once rather than cascading one after another sequentially.
+
+**Code explanation (section by section):**
+`app/components/landing/SmartAssist.jsx`
+- **Simultaneous Group Entrance** — Replaced `FadeInStagger` / `FadeInItem` with a synchronized `<FadeIn delay={0.06} distance={18} duration={0.45}>` across the feature cards grid and matching `<FadeIn delay={0.06} distance={18} duration={0.45}>` on the bottom action bar. All 4 cards and the bottom action bar now enter smoothly together at the exact same moment.
+
+**Open items / follow-ups:**
+Production build verified with exit code 0.
+
+## [2026-08-15 22:46] Harmonized SmartAssist "Match Engine Architecture" Card Animations & Aesthetic
+
+**Files changed:**
+- `app/components/landing/SmartAssist.jsx` (modified)
+- `app/data/skillsyncData.js` (modified)
+
+**What changed and why:**
+Harmonized the entrance and hover animations of the "Our Match Engine Architecture" section with the rest of the application's design system. Removed the jarring raw `scale: 0.97` pop-in and non-terminating viewport re-triggers, standardizing to the site's unified `<FadeIn>` scroll reveal system (`[0.16, 1, 0.3, 1]` ease, `once: true`). Refined the 4 feature cards' hover dynamics from bouncy jumps and saturated neon glows to subtle, premium lifts (`hover:-translate-y-1`), clean borders, and soft ambient shadow elevations.
+
+**Code explanation (section by section):**
+`app/components/landing/SmartAssist.jsx`
+- **Standardized Scroll Reveal** — Wrapped the outer container in `<FadeIn distance={24} duration={0.55}>` and staggered child cards using `<FadeInStagger>` and `<FadeInItem>` instead of custom scaled `motion.div`.
+- **Refined Card Surfaces & Micro-interactions** — Cards now use `bg-[#F8F9FA] hover:bg-white`, subtle `hover:-translate-y-1`, soft ambient elevation `hover:shadow-xl hover:shadow-black/5`, and subtle icon scale `group-hover:scale-105` (replacing the previous rotate/tilt).
+- **Responsive CTA RollingText** — Aligned the opportunities feed button's `RollingText` transition (`rollDuration={0.4}`, `staggerDelay={0.015}`) with the rest of the landing page action buttons.
+
+`app/data/skillsyncData.js`
+- **Soft Ambient Shadows** — Cleaned up `SMART_ASSIST_CARDS` definitions by replacing harsh `shadow-[...0.85]` and `border-b-[5px]` styling with clean `shadow-md` and `hover:border-.../30` accents.
+
+**Open items / follow-ups:**
+Production build verified with exit code 0.
+
 ## [2026-08-15 15:00] Accelerated Entry Animations for Hero Header, SmartAssist Action Bar, and FinalCTA Banner
 
 **Files changed:**
