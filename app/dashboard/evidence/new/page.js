@@ -162,7 +162,7 @@ export default function AddEvidencePage() {
       <Navbar />
 
       <main className="max-w-2xl mx-auto px-4">
-        <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-xl border border-black/5 flex flex-col gap-6">
+        <div className="bg-white rounded-4xl p-6 sm:p-8 shadow-xl border border-black/5 flex flex-col gap-6">
           {/* Header */}
           <div>
             <span className="inline-flex items-center gap-1.5 px-3.5 py-1 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-full border border-emerald-200">
@@ -218,7 +218,10 @@ export default function AddEvidencePage() {
 
             {/* Description */}
             <div>
-              <label className="block text-xs font-bold text-[#111111] mb-1.5">Description & Key Highlights</label>
+              <label className="text-xs font-bold text-[#111111] mb-1.5 flex items-center justify-between">
+                <span>Description & Key Highlights</span>
+                <span className="text-[10px] text-neutral-400 font-normal">Optional</span>
+              </label>
               <textarea
                 rows={3}
                 placeholder="Detail what you built, coursework topics, grades, or technologies used..."

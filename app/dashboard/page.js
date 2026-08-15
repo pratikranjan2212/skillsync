@@ -237,7 +237,7 @@ export default function UnifiedDashboardPage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col gap-8">
         {/* Main Dashboard Header */}
-        <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-md border border-black/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="bg-white rounded-4xl p-6 sm:p-8 shadow-md border border-black/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div>
             <div className="flex items-center gap-2">
               <span className="px-3.5 py-1 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-full border border-emerald-200">
@@ -265,7 +265,7 @@ export default function UnifiedDashboardPage() {
         </div>
 
         {/* Dashboard Navigation Tabs */}
-        <div className="bg-white rounded-[24px] p-2 shadow-md border border-black/5 flex items-center justify-between gap-2 overflow-x-auto">
+        <div className="bg-white rounded-3xl p-2 shadow-md border border-black/5 flex items-center justify-between gap-2 overflow-x-auto">
           <div className="flex items-center gap-1 min-w-max">
             {[
               { id: "evidence", label: "Evidence Records", icon: FileCheck, count: evidenceList.length },
@@ -308,7 +308,7 @@ export default function UnifiedDashboardPage() {
           <div className="flex flex-col gap-6">
             {/* Verification Tier Summary Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="bg-white rounded-[24px] p-5 shadow-xs border border-black/5 flex items-center justify-between">
+              <div className="bg-white rounded-3xl p-5 shadow-xs border border-black/5 flex items-center justify-between">
                 <div>
                   <div className="text-xs font-bold uppercase tracking-wider text-[#494D4D]">Verified High Tier</div>
                   <div className="text-2xl font-extrabold text-emerald-700 mt-1">{highCount} Items</div>
@@ -318,7 +318,7 @@ export default function UnifiedDashboardPage() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-[24px] p-5 shadow-xs border border-black/5 flex items-center justify-between">
+              <div className="bg-white rounded-3xl p-5 shadow-xs border border-black/5 flex items-center justify-between">
                 <div>
                   <div className="text-xs font-bold uppercase tracking-wider text-[#494D4D]">Verified Medium Tier</div>
                   <div className="text-2xl font-extrabold text-amber-700 mt-1">{medCount} Items</div>
@@ -328,7 +328,7 @@ export default function UnifiedDashboardPage() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-[24px] p-5 shadow-xs border border-black/5 flex items-center justify-between">
+              <div className="bg-white rounded-3xl p-5 shadow-xs border border-black/5 flex items-center justify-between">
                 <div>
                   <div className="text-xs font-bold uppercase tracking-wider text-[#494D4D]">Flagged Low Tier</div>
                   <div className="text-2xl font-extrabold text-rose-700 mt-1">{lowCount} Items</div>
@@ -355,7 +355,7 @@ export default function UnifiedDashboardPage() {
 
             {/* Evidence Grid */}
             {evidenceList.length === 0 ? (
-              <div className="bg-white rounded-[32px] p-12 text-center border border-black/5 shadow-sm flex flex-col items-center gap-4">
+              <div className="bg-white rounded-4xl p-12 text-center border border-black/5 shadow-sm flex flex-col items-center gap-4">
                 <FilePlus2 className="w-10 h-10 text-neutral-300" />
                 <h3 className="text-xl font-bold text-[#111111]">No Evidence Uploaded Yet</h3>
                 <Link
@@ -378,7 +378,7 @@ export default function UnifiedDashboardPage() {
         {/* ==================== TAB 2: SKILL PASSPORT ==================== */}
         {activeTab === "passport" && passport && (
           <div className="flex flex-col gap-6">
-            <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-md border border-black/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div className="bg-white rounded-4xl p-6 sm:p-8 shadow-md border border-black/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
               <div>
                 <span className="px-3.5 py-1 bg-amber-50 text-amber-800 text-xs font-bold rounded-full border border-amber-200">
                   Verified Skill Passport
@@ -399,7 +399,7 @@ export default function UnifiedDashboardPage() {
               {passport.skills.map((skillItem) => (
                 <div
                   key={skillItem.skillId}
-                  className="bg-white rounded-[28px] p-6 shadow-sm border border-black/5 flex flex-col justify-between gap-4"
+                  className="bg-white rounded-3xl p-6 shadow-sm border border-black/5 flex flex-col justify-between gap-4"
                 >
                   <div>
                     <span className="px-3 py-1 bg-[#F5F5F3] text-[#494D4D] text-[11px] font-bold uppercase tracking-wider rounded-xl border border-black/5">
@@ -435,7 +435,7 @@ export default function UnifiedDashboardPage() {
         {activeTab === "opportunities" && (
           <div className="flex flex-col gap-6">
             {/* Filter Bar */}
-            <div className="bg-white rounded-[24px] p-4 shadow-sm border border-black/5 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="bg-white rounded-3xl p-4 shadow-sm border border-black/5 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="relative w-full sm:w-80">
                 <Search className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3.5" />
                 <input
@@ -481,7 +481,7 @@ export default function UnifiedDashboardPage() {
         {activeTab === "governance" && (
           <div className="flex flex-col gap-8">
             {/* Explicit Fairness Guarantee Callout */}
-            <div className="bg-gradient-to-r from-neutral-900 via-slate-900 to-neutral-900 text-white rounded-[32px] p-6 sm:p-8 shadow-xl border border-slate-800 flex flex-col gap-4" data-spark-color="#ffffff">
+            <div className="bg-linear-to-r from-neutral-900 via-slate-900 to-neutral-900 text-white rounded-4xl p-6 sm:p-8 shadow-xl border border-slate-800 flex flex-col gap-4" data-spark-color="#ffffff">
               <div className="flex items-center justify-between gap-3" data-spark-color="#ffffff">
                 <div className="flex items-center gap-3" data-spark-color="#ffffff">
                   <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30" data-spark-color="#ffffff">
@@ -517,7 +517,7 @@ export default function UnifiedDashboardPage() {
             </div>
 
             {/* Recharts Score Distribution Chart */}
-            <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-md border border-black/5 flex flex-col gap-4">
+            <div className="bg-white rounded-4xl p-6 sm:p-8 shadow-md border border-black/5 flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-bold text-[#111111] flex items-center gap-2">
@@ -550,7 +550,7 @@ export default function UnifiedDashboardPage() {
             </div>
 
             {/* Pipeline Audit Log Table */}
-            <div className="bg-white rounded-[32px] p-6 shadow-md border border-black/5 overflow-x-auto">
+            <div className="bg-white rounded-4xl p-6 shadow-md border border-black/5 overflow-x-auto">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-[#111111] flex items-center gap-2">
                   <ListFilter className="w-5 h-5 text-emerald-600" />
@@ -558,7 +558,7 @@ export default function UnifiedDashboardPage() {
                 </h3>
               </div>
 
-              <table className="w-full text-left border-collapse min-w-[700px]">
+              <table className="w-full text-left border-collapse min-w-175">
                 <thead>
                   <tr className="border-b border-neutral-200 text-[11px] font-bold uppercase tracking-wider text-[#494D4D]">
                     <th className="pb-3 px-3">Student ID</th>
@@ -601,7 +601,7 @@ export default function UnifiedDashboardPage() {
             </div>
 
             {/* Skill Taxonomy Manager */}
-            <div className="bg-white rounded-[32px] p-6 shadow-md border border-black/5 flex flex-col gap-4">
+            <div className="bg-white rounded-4xl p-6 shadow-md border border-black/5 flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-bold text-[#111111] flex items-center gap-2">
@@ -639,7 +639,7 @@ export default function UnifiedDashboardPage() {
         {/* Manual Tier Override Modal */}
         {overrideModalItem && (
           <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white rounded-[32px] p-6 max-w-md w-full border border-black/5 shadow-2xl flex flex-col gap-5">
+            <div className="bg-white rounded-4xl p-6 max-w-md w-full border border-black/5 shadow-2xl flex flex-col gap-5">
               <div>
                 <h3 className="text-xl font-extrabold text-[#111111]">Manual Tier Override</h3>
                 <p className="text-xs text-[#494D4D] mt-1">{overrideModalItem.title}</p>
