@@ -125,7 +125,7 @@ export default function MatchDetailPage({ params: paramsPromise }) {
 
         {/* Loading State */}
         {isLoading && (
-          <div className="bg-white rounded-[32px] p-12 text-center border border-black/5 flex flex-col items-center gap-3 animate-pulse">
+          <div className="bg-white rounded-4xl p-12 text-center border border-black/5 flex flex-col items-center gap-3 animate-pulse">
             <div className="w-8 h-8 rounded-full bg-emerald-200 animate-spin"></div>
             <p className="text-xs font-bold text-neutral-500">Computing Explainable Match Detail...</p>
           </div>

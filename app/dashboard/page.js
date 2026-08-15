@@ -675,7 +675,7 @@ export default function UnifiedDashboardPage() {
         {/* Add Skill Modal */}
         {isAddSkillOpen && (
           <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white rounded-[32px] p-6 max-w-md w-full border border-black/5 shadow-2xl flex flex-col gap-4">
+            <div className="bg-white rounded-4xl p-6 max-w-md w-full border border-black/5 shadow-2xl flex flex-col gap-4">
               <h3 className="text-xl font-extrabold text-[#111111]">Add Skill to Taxonomy</h3>
               <form onSubmit={submitSkill(handleAddSkill)} className="flex flex-col gap-3">
                 <input
