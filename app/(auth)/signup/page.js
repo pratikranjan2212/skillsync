@@ -87,7 +87,7 @@ export default function SignUpPage() {
       <Navbar />
 
       <main className="max-w-lg mx-auto px-6 sm:px-8 pt-2 sm:pt-4 pb-12 w-full">
-        <div className="bg-white rounded-[32px] px-8 sm:px-10 py-8 shadow-xl border border-black/5 flex flex-col gap-6">
+        <div className="bg-white rounded-4xl px-8 sm:px-10 py-8 shadow-xl border border-black/5 flex flex-col gap-6">
           <div className="text-center">
             <span className="inline-flex items-center gap-1.5 px-3.5 py-1 bg-emerald-50 text-emerald-800 text-sm font-bold rounded-full border border-emerald-200">
               <Sparkles className="w-4 h-4" />

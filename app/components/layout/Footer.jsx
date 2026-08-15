@@ -73,7 +73,7 @@ export default function Footer() {
                       <span>{link.name}</span>
                       <span
                         aria-hidden="true"
-                        className="absolute left-0 -bottom-[1px] w-full h-[1.5px] bg-neutral-900 origin-left scale-x-0 transition-transform duration-300 ease-out group-hover:scale-x-100 group-active:scale-x-100 group-focus-visible:scale-x-100"
+                        className="absolute left-0 -bottom-px w-full h-[1.5px] bg-neutral-900 origin-left scale-x-0 transition-transform duration-300 ease-out group-hover:scale-x-100 group-active:scale-x-100 group-focus-visible:scale-x-100"
                       />
                     </Link>
                   </li>
@@ -96,7 +96,7 @@ export default function Footer() {
                       <span>{link.name}</span>
                       <span
                         aria-hidden="true"
-                        className="absolute left-0 -bottom-[1px] w-full h-[1.5px] bg-neutral-900 origin-left scale-x-0 transition-transform duration-300 ease-out group-hover:scale-x-100 group-active:scale-x-100 group-focus-visible:scale-x-100"
+                        className="absolute left-0 -bottom-px w-full h-[1.5px] bg-neutral-900 origin-left scale-x-0 transition-transform duration-300 ease-out group-hover:scale-x-100 group-active:scale-x-100 group-focus-visible:scale-x-100"
                       />
                     </Link>
                   </li>
@@ -119,7 +119,7 @@ export default function Footer() {
                       <span>{link.name}</span>
                       <span
                         aria-hidden="true"
-                        className="absolute left-0 -bottom-[1px] w-full h-[1.5px] bg-neutral-900 origin-left scale-x-0 transition-transform duration-300 ease-out group-hover:scale-x-100 group-active:scale-x-100 group-focus-visible:scale-x-100"
+                        className="absolute left-0 -bottom-px w-full h-[1.5px] bg-neutral-900 origin-left scale-x-0 transition-transform duration-300 ease-out group-hover:scale-x-100 group-active:scale-x-100 group-focus-visible:scale-x-100"
                       />
                     </Link>
                   </li>

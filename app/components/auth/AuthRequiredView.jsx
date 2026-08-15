@@ -102,7 +102,7 @@ export default function AuthRequiredView({
       )}
 
       {/* Main Hero Card */}
-      <div className="bg-white rounded-[32px] p-6 sm:p-10 shadow-md border border-black/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+      <div className="bg-white rounded-4xl p-6 sm:p-10 shadow-md border border-black/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
         <div className="max-w-2xl">
           <div className="flex items-center gap-2">
             <span className={`px-3.5 py-1 text-xs font-bold rounded-full border inline-flex items-center gap-1.5 ${badgeColorClasses}`}>

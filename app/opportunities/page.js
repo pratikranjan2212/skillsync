@@ -92,7 +92,7 @@ export default function OpportunityFeedPage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col gap-8">
         {/* Banner */}
-        <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-md border border-black/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="bg-white rounded-4xl p-6 sm:p-8 shadow-md border border-black/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div>
             <span className="px-3.5 py-1 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-full border border-emerald-200 inline-flex items-center gap-1.5">
               <Briefcase className="w-3.5 h-3.5 text-emerald-600" />
@@ -116,7 +116,7 @@ export default function OpportunityFeedPage() {
         </div>
 
         {/* Filter Bar */}
-        <div className="bg-white rounded-[24px] p-4 shadow-sm border border-black/5 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="bg-white rounded-3xl p-4 shadow-sm border border-black/5 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="relative w-full sm:w-80">
             <Search className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3.5" />
             <input

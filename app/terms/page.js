@@ -13,7 +13,7 @@ export default function TermsAndConditionsPage() {
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 w-full flex-1">
         {/* Header Card */}
-        <div className="bg-white rounded-[32px] p-6 sm:p-10 shadow-md border border-black/5 flex flex-col gap-4 mb-8">
+        <div className="bg-white rounded-4xl p-6 sm:p-10 shadow-md border border-black/5 flex flex-col gap-4 mb-8">
           <div className="flex items-center gap-2">
             <span className="px-3.5 py-1 bg-amber-50 text-amber-800 text-xs font-bold rounded-full border border-amber-200 inline-flex items-center gap-1.5">
               <Scale className="w-3.5 h-3.5 text-amber-600" />
@@ -32,7 +32,7 @@ export default function TermsAndConditionsPage() {
         </div>
 
         {/* Academic Integrity Callout */}
-        <div className="bg-rose-50 border border-rose-200 rounded-[32px] p-6 sm:p-8 text-rose-900 flex flex-col gap-3 mb-8">
+        <div className="bg-rose-50 border border-rose-200 rounded-4xl p-6 sm:p-8 text-rose-900 flex flex-col gap-3 mb-8">
           <div className="flex items-center gap-2.5">
             <ShieldAlert className="w-5 h-5 text-rose-600 shrink-0" />
             <h2 className="text-base font-bold text-rose-950">Academic Integrity & Anti-Forgery Standard</h2>
@@ -43,7 +43,7 @@ export default function TermsAndConditionsPage() {
         </div>
 
         {/* Terms Sections */}
-        <div className="bg-white rounded-[32px] p-6 sm:p-10 shadow-sm border border-black/5 space-y-8">
+        <div className="bg-white rounded-4xl p-6 sm:p-10 shadow-sm border border-black/5 space-y-8">
           {/* Section 1 */}
           <section className="space-y-3">
             <h2 className="text-xl font-bold text-[#111111] flex items-center gap-2">
