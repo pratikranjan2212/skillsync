@@ -126,20 +126,20 @@ export default function MatchExplanationCard({ explanation, externalUrl }) {
       </div>
 
       {/* 3. Explicit Fairness Guarantee Exclusion List (Demo Requirement) */}
-      <div className="bg-gradient-to-br from-slate-900 to-neutral-900 text-white rounded-2xl p-6 shadow-lg border border-slate-800 flex flex-col gap-4">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
+      <div className="bg-gradient-to-br from-slate-900 to-neutral-900 text-white rounded-2xl p-6 shadow-lg border border-slate-800 flex flex-col gap-4" data-spark-color="#ffffff">
+        <div className="flex items-center justify-between gap-3" data-spark-color="#ffffff">
+          <div className="flex items-center gap-2.5" data-spark-color="#ffffff">
+            <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30" data-spark-color="#ffffff">
               <Scale className="w-5 h-5" />
             </div>
-            <div>
-              <h4 className="text-base font-bold text-white flex items-center gap-2">
+            <div data-spark-color="#ffffff">
+              <h4 className="text-base font-bold text-white flex items-center gap-2" data-spark-color="#ffffff">
                 <span>Fairness Guarantee</span>
-                <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 text-[10px] uppercase font-mono tracking-wider rounded-md border border-emerald-500/30">
+                <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 text-[10px] uppercase font-mono tracking-wider rounded-md border border-emerald-500/30" data-spark-color="#ffffff">
                   VERIFIED AUDIT
                 </span>
               </h4>
-              <p className="text-xs text-slate-300">
+              <p className="text-xs text-slate-300" data-spark-color="#ffffff">
                 The following candidate demographic attributes were explicitly excluded from the ranking model:
               </p>
             </div>
@@ -148,10 +148,11 @@ export default function MatchExplanationCard({ explanation, externalUrl }) {
         </div>
 
         {/* Excluded Attributes Badges */}
-        <div className="flex flex-wrap gap-2 pt-1">
+        <div className="flex flex-wrap gap-2 pt-1" data-spark-color="#ffffff">
           {excludedFromRanking.map((attr, index) => (
             <div
               key={index}
+              data-spark-color="#ffffff"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 text-slate-200 rounded-xl text-xs font-mono border border-white/10 hover:bg-white/15 transition-colors"
             >
               <span className="w-1.5 h-1.5 rounded-full bg-rose-400"></span>

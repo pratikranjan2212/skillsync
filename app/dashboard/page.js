@@ -436,30 +436,31 @@ export default function UnifiedDashboardPage() {
         {activeTab === "governance" && (
           <div className="flex flex-col gap-8">
             {/* Explicit Fairness Guarantee Callout */}
-            <div className="bg-gradient-to-r from-neutral-900 via-slate-900 to-neutral-900 text-white rounded-[32px] p-6 sm:p-8 shadow-xl border border-slate-800 flex flex-col gap-4">
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
+            <div className="bg-gradient-to-r from-neutral-900 via-slate-900 to-neutral-900 text-white rounded-[32px] p-6 sm:p-8 shadow-xl border border-slate-800 flex flex-col gap-4" data-spark-color="#ffffff">
+              <div className="flex items-center justify-between gap-3" data-spark-color="#ffffff">
+                <div className="flex items-center gap-3" data-spark-color="#ffffff">
+                  <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30" data-spark-color="#ffffff">
                     <ShieldCheck className="w-6 h-6" />
                   </div>
-                  <div>
-                    <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                  <div data-spark-color="#ffffff">
+                    <h2 className="text-lg font-bold text-white flex items-center gap-2" data-spark-color="#ffffff">
                       <span>Explicit Model Parameter Exclusion List</span>
-                      <span className="px-2.5 py-0.5 bg-emerald-500/20 text-emerald-300 text-[10px] uppercase font-mono tracking-wider rounded-md border border-emerald-500/30">
+                      <span className="px-2.5 py-0.5 bg-emerald-500/20 text-emerald-300 text-[10px] uppercase font-mono tracking-wider rounded-md border border-emerald-500/30" data-spark-color="#ffffff">
                         VERIFIED AUDIT ENFORCED
                       </span>
                     </h2>
-                    <p className="text-xs text-slate-300">
+                    <p className="text-xs text-slate-300" data-spark-color="#ffffff">
                       The following candidate attributes are explicitly stripped from ranking models:
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-2.5 pt-1">
+              <div className="flex flex-wrap gap-2.5 pt-1" data-spark-color="#ffffff">
                 {excludedParameters.map((param, idx) => (
                   <div
                     key={idx}
+                    data-spark-color="#ffffff"
                     className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 text-slate-100 rounded-2xl text-xs font-mono font-bold border border-white/10"
                   >
                     <span className="w-2 h-2 rounded-full bg-rose-400"></span>

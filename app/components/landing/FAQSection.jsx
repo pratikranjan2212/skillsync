@@ -162,7 +162,7 @@ export default function FAQSection() {
               href="mailto:support@skillsync.dev"
               onMouseEnter={() => setHovered(true)}
               onMouseLeave={() => setHovered(false)}
-              className="px-6 py-3.5 bg-[#111111] hover:bg-black text-white text-xs sm:text-sm font-bold rounded-full shadow-md shadow-black/15 transition-all hover:scale-95 active:scale-90 inline-flex items-center justify-center"
+              className="px-6 py-3.5 bg-[#111111] hover:bg-black text-white text-xs sm:text-sm font-bold rounded-full shadow-[0_18px_40px_rgba(0,0,0,0.35)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.25)] transition-all hover:scale-95 active:scale-90 inline-flex items-center justify-center"
             >
               <RollingText
                 text="Contact us"
@@ -194,7 +194,7 @@ export default function FAQSection() {
                   <span className="leading-snug">{faq.question}</span>
                   <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-neutral-100 group-hover:bg-neutral-200/80 flex items-center justify-center shrink-0 transition-colors">
                     <Plus
-                      className={`w-5 h-5 sm:w-6 sm:h-6 text-neutral-700 stroke-[2.5] transition-transform duration-300 ease-in-out ${
+                      className={`w-5 h-5 sm:w-6 sm:h-6 text-neutral-700 stroke-[2.5] transition-transform duration-500 ease-out ${
                         isOpen ? "rotate-45" : "rotate-0"
                       }`}
                     />
