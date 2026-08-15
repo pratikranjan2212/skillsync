@@ -19,8 +19,8 @@ export function proxy(request) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  // Route protection for dashboard
-  if (pathname.startsWith("/dashboard")) {
+  // Route protection for dashboard and profile
+  if (pathname.startsWith("/dashboard") || pathname.startsWith("/profile")) {
     if (!sessionToken) {
       return NextResponse.redirect(new URL("/signin", request.url));
     }
@@ -30,5 +30,5 @@ export function proxy(request) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/dashboard/:path*"],
+  matcher: ["/admin/:path*", "/dashboard/:path*", "/profile/:path*"],
 };

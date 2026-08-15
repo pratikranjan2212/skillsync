@@ -7,6 +7,10 @@ export async function GET(request) {
             SKILLSYNC VERIFIED SKILL PASSPORT
 =====================================================
 Student ID: ${INITIAL_PASSPORT.studentId}
+Student Name: ${INITIAL_PASSPORT.studentName || "Ananya Sharma"}
+Institution: ${INITIAL_PASSPORT.college || "Ramaiah Institute of Technology"}
+Degree: ${INITIAL_PASSPORT.degree || "B.Tech in Computer Science & Engineering"}
+Batch: ${INITIAL_PASSPORT.batch || "2022 - 2026"}
 Share Token: ${INITIAL_PASSPORT.shareToken}
 Updated: ${INITIAL_PASSPORT.updatedAt}
 -----------------------------------------------------
@@ -16,6 +20,7 @@ ${INITIAL_PASSPORT.skills
   .map(
     (s) => `
 * Skill: ${s.name} (${s.category})
+  Level: ${s.level || "Advanced"}
   Supporting Evidence:
   ${s.evidence.map((e) => `  - ${e.title} [${e.tier}]`).join("\n")}
 `
