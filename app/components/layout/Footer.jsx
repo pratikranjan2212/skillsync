@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import { FadeIn } from "@/app/components/ui/FadeIn";
 
 export default function Footer() {
   const quickLinks = [
@@ -27,7 +28,8 @@ export default function Footer() {
 
   return (
     <footer className="w-full bg-white text-neutral-900 antialiased border-t border-neutral-100">
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 pt-16 sm:pt-20 pb-10 sm:pb-12">
+      <FadeIn distance={32} duration={0.85} delay={0.1}>
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 pt-16 sm:pt-20 pb-10 sm:pb-12">
         {/* Main Grid: Left Brand Info & Right 3 Columns */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-start">
           
@@ -138,6 +140,7 @@ export default function Footer() {
           </p>
         </div>
       </div>
-    </footer>
-  );
+    </FadeIn>
+  </footer>
+);
 }
