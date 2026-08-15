@@ -76,7 +76,7 @@ export default function SupportPage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 w-full flex-1">
         {/* Support Header Card */}
-        <div className="bg-white rounded-[32px] p-6 sm:p-10 shadow-md border border-black/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-8">
+        <div className="bg-white rounded-4xl p-6 sm:p-10 shadow-md border border-black/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-8">
           <div>
             <div className="flex items-center gap-2">
               <span className="px-3.5 py-1 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-full border border-emerald-200 inline-flex items-center gap-1.5">
@@ -146,7 +146,7 @@ export default function SupportPage() {
         {/* Contact Form & Direct Inquiries Section */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Left Column: Direct Contact Info */}
-          <div className="lg:col-span-5 bg-white rounded-[32px] p-6 sm:p-8 shadow-sm border border-black/5 flex flex-col justify-between gap-6">
+          <div className="lg:col-span-5 bg-white rounded-4xl p-6 sm:p-8 shadow-sm border border-black/5 flex flex-col justify-between gap-6">
             <div>
               <span className="px-3 py-1 bg-[#F5F5F3] text-[#494D4D] text-[11px] font-bold uppercase tracking-wider rounded-xl border border-black/5">
                 Direct Channels
@@ -194,7 +194,7 @@ export default function SupportPage() {
           </div>
 
           {/* Right Column: Ticket Submission Form */}
-          <div className="lg:col-span-7 bg-white rounded-[32px] p-6 sm:p-8 shadow-sm border border-black/5">
+          <div className="lg:col-span-7 bg-white rounded-4xl p-6 sm:p-8 shadow-sm border border-black/5">
             <div>
               <span className="px-3 py-1 bg-emerald-50 text-emerald-800 text-[11px] font-bold uppercase tracking-wider rounded-xl border border-emerald-200">
                 Support Ticket

@@ -163,7 +163,7 @@ export default function OpportunityFeedPage() {
         {isLoading && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3].map((n) => (
-              <div key={n} className="bg-white rounded-[24px] p-6 h-64 animate-pulse border border-black/5">
+              <div key={n} className="bg-white rounded-3xl p-6 h-64 animate-pulse border border-black/5">
                 <div className="h-4 bg-neutral-200 rounded-full w-1/4 mb-4"></div>
                 <div className="h-6 bg-neutral-200 rounded-full w-3/4 mb-2"></div>
                 <div className="h-4 bg-neutral-150 rounded-full w-full mb-3"></div>
@@ -189,7 +189,7 @@ export default function OpportunityFeedPage() {
 
         {/* Empty State */}
         {!isLoading && !isError && filteredList.length === 0 && (
-          <div className="bg-white rounded-[32px] p-12 text-center border border-black/5 shadow-sm flex flex-col items-center gap-3">
+          <div className="bg-white rounded-4xl p-12 text-center border border-black/5 shadow-sm flex flex-col items-center gap-3">
             <Briefcase className="w-10 h-10 text-neutral-300" />
             <h3 className="text-xl font-bold text-[#111111]">No Opportunities Ingested Yet</h3>
             <p className="text-xs text-[#494D4D]">No job listings match your current keyword or source filter.</p>

@@ -260,7 +260,7 @@ export default function AddEvidencePage() {
 
             {/* External URL */}
             <div>
-              <label className="block text-xs font-bold text-[#111111] mb-1.5 flex items-center gap-1">
+              <label className="text-xs font-bold text-[#111111] mb-1.5 flex items-center gap-1">
                 <Link2 className="w-3.5 h-3.5 text-neutral-500" />
                 <span>External Link (GitHub Repo / Credential URL / Transcript Link)</span>
               </label>
@@ -274,7 +274,7 @@ export default function AddEvidencePage() {
 
             {/* Claimed Skills Selector */}
             <div>
-              <label className="block text-xs font-bold text-[#111111] mb-2 flex items-center justify-between">
+              <label className="text-xs font-bold text-[#111111] mb-2 flex items-center justify-between">
                 <span>Select Claimed Skills ({selectedSkills.length})</span>
                 <span className="text-[10px] text-neutral-400">Match against Skill Taxonomy</span>
               </label>

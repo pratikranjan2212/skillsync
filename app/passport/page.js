@@ -91,7 +91,7 @@ export default function SkillPassportPage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col gap-8">
         {/* Passport Header Card */}
-        <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-md border border-black/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="bg-white rounded-4xl p-6 sm:p-8 shadow-md border border-black/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div>
             <div className="flex items-center gap-2">
               <span className="px-3 py-1 bg-amber-50 text-amber-800 text-xs font-bold rounded-full border border-amber-200 flex items-center gap-1.5">
@@ -120,7 +120,7 @@ export default function SkillPassportPage() {
 
         {/* Loading State */}
         {isLoading && (
-          <div className="bg-white rounded-[32px] p-12 text-center border border-black/5 flex flex-col items-center gap-3 animate-pulse">
+          <div className="bg-white rounded-4xl p-12 text-center border border-black/5 flex flex-col items-center gap-3 animate-pulse">
             <div className="w-8 h-8 rounded-full bg-emerald-200 animate-spin"></div>
             <p className="text-xs font-bold text-neutral-500">Loading Skill Passport...</p>
           </div>
