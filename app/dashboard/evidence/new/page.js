@@ -4,9 +4,11 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import jsQR from "jsqr";
-import { FilePlus, QrCode, Sparkles, Check, ArrowRight, ShieldCheck, Loader2, Link2, FileUp } from "lucide-react";
+import { FilePlus, QrCode, Sparkles, Check, ArrowRight, ShieldCheck, Loader2, Link2, FileUp, FileCheck, Award, Layers } from "lucide-react";
 import Navbar from "@/app/components/layout/Navbar";
 import Badge from "@/app/components/ui/Badge";
+import AuthRequiredView from "@/app/components/auth/AuthRequiredView";
+import { useAuth } from "@/app/hooks/useAuth";
 
 const SKILL_TAXONOMY_OPTIONS = [
   "Python",
@@ -24,9 +26,11 @@ const SKILL_TAXONOMY_OPTIONS = [
 /**
  * Add Evidence Form Screen.
  * Client Component utilizing React Hook Form and client-side jsQR pre-scanning.
+ * Protected: Displays submission form when signed in, or AuthRequiredView when signed out.
  */
 export default function AddEvidencePage() {
   const router = useRouter();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [selectedSkills, setSelectedSkills] = useState(["Python", "SQL"]);
   const [isQrDetected, setIsQrDetected] = useState(false);
   const [qrCodeData, setQrCodeData] = useState("");
@@ -115,6 +119,43 @@ export default function AddEvidencePage() {
       setIsSubmitting(false);
     }
   };
+
+  if (!authLoading && !isAuthenticated) {
+    return (
+      <div className="h-screen overflow-hidden bg-[#F5F5F3] text-[#111111] flex flex-col justify-start">
+        <Navbar />
+        <main className="max-w-2xl mx-auto px-4 w-full">
+          <AuthRequiredView
+            badgeText="Evidence Ingestion & Verification"
+            badgeIcon={FilePlus}
+            badgeColor="emerald"
+            title="Submit Evidence Access"
+            subtitle="Sign in to upload coursework transcripts, GitHub projects, and credentials for automated tier verification."
+            sectionName="Evidence Submission"
+            backLink="/dashboard"
+            backText="Back to Dashboard"
+            features={[
+              {
+                icon: ShieldCheck,
+                title: "Automated OCR & QR Verification",
+                desc: "Instant client-side QR code analysis and institutional certificate signature validation.",
+              },
+              {
+                icon: Layers,
+                title: "Taxonomy Skill Mapping",
+                desc: "Automatic tagging and verification against standardized SkillSync taxonomy categories.",
+              },
+              {
+                icon: Award,
+                title: "Direct Passport Citation",
+                desc: "Verified submissions instantly citation-back your skills in your official Skill Passport.",
+              },
+            ]}
+          />
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F5F5F3] text-[#111111] pb-16">

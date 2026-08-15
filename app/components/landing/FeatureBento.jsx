@@ -193,7 +193,7 @@ export default function FeatureBento() {
       {/* Section Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 md:mb-16 gap-6">
         <div>
-          <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white border border-black/5 text-xs font-bold text-neutral-800 shadow-2xs mb-3">
+          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-black/5 text-xs font-bold text-neutral-800 shadow-2xs mb-3">
             <Layers className="w-3.5 h-3.5 text-emerald-500" />
             <span>Automated Skill Verification Engine</span>
           </span>
@@ -212,7 +212,7 @@ export default function FeatureBento() {
         {/* Row 1 - Left Card (5 col): Verification Tiers */}
         <div className="lg:col-span-5 bg-[#F2F3F5] border border-black/5 rounded-4xl p-6 sm:p-8 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow">
           <div>
-            <span className="px-3 py-1 bg-white text-emerald-800 text-[11px] font-extrabold uppercase tracking-wider rounded-xl border border-black/5">
+            <span className="inline-flex items-center px-4 py-2 bg-white text-emerald-800 text-[11px] font-extrabold uppercase tracking-wider rounded-full border border-black/5">
               3-Tier Badge System
             </span>
             <h3 className="text-xl sm:text-2xl font-black text-neutral-900 mt-3 mb-2">
@@ -253,7 +253,7 @@ export default function FeatureBento() {
         {/* Row 1 - Right Card (7 col): Explainable Match Engine & Fairness Guarantee */}
         <div className="lg:col-span-7 bg-[#0f241c] rounded-4xl p-6 sm:p-8 text-white flex flex-col justify-between shadow-xl relative overflow-hidden group" data-spark-color="#ffffff">
           <div className="relative z-10" data-spark-color="#ffffff">
-            <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 text-[11px] font-mono uppercase font-bold tracking-wider rounded-xl border border-emerald-500/30" data-spark-color="#ffffff">
+            <span className="inline-flex items-center px-4 py-2 bg-emerald-500/20 text-emerald-300 text-[11px] font-mono uppercase font-bold tracking-wider rounded-full border border-emerald-500/30" data-spark-color="#ffffff">
               Zero Demographic Bias
             </span>
             <h3 className="text-xl sm:text-2xl font-black text-white mt-3 mb-2" data-spark-color="#ffffff">
@@ -306,14 +306,14 @@ export default function FeatureBento() {
         {/* Row 2 - Full Width Dark Card: Portable Skill Passport */}
         <div className="lg:col-span-12 bg-[#111111] border border-white/10 rounded-[40px] p-8 sm:p-12 text-white shadow-2xl relative overflow-hidden flex flex-col lg:flex-row items-center justify-between gap-8" data-spark-color="#ffffff">
           <div className="w-full lg:w-6/12">
-            <span className="px-3 py-1 bg-amber-400/20 text-amber-300 text-xs font-bold rounded-full border border-amber-400/30">
+            <span className="inline-flex items-center px-4 py-2 bg-amber-400/20 text-amber-300 text-xs font-bold rounded-full border border-amber-400/30">
               Portable Skill Passport
             </span>
             <h3 className="text-3xl sm:text-4xl font-black text-white mt-3 mb-4 tracking-tight">
-              Export PDF, JSON, or share a verified public link.
+              Export PDF or share a verified public link.
             </h3>
             <p className="text-neutral-300 text-sm sm:text-base font-medium mb-8 leading-relaxed">
-              Group your verified skills by taxonomy categories (Programming Languages, Databases, AI/ML, Frontend Web). Share your passport with recruiters or export signed JSON and PDF files instantly.
+              Group your verified skills by taxonomy categories (Programming Languages, Databases, AI/ML, Frontend Web). Share your passport with recruiters or export signed PDF files instantly.
             </p>
 
             <div className="flex flex-wrap items-center gap-4">
