@@ -14,7 +14,7 @@ export default function FAQSection() {
   };
 
   return (
-    <section className="pt-24 sm:pt-32 pb-16 sm:pb-24 px-4 sm:px-6 max-w-7xl mx-auto">
+    <section id="faq" className="pt-24 sm:pt-32 pb-16 sm:pb-24 px-4 sm:px-6 max-w-7xl mx-auto scroll-mt-24">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-stretch">
         {/* Left Column: Heading & Contact Card */}
         <div className="lg:col-span-5 flex flex-col justify-between h-full gap-10">

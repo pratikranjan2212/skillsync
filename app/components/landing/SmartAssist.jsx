@@ -20,8 +20,8 @@ export default function SmartAssist() {
   };
 
   return (
-    <section id="match-engine" className="py-20 md:py-28 px-4 sm:px-6 max-w-7xl mx-auto">
-      <div className="bg-white rounded-[40px] p-8 sm:p-12 shadow-xl border border-black/5 flex flex-col gap-10">
+    <section id="fair-match" className="py-20 md:py-28 px-4 sm:px-6 max-w-7xl mx-auto scroll-mt-24">
+      <div id="smart-assist" className="bg-white rounded-[40px] p-8 sm:p-12 shadow-xl border border-black/5 flex flex-col gap-10 scroll-mt-24">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
             <span className="px-3.5 py-1 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-full border border-emerald-200 inline-flex items-center gap-1.5 mb-3">

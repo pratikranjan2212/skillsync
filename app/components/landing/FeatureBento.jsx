@@ -7,7 +7,7 @@ import Badge from "@/app/components/ui/Badge";
 
 export default function FeatureBento() {
   return (
-    <section id="verification-tiers" className="py-20 md:py-32 px-4 sm:px-6 max-w-7xl mx-auto">
+    <section id="features" className="py-20 md:py-32 px-4 sm:px-6 max-w-7xl mx-auto scroll-mt-24">
       {/* Section Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 md:mb-16 gap-6">
         <div>
