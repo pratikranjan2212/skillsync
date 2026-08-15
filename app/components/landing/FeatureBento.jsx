@@ -69,22 +69,22 @@ export default function FeatureBento() {
         </div>
 
         {/* Row 1 - Right Card (7 col): Explainable Match Engine & Fairness Guarantee */}
-        <div className="lg:col-span-7 bg-[#0f241c] rounded-4xl p-6 sm:p-8 text-white flex flex-col justify-between shadow-xl relative overflow-hidden group">
-          <div className="relative z-10">
-            <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 text-[11px] font-mono uppercase font-bold tracking-wider rounded-xl border border-emerald-500/30">
+        <div className="lg:col-span-7 bg-[#0f241c] rounded-4xl p-6 sm:p-8 text-white flex flex-col justify-between shadow-xl relative overflow-hidden group" data-spark-color="#ffffff">
+          <div className="relative z-10" data-spark-color="#ffffff">
+            <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 text-[11px] font-mono uppercase font-bold tracking-wider rounded-xl border border-emerald-500/30" data-spark-color="#ffffff">
               Zero Demographic Bias
             </span>
-            <h3 className="text-xl sm:text-2xl font-black text-white mt-3 mb-2">
+            <h3 className="text-xl sm:text-2xl font-black text-white mt-3 mb-2" data-spark-color="#ffffff">
               Explainable Match Engine & Fairness Guarantee
             </h3>
-            <p className="text-emerald-100/80 text-xs sm:text-sm font-medium mb-6 max-w-md">
+            <p className="text-emerald-100/80 text-xs sm:text-sm font-medium mb-6 max-w-md" data-spark-color="#ffffff">
               Every job match cites supporting evidence, lists missing required skills, and explicitly strips non-skill demographic attributes from ranking logic.
             </p>
 
             {/* Explanation Box */}
-            <div className="bg-black/50 backdrop-blur-xl rounded-[28px] p-5 sm:p-6 border border-white/10 shadow-2xl flex flex-col gap-4">
-              <div className="flex items-center justify-between">
-                <div>
+            <div className="bg-black/50 backdrop-blur-xl rounded-[28px] p-5 sm:p-6 border border-white/10 shadow-2xl flex flex-col gap-4" data-spark-color="#ffffff">
+              <div className="flex items-center justify-between" data-spark-color="#ffffff">
+                <div data-spark-color="#ffffff">
                   <div className="text-xs font-bold text-white">ML Intern - DataCo (via Adzuna)</div>
                   <div className="text-[11px] text-emerald-300 font-bold mt-0.5">82% Calculated Match</div>
                 </div>
@@ -93,25 +93,25 @@ export default function FeatureBento() {
                 </span>
               </div>
 
-              <div className="space-y-2 text-xs">
-                <div className="p-2.5 bg-white/5 rounded-xl border border-white/10 flex items-center gap-2">
+              <div className="space-y-2 text-xs" data-spark-color="#ffffff">
+                <div className="p-2.5 bg-white/5 rounded-xl border border-white/10 flex items-center gap-2" data-spark-color="#ffffff">
                   <Check className="w-4 h-4 text-emerald-400 shrink-0" />
                   <span>Python: 'Data Pipeline Project' — verified-high (QR-confirmed)</span>
                 </div>
-                <div className="p-2.5 bg-white/5 rounded-xl border border-white/10 flex items-center gap-2">
+                <div className="p-2.5 bg-white/5 rounded-xl border border-white/10 flex items-center gap-2" data-spark-color="#ffffff">
                   <Check className="w-4 h-4 text-emerald-400 shrink-0" />
                   <span>SQL: DBMS coursework, 92% — verified-medium (OCR-parsed)</span>
                 </div>
               </div>
 
               {/* Excluded Attributes Pill */}
-              <div className="p-3 bg-slate-900/90 rounded-2xl border border-slate-700 text-[11px] font-mono text-slate-300">
+              <div className="p-3 bg-slate-900/90 rounded-2xl border border-slate-700 text-[11px] font-mono text-slate-300" data-spark-color="#ffffff">
                 <div className="text-emerald-400 font-bold text-[10px] uppercase mb-1">
                   Enforced Fairness Exclusion List:
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2" data-spark-color="#ffffff">
                   {["gender", "college tier", "name", "photo"].map((attr) => (
-                    <span key={attr} className="px-2 py-0.5 bg-white/10 rounded text-rose-300 line-through">
+                    <span key={attr} data-spark-color="#ffffff" className="px-2 py-0.5 bg-white/10 rounded text-rose-300 line-through">
                       {attr}
                     </span>
                   ))}
@@ -122,7 +122,7 @@ export default function FeatureBento() {
         </div>
 
         {/* Row 2 - Full Width Dark Card: Portable Skill Passport */}
-        <div className="lg:col-span-12 bg-[#111111] border border-white/10 rounded-[40px] p-8 sm:p-12 text-white shadow-2xl relative overflow-hidden flex flex-col lg:flex-row items-center justify-between gap-8">
+        <div className="lg:col-span-12 bg-[#111111] border border-white/10 rounded-[40px] p-8 sm:p-12 text-white shadow-2xl relative overflow-hidden flex flex-col lg:flex-row items-center justify-between gap-8" data-spark-color="#ffffff">
           <div className="w-full lg:w-6/12">
             <span className="px-3 py-1 bg-amber-400/20 text-amber-300 text-xs font-bold rounded-full border border-amber-400/30">
               Portable Skill Passport
