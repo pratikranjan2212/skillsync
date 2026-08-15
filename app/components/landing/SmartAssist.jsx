@@ -21,13 +21,14 @@ export default function SmartAssist() {
   };
 
   return (
-    <section id="match-engine" className="py-20 md:py-28 px-4 sm:px-6 max-w-7xl mx-auto">
+    <section id="fair-match" className="py-20 md:py-28 px-4 sm:px-6 max-w-7xl mx-auto scroll-mt-24">
       <motion.div
+        id="smart-assist"
         initial={{ opacity: 0, y: 45, scale: 0.97 }}
         whileInView={{ opacity: 1, y: 0, scale: 1 }}
         viewport={{ once: false, amount: 0.15 }}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="bg-white rounded-[40px] p-8 sm:p-12 shadow-[0_30px_90px_-15px_rgba(0,0,0,0.14),0_10px_30px_-10px_rgba(0,0,0,0.06)] border border-black/5 flex flex-col gap-10 transition-shadow duration-500 hover:shadow-[0_40px_100px_-15px_rgba(0,0,0,0.18),0_15px_40px_-10px_rgba(16,185,129,0.1)]"
+        className="bg-white rounded-[40px] p-8 sm:p-12 shadow-[0_30px_90px_-15px_rgba(0,0,0,0.14),0_10px_30px_-10px_rgba(0,0,0,0.06)] border border-black/5 flex flex-col gap-10 transition-shadow duration-500 hover:shadow-[0_40px_100px_-15px_rgba(0,0,0,0.18),0_15px_40px_-10px_rgba(16,185,129,0.1)] scroll-mt-24"
       >
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>

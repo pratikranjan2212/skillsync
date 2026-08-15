@@ -2,9 +2,11 @@
 
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Briefcase, Search, Sparkles, Filter, RefreshCw, AlertCircle } from "lucide-react";
+import { Briefcase, Search, Sparkles, Filter, RefreshCw, AlertCircle, ShieldCheck, Layers } from "lucide-react";
 import Navbar from "@/app/components/layout/Navbar";
 import OpportunityCard from "@/app/components/opportunities/OpportunityCard";
+import AuthRequiredView from "@/app/components/auth/AuthRequiredView";
+import { useAuth } from "@/app/hooks/useAuth";
 
 async function fetchOpportunitiesFeed() {
   const res = await fetch("/api/opportunities");
@@ -16,8 +18,10 @@ async function fetchOpportunitiesFeed() {
 /**
  * Opportunity Feed Screen.
  * Displays ingested internship listings ranked by match score with source tags and keyword search filters.
+ * Protected: Displays full opportunities feed when signed in, or AuthRequiredView when signed out.
  */
 export default function OpportunityFeedPage() {
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedSource, setSelectedSource] = useState("all");
 
@@ -32,6 +36,7 @@ export default function OpportunityFeedPage() {
     queryKey: ["opportunities-feed"],
     queryFn: fetchOpportunitiesFeed,
     staleTime: 60000,
+    enabled: isAuthenticated,
   });
 
   // Filter opportunities by keyword & source API
@@ -45,6 +50,41 @@ export default function OpportunityFeedPage() {
 
     return matchesKeyword && matchesSource;
   });
+
+  if (!authLoading && !isAuthenticated) {
+    return (
+      <div className="h-screen overflow-hidden bg-[#F5F5F3] text-[#111111] flex flex-col justify-start">
+        <Navbar />
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 w-full">
+          <AuthRequiredView
+            badgeText="Automated Ingestion Job Feed"
+            badgeIcon={Briefcase}
+            badgeColor="emerald"
+            title="Matched Opportunities Access"
+            subtitle="Sign in to explore AI-ranked internship and job opportunities calibrated strictly against your verified Skill Passport."
+            sectionName="Opportunities Feed"
+            features={[
+              {
+                icon: Sparkles,
+                title: "Explainable AI Match Scoring",
+                desc: "Percentage match rankings calculated transparently using your verified coursework, projects, and credential citations.",
+              },
+              {
+                icon: ShieldCheck,
+                title: "Demographic Bias Exclusion",
+                desc: "Strictly excludes race, gender, age, and postal code from ranking algorithms to ensure fair evaluation.",
+              },
+              {
+                icon: Layers,
+                title: "Multi-Source Job Ingestion",
+                desc: "Real-time automated listings continuously ingested from leading career sources like Adzuna, Jooble, and Remotive.",
+              },
+            ]}
+          />
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F5F5F3] text-[#111111] pb-16">
