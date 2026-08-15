@@ -23,8 +23,8 @@ export default function SignInPage() {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      email: "alex.chen@skillsync.edu",
-      password: "password123",
+      email: "",
+      password: "",
       role: "student",
     },
   });
@@ -88,32 +88,32 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F5F3] text-[#111111] pb-12">
+    <div className="h-screen overflow-hidden bg-[#F5F5F3] text-[#111111] flex flex-col justify-start">
       <Navbar />
 
-      <main className="max-w-md mx-auto px-4 pt-4">
-        <div className="bg-white rounded-[32px] p-8 shadow-xl border border-black/5 flex flex-col gap-6">
+      <main className="max-w-lg mx-auto px-6 sm:px-8 pt-0 sm:pt-1 w-full">
+        <div className="bg-white rounded-[32px] px-8 sm:px-10 py-6 sm:py-7 shadow-xl border border-black/5 flex flex-col gap-4 sm:gap-5">
           <div className="text-center">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-full border border-emerald-200">
-              <LogIn className="w-3.5 h-3.5 text-emerald-600" />
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 bg-emerald-50 text-emerald-800 text-sm font-bold rounded-full border border-emerald-200">
+              <LogIn className="w-4 h-4 text-emerald-600" />
               SkillSync Authentication
             </span>
-            <h1 className="text-2xl font-extrabold text-[#111111] mt-3">Welcome Back</h1>
-            <p className="text-xs text-[#494D4D] mt-1">
+            <h1 className="text-2xl sm:text-3xl font-black text-[#111111] tracking-tight mt-2">Welcome Back</h1>
+            <p className="text-sm text-[#494D4D] mt-1">
               Sign in to manage your evidence, view your Skill Passport, or open Admin Console.
             </p>
           </div>
 
           {/* One-Click Quick Demo Sign In Presets */}
-          <div className="bg-[#F8F9FA] rounded-2xl p-4 border border-black/5 flex flex-col gap-2.5">
-            <div className="text-[11px] font-bold uppercase tracking-wider text-[#494D4D]">
+          <div className="bg-[#F8F9FA] rounded-2xl p-3.5 border border-black/5 flex flex-col gap-2">
+            <div className="text-xs font-bold uppercase tracking-wider text-[#494D4D]">
               ⚡ Quick Demo One-Click Sign In
             </div>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => handleDemoSignIn("student")}
-                className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs"
+                className="flex items-center justify-center gap-2 py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold transition-all shadow-xs cursor-pointer"
               >
                 <UserCheck className="w-4 h-4" />
                 <span>Demo Student</span>
@@ -121,7 +121,7 @@ export default function SignInPage() {
               <button
                 type="button"
                 onClick={() => handleDemoSignIn("admin")}
-                className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-xs"
+                className="flex items-center justify-center gap-2 py-2.5 px-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-sm font-bold transition-all shadow-xs cursor-pointer"
               >
                 <ShieldCheck className="w-4 h-4 text-emerald-400" />
                 <span>Demo Admin</span>
@@ -130,52 +130,64 @@ export default function SignInPage() {
           </div>
 
           {errorMsg && (
-            <div className="p-3 bg-rose-50 text-rose-800 text-xs font-semibold rounded-2xl border border-rose-200">
+            <div className="p-3 bg-rose-50 text-rose-800 text-sm font-semibold rounded-2xl border border-rose-200">
               {errorMsg}
             </div>
           )}
 
-          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3.5">
             {/* Email */}
             <div>
-              <label className="block text-xs font-bold text-[#111111] mb-1.5">Email Address</label>
+              <label className="block text-sm font-bold text-[#111111] mb-1.5">
+                Email Address <span className="text-red-500">*</span>
+              </label>
               <div className="relative">
-                <Mail className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3.5" />
+                <Mail className="w-4.5 h-4.5 text-neutral-400 absolute left-3.5 top-3.5" />
                 <input
                   type="email"
-                  {...register("email", { required: "Email is required" })}
-                  className="w-full pl-10 pr-4 py-3 rounded-2xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  placeholder="alex.chen@skillsync.edu"
+                  {...register("email", {
+                    required: "Email Address is required",
+                    pattern: {
+                      value: /^\S+@\S+\.\S+$/i,
+                      message: "Please enter a valid email address",
+                    },
+                  })}
+                  className="w-full pl-11 pr-4 py-3 rounded-2xl bg-[#F5F5F3] border border-black/5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
-              {errors.email && <p className="text-[11px] text-rose-600 mt-1">{errors.email.message}</p>}
+              {errors.email && <p className="text-xs text-rose-600 mt-1 font-medium">{errors.email.message}</p>}
             </div>
 
             {/* Password */}
             <div>
-              <label className="block text-xs font-bold text-[#111111] mb-1.5">Password</label>
+              <label className="block text-sm font-bold text-[#111111] mb-1.5">
+                Password <span className="text-red-500">*</span>
+              </label>
               <div className="relative">
-                <Lock className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3.5" />
+                <Lock className="w-4.5 h-4.5 text-neutral-400 absolute left-3.5 top-3.5" />
                 <input
                   type="password"
+                  placeholder="••••••••"
                   {...register("password", { required: "Password is required" })}
-                  className="w-full pl-10 pr-4 py-3 rounded-2xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full pl-11 pr-4 py-3 rounded-2xl bg-[#F5F5F3] border border-black/5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
-              {errors.password && <p className="text-[11px] text-rose-600 mt-1">{errors.password.message}</p>}
+              {errors.password && <p className="text-xs text-rose-600 mt-1 font-medium">{errors.password.message}</p>}
             </div>
 
             {/* Submit Button */}
             <button
               type="submit"
               disabled={isSubmitting}
-              className="mt-1 w-full py-3.5 px-4 bg-neutral-900 text-white rounded-2xl font-bold text-xs hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2 shadow-md disabled:opacity-50"
+              className="mt-1 w-full py-3.5 px-4 bg-neutral-900 text-white rounded-2xl font-bold text-sm hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2 shadow-md disabled:opacity-50 cursor-pointer"
             >
               <span>{isSubmitting ? "Authenticating..." : "Sign In to Dashboard"}</span>
-              <ArrowRight className="w-4 h-4 text-emerald-400" />
+              <ArrowRight className="w-4.5 h-4.5 text-emerald-400" />
             </button>
           </form>
 
-          <div className="text-center text-xs text-[#494D4D]">
+          <div className="text-center text-sm text-[#494D4D]">
             Don't have an account yet?{" "}
             <Link href="/signup" className="font-bold text-[#111111] hover:underline">
               Register as Student

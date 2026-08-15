@@ -23,7 +23,7 @@ export default function UseCaseTabs() {
   };
 
   return (
-    <section id="use-case" className="py-16 md:py-24 px-4 sm:px-6 max-w-7xl mx-auto">
+    <section id="use-cases" className="py-16 md:py-24 px-4 sm:px-6 max-w-7xl mx-auto scroll-mt-24">
       {/* Outer Card with Dotted Background Pattern */}
       <div 
         className="relative bg-white rounded-[32px] sm:rounded-[40px] border border-black/8 p-6 sm:p-10 md:p-14 shadow-sm overflow-hidden"
