@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { SMART_ASSIST_CARDS } from "@/app/data/skillsyncData.js";
 import { Sparkles, CheckCircle2, Award, Briefcase, Scale, ArrowRight } from "lucide-react";
 import RollingText from "@/app/components/ui/RollingText";
@@ -21,18 +22,24 @@ export default function SmartAssist() {
 
   return (
     <section id="match-engine" className="py-20 md:py-28 px-4 sm:px-6 max-w-7xl mx-auto">
-      <div className="bg-white rounded-[40px] p-8 sm:p-12 shadow-xl border border-black/5 flex flex-col gap-10">
+      <motion.div
+        initial={{ opacity: 0, y: 45, scale: 0.97 }}
+        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+        viewport={{ once: false, amount: 0.15 }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        className="bg-white rounded-[40px] p-8 sm:p-12 shadow-[0_30px_90px_-15px_rgba(0,0,0,0.14),0_10px_30px_-10px_rgba(0,0,0,0.06)] border border-black/5 flex flex-col gap-10 transition-shadow duration-500 hover:shadow-[0_40px_100px_-15px_rgba(0,0,0,0.18),0_15px_40px_-10px_rgba(16,185,129,0.1)]"
+      >
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
-            <span className="px-3.5 py-1 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-full border border-emerald-200 inline-flex items-center gap-1.5 mb-3">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+            <span className="px-4 py-1.5 bg-emerald-50 text-emerald-800 text-sm font-bold rounded-full border border-emerald-200 inline-flex items-center gap-2 mb-3">
+              <Sparkles className="w-4 h-4 text-emerald-600" />
               <span>Explainable Core</span>
             </span>
             <h2 className="text-3xl sm:text-5xl font-black text-[#111111] tracking-tight">
-              SkillSync Match Engine Architecture
+              Our Match Engine <br />Architecture
             </h2>
           </div>
-          <p className="text-sm text-[#494D4D] font-medium max-w-md">
+          <p className="text-base text-[#494D4D] font-medium max-w-md leading-relaxed">
             Built to provide total transparency into every recommendation with 100% verifiable citations and guaranteed non-discrimination.
           </p>
         </div>
@@ -48,14 +55,16 @@ export default function SmartAssist() {
               >
                 <div>
                   <div
-                    className={`w-12 h-12 rounded-full ${card.iconBg} ${card.iconShadow} text-white flex items-center justify-center mb-5 transition-all duration-300 group-hover:scale-110 group-hover:-translate-y-1`}
+                    className={`w-13 h-13 rounded-full ${card.iconBg} ${card.iconShadow} text-white flex items-center justify-center mb-8 transition-all duration-300 group-hover:scale-110 group-hover:-translate-y-1`}
                   >
-                    <Icon className="w-6 h-6 transition-transform duration-300 group-hover:rotate-6" />
+                    <Icon className="w-6.5 h-6.5 transition-transform duration-300 group-hover:rotate-6" />
                   </div>
-                  <h3 className="text-lg font-extrabold text-[#111111] tracking-tight">{card.title}</h3>
-                  <p className="text-xs text-[#494D4D] mt-2 leading-relaxed font-medium">
-                    {card.description}
-                  </p>
+                  <div className="pt-1">
+                    <h3 className="text-xl font-black text-[#111111] tracking-tight leading-snug">{card.title}</h3>
+                    <p className="text-sm text-[#494D4D] mt-3 leading-relaxed font-semibold">
+                      {card.description}
+                    </p>
+                  </div>
                 </div>
               </div>
             );
@@ -64,14 +73,14 @@ export default function SmartAssist() {
 
         {/* Action Bar */}
         <div className="pt-6 border-t border-neutral-100 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="text-xs font-bold text-[#494D4D]">
+          <div className="text-sm sm:text-base font-extrabold text-[#333333]">
             Explore opportunities ingested live from Adzuna, Jooble, and Remotive
           </div>
           <Link
             href="/opportunities"
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
-            className="inline-flex items-center gap-2 px-6.5 py-4.5 bg-neutral-900 text-white rounded-full font-extrabold text-sm hover:bg-neutral-800 transition-all hover:scale-95 active:scale-90 shadow-[0_18px_40px_rgba(0,0,0,0.35)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.25)]"
+            className="inline-flex items-center gap-2 px-7 py-4.5 bg-neutral-900 text-white rounded-full font-extrabold text-base hover:bg-neutral-800 transition-all hover:scale-95 active:scale-90 shadow-[0_18px_40px_rgba(0,0,0,0.35)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.25)]"
           >
             <RollingText
               text="Explore Opportunities Feed"
@@ -80,13 +89,12 @@ export default function SmartAssist() {
               rollDuration={0.8}
               staggerDelay={0.02}
               textColor="#FFFFFF"
-              font={{ fontSize: "15px", fontWeight: "800", lineHeight: "1.2em" }}
+              font={{ fontSize: "16px", fontWeight: "800", lineHeight: "1.2em" }}
             />
-            <ArrowRight className="w-4.5 h-4.5 text-emerald-400" />
+            <ArrowRight className="w-5 h-5 text-emerald-400" />
           </Link>
-
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }
