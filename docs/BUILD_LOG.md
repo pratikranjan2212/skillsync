@@ -3,6 +3,149 @@ Running log of every change made to the frontend, in chronological order (newest
 Each entry explains *what* changed and *why*, plus a section-by-section explanation of any new or modified code.
 
 ---
+## [2026-08-15 15:00] Accelerated Entry Animations for Hero Header, SmartAssist Action Bar, and FinalCTA Banner
+
+**Files changed:**
+- `app/components/landing/Hero.jsx` (modified)
+- `app/components/landing/SmartAssist.jsx` (modified)
+- `app/components/landing/FinalCTA.jsx` (modified)
+
+**What changed and why:**
+Significantly accelerated the entry reveal animations across the Hero text/buttons, the SmartAssist opportunities feed action bar, and the FinalCTA conversion banner and action buttons, giving them an instantaneous, snappy, and responsive feel with minimal delays (0.02s–0.14s) and shorter slide distances (12px–14px).
+
+**Code explanation (section by section):**
+`app/components/landing/Hero.jsx`
+- **Fast Hero Text Reveal** — Reduced top badge duration to 0.35s (0.02s delay), headline and subtitle duration to 0.4s (0.06s & 0.1s delay), and dual CTA buttons duration to 0.35s (0.14s delay).
+
+`app/components/landing/SmartAssist.jsx`
+- **Fast Opportunities Feed Action Bar** — Reduced delay from 0.4s to 0.05s, duration from 0.85s to 0.35s, and slide distance to 14px.
+
+`app/components/landing/FinalCTA.jsx`
+- **Fast Conversion Banner & Dual Buttons** — Outer card duration reduced to 0.45s (18px distance), badge duration to 0.35s (0.02s delay), headline and subtitle to 0.4s (0.05s & 0.08s delay), and dual CTA buttons to 0.35s (0.12s delay).
+
+**Open items / follow-ups:**
+Production build verified with exit code 0.
+---
+## [2026-08-15 14:58] Removed Entry Reveal Animation from Hero Floating Cards (Preserved Continuous Levitation Physics)
+
+**Files changed:**
+- `app/components/landing/Hero.jsx` (modified)
+
+**What changed and why:**
+Removed the `FadeIn` scroll-entry wrapper from the 3 Hero preview cards (Left verified-high badge, Center phone passport mockup, Right fairness exclusion card). The cards are now instantly rendered on load without any initial opacity/upward slide delay, while keeping their continuous smooth CSS floating physics intact (`.animate-float-left`, `.animate-float-slow`, `.animate-float-right`).
+
+**Code explanation (section by section):**
+`app/components/landing/Hero.jsx`
+- **Instant Display of Floating Cards** — Removed `<FadeIn delay={0.7} distance={36} duration={0.95}>` from the card grid container. Cards appear immediately and float smoothly without delay.
+
+**Open items / follow-ups:**
+Production build verified with exit code 0.
+---
+## [2026-08-15 14:57] Accelerated Animation Speed for Use Cases CTA Button & Audience Rhythm Tags
+
+**Files changed:**
+- `app/components/landing/UseCaseTabs.jsx` (modified)
+
+**What changed and why:**
+Made the entrance animations for the "Get Started Now" CTA button and bottom audience hashtag rhythm pills significantly faster, snappier, and responsive upon scrolling into view (reduced durations to 0.35s and delays to 0.05s / 0.1s) eliminating unnecessary wait times.
+
+**Code explanation (section by section):**
+`app/components/landing/UseCaseTabs.jsx`
+- **Fast CTA Entrance** — Reduced "Get Started Now" CTA button delay from 0.6s to 0.05s, duration from 0.85s to 0.35s, and offset distance to 14px.
+- **Fast Hashtags Entrance** — Reduced bottom audience tags delay from 0.7s to 0.1s, duration from 0.85s to 0.35s, and offset distance to 12px.
+- **Streamlined Tab & Card Transitions** — Scaled section headers, role tabs, and hero showcase card durations down to 0.45s–0.5s with snappy 0.05s–0.12s delays.
+
+**Open items / follow-ups:**
+Verified cleanly with `npm run build` (exit code 0).
+---
+## [2026-08-15 14:53] Slower Animation Pacing, Viewport Triggers & Progressive Child Staggering
+
+**Files changed:**
+- `app/components/ui/FadeIn.jsx` (modified)
+- `app/components/landing/Hero.jsx` (modified)
+- `app/components/landing/FeatureBento.jsx` (modified)
+- `app/components/landing/UseCaseTabs.jsx` (modified)
+- `app/components/landing/Metrics.jsx` (modified)
+- `app/components/landing/SmartAssist.jsx` (modified)
+- `app/components/landing/FAQSection.jsx` (modified)
+- `app/components/landing/FinalCTA.jsx` (modified)
+- `app/components/layout/Footer.jsx` (modified)
+
+**What changed and why:**
+Refined the scroll reveal animation system to be slower, more deliberate, and luxurious (`duration: 0.85s` with `ease: [0.16, 1, 0.3, 1]`), configured strict viewport margins (`amount: 0.15, margin: "0px 0px -80px 0px"`) so animations only trigger when reaching each specific section, and added progressive cascading delays so child components (titles $\rightarrow$ descriptions $\rightarrow$ cards $\rightarrow$ buttons) reveal one-by-one sequentially instead of all at once.
+
+**Code explanation (section by section):**
+`app/components/ui/FadeIn.jsx`
+- **Pacing & Thresholds** — Scaled default `duration` from 0.6s to 0.85s, `distance` to 32px, `staggerDelay` to 0.18s, and viewport bottom margin to `-80px`.
+
+`app/components/landing/Hero.jsx`
+- **Progressive Delay Sequence** — Badge (0.1s) $\rightarrow$ Headline (0.25s) $\rightarrow$ Subtitle (0.4s) $\rightarrow$ CTA Buttons (0.55s) $\rightarrow$ Floating UI cards (0.7s, 0.95s duration).
+
+`app/components/landing/FeatureBento.jsx`
+- **Bento Card Progression** — Header (0.1s) $\rightarrow$ Row 1 Left 3-Tier Card (0.25s) $\rightarrow$ Row 1 Right Fairness Engine Card (0.45s) $\rightarrow$ Row 2 Dark Passport Card (0.25s scroll trigger).
+
+`app/components/landing/UseCaseTabs.jsx`
+- **Step-by-Step Reveal** — Outer container $\rightarrow$ Title (0.15s) $\rightarrow$ Role Tabs (0.3s) $\rightarrow$ Showcase Hero Image (0.45s) $\rightarrow$ CTA Button (0.6s) $\rightarrow$ Bottom tags (0.7s).
+
+`app/components/landing/Metrics.jsx`
+- **Staggered Metric Stats** — Increased card-to-card stagger interval to 0.16s with 0.15s initial child delay.
+
+`app/components/landing/SmartAssist.jsx`
+- **Architecture Cascade** — Header (0.1s) $\rightarrow$ 4 Architecture Cards (0.16s stagger) $\rightarrow$ Opportunities Feed CTA (0.4s).
+
+`app/components/landing/FAQSection.jsx`
+- **FAQ Stagger** — Contact support card (0.1s) and individual question accordion items (0.14s stagger).
+
+`app/components/landing/FinalCTA.jsx`
+- **Conversion Cascade** — Badge (0.1s) $\rightarrow$ Headline (0.25s) $\rightarrow$ Subtitle (0.4s) $\rightarrow$ Dual CTA Buttons (0.55s).
+
+**Open items / follow-ups:**
+Production build verified with exit code 0.
+---
+## [2026-08-15 14:16] Subtle Scroll-Driven Bottom-to-Top Fade-In Animations
+
+**Files changed:**
+- `app/components/ui/FadeIn.jsx` (created)
+- `app/components/landing/Hero.jsx` (modified)
+- `app/components/landing/FeatureBento.jsx` (modified)
+- `app/components/landing/UseCaseTabs.jsx` (modified)
+- `app/components/landing/Metrics.jsx` (modified)
+- `app/components/landing/SmartAssist.jsx` (modified)
+- `app/components/landing/FAQSection.jsx` (modified)
+- `app/components/landing/FinalCTA.jsx` (modified)
+- `app/components/layout/Footer.jsx` (modified)
+
+**What changed and why:**
+Implemented a silky smooth, hardware-accelerated scroll reveal animation system using `framer-motion`'s `whileInView` with natural cubic-bezier easing (`[0.21, 0.47, 0.32, 0.98]`). All landing page sections, titles, subtitles, buttons, cards, and grid items now automatically and subtly glide into view from bottom to top (`opacity: 0, y: 24px` -> `opacity: 1, y: 0px`) with graceful staggered timing as the user scrolls down the page.
+
+**Code explanation (section by section):**
+`app/components/ui/FadeIn.jsx`
+- **FadeIn & FadeInStagger** — Created reusable motion wrappers with configurable `delay`, `distance`, `duration`, `staggerDelay`, and viewport margins.
+
+`app/components/landing/Hero.jsx`
+- **Hero Reveal** — Added staggered bottom-to-top entrance for top pill badge (0.1s), headline (0.2s), description (0.3s), CTA buttons (0.4s), floating cards (0.5s), and bottom hashtag pills.
+
+`app/components/landing/FeatureBento.jsx`
+- **Bento Reveal** — Applied scroll-triggered fade-in to the section header and both 5-col and 7-col Bento cards + full-width passport card.
+
+`app/components/landing/UseCaseTabs.jsx`
+- **Use Cases Reveal** — Wrapped outer card, tab switcher, showcase image card, and CTA button with bottom-to-top scroll reveal.
+
+`app/components/landing/Metrics.jsx`
+- **Metrics Grid** — Staggered reveal for all 4 key metric stat cards on scroll.
+
+`app/components/landing/SmartAssist.jsx`
+- **Match Engine Architecture** — Wrapped header, 4 feature architecture cards, and bottom feed action bar with staggered scroll fade-in.
+
+`app/components/landing/FAQSection.jsx`
+- **FAQ & Support** — Applied scroll fade-in to the contact card and staggered reveal to the accordion question items.
+
+`app/components/landing/FinalCTA.jsx` & `Footer.jsx`
+- **CTA & Footer** — Animated bottom conversion banner and footer links into view when scrolling to the bottom.
+
+**Open items / follow-ups:**
+Production build verified cleanly with exit code 0 across all 24 app routes.
+---
 ## [2026-08-14 23:04] Hero Floating Card Components Redesign
 
 **Files changed:**

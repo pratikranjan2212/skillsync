@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Check, Sparkles, Award, ShieldCheck, ArrowRight, Play, QrCode, Database, Code2, Signal, Wifi, Battery, UserX, GraduationCap, EyeOff } from "lucide-react";
 import Badge from "@/app/components/ui/Badge";
 import RollingText from "@/app/components/ui/RollingText";
+import { FadeIn, FadeInStagger, FadeInItem } from "@/app/components/ui/FadeIn";
 
 export default function Hero({ onOpenAppModal, onOpenDemoModal }) {
   const [hoveredButton, setHoveredButton] = useState(null);
@@ -47,69 +48,77 @@ export default function Hero({ onOpenAppModal, onOpenDemoModal }) {
         {/* Hero Text Content */}
         <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 mb-16 text-center flex flex-col items-center pt-4">
           {/* Top Pill Badge */}
-          <div className="inline-flex items-center gap-3 px-5.5 py-3.5 rounded-full bg-black/50 backdrop-blur-md border border-emerald-500/30 text-sm font-semibold text-white mb-6 shadow-xl">
-            <span className="px-3.5 py-1.5 rounded-full bg-emerald-500 text-black text-xs font-black uppercase tracking-wider">
-              AUTOMATED VERIFICATION
-            </span>
-            <span className="opacity-90 pr-1">No Human Verifier • Zero Demographic Bias</span>
-          </div>
+          <FadeIn delay={0.02} distance={12} duration={0.35}>
+            <div className="inline-flex items-center gap-3 px-5.5 py-3.5 rounded-full bg-black/50 backdrop-blur-md border border-emerald-500/30 text-sm font-semibold text-white mb-6 shadow-xl">
+              <span className="px-3.5 py-1.5 rounded-full bg-emerald-500 text-black text-xs font-black uppercase tracking-wider">
+                AUTOMATED VERIFICATION
+              </span>
+              <span className="opacity-90 pr-1">No Human Verifier • Zero Demographic Bias</span>
+            </div>
+          </FadeIn>
 
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white leading-[1.08] mb-6">
-            Your Journey Through Coursework, <br />
-            <span 
-              className="inline-block"
-              style={{
-                background: "linear-gradient(90deg, #10b981 0%, #6ee7b7 45%, #ffffff 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                color: "transparent"
-              }}
-            >
-              Stamped With Real-World Skills
-            </span>
-          </h1>
+          <FadeIn delay={0.06} distance={14} duration={0.4}>
+            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white leading-[1.08] mb-6">
+              Your Journey Through Coursework, <br />
+              <span 
+                className="inline-block"
+                style={{
+                  background: "linear-gradient(90deg, #10b981 0%, #6ee7b7 45%, #ffffff 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  color: "transparent"
+                }}
+              >
+                Stamped With Real-World Skills
+              </span>
+            </h1>
+          </FadeIn>
 
-          <p className="text-base sm:text-lg text-neutral-300 font-medium max-w-2xl mb-8 leading-relaxed">
-            SkillSync parses your coursework, projects, and credentials into an evidence-backed Skill Passport — matching you with public internships via an explainable, fair matching engine.
-          </p>
+          <FadeIn delay={0.1} distance={14} duration={0.4}>
+            <p className="text-base sm:text-lg text-neutral-300 font-medium max-w-2xl mb-8 leading-relaxed">
+              SkillSync parses your coursework, projects, and credentials into an evidence-backed Skill Passport — matching you with public internships via an explainable, fair matching engine.
+            </p>
+          </FadeIn>
 
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <Link
-              href="/signup"
-              onMouseEnter={() => setHoveredButton("hero1")}
-              onMouseLeave={() => setHoveredButton(null)}
-              className="px-8 py-5.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-[17px] shadow-xl transition-all hover:scale-95 active:scale-90 flex items-center gap-2.5"
-            >
-              <RollingText
-                text="Build Your Passport — Free"
-                autoPlay={hoveredButton === "hero1"}
-                animationTrigger="onAppear"
-                rollDuration={0.4}
-                staggerDelay={0.015}
-                textColor="#000000"
-                font={{ fontSize: "17px", fontWeight: "800", lineHeight: "1.2em" }}
-              />
-              <ArrowRight className="w-4.5 h-4.5 stroke-3" />
-            </Link>
+          <FadeIn delay={0.14} distance={14} duration={0.35}>
+            <div className="flex flex-wrap items-center justify-center gap-4">
+              <Link
+                href="/signup"
+                onMouseEnter={() => setHoveredButton("hero1")}
+                onMouseLeave={() => setHoveredButton(null)}
+                className="px-8 py-5.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-[17px] shadow-xl transition-all hover:scale-95 active:scale-90 flex items-center gap-2.5"
+              >
+                <RollingText
+                  text="Build Your Passport — Free"
+                  autoPlay={hoveredButton === "hero1"}
+                  animationTrigger="onAppear"
+                  rollDuration={0.4}
+                  staggerDelay={0.015}
+                  textColor="#000000"
+                  font={{ fontSize: "17px", fontWeight: "800", lineHeight: "1.2em" }}
+                />
+                <ArrowRight className="w-4.5 h-4.5 stroke-3" />
+              </Link>
 
-            <Link
-              href="/opportunities/opt-1"
-              onMouseEnter={() => setHoveredButton("hero2")}
-              onMouseLeave={() => setHoveredButton(null)}
-              className="px-8 py-5.5 rounded-full bg-white/5 text-white font-bold text-[17px] shadow-sm backdrop-blur-md border border-white/10 hover:bg-white/10 transition-all hover:scale-95 active:scale-90 flex items-center gap-2.5"
-            >
-              <Sparkles className="w-4.5 h-4.5 text-emerald-400" />
-              <RollingText
-                text="View Match Explanation"
-                autoPlay={hoveredButton === "hero2"}
-                animationTrigger="onAppear"
-                rollDuration={0.4}
-                staggerDelay={0.015}
-                textColor="#FFFFFF"
-                font={{ fontSize: "17px", fontWeight: "700", lineHeight: "1.2em" }}
-              />
-            </Link>
-          </div>
+              <Link
+                href="/opportunities/opt-1"
+                onMouseEnter={() => setHoveredButton("hero2")}
+                onMouseLeave={() => setHoveredButton(null)}
+                className="px-8 py-5.5 rounded-full bg-white/5 text-white font-bold text-[17px] shadow-sm backdrop-blur-md border border-white/10 hover:bg-white/10 transition-all hover:scale-95 active:scale-90 flex items-center gap-2.5"
+              >
+                <Sparkles className="w-4.5 h-4.5 text-emerald-400" />
+                <RollingText
+                  text="View Match Explanation"
+                  autoPlay={hoveredButton === "hero2"}
+                  animationTrigger="onAppear"
+                  rollDuration={0.4}
+                  staggerDelay={0.015}
+                  textColor="#FFFFFF"
+                  font={{ fontSize: "17px", fontWeight: "700", lineHeight: "1.2em" }}
+                />
+              </Link>
+            </div>
+          </FadeIn>
         </div>
 
         {/* Floating UI Mockups Grid with Asynchronous Levitation Physics */}
@@ -278,20 +287,21 @@ export default function Hero({ onOpenAppModal, onOpenDemoModal }) {
       {/* Bottom White Section */}
       <div className="relative z-20 bg-[#F5F5F3] pt-12 sm:pt-16 pb-16 px-4 sm:px-6">
         <div className="max-w-4xl mx-auto text-center flex flex-col items-center">
-          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-[#111111] leading-[1.15] mb-8">
-            Verifiable evidence replaces manual resumes with <span className="underline decoration-emerald-500 decoration-4">100% transparent</span> skill matching.
-          </h2>
+          <FadeIn distance={28} duration={0.65}>
+            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-[#111111] leading-[1.15] mb-8">
+              Verifiable evidence replaces manual resumes with <span className="underline decoration-emerald-500 decoration-4">100% transparent</span> skill matching.
+            </h2>
+          </FadeIn>
 
-          <div className="flex flex-wrap items-center justify-center gap-3">
+          <FadeInStagger className="flex flex-wrap items-center justify-center gap-3" staggerDelay={0.06}>
             {["#Students", "#Engineers", "#Recruiters", "#DataScientists", "#Developers"].map((tag) => (
-              <span
-                key={tag}
-                className="px-4 py-2 rounded-full bg-white text-[#494D4D] text-xs font-bold border border-black/5 shadow-xs"
-              >
-                {tag}
-              </span>
+              <FadeInItem key={tag}>
+                <span className="px-4 py-2 rounded-full bg-white text-[#494D4D] text-xs font-bold border border-black/5 shadow-xs inline-block">
+                  {tag}
+                </span>
+              </FadeInItem>
             ))}
-          </div>
+          </FadeInStagger>
         </div>
       </div>
     </section>
