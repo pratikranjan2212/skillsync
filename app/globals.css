@@ -88,8 +88,54 @@ button {
   }
 }
 
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes float-left {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(-0.5deg);
+  }
+  50% {
+    transform: translateY(-14px) rotate(0.5deg);
+  }
+}
+
+@keyframes float-right {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0.5deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(-0.5deg);
+  }
+}
+
 .animate-float {
   animation: float 6s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-float-slow {
+  animation: float-slow 7s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-float-left {
+  animation: float-left 5.5s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-float-right {
+  animation: float-right 6.2s ease-in-out infinite 0.7s;
+  will-change: transform;
 }
 
 /* Hide scrollbar for clean carousels */

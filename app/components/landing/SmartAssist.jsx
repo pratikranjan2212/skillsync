@@ -134,13 +134,15 @@ export default function SmartAssist() {
             return (
               <div
                 key={card.id}
-                className="bg-[#F8F9FA] p-6 rounded-[28px] border border-black/5 shadow-xs flex flex-col justify-between gap-4 hover:shadow-md transition-all"
+                className={`group bg-white p-6 sm:p-7 rounded-[28px] border border-black/10 transition-all duration-300 ease-out hover:-translate-y-2 flex flex-col justify-between gap-4 ${card.cardShadow}`}
               >
                 <div>
-                  <div className={`w-10 h-10 rounded-2xl ${card.iconBg} text-white flex items-center justify-center mb-4 shadow-sm`}>
-                    <Icon className="w-5 h-5" />
+                  <div
+                    className={`w-12 h-12 rounded-full ${card.iconBg} ${card.iconShadow} text-white flex items-center justify-center mb-5 transition-all duration-300 group-hover:scale-110 group-hover:-translate-y-1`}
+                  >
+                    <Icon className="w-6 h-6 transition-transform duration-300 group-hover:rotate-6" />
                   </div>
-                  <h3 className="text-lg font-extrabold text-[#111111]">{card.title}</h3>
+                  <h3 className="text-lg font-extrabold text-[#111111] tracking-tight">{card.title}</h3>
                   <p className="text-xs text-[#494D4D] mt-2 leading-relaxed font-medium">
                     {card.description}
                   </p>
@@ -159,7 +161,7 @@ export default function SmartAssist() {
             href="/opportunities"
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
-            className="inline-flex items-center gap-2 px-6.5 py-4.5 bg-neutral-900 text-white rounded-full font-extrabold text-sm hover:bg-neutral-800 transition-all hover:scale-95 active:scale-90 shadow-md"
+            className="inline-flex items-center gap-2 px-6.5 py-4.5 bg-neutral-900 text-white rounded-full font-extrabold text-sm hover:bg-neutral-800 transition-all hover:scale-95 active:scale-90 shadow-[0_18px_40px_rgba(0,0,0,0.35)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.25)]"
           >
             <RollingText
               text="Explore Opportunities Feed"

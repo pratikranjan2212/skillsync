@@ -3,6 +3,59 @@ Running log of every change made to the frontend, in chronological order (newest
 Each entry explains *what* changed and *why*, plus a section-by-section explanation of any new or modified code.
 
 ---
+## [2026-08-14 23:04] Hero Floating Card Components Redesign
+
+**Files changed:**
+- `app/components/landing/Hero.jsx` (modified)
+- `app/globals.css` (modified)
+
+**What changed and why:**
+Redesigned the three Hero preview cards to match the reference sample image layout with smooth asynchronous floating physics, glassmorphism, dynamic device status framing, and circular icon pods:
+1. **Left Card (Floating Upward)**: Transformed into a sleek square glassmorphic card with a glowing amber/gold circular achievement medal badge, bold headline, and subtle rotation/levitation.
+2. **Center Card (Steady Float)**: Upgraded with a phone/dashboard top status bar (time, Dynamic Island notch, signal, wifi, battery icons), public share link indicator, and 3 structured evidence rows with rounded status pills and soft hover transitions.
+3. **Right Card (Floating Downward)**: Transformed into a bottom-anchored card featuring 3 circular white icon pods with 0% bias indicators (Gender, College, Photo) alongside the strikethrough algorithmic guarantee checklist.
+4. **Motion Physics**: Added CSS hardware-accelerated `@keyframes` (`float-left`, `float-slow`, `float-right`) with staggered timing and rotational offsets for natural continuous floating.
+
+**Code explanation (section by section):**
+`app/components/landing/Hero.jsx`
+- **Cards Grid** — Integrated the 3 floating cards with asynchronous animation classes, responsive offsets, and updated Lucide icon imports.
+
+`app/globals.css`
+- **Floating Physics** — Added keyframe animations (`float-slow`, `float-left`, `float-right`) with `will-change: transform` for smooth 60fps rendering.
+
+**Open items / follow-ups:**
+Production build verified cleanly with exit code 0 across all 19 app routes.
+---
+## [2026-08-14 23:00] Hero Top Badge Sizing & Typography Scale-Up
+
+**Files changed:**
+- `app/components/landing/Hero.jsx` (modified)
+
+**What changed and why:**
+Further increased the vertical padding (`py-3.5`) and text sizes on the top Hero pill badge (`text-sm` for the badge body and `text-xs` font-black for the inner `"AUTOMATED VERIFICATION"` tag) with expanded tag padding (`px-3.5 py-1.5`) for greater prominence and readability.
+
+**Code explanation (section by section):**
+`app/components/landing/Hero.jsx`
+- **Top Badge** — Scaled outer pill container to `px-5.5 py-3.5 text-sm gap-3` and inner emerald label to `px-3.5 py-1.5 text-xs`.
+
+**Open items / follow-ups:**
+Production build verified cleanly with exit code 0.
+---
+## [2026-08-14 22:59] Hero Top Badge Y-Padding Enhancement
+
+**Files changed:**
+- `app/components/landing/Hero.jsx` (modified)
+
+**What changed and why:**
+Increased the vertical padding on the top Hero pill badge (`AUTOMATED VERIFICATION • No Human Verifier • Zero Demographic Bias`) from `py-1.5` to `py-2.5`, and the inner emerald tag from `py-0.5` to `py-1`, to give the badge a more balanced, spacious, and prominent visual hierarchy.
+
+**Code explanation (section by section):**
+`app/components/landing/Hero.jsx`
+- **Top Badge** — Updated outer pill container padding to `px-4.5 py-2.5` and inner label to `px-2.5 py-1`.
+
+**Open items / follow-ups:**
+Production build verified cleanly with exit code 0.
+---
 ## [2026-08-14 19:37] Legacy Hero Component Deletion
 
 **Files changed:**

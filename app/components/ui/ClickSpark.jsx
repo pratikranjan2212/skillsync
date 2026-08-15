@@ -22,13 +22,13 @@ import React, { useEffect, useRef, useCallback } from "react";
 export default function ClickSpark({
   children,
   sparkColor = "#ffffff",
-  sparkSize = 12,
-  sparkRadius = 18,
+  sparkSize = 13,
+  sparkRadius = 28,
   sparkCount = 4,
-  angleSpread = Math.PI * 0.85,
-  duration = 500,
+  angleSpread = (110 * Math.PI) / 180,
+  duration = 400,
   easing = "ease-out",
-  extraScale = 1.1,
+  extraScale = 1.2,
   className = "",
 }) {
   const containerRef = useRef(null);
@@ -85,9 +85,10 @@ export default function ClickSpark({
 
       sparksRef.current = sparksRef.current.filter((spark) => {
         const elapsed = timestamp - spark.startTime;
-        if (elapsed >= duration) return false;
+        const sparkDuration = spark.duration || duration;
+        if (elapsed >= sparkDuration) return false;
 
-        const progress = elapsed / duration;
+        const progress = elapsed / sparkDuration;
         const eased = easeFunc(progress);
 
         const lineLength = sparkSize * (1 - eased);
@@ -99,7 +100,7 @@ export default function ClickSpark({
         const y2 = spark.y + (distance + lineLength) * Math.sin(spark.angle);
 
         ctx.strokeStyle = spark.color;
-        ctx.globalAlpha = 1 - eased;
+        ctx.globalAlpha = 1 - progress;
         ctx.lineWidth = 2;
         ctx.lineCap = "round";
         ctx.beginPath();
@@ -155,77 +156,72 @@ export default function ClickSpark({
   };
 
   const resolveColor = (target, clientX, clientY) => {
-    // 1. Check explicit data-spark-color attribute
+    // 0. Check explicit data-spark-color attribute on target or closest ancestor
     const explicitEl = target.closest?.("[data-spark-color]");
     if (explicitEl?.dataset?.sparkColor) {
       return explicitEl.dataset.sparkColor;
     }
 
-    // 2. Gather candidate elements positioned directly under click point + target ancestors
-    let elements = [];
+    // 1. Gather candidate elements under click point + target parent tree + inner background layers
+    let candidates = [];
     if (typeof document !== "undefined" && document.elementsFromPoint && clientX !== undefined && clientY !== undefined) {
-      elements = document.elementsFromPoint(clientX, clientY) || [];
+      candidates = Array.from(document.elementsFromPoint(clientX, clientY) || []);
     }
 
     let curr = target;
     while (curr && curr !== document.documentElement) {
-      if (!elements.includes(curr)) {
-        elements.push(curr);
+      if (!candidates.includes(curr)) {
+        candidates.push(curr);
+      }
+      if (curr.children && curr.children.length > 0) {
+        for (const child of Array.from(curr.children)) {
+          if (!candidates.includes(child)) {
+            candidates.push(child);
+          }
+        }
       }
       curr = curr.parentElement;
     }
 
-    // 3. Inspect elements top-to-bottom (closest element under cursor first)
-    for (const el of elements) {
+    // Regex for standalone solid white background class (excludes translucent bg-white/10, bg-white/20, hover:bg-white/20, etc.)
+    const solidWhiteRegex = /(?:^|\s)(?:[a-z0-9_-]+:)*bg-white(?:$|\s)/;
+
+    // Regex for standalone dark background classes and dark gradients
+    const darkBgRegex = /(?:^|\s)(?:[a-z0-9_-]+:)*(?:bg-neutral-900|bg-neutral-950|bg-slate-900|bg-slate-950|bg-[#0d1f18]|bg-[#091510]|bg-[#0f241c]|bg-[#111111]|bg-[#1C1C1C]|from-slate-900|from-slate-950|from-neutral-900|from-neutral-950|from-black|from-[#0d1f18]|bg-black)(?:$|\s)/;
+
+    // 2. Inspect candidates from top to bottom to sample background color & calculate luminance contrast
+    for (const el of candidates) {
       if (!el || el === document.documentElement || el === document.body) continue;
+
+      if (el.dataset?.sparkColor) {
+        return el.dataset.sparkColor;
+      }
 
       const style = window.getComputedStyle(el);
       const bg = style.backgroundColor;
       const bgImage = style.backgroundImage;
-      const className = el.className || "";
+      const className = typeof el.className === "string" ? el.className : "";
 
-      // Check explicit light background classes first
-      if (typeof className === "string") {
-        if (
-          className.includes("bg-white") ||
-          className.includes("bg-[#F5F5F3]") ||
-          className.includes("bg-[#F2F3F5]") ||
-          className.includes("bg-[#F8F9FA]")
-        ) {
+      // Check computed solid backgroundColor (require alpha > 0.4 so semi-transparent overlays like bg-white/10 fall through)
+      if (bg && bg !== "transparent" && bg !== "rgba(0, 0, 0, 0)") {
+        const rgb = parseColorToRgb(bg);
+        if (rgb && rgb.alpha > 0.4) {
+          const lum = getLuminance(rgb.r, rgb.g, rgb.b);
+          return lum < 135 ? "#ffffff" : "#111111";
+        }
+      }
+
+      // Check explicit class names with strict boundaries
+      if (className) {
+        if (solidWhiteRegex.test(className) || className.includes("bg-[#F5F5F3]") || className.includes("bg-[#F2F3F5]") || className.includes("bg-[#F8F9FA]")) {
           return "#111111";
         }
-
-        // Check explicit dark background classes
-        if (
-          className.includes("bg-neutral-900") ||
-          className.includes("bg-neutral-950") ||
-          className.includes("bg-slate-900") ||
-          className.includes("bg-slate-950") ||
-          className.includes("bg-[#0d1f18]") ||
-          className.includes("bg-[#091510]") ||
-          className.includes("bg-[#0f241c]") ||
-          className.includes("bg-[#111111]") ||
-          className.includes("from-[#0d1f18]") ||
-          className.includes("bg-black") ||
-          className.includes("bg-emerald-950") ||
-          className.includes("bg-emerald-900") ||
-          className.includes("bg-green-950") ||
-          className.includes("bg-green-900")
-        ) {
+        if (darkBgRegex.test(className)) {
           return "#ffffff";
         }
       }
 
-      // Check solid backgroundColor
-      if (bg && bg !== "transparent" && bg !== "rgba(0, 0, 0, 0)") {
-        const rgb = parseColorToRgb(bg);
-        if (rgb && rgb.alpha > 0.1) {
-          const lum = getLuminance(rgb.r, rgb.g, rgb.b);
-          return lum < 140 ? "#ffffff" : "#111111";
-        }
-      }
-
-      // Check CSS gradient / backgroundImage
+      // Check CSS background gradients
       if (bgImage && bgImage !== "none") {
         const matches = bgImage.match(/(?:rgb|rgba|#)[^\s,)]+/g);
         if (matches && matches.length > 0) {
@@ -240,25 +236,25 @@ export default function ClickSpark({
           }
           if (count > 0) {
             const avgLum = totalLum / count;
-            return avgLum < 140 ? "#ffffff" : "#111111";
+            return avgLum < 135 ? "#ffffff" : "#111111";
           }
         }
       }
     }
 
-    // 4. Fallback text color check on target
+    // 3. Fallback: inspect computed text color on target (light text implies dark element -> white spark)
     if (target) {
       const fg = window.getComputedStyle(target).color;
       if (fg) {
         const rgb = parseColorToRgb(fg);
         if (rgb && rgb.alpha > 0.5) {
           const lum = getLuminance(rgb.r, rgb.g, rgb.b);
-          if (lum > 150) return "#ffffff";
+          return lum > 150 ? "#ffffff" : "#111111";
         }
       }
     }
 
-    return sparkColor || "#ffffff";
+    return "#ffffff";
   };
 
   const handleClick = (e) => {
@@ -270,13 +266,16 @@ export default function ClickSpark({
     const color = resolveColor(e.target, e.clientX, e.clientY);
     const now = performance.now();
 
+    const durationAttr = e.target.closest?.("[data-spark-duration]")?.dataset?.sparkDuration;
+    const sparkDuration = durationAttr ? parseInt(durationAttr, 10) : duration;
+
     // Angles fanned across an upward arc (umbrella shape), centered
     // straight up at -90deg, instead of spreading a full 360deg circle.
     const centerAngle = -Math.PI / 2;
     const newSparks = Array.from({ length: sparkCount }, (_, i) => {
       const t = sparkCount > 1 ? i / (sparkCount - 1) : 0.5;
       const angle = centerAngle - angleSpread / 2 + angleSpread * t;
-      return { x, y, angle, startTime: now, color };
+      return { x, y, angle, startTime: now, color, duration: sparkDuration };
     });
 
     sparksRef.current.push(...newSparks);
