@@ -6,7 +6,7 @@ export async function GET(request, { params }) {
   const item = INITIAL_OPPORTUNITIES.find((op) => op.id === id) || INITIAL_OPPORTUNITIES[0];
 
   if (!item) {
-    return NextResponse.json({ error: "Opportunity not found" }, { status: 404 });
+    return NextResponse.json({ error: "Opportunity match detail not found" }, { status: 404 });
   }
 
   return NextResponse.json({
