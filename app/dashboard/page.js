@@ -24,12 +24,15 @@ import {
   BarChart2,
   CheckCircle2,
   FilePlus2,
+  LayoutDashboard,
 } from "lucide-react";
 import Navbar from "@/app/components/layout/Navbar";
 import EvidenceCard from "@/app/components/evidence/EvidenceCard";
 import ShareExportButtons from "@/app/components/passport/ShareExportButtons";
 import OpportunityCard from "@/app/components/opportunities/OpportunityCard";
 import Badge from "@/app/components/ui/Badge";
+import AuthRequiredView from "@/app/components/auth/AuthRequiredView";
+import { useAuth } from "@/app/hooks/useAuth";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { useForm } from "react-hook-form";
 
@@ -81,6 +84,7 @@ async function fetchFairnessAudits() {
  * and Governance Fairness Auditing into a single dashboard.
  */
 export default function UnifiedDashboardPage() {
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState("evidence"); // evidence | passport | opportunities | governance
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedSource, setSelectedSource] = useState("all");
@@ -92,31 +96,37 @@ export default function UnifiedDashboardPage() {
   const { data: evidenceList = [], isLoading: loadingEv, refetch: refetchEv } = useQuery({
     queryKey: ["dash-evidence"],
     queryFn: fetchEvidence,
+    enabled: isAuthenticated,
   });
 
   const { data: passport, isLoading: loadingPass, refetch: refetchPass } = useQuery({
     queryKey: ["dash-passport"],
     queryFn: fetchPassport,
+    enabled: isAuthenticated,
   });
 
   const { data: opportunities = [], isLoading: loadingOpp, refetch: refetchOpp } = useQuery({
     queryKey: ["dash-opportunities"],
     queryFn: fetchOpportunities,
+    enabled: isAuthenticated,
   });
 
   const { data: pipeline = [], refetch: refetchPipe } = useQuery({
     queryKey: ["dash-pipeline"],
     queryFn: fetchPipelineLog,
+    enabled: isAuthenticated,
   });
 
   const { data: taxonomy = [], refetch: refetchTax } = useQuery({
     queryKey: ["dash-taxonomy"],
     queryFn: fetchTaxonomy,
+    enabled: isAuthenticated,
   });
 
   const { data: fairnessData, refetch: refetchFair } = useQuery({
     queryKey: ["dash-fairness"],
     queryFn: fetchFairnessAudits,
+    enabled: isAuthenticated,
   });
 
   const { register: regSkill, handleSubmit: submitSkill, reset: resetSkill } = useForm();
@@ -125,6 +135,41 @@ export default function UnifiedDashboardPage() {
   const highCount = evidenceList.filter((e) => e.verificationTier === "verified-high").length;
   const medCount = evidenceList.filter((e) => e.verificationTier === "verified-medium").length;
   const lowCount = evidenceList.filter((e) => e.verificationTier === "flagged-low").length;
+
+  if (!authLoading && !isAuthenticated) {
+    return (
+      <div className="h-screen overflow-hidden bg-[#F5F5F3] text-[#111111] flex flex-col justify-start">
+        <Navbar />
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 w-full">
+          <AuthRequiredView
+            badgeText="Unified Student & Admin Dashboard"
+            badgeIcon={LayoutDashboard}
+            badgeColor="emerald"
+            title="SkillSync Dashboard Access"
+            subtitle="Sign in to manage your evidence records, view your Skill Passport, explore matched opportunities, and monitor governance audits."
+            sectionName="Dashboard"
+            features={[
+              {
+                icon: FileCheck,
+                title: "Evidence Ingestion & Validation",
+                desc: "Upload coursework transcripts and GitHub projects with multi-tier automated validation and confidence scores.",
+              },
+              {
+                icon: Award,
+                title: "Skill Passport Management",
+                desc: "Group verified skills into taxonomy domains, generate official PDF transcripts, and toggle public share links.",
+              },
+              {
+                icon: Briefcase,
+                title: "Personalized Job Match Engine",
+                desc: "Explore AI-ranked internships with explainable score breakdowns and zero demographic bias.",
+              },
+            ]}
+          />
+        </main>
+      </div>
+    );
+  }
 
   // Handlers
   const handleTogglePublic = async (isPublic) => {
@@ -339,7 +384,7 @@ export default function UnifiedDashboardPage() {
                   Verified Skill Passport
                 </span>
                 <h2 className="text-2xl font-black text-[#111111] mt-2">Skills Grouped by Taxonomy</h2>
-                <p className="text-xs text-[#494D4D] mt-1">Export signed JSON/PDF or toggle public link.</p>
+                <p className="text-xs text-[#494D4D] mt-1">Export signed PDF or toggle public link.</p>
               </div>
 
               <ShareExportButtons

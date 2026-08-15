@@ -2,10 +2,12 @@
 
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Award, ShieldCheck, Layers, FileCheck, RefreshCw, AlertCircle } from "lucide-react";
+import { Award, ShieldCheck, Layers, FileCheck, RefreshCw, AlertCircle, FileText } from "lucide-react";
 import Navbar from "@/app/components/layout/Navbar";
 import ShareExportButtons from "@/app/components/passport/ShareExportButtons";
 import Badge from "@/app/components/ui/Badge";
+import AuthRequiredView from "@/app/components/auth/AuthRequiredView";
+import { useAuth } from "@/app/hooks/useAuth";
 
 async function fetchPassportData() {
   const res = await fetch("/api/passport");
@@ -17,8 +19,11 @@ async function fetchPassportData() {
 /**
  * Skill Passport View Screen.
  * Categorizes student skills and presents verified supporting evidence citations.
+ * Protected: Displays full passport when signed in, or AuthRequiredView when signed out.
  */
 export default function SkillPassportPage() {
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
+
   const {
     data: passport,
     isLoading,
@@ -27,6 +32,7 @@ export default function SkillPassportPage() {
   } = useQuery({
     queryKey: ["skill-passport"],
     queryFn: fetchPassportData,
+    enabled: isAuthenticated,
   });
 
   const handleTogglePublic = async (newPublicState) => {
@@ -41,6 +47,43 @@ export default function SkillPassportPage() {
       console.error("Failed to update visibility:", err);
     }
   };
+
+  if (!authLoading && !isAuthenticated) {
+    return (
+      <div className="h-screen overflow-hidden bg-[#F5F5F3] text-[#111111] flex flex-col justify-start">
+        <Navbar />
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 w-full">
+          <AuthRequiredView
+            badgeText="Verified Portable Skill Passport"
+            badgeIcon={Award}
+            badgeColor="amber"
+            title="Skill Passport Access"
+            subtitle="Sign in to view, verify, and export your official Skill Passport with evidence-backed coursework and credential citations."
+            sectionName="Skill Passport"
+            publicLink="/passport/sp-token-alex-chen"
+            publicLinkText="View Sample Public Passport"
+            features={[
+              {
+                icon: Layers,
+                title: "Taxonomy-Grouped Skills",
+                desc: "Verified skills organized systematically across Programming Languages, Databases, AI/ML, and Frontend Web domains.",
+              },
+              {
+                icon: FileCheck,
+                title: "100% Backed Evidence Citations",
+                desc: "Every skill maps directly to verified university coursework, GitHub repositories, and accredited micro-credentials.",
+              },
+              {
+                icon: FileText,
+                title: "Verifiable PDF Export & Sharing",
+                desc: "Generate official PDF skill transcripts or toggle public read-only share links for recruiters.",
+              },
+            ]}
+          />
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F5F5F3] text-[#111111] pb-16">

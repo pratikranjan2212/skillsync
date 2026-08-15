@@ -55,9 +55,17 @@ export default function Hero({ onOpenAppModal, onOpenDemoModal }) {
           </div>
 
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white leading-[1.08] mb-6">
-            Convert Coursework into a <br />
-            <span className="text-transparent bg-clip-text bg-linear-to-r from-emerald-400 via-teal-200 to-white">
-              Verified Skill Passport
+            Your Journey Through Coursework, <br />
+            <span 
+              className="inline-block"
+              style={{
+                background: "linear-gradient(90deg, #10b981 0%, #6ee7b7 45%, #ffffff 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                color: "transparent"
+              }}
+            >
+              Stamped With Real-World Skills
             </span>
           </h1>
 
