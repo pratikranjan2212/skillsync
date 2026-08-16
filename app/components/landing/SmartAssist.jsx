@@ -44,6 +44,7 @@ export default function SmartAssist() {
             </div>
           </FadeIn>
 
+          {/* Feature Cards Grid */}
           <FadeIn delay={0.06} distance={18} duration={0.45}>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {SMART_ASSIST_CARDS.map((card) => {
@@ -51,16 +52,17 @@ export default function SmartAssist() {
                 return (
                   <div
                     key={card.id}
-                    className={`group bg-[#F8F9FA] hover:bg-white p-6 sm:p-7 rounded-3xl border border-black/5 ${card.cardBorder || "hover:border-black/10"} transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-xl hover:shadow-black/5 flex flex-col justify-between gap-4 h-full`}
+                    className={`group bg-white p-6 sm:p-7 rounded-3xl border border-neutral-200/90 ${card.hoverBorder || "hover:border-neutral-900"} transition-all duration-300 ease-out hover:-translate-y-1 flex flex-col justify-between gap-4 h-full`}
                   >
                     <div>
+                      {/* Squircle (rounded-2xl) icon with radiant drop shadow */}
                       <div
                         className={`w-12 h-12 rounded-2xl ${card.iconBg} ${card.iconShadow} text-white flex items-center justify-center mb-5 transition-transform duration-300 group-hover:scale-105`}
                       >
                         <Icon className="w-6 h-6" />
                       </div>
                       <h3 className="text-lg font-extrabold text-[#111111] tracking-tight">{card.title}</h3>
-                      <p className="text-xs sm:text-[13px] text-[#494D4D] mt-2 leading-relaxed font-medium">
+                      <p className="text-xs sm:text-[13px] text-[#494D4D] mt-2.5 leading-relaxed font-medium">
                         {card.description}
                       </p>
                     </div>

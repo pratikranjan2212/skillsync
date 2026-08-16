@@ -61,8 +61,8 @@ export default function FeatureBento() {
 
                   <div className="p-3 bg-[#F8F9FA] rounded-2xl border border-black/5 flex items-center justify-between gap-2">
                     <div>
-                      <div className="text-xs font-bold text-neutral-900">Self-Submitted Hackathon Link</div>
-                      <div className="text-[10px] text-neutral-500">Devpost prototype demo</div>
+                      <div className="text-xs font-bold text-neutral-900">Self-Submitted Project Link</div>
+                      <div className="text-[10px] text-neutral-500">Repository & deployment URL</div>
                     </div>
                     <Badge tier="flagged-low" />
                   </div>
