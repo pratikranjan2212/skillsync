@@ -30,11 +30,13 @@ import {
   Upload,
   RefreshCw,
   Trash2,
+  Crop,
   Image as ImageIcon,
 } from "lucide-react";
 import Navbar from "@/app/components/layout/Navbar";
 import { useAuth } from "@/app/hooks/useAuth";
 import AuthRequiredView from "@/app/components/auth/AuthRequiredView";
+import ImageCropperModal from "@/app/components/profile/ImageCropperModal";
 
 async function fetchUserProfile() {
   const res = await fetch("/api/profile");
@@ -49,7 +51,10 @@ async function updateUserProfile(payload) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  if (!res.ok) throw new Error("Failed to update profile");
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error || errorData.details || `Failed to update profile (${res.status})`);
+  }
   return res.json();
 }
 
@@ -82,16 +87,49 @@ function formatNameClient(name, login) {
   );
 }
 
+function parseDobToDateInput(dobStr) {
+  if (!dobStr) return "";
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dobStr)) return dobStr;
+  const d = new Date(dobStr);
+  if (!isNaN(d.getTime())) {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+  return "";
+}
+
+function formatDateFromInput(val) {
+  if (!val) return "";
+  const parts = val.split("-");
+  if (parts.length !== 3) return val;
+  const year = parseInt(parts[0], 10);
+  const monthIdx = parseInt(parts[1], 10) - 1;
+  const day = parseInt(parts[2], 10);
+  const months = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+  if (monthIdx >= 0 && monthIdx < 12) {
+    return `${day} ${months[monthIdx]} ${year}`;
+  }
+  return val;
+}
+
 export default function ProfilePage() {
   const { isAuthenticated, isLoading: authLoading, user: authUser } = useAuth();
   const queryClient = useQueryClient();
   const fileInputRef = useRef(null);
+  const datePickerRef = useRef(null);
 
   const [activeTab, setActiveTab] = useState("overview");
   const [isEditing, setIsEditing] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [newSkillInput, setNewSkillInput] = useState("");
   const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [showCropperModal, setShowCropperModal] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState(null);
   const [customPhotoUrl, setCustomPhotoUrl] = useState("");
   const [isSyncingGithub, setIsSyncingGithub] = useState(false);
 
@@ -103,6 +141,7 @@ export default function ProfilePage() {
 
   const [formData, setFormData] = useState({
     name: "",
+    dob: "",
     image: "",
     college: "",
     degree: "",
@@ -116,10 +155,16 @@ export default function ProfilePage() {
     publicPassport: true,
   });
 
+  const [isSkillsInitialized, setIsSkillsInitialized] = useState(false);
+
   useEffect(() => {
+    // Only update formData from profile when not actively editing
+    if (isEditing) return;
+
     if (profile) {
       setFormData({
-        name: formatNameClient(profile.name, authUser?.name),
+        name: profile.name || formatNameClient(profile.name, authUser?.name),
+        dob: profile.dob || "",
         image: profile.image || authUser?.image || "",
         college: profile.college || "",
         degree: profile.degree || "",
@@ -132,6 +177,7 @@ export default function ProfilePage() {
         emailNotifications: true,
         publicPassport: profile.passport?.isPublic ?? true,
       });
+      setIsSkillsInitialized(true);
       if (profile.image) setCustomPhotoUrl(profile.image);
     } else if (authUser) {
       setFormData((prev) => ({
@@ -140,16 +186,26 @@ export default function ProfilePage() {
         image: authUser.image || "",
       }));
     }
-  }, [profile, authUser]);
+  }, [profile, authUser, isEditing]);
 
   const updateMutation = useMutation({
     mutationFn: updateUserProfile,
     onSuccess: (data) => {
       queryClient.setQueryData(["user-profile"], data.profile);
+      queryClient.invalidateQueries({ queryKey: ["user-profile"] });
+      queryClient.invalidateQueries({ queryKey: ["skill-passport"] });
+      queryClient.invalidateQueries({ queryKey: ["dash-passport"] });
+      queryClient.invalidateQueries({ queryKey: ["dash-evidence"] });
       setIsEditing(false);
       setShowPhotoModal(false);
+      setShowCropperModal(false);
+      setImageToCrop(null);
       setSavedSuccess(true);
       setTimeout(() => setSavedSuccess(false), 4000);
+    },
+    onError: (err) => {
+      console.error("Profile update mutation error:", err);
+      alert("Failed to save changes: " + (err.message || "Unknown error"));
     },
   });
 
@@ -161,16 +217,17 @@ export default function ProfilePage() {
   const handleFileUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 3 * 1024 * 1024) {
-      alert("Image size should be less than 3MB");
+    if (file.size > 8 * 1024 * 1024) {
+      alert("Image size should be less than 8MB");
       return;
     }
     const reader = new FileReader();
     reader.onloadend = () => {
       const base64 = reader.result;
-      const updated = { ...formData, image: base64 };
-      setFormData(updated);
-      updateMutation.mutate(updated);
+      setImageToCrop(base64);
+      setShowCropperModal(true);
+      setShowPhotoModal(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     };
     reader.readAsDataURL(file);
   };
@@ -178,9 +235,18 @@ export default function ProfilePage() {
   const handleApplyPhotoUrl = (e) => {
     if (e) e.preventDefault();
     const trimmed = customPhotoUrl.trim();
-    const updated = { ...formData, image: trimmed };
+    if (!trimmed) return;
+    setImageToCrop(trimmed);
+    setShowCropperModal(true);
+    setShowPhotoModal(false);
+  };
+
+  const handleCropComplete = (croppedDataUrl) => {
+    const updated = { ...formData, image: croppedDataUrl };
     setFormData(updated);
     updateMutation.mutate(updated);
+    setShowCropperModal(false);
+    setImageToCrop(null);
   };
 
   const handleRemovePhoto = () => {
@@ -204,13 +270,18 @@ export default function ProfilePage() {
         const ghData = await res.json();
         const updated = {
           ...formData,
-          name: ghData.name || ghData.login || formData.name,
-          image: ghData.avatar_url || formData.image,
+          name: formatNameClient(ghData.name, ghData.login || handle),
           bio: ghData.bio || formData.bio,
           github: ghData.html_url || `https://github.com/${handle}`,
         };
         setFormData(updated);
         updateMutation.mutate(updated);
+
+        if (ghData.avatar_url) {
+          setImageToCrop(ghData.avatar_url);
+          setShowCropperModal(true);
+          setShowPhotoModal(false);
+        }
       }
     } catch (err) {
       console.warn("GitHub sync warning:", err);
@@ -323,14 +394,6 @@ export default function ProfilePage() {
                   <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-neutral-900 text-white uppercase tracking-wider">
                     {displayRole}
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => setShowPhotoModal(true)}
-                    className="px-2.5 py-1 text-[11px] font-bold bg-neutral-100 hover:bg-neutral-200 text-neutral-700 rounded-lg flex items-center gap-1 transition-colors cursor-pointer"
-                  >
-                    <Camera className="w-3 h-3 text-emerald-600" />
-                    <span>Change Photo</span>
-                  </button>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-y-1 gap-x-4 text-xs font-medium text-[#494D4D]">
@@ -347,6 +410,12 @@ export default function ProfilePage() {
                     <span className="flex items-center gap-1.5 text-neutral-400 italic">
                       <Building className="w-3.5 h-3.5" />
                       Institution not set
+                    </span>
+                  )}
+                  {(formData.dob || profile?.dob) && (
+                    <span className="flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5 text-neutral-400" />
+                      <span>DOB: {formData.dob || profile?.dob}</span>
                     </span>
                   )}
                   <span className="flex items-center gap-1.5 font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
@@ -492,18 +561,46 @@ export default function ProfilePage() {
                 </form>
 
                 {displayImage && (
-                  <button
-                    type="button"
-                    onClick={handleRemovePhoto}
-                    className="text-xs font-bold text-rose-600 hover:text-rose-700 flex items-center gap-1.5 pt-1 cursor-pointer"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                    <span>Remove Photo & Use Initials Avatar</span>
-                  </button>
+                  <div className="w-full flex flex-col gap-2 pt-1 border-t border-neutral-100 mt-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setImageToCrop(displayImage);
+                        setShowCropperModal(true);
+                        setShowPhotoModal(false);
+                      }}
+                      className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                    >
+                      <Crop className="w-4 h-4 text-emerald-600" />
+                      <span>Crop & Adjust Current Photo</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleRemovePhoto}
+                      className="text-xs font-bold text-rose-600 hover:text-rose-700 flex items-center justify-center gap-1.5 py-1 cursor-pointer"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Remove Photo & Use Initials Avatar</span>
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
           </div>
+        )}
+
+        {/* Modal: Interactive Image Cropper */}
+        {showCropperModal && imageToCrop && (
+          <ImageCropperModal
+            imageSrc={imageToCrop}
+            onCancel={() => {
+              setShowCropperModal(false);
+              setImageToCrop(null);
+            }}
+            onCropComplete={handleCropComplete}
+            isProcessing={updateMutation.isPending}
+          />
         )}
 
         {activeTab === "overview" && (
@@ -530,27 +627,87 @@ export default function ProfilePage() {
 
                 {isEditing ? (
                   <form onSubmit={handleSave} className="flex flex-col gap-4">
-                    {/* Full Name with GitHub Sync helper */}
-                    <div>
-                      <div className="flex items-center justify-between mb-1.5">
-                        <label className="block text-xs font-bold text-[#111111]">Full Name</label>
-                        <button
-                          type="button"
-                          disabled={isSyncingGithub}
-                          onClick={handleSyncFromGithub}
-                          className="text-[11px] font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 cursor-pointer disabled:opacity-50"
-                        >
-                          <RefreshCw className={`w-3 h-3 ${isSyncingGithub ? "animate-spin" : ""}`} />
-                          <span>Fetch Name & Info from GitHub</span>
-                        </button>
+                    {/* Full Name & Date of Birth (DOB) Row */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <label className="block text-xs font-bold text-[#111111]">Full Name</label>
+                          <button
+                            type="button"
+                            disabled={isSyncingGithub}
+                            onClick={handleSyncFromGithub}
+                            className="text-[11px] font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                          >
+                            <RefreshCw className={`w-3 h-3 ${isSyncingGithub ? "animate-spin" : ""}`} />
+                            <span>Fetch from GitHub</span>
+                          </button>
+                        </div>
+                        <input
+                          type="text"
+                          value={formData.name}
+                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                          placeholder="e.g. Tony Stark / Pratik Ranjan"
+                          className="w-full px-4 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        />
                       </div>
-                      <input
-                        type="text"
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        placeholder="e.g. Tony Stark / Pratik Ranjan"
-                        className="w-full px-4 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                      />
+
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <label className="block text-xs font-bold text-[#111111]">Date of Birth (DOB)</label>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              try {
+                                datePickerRef.current?.showPicker?.();
+                              } catch {
+                                datePickerRef.current?.focus();
+                              }
+                            }}
+                            className="text-[11px] font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-1 cursor-pointer transition-colors"
+                          >
+                            <Calendar className="w-3.5 h-3.5" />
+                            <span>Choose from calendar</span>
+                          </button>
+                        </div>
+                        <div className="relative flex items-center">
+                          <input
+                            type="text"
+                            value={formData.dob}
+                            onChange={(e) => setFormData({ ...formData, dob: e.target.value })}
+                            placeholder="e.g. 12 May 2003"
+                            className="w-full pl-4 pr-10 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              try {
+                                datePickerRef.current?.showPicker?.();
+                              } catch {
+                                datePickerRef.current?.focus();
+                              }
+                            }}
+                            className="absolute right-2.5 p-1.5 rounded-lg text-neutral-400 hover:text-emerald-600 hover:bg-black/5 transition-colors cursor-pointer"
+                            title="Open calendar to pick date of birth"
+                          >
+                            <Calendar className="w-4 h-4" />
+                          </button>
+                          <input
+                            ref={datePickerRef}
+                            type="date"
+                            max={new Date().toISOString().split("T")[0]}
+                            value={parseDobToDateInput(formData.dob)}
+                            onChange={(e) => {
+                              const formatted = formatDateFromInput(e.target.value);
+                              if (formatted) {
+                                setFormData((prev) => ({ ...prev, dob: formatted }));
+                              }
+                            }}
+                            className="sr-only"
+                            tabIndex={-1}
+                            aria-hidden="true"
+                          />
+                        </div>
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -641,10 +798,12 @@ export default function ProfilePage() {
                       </button>
                       <button
                         type="submit"
+                        onClick={handleSave}
                         disabled={updateMutation.isPending}
-                        className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-xs font-bold text-white shadow-xs disabled:opacity-50 cursor-pointer"
+                        className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-xs font-bold text-white shadow-xs disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
                       >
-                        {updateMutation.isPending ? "Saving..." : "Save Changes"}
+                        {updateMutation.isPending && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
+                        <span>{updateMutation.isPending ? "Saving..." : "Save Changes"}</span>
                       </button>
                     </div>
                   </form>
@@ -745,24 +904,65 @@ export default function ProfilePage() {
                   </Link>
                 </div>
 
-                {/* Inline Add Skill Input */}
-                <form onSubmit={handleAddSkill} className="flex items-center gap-2 mb-4">
-                  <div className="relative flex-1">
+                {/* Add Skill Form with Preset Dropdown and Text Input */}
+                <form onSubmit={handleAddSkill} className="flex flex-col sm:flex-row items-stretch gap-2 mb-4">
+                  <select
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        const skillToAdd = e.target.value;
+                        if (!formData.skills.includes(skillToAdd)) {
+                          const updatedSkills = [...formData.skills, skillToAdd];
+                          const newFormData = { ...formData, skills: updatedSkills };
+                          setFormData(newFormData);
+                          updateMutation.mutate(newFormData);
+                        }
+                        e.target.value = "";
+                      }
+                    }}
+                    defaultValue=""
+                    className="px-3.5 py-2.5 rounded-2xl bg-[#F5F5F3] border border-black/5 text-xs font-semibold text-[#111111] focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer flex-1"
+                  >
+                    <option value="" disabled>
+                      -- Quick Select Skill Preset --
+                    </option>
+                    {[
+                      "Next.js",
+                      "Python",
+                      "SQL",
+                      "React.js",
+                      "TypeScript",
+                      "Node.js",
+                      "PostgreSQL",
+                      "TensorFlow",
+                      "Docker",
+                      "REST API design",
+                      "Tailwind CSS",
+                      "Data Engineering",
+                      "Machine Learning",
+                    ].map((sk) => (
+                      <option key={sk} value={sk} disabled={formData.skills.includes(sk)}>
+                        {sk} {formData.skills.includes(sk) ? "✓ (Added)" : ""}
+                      </option>
+                    ))}
+                  </select>
+
+                  <div className="flex items-center gap-2 flex-1">
                     <input
                       type="text"
                       value={newSkillInput}
                       onChange={(e) => setNewSkillInput(e.target.value)}
-                      placeholder="Add a skill (e.g. Next.js, Python, PostgreSQL, Docker)..."
-                      className="w-full pl-4 pr-10 py-2.5 rounded-2xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      placeholder="Or type custom skill..."
+                      className="w-full px-4 py-2.5 rounded-2xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
                     />
+                    <button
+                      type="submit"
+                      disabled={updateMutation.isPending}
+                      className="px-4 py-2.5 bg-neutral-900 hover:bg-neutral-800 text-white rounded-2xl text-xs font-bold flex items-center gap-1.5 shrink-0 transition-colors cursor-pointer disabled:opacity-50"
+                    >
+                      <Plus className="w-4 h-4 text-emerald-400" />
+                      <span>{updateMutation.isPending ? "Adding..." : "Add"}</span>
+                    </button>
                   </div>
-                  <button
-                    type="submit"
-                    className="px-4 py-2.5 bg-neutral-900 hover:bg-neutral-800 text-white rounded-2xl text-xs font-bold flex items-center gap-1.5 shrink-0 transition-colors cursor-pointer"
-                  >
-                    <Plus className="w-4 h-4 text-emerald-400" />
-                    <span>Add Skill</span>
-                  </button>
                 </form>
 
                 {formData.skills.length > 0 ? (

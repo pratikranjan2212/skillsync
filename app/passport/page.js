@@ -27,6 +27,9 @@ export default function SkillPassportPage() {
     queryKey: ["skill-passport"],
     queryFn: fetchPassportData,
     enabled: isAuthenticated,
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
   });
 
   const handleTogglePublic = async (newPublicState) => {

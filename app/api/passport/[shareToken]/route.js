@@ -24,19 +24,59 @@ export async function GET(request, { params }) {
 
       const skills = [];
       for (const ev of passport.user.evidences || []) {
-        for (const skillName of ev.claimedSkills || []) {
+        for (const rawSkill of ev.claimedSkills || []) {
+          const skillName = rawSkill.trim();
+          if (!skillName) continue;
+
+          let existing = skills.find((s) => s.name.toLowerCase() === skillName.toLowerCase());
+          if (!existing) {
+            existing = {
+              name: skillName,
+              category: "Technical Competency",
+              tier: ev.verificationTier || "verified-medium",
+              evidence: [],
+            };
+            skills.push(existing);
+          }
+
+          if (!existing.evidence.some((e) => e.id === ev.id)) {
+            existing.evidence.push({
+              id: ev.id,
+              title: ev.title,
+              tier: ev.verificationTier || "verified-medium",
+              hash: ev.fileHash || `sha256:${ev.id}`,
+            });
+          }
+        }
+      }
+
+      for (const userSkill of passport.user.skills || []) {
+        const skillName = userSkill.trim();
+        if (!skillName) continue;
+        if (!skills.some((s) => s.name.toLowerCase() === skillName.toLowerCase())) {
           skills.push({
             name: skillName,
             category: "Technical Competency",
+            tier: "verified-medium",
+            evidence: [],
+          });
+        }
+      }
+
+      const projects = [];
+      for (const ev of passport.user.evidences || []) {
+        if (
+          ev.type === "project" ||
+          ev.type === "competition" ||
+          (ev.fileUrl && ev.fileUrl.includes("github.com"))
+        ) {
+          projects.push({
+            id: ev.id,
+            title: ev.title,
+            description: ev.description || `Verified evidence repository for ${ev.claimedSkills.join(", ")}`,
+            githubUrl: ev.fileUrl || "",
+            skills: ev.claimedSkills || [],
             tier: ev.verificationTier,
-            evidence: [
-              {
-                id: ev.id,
-                title: ev.title,
-                tier: ev.verificationTier,
-                hash: ev.fileHash,
-              },
-            ],
           });
         }
       }
@@ -45,17 +85,21 @@ export async function GET(request, { params }) {
         success: true,
         passport: {
           studentId: passport.studentId,
-          studentName: passport.user.name || "Alex Chen",
-          college: passport.user.college || "Ramaiah Institute of Technology",
-          degree: passport.user.degree || "B.Tech in Computer Science & Engineering",
-          batch: passport.user.batch || "2022 – 2026",
-          verified: true,
+          studentName: passport.user.name || "Student User",
+          gender: passport.user.gender || "Student",
+          dob: passport.user.dob || "Not Specified",
+          college: passport.user.college || "Institution Not Specified",
+          degree: passport.user.degree || "Degree Not Specified",
+          batch: passport.user.batch || "Batch Not Specified",
+          photoUrl: passport.user.image || null,
+          verified: (passport.user.evidences && passport.user.evidences.length > 0) || skills.length > 0,
           issuer: passport.issuer,
           credentialHash: passport.credentialHash,
           shareToken: passport.shareToken,
           isPublic: passport.isPublic,
           updatedAt: passport.updatedAt.toISOString(),
           skills: skills.length > 0 ? skills : INITIAL_PASSPORT.skills,
+          projects: projects.length > 0 ? projects : INITIAL_PASSPORT.projects,
         },
       });
     }

@@ -83,6 +83,48 @@ export async function POST(request) {
       },
     });
 
+    // Automatically sync claimed skills to User profile skills
+    if (verifiedData.claimedSkills && verifiedData.claimedSkills.length > 0) {
+      try {
+        const currentSkills = student.skills || [];
+        const mergedSkills = Array.from(
+          new Set([...currentSkills, ...verifiedData.claimedSkills.map((s) => s.trim())])
+        ).filter(Boolean);
+
+        await prisma.user.update({
+          where: { id: student.id },
+          data: { skills: mergedSkills },
+        });
+      } catch (skillErr) {
+        console.warn("Could not sync user skills:", skillErr.message);
+      }
+    }
+
+    // Ensure passport exists and update timestamp & hash
+    try {
+      const studentTag = `SS-${new Date().getFullYear()}-${student.id.substring(0, 6).toUpperCase()}`;
+      const shareToken = `sp-token-${Math.random().toString(36).substring(2, 9)}`;
+      const newHash = `0x${Math.random().toString(16).substring(2, 42).toUpperCase()}`;
+
+      await prisma.passport.upsert({
+        where: { userId: student.id },
+        update: {
+          updatedAt: new Date(),
+          credentialHash: newHash,
+        },
+        create: {
+          userId: student.id,
+          studentId: studentTag,
+          isPublic: true,
+          shareToken,
+          credentialHash: newHash,
+          issuer: "SkillSync Verifiable Credential Engine",
+        },
+      });
+    } catch (passErr) {
+      console.warn("Could not update passport state:", passErr.message);
+    }
+
     return NextResponse.json({ success: true, evidence: created }, { status: 201 });
   } catch (err) {
     console.error("Evidence submission error:", err);
