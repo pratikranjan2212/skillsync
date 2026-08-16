@@ -26,17 +26,17 @@ export default function SmartAssist() {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.12,
+        staggerChildren: 0.08,
       },
     },
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 32 },
+    hidden: { opacity: 0, y: 20 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] },
+      transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
     },
   };
 
@@ -65,13 +65,13 @@ export default function SmartAssist() {
             </div>
           </FadeIn>
 
-          {/* 4 Feature Cards with 3D Pop Out & Deeper Ambient Shadow */}
+          {/* 4 Feature Cards (Smooth Fade-In Entrance, No Popout Hover) */}
           <motion.div
             variants={containerVariants}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-40px" }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 perspective-[1000px]"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
           >
             {SMART_ASSIST_CARDS.map((card) => {
               const Icon = getIcon(card.icon);
@@ -79,36 +79,20 @@ export default function SmartAssist() {
                 <motion.div
                   key={card.id}
                   variants={itemVariants}
-                  whileHover={{
-                    y: -14,
-                    scale: 1.045,
-                    rotateX: -3,
-                    rotateY: 2,
-                    z: 30,
-                  }}
-                  transition={{ type: "spring", stiffness: 380, damping: 20 }}
-                  className={`group bg-white p-7 sm:p-8 rounded-[28px] sm:rounded-[32px] ${card.cardGlow} transition-all duration-300 flex flex-col justify-start min-h-[330px] cursor-pointer relative z-10 transform-gpu`}
-                  style={{ transformStyle: "preserve-3d" }}
+                  className={`bg-white p-7 sm:p-8 rounded-[28px] sm:rounded-[32px] ${card.cardGlow} transition-shadow duration-300 flex flex-col justify-start min-h-[330px]`}
                 >
-                  {/* 3D Elevated Circular Icon Badge */}
+                  {/* Circular Icon Badge */}
                   <div
-                    className={`w-13 h-13 sm:w-14 sm:h-14 rounded-full ${card.iconBg} ${card.iconShadow} text-white flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:-translate-y-2 group-hover:rotate-3`}
-                    style={{ transform: "translateZ(25px)" }}
+                    className={`w-13 h-13 sm:w-14 sm:h-14 rounded-full ${card.iconBg} ${card.iconShadow} text-white flex items-center justify-center mb-6`}
                   >
                     <Icon className="w-6 h-6 stroke-[2.2]" />
                   </div>
 
-                  <h3
-                    className="text-lg sm:text-xl font-black text-[#111111] tracking-tight leading-snug mb-3 transition-transform duration-300 group-hover:translate-x-0.5"
-                    style={{ transform: "translateZ(15px)" }}
-                  >
+                  <h3 className="text-lg sm:text-xl font-black text-[#111111] tracking-tight leading-snug mb-3">
                     {card.title}
                   </h3>
 
-                  <p
-                    className="text-xs sm:text-[13px] text-[#555959] leading-relaxed font-medium transition-colors duration-300 group-hover:text-[#262626]"
-                    style={{ transform: "translateZ(10px)" }}
-                  >
+                  <p className="text-xs sm:text-[13px] text-[#555959] leading-relaxed font-medium">
                     {card.description}
                   </p>
                 </motion.div>
@@ -126,7 +110,7 @@ export default function SmartAssist() {
                 href="/opportunities"
                 onMouseEnter={() => setHovered(true)}
                 onMouseLeave={() => setHovered(false)}
-                className="inline-flex items-center gap-2.5 px-7 py-4 bg-[#262626] hover:bg-neutral-800 text-white rounded-full font-extrabold text-sm transition-all hover:scale-95 active:scale-90 shadow-[0_14px_30px_rgba(0,0,0,0.28)]"
+                className="inline-flex items-center gap-2.5 px-7 py-4 bg-[#262626] hover:bg-neutral-800 text-white rounded-full font-extrabold text-sm transition-all duration-200 hover:scale-[0.98] active:scale-95 shadow-[0_14px_30px_rgba(0,0,0,0.28)]"
               >
                 <RollingText
                   text="Explore Opportunities Feed"
