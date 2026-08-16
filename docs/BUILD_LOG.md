@@ -1,8 +1,163 @@
-# SkillSync Frontend — Build Log
-Running log of every change made to the frontend, in chronological order (newest entry at the top).
+# SkillSync — Application Build Log
+Running log of every change made to the application, in chronological order (newest entry at the top).
 Each entry explains *what* changed and *why*, plus a section-by-section explanation of any new or modified code.
 
 ---
+## [2026-08-16 16:15] Implemented Complete Backend Architecture & Services (SOAIDEATHON-S30)
+
+**Files changed:**
+- `lib/config/env.js` (created) — Centralized environment and API configuration (single source of truth).
+- `lib/external/clients.js` (created) — Configured SDK singletons for Supabase and Octokit.
+- `prisma/schema.prisma` (created) — PostgreSQL schema modeling Users, Accounts, Sessions, VerificationTokens, Evidence, Skills, Passports, Opportunities, and FairnessAudits.
+- `lib/prisma.js` (created) — Prisma client global singleton.
+- `prisma/seed.js` (created) — Database seed script populating demo student/admin users, skill taxonomy, verified evidence, opportunities, and fairness audits.
+- `lib/auth.js` (created) — Auth.js (NextAuth v5) configuration with Credentials (bcryptjs) + GitHub OAuth providers, Prisma adapter, and JWT sessions.
+- `app/api/auth/register/route.js` (created) — User registration route handler with bcrypt password hashing and automatic passport initialization.
+- `app/api/auth/[...nextauth]/route.js` (modified) — Auth.js dynamic GET/POST route handler.
+- `lib/verification/cryptoHash.js` (created) — SHA-256 evidence record and passport credential hashing module.
+- `lib/verification/qrVerifier.js` (created) — QR and institutional digital signature verification engine.
+- `lib/verification/githubCheck.js` (created) — Octokit GitHub repository and commit cross-check module.
+- `lib/verification/ocrParser.js` (created) — OCR document and transcript parsing with OCR.Space API integration and regex fallbacks.
+- `lib/verification/pipeline.js` (created) — Multi-stage automated evidence verification pipeline orchestrator.
+- `lib/ingestion/normalize.js` (created) — Opportunity normalization and skill taxonomy extraction pipeline.
+- `lib/ingestion/remotive.js` (created) — Remotive public API job ingestion client.
+- `lib/ingestion/arbeitnow.js` (created) — Arbeitnow public API job ingestion client.
+- `lib/ingestion/jobicy.js` (created) — Jobicy public API job ingestion client.
+- `lib/ingestion/adzuna.js` (created) — Adzuna job ingestion client with env config integration.
+- `lib/ingestion/jooble.js` (created) — Jooble job ingestion client with env config integration.
+- `app/api/cron/ingest/route.js` (created) — Automated multi-source opportunity ingestion cron route.
+- `lib/matching/getMatchingFeatures.js` (created) — Hard boundary matching module strictly enforcing demographic omission (gender, college tier, name, photo).
+- `lib/matching/scoring.js` (created) — Deterministic match scoring engine with verification tier weighting.
+- `lib/matching/explainability.js` (created) — Explainable match breakdown generator with evidence citations and fairness guarantees.
+- `app/api/evidence/route.js` (modified) — Evidence submission and query route connected to automated verification pipeline.
+- `app/api/opportunities/route.js` & `app/api/opportunities/[id]/route.js` (modified) — Opportunity feed with fair personalized scoring and detailed explainability breakdowns.
+- `app/api/passport/route.js`, `[shareToken]/route.js`, `pdf/route.js` (modified) — Skill Passport retrieval, public token sharing, and verifiable PDF export.
+- `app/api/admin/pipeline/route.js`, `taxonomy/route.js`, `fairness/route.js` (modified) — Admin governance suite for manual tier overrides, taxonomy CRUD, and fairness audit logs.
+- `app/(auth)/signin/page.js` & `app/(auth)/signup/page.js` (modified) — Integrated GitHub OAuth sign-in/up buttons and hooked registration form to `/api/auth/register`.
+- `.env.example` & `.env.local` (created) — Configured environment variable templates and development placeholder defaults.
+- `package.json` (modified) — Added `@prisma/client`, `@auth/prisma-adapter`, `bcryptjs`, `@supabase/supabase-js`, `@octokit/rest`, and `prisma`.
+
+**What changed and why:**
+Built the complete server-side backend architecture for SkillSync according to the SOAIDEATHON-S30 problem statement and Plain JavaScript constraint. The backend provides automated multi-stage evidence verification, multi-source job ingestion (free & keyed APIs), explainable and demographic-free candidate matching, portable cryptographic Skill Passport verification, and comprehensive administrative governance. All external keys and clients are centralized with resilient fallbacks for missing environment variables during local development.
+
+**Code explanation (section by section):**
+1. **Centralized Configuration (`lib/config/env.js`)**: Single source of truth with `required()` and `optional()` helpers, ensuring only one file touches `process.env` directly.
+2. **SDK Clients (`lib/external/clients.js`)**: Exports configured Supabase and Octokit singletons.
+3. **Database Schema & Prisma (`prisma/schema.prisma`, `lib/prisma.js`, `prisma/seed.js`)**: Complete PostgreSQL schema with Prisma 6.4.1 Client singleton and seed data.
+4. **Auth & Identity (`lib/auth.js`, `app/api/auth/register/route.js`)**: NextAuth v5 configuration with Credentials (`bcryptjs` hashing) and GitHub OAuth, backed by `@auth/prisma-adapter`.
+5. **Multi-Stage Verification Pipeline (`lib/verification/*`)**: SHA-256 hashing (`cryptoHash.js`), QR/institutional signature verification (`qrVerifier.js`), GitHub commit cross-check (`githubCheck.js`), OCR transcript parsing (`ocrParser.js`), and orchestrator (`pipeline.js`).
+6. **Opportunity Ingestion Engine (`lib/ingestion/*`, `app/api/cron/ingest/route.js`)**: Normalization pipeline and multi-source fetchers for Remotive, Arbeitnow, Jobicy, Adzuna, and Jooble.
+7. **Explainable & Fair Matching Engine (`lib/matching/*`)**: `getMatchingFeatures.js` hard boundary strictly scrubbing demographic parameters (`gender`, `college tier`, `name`, `photo`), `scoring.js` deterministic weighted calculation (High=1.0, Medium=0.8, Low=0.4), and `explainability.js` generating evidence citations and fairness certifications.
+8. **Skill Passport & Sharing (`app/api/passport/*`)**: Verified skill aggregation, public token verification, and streamed PDF export.
+9. **Admin Governance & Audit (`app/api/admin/*`)**: Evidence pipeline inspection with manual tier overrides, skill taxonomy CRUD, and demographic parity audit metrics.
+
+**Open items / follow-ups:**
+- Production build compiled successfully (`npm run build`) with exit code 0 across all 30+ static and dynamic routes.
+- Ready for user to add production API keys in `.env.local` / deployment environment whenever available.
+
+---
+## [2026-08-16 15:57] Themed Card Hover Borders to Respective Icon Colors
+
+**Files changed:**
+- `app/components/landing/SmartAssist.jsx` (modified)
+- `app/data/skillsyncData.js` (modified)
+
+**What changed and why:**
+Configured each feature card's hover border to dynamically match its corresponding icon color:
+- **3-Tier Verification Engine**: `hover:border-emerald-500`
+- **Portable Skill Passport**: `hover:border-amber-500`
+- **Public Job Ingestion**: `hover:border-blue-500`
+- **Algorithmic Fairness Guarantee**: `hover:border-neutral-900`
+
+**Code explanation (section by section):**
+`app/components/landing/SmartAssist.jsx` & `app/data/skillsyncData.js`
+- **Themed Hover Border Transitions** — Added `hoverBorder` property to each item in `SMART_ASSIST_CARDS` and dynamically applied `${card.hoverBorder}` to the card wrapper class.
+
+**Open items / follow-ups:**
+Production build verified with exit code 0.
+
+## [2026-08-16 15:56] Removed Card Drop Shadows & Added Simple Hover Border
+
+**Files changed:**
+- `app/components/landing/SmartAssist.jsx` (modified)
+- `app/data/skillsyncData.js` (modified)
+
+**What changed and why:**
+Removed the bottom drop shadows and colored glowing borders from the 4 feature cards in "Our Match Engine Architecture". Replaced them with a crisp, minimal border transition (`border border-neutral-200/90 hover:border-neutral-900`) while preserving the squircle (`rounded-2xl`) icon containers and their radiant icon drop shadows.
+
+**Code explanation (section by section):**
+`app/components/landing/SmartAssist.jsx` & `app/data/skillsyncData.js`
+- **Clean Card Surfaces** — Removed card-level drop shadows from `SMART_ASSIST_CARDS` and configured clean `border border-neutral-200/90 hover:border-neutral-900` styling with subtle `-translate-y-1` lift.
+- **Preserved Radiant Squircle Icons** — Retained the `rounded-2xl` shape and radiant color drop shadows (`shadow-[0_10px_25px_...]`) for each of the 4 feature icons.
+
+**Open items / follow-ups:**
+Production build verified with exit code 0.
+
+## [2026-08-16 15:53] Added Radiant Icon Drop Shadows & Bottom Ambient Card Glows
+
+**Files changed:**
+- `app/components/landing/SmartAssist.jsx` (modified)
+- `app/data/skillsyncData.js` (modified)
+
+**What changed and why:**
+Applied radiant, glowing drop shadows to both the squircle icons and the bottom edges of each feature card matching the design specification:
+- **Emerald card**: Green radiant icon glow (`shadow-[0_10px_25px_rgba(16,185,129,0.55)]`) and bottom emerald ambient card glow (`shadow-[0_20px_45px_-8px_rgba(0,0,0,0.08),0_12px_28px_-4px_rgba(16,185,129,0.32)] border-b-[3px] border-b-emerald-500/30`).
+- **Amber card**: Orange radiant icon glow (`shadow-[0_10px_25px_rgba(245,158,11,0.55)]`) and bottom amber ambient card glow (`shadow-[0_20px_45px_-8px_rgba(0,0,0,0.08),0_12px_28px_-4px_rgba(245,158,11,0.32)] border-b-[3px] border-b-amber-500/30`).
+- **Blue card**: Blue radiant icon glow (`shadow-[0_10px_25px_rgba(59,130,246,0.55)]`) and bottom blue ambient card glow (`shadow-[0_20px_45px_-8px_rgba(0,0,0,0.08),0_12px_28px_-4px_rgba(59,130,246,0.32)] border-b-[3px] border-b-blue-500/30`).
+- **Black card**: Dark radiant icon glow (`shadow-[0_10px_25px_rgba(0,0,0,0.55)]`) and bottom dark ambient card glow (`shadow-[0_20px_45px_-8px_rgba(0,0,0,0.12),0_12px_28px_-4px_rgba(0,0,0,0.3)] border-b-[3px] border-b-neutral-900/30`).
+- All 4 icon containers strictly preserve their squircle (`rounded-2xl`, non-circular) shape.
+
+**Open items / follow-ups:**
+Production build verified with exit code 0.
+
+## [2026-08-16 15:49] Applied Elevated Drop Shadows to Match Engine Feature Cards with Preserved Squircle Icons
+
+**Files changed:**
+- `app/components/landing/SmartAssist.jsx` (modified)
+- `app/data/skillsyncData.js` (modified)
+
+**What changed and why:**
+Updated the 4 feature cards in the "Our Match Engine Architecture" section to match the new design: clean white floating card surfaces with soft, modern drop shadows (`shadow-[0_14px_34px_rgba(0,0,0,0.06),0_2px_8px_rgba(0,0,0,0.03)]` and `hover:shadow-[0_22px_45px_rgba(0,0,0,0.11),0_4px_12px_rgba(0,0,0,0.05)]`) while strictly preserving the squircle (`rounded-2xl` rounded rectangle) icon container shape without making it circular.
+
+**Code explanation (section by section):**
+`app/components/landing/SmartAssist.jsx`
+- **Elevated Card Drop Shadows** — Styled cards as crisp `bg-white` with refined multi-layer drop shadows and smooth `-translate-y-1.5` lift on hover.
+- **Preserved Squircle Icons** — Maintained `rounded-2xl` for icon backgrounds (`w-12 h-12 rounded-2xl ${card.iconBg}`) with subtle `group-hover:scale-105` micro-interaction.
+
+**Open items / follow-ups:**
+Production build verified with exit code 0.
+
+## [2026-08-16 15:43] Refined Horizontal Page Transitions (Slower & Smoother Pacing)
+
+**Files changed:**
+- `app/template.js` (modified)
+
+**What changed and why:**
+Refined the horizontal slide page transition to be slower, smoother, and more relaxed by increasing the transition duration from 0.36s to 0.52s, adjusting the offset to 28px, and preserving the luxury deceleration curve (`[0.16, 1, 0.3, 1]`).
+
+**Code explanation (section by section):**
+`app/template.js`
+- **Pacing & Offset Optimization** — Increased duration to `0.52s` with `x: 28px` (forward) and `x: -28px` (backward) for a weighted, silky glide into view.
+
+**Open items / follow-ups:**
+Production build verified with exit code 0.
+
+## [2026-08-16 15:40] Added Directional Horizontal Slide Page Transitions (Left / Right)
+
+**Files changed:**
+- `app/template.js` (modified)
+
+**What changed and why:**
+Replaced vertical slide transitions with subtle, directional horizontal slide and cross-fade animations (`x: 22px` $\leftrightarrow$ `x: 0px`). Forward navigation slides smoothly from the right, while backward navigation slides smoothly from the left, using a deceleration curve (`[0.16, 1, 0.3, 1]`) over 0.36s.
+
+**Code explanation (section by section):**
+`app/template.js`
+- **Directional Navigation Detection** — Tracks route hierarchy changes between previous and current paths to automatically compute forward (`direction: 1`, entering from `x: 22px`) vs backward (`direction: -1`, entering from `x: -22px`) slide directions.
+- **Subtle Deceleration Curve** — Applies `duration: 0.36s` with `ease: [0.16, 1, 0.3, 1]` and `overflow-x-clip` to guarantee a fluid slide without horizontal scrollbars.
+
+**Open items / follow-ups:**
+Production build verified with exit code 0.
+
 ## [2026-08-16 15:36] Removed Top Progress Bar from Route Transitions
 
 **Files changed:**
