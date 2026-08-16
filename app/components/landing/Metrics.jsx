@@ -15,23 +15,16 @@ import {
   EyeOff,
   X,
   ArrowUpRight,
-  Copy,
-  Download,
-  ExternalLink,
   Sparkles,
   Check,
   FileText,
-  Lock,
-  Cpu,
-  Layers,
-  Activity
+  Lock
 } from "lucide-react";
 
 export default function Metrics() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [activeModal, setActiveModal] = useState(null); // modal for deep dive
-  const [demoAnonymized, setDemoAnonymized] = useState(true);
 
   const metricsData = [
     {
@@ -40,11 +33,8 @@ export default function Metrics() {
       value: "< 400ms",
       subtext: "Average OCR & crypto verification time across all evidence files",
       icon: Zap,
-      accentColor: "emerald",
       badgeText: "0.38s Latency Benchmark",
-      highlight: "Sub-second instant verification",
-      metricsList: ["120ms OCR Parsing", "180ms Crypto Signing", "80ms Badge Generation"],
-      details: "Multi-threaded OCR document parsing, university key registry check, and instant badge issuance in under 400ms."
+      metricsList: ["120ms OCR Parsing", "180ms Crypto Signing", "80ms Badge Generation"]
     },
     {
       id: "bias",
@@ -52,11 +42,8 @@ export default function Metrics() {
       value: "100%",
       subtext: "Zero non-skill parameters used in candidate recommendation vectors",
       icon: Scale,
-      accentColor: "purple",
       badgeText: "Zero Demographic Bias",
-      highlight: "Strict meritocratic evaluation",
-      metricsList: ["Gender Excluded", "College Tier Excluded", "Name & Photo Masked"],
-      details: "Our explainable ranking engine strips name, photo, gender, and college tier from candidate ranking vectors."
+      metricsList: ["Gender Excluded", "College Tier Excluded", "Name & Photo Masked"]
     },
     {
       id: "taxonomy",
@@ -64,11 +51,8 @@ export default function Metrics() {
       value: "12,500+",
       subtext: "ESCO & O*NET normalized skill vectors mapped to coursework",
       icon: Database,
-      accentColor: "amber",
       badgeText: "Global Standards Mapped",
-      highlight: "Universal skill recognition",
-      metricsList: ["ESCO Taxonomy Standard", "US O*NET Framework", "Automatic Alignment"],
-      details: "Intelligent mapping of coursework modules to international ESCO and O*NET industry skill taxonomy standards."
+      metricsList: ["ESCO Taxonomy Standard", "US O*NET Framework", "Automatic Alignment"]
     },
     {
       id: "accuracy",
@@ -76,15 +60,12 @@ export default function Metrics() {
       value: "99.4%",
       subtext: "Explainable evidence-backed match precision for internship recommendations",
       icon: Target,
-      accentColor: "blue",
       badgeText: "High Precision Core",
-      highlight: "Explainable evidence citations",
-      metricsList: ["99.4% Match Accuracy", "Direct Proof Citations", "Zero Blind Scoring"],
-      details: "Every match recommendation cites verified coursework evidence with mathematical skill coverage scores."
+      metricsList: ["99.4% Match Accuracy", "Direct Proof Citations", "Zero Blind Scoring"]
     }
   ];
 
-  // Auto-play interval timer (4 seconds per slide)
+  // Auto-play interval timer (4.5 seconds per slide)
   useEffect(() => {
     if (!isAutoPlaying || activeModal) return;
     const timer = setInterval(() => {
@@ -130,27 +111,13 @@ export default function Metrics() {
               Engine Benchmarks & Guarantee Standards
             </h2>
           </div>
-
-          {/* Quick Slide Selector Tabs */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full no-scrollbar">
-            {metricsData.map((m, idx) => (
-              <button
-                key={m.id}
-                onClick={() => setCurrentIndex(idx)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-extrabold transition-all whitespace-nowrap cursor-pointer ${
-                  currentIndex === idx
-                    ? "bg-neutral-900 text-white shadow-md scale-105"
-                    : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200 hover:text-neutral-900"
-                }`}
-              >
-                {m.label.split(" ")[0]}
-              </button>
-            ))}
-          </div>
+          <p className="text-sm sm:text-base text-[#494D4D] font-medium max-w-md leading-relaxed">
+            Real-time quantitative performance metrics powering candidate verification, bias elimination, and explainable job matching.
+          </p>
         </div>
 
         {/* 3D Showcase Carousel Stage */}
-        <div className="relative min-h-[360px] sm:min-h-[380px] flex items-center justify-center py-4">
+        <div className="relative min-h-[360px] sm:min-h-[380px] flex items-center justify-center py-2">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentIndex}
@@ -160,7 +127,7 @@ export default function Metrics() {
               transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
               className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-[#F8F9FA] rounded-[30px] p-6 sm:p-10 border border-black/8 shadow-xl"
             >
-              {/* Left Column: Big Numeric Metric & Highlight */}
+              {/* Left Column: Big Numeric Metric */}
               <div className="lg:col-span-5 flex flex-col justify-between h-full space-y-4">
                 <div>
                   <div className="flex items-center gap-2.5 mb-3">
