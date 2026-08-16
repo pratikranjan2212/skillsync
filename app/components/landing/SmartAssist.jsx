@@ -32,11 +32,11 @@ export default function SmartAssist() {
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 24 },
+    hidden: { opacity: 0, y: 28 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
+      transition: { duration: 0.65, ease: [0.16, 1, 0.3, 1] },
     },
   };
 
@@ -45,25 +45,27 @@ export default function SmartAssist() {
       <FadeIn distance={24} duration={0.55}>
         <div
           id="smart-assist"
-          className="bg-white rounded-[32px] sm:rounded-4xl p-8 sm:p-12 shadow-sm hover:shadow-md transition-shadow duration-300 border border-black/8 flex flex-col gap-10 scroll-mt-24"
+          className="bg-white rounded-[36px] sm:rounded-[44px] p-8 sm:p-12 md:p-14 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.06)] border border-black/5 flex flex-col gap-10 scroll-mt-24"
         >
+          {/* Header Row */}
           <FadeIn delay={0.02} distance={16} duration={0.4}>
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
               <div>
-                <span className="px-4 py-1.5 bg-emerald-50 text-emerald-800 text-xs sm:text-sm font-bold rounded-full border border-emerald-200 inline-flex items-center gap-2 mb-3">
-                  <Sparkles className="w-4 h-4 text-emerald-600" />
+                <span className="px-3.5 py-1.5 bg-[#e6f7f0] border border-[#b8ebd6] text-emerald-800 text-xs font-bold rounded-full inline-flex items-center gap-2 mb-4 shadow-2xs">
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
                   <span>Explainable Core</span>
                 </span>
-                <h2 className="text-3xl sm:text-5xl font-black text-[#111111] tracking-tight">
+                <h2 className="text-3xl sm:text-5xl font-black text-[#111111] tracking-tight leading-[1.08]">
                   Our Match Engine <br />Architecture
                 </h2>
               </div>
-              <p className="text-sm sm:text-base text-[#494D4D] font-medium max-w-md leading-relaxed">
+              <p className="text-sm sm:text-[15px] text-[#555959] font-medium max-w-[360px] leading-relaxed mt-2 md:mt-0">
                 Built to provide total transparency into every recommendation with 100% verifiable citations and guaranteed non-discrimination.
               </p>
             </div>
           </FadeIn>
 
+          {/* 4 Feature Cards with Circular Badges & Bottom Ambient Shadow */}
           <motion.div
             variants={containerVariants}
             initial="hidden"
@@ -79,24 +81,28 @@ export default function SmartAssist() {
                   variants={itemVariants}
                   whileHover={{ y: -8, scale: 1.02 }}
                   transition={{ type: "spring", stiffness: 350, damping: 25 }}
-                  className={`group bg-white p-6 sm:p-7 rounded-[28px] sm:rounded-3xl ${card.cardGlow} transition-all duration-300 flex flex-col justify-between gap-4 h-full cursor-pointer`}
+                  className={`group bg-white p-7 sm:p-8 rounded-[28px] sm:rounded-[32px] ${card.cardGlow} transition-all duration-300 flex flex-col justify-start min-h-[320px] cursor-pointer`}
                 >
-                  <div>
-                    <div
-                      className={`w-12 h-12 rounded-2xl ${card.iconBg} ${card.iconShadow} text-white flex items-center justify-center mb-5 transition-transform duration-300 group-hover:scale-105`}
-                    >
-                      <Icon className="w-6 h-6" />
-                    </div>
-                    <h3 className="text-lg font-extrabold text-[#111111] tracking-tight">{card.title}</h3>
-                    <p className="text-xs sm:text-[13px] text-[#494D4D] mt-2.5 leading-relaxed font-medium">
-                      {card.description}
-                    </p>
+                  {/* Circular Icon Badge */}
+                  <div
+                    className={`w-12 h-12 rounded-full ${card.iconBg} ${card.iconShadow} text-white flex items-center justify-center mb-6 transition-transform duration-300 group-hover:scale-105`}
+                  >
+                    <Icon className="w-5.5 h-5.5 stroke-[2.2]" />
                   </div>
+
+                  <h3 className="text-lg sm:text-xl font-extrabold text-[#111111] tracking-tight leading-snug mb-3">
+                    {card.title}
+                  </h3>
+
+                  <p className="text-xs sm:text-[13px] text-[#555959] leading-relaxed font-medium">
+                    {card.description}
+                  </p>
                 </motion.div>
               );
             })}
           </motion.div>
 
+          {/* Bottom Control Bar */}
           <FadeIn delay={0.06} distance={18} duration={0.45}>
             <div className="pt-6 border-t border-neutral-100 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="text-xs sm:text-sm font-semibold text-[#494D4D]">
@@ -106,7 +112,7 @@ export default function SmartAssist() {
                 href="/opportunities"
                 onMouseEnter={() => setHovered(true)}
                 onMouseLeave={() => setHovered(false)}
-                className="inline-flex items-center gap-2 px-6.5 py-4.5 bg-neutral-900 text-white rounded-full font-extrabold text-sm hover:bg-neutral-800 transition-all hover:scale-95 active:scale-90 shadow-[0_14px_30px_rgba(0,0,0,0.25)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.2)]"
+                className="inline-flex items-center gap-2.5 px-7 py-4 bg-[#262626] hover:bg-neutral-800 text-white rounded-full font-extrabold text-sm transition-all hover:scale-95 active:scale-90 shadow-[0_12px_28px_rgba(0,0,0,0.22)]"
               >
                 <RollingText
                   text="Explore Opportunities Feed"
@@ -115,9 +121,9 @@ export default function SmartAssist() {
                   rollDuration={0.4}
                   staggerDelay={0.015}
                   textColor="#FFFFFF"
-                  font={{ fontSize: "15px", fontWeight: "800", lineHeight: "1.2em" }}
+                  font={{ fontSize: "14px", fontWeight: "800", lineHeight: "1.2em" }}
                 />
-                <ArrowRight className="w-4.5 h-4.5 text-emerald-400" />
+                <ArrowRight className="w-4.5 h-4.5 text-emerald-400 stroke-[2.5]" />
               </Link>
             </div>
           </FadeIn>
