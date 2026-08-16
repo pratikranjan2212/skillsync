@@ -207,9 +207,6 @@ export default function Metrics() {
                     <Sparkles className="w-4 h-4 text-emerald-500" />
                     <span>Engine Capability Matrix</span>
                   </div>
-                  <span className="text-xs font-bold text-neutral-600 bg-neutral-100 px-2.5 py-0.5 rounded-md">
-                    Slide {currentIndex + 1} / {metricsData.length}
-                  </span>
                 </div>
 
                 {/* SLIDE WIDGET 1: SPEED */}
