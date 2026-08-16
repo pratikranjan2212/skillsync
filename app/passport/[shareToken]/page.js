@@ -1,7 +1,8 @@
 import React from "react";
 import Link from "next/link";
-import { Lock, ShieldCheck, ExternalLink, ArrowLeft } from "lucide-react";
+import { Lock, ExternalLink, ArrowLeft } from "lucide-react";
 import InteractivePassportCard from "@/app/components/passport/InteractivePassportCard";
+import prisma from "@/lib/prisma";
 import { INITIAL_PASSPORT } from "@/app/data/mockData";
 
 export default async function PublicPassportPage({ params }) {
@@ -10,14 +11,94 @@ export default async function PublicPassportPage({ params }) {
   let passport = null;
   let errorState = null;
 
-  if (shareToken === INITIAL_PASSPORT.shareToken || shareToken.startsWith("sp-token-")) {
-    if (!INITIAL_PASSPORT.isPublic && shareToken !== INITIAL_PASSPORT.shareToken) {
-      errorState = "This Skill Passport is private and cannot be viewed publicly.";
-    } else {
+  try {
+    const dbPassport = await prisma.passport.findUnique({
+      where: { shareToken },
+      include: {
+        user: {
+          include: {
+            evidences: true,
+          },
+        },
+      },
+    });
+
+    if (dbPassport) {
+      if (!dbPassport.isPublic) {
+        errorState = "This Skill Passport is private and cannot be viewed publicly.";
+      } else {
+        const user = dbPassport.user;
+        const skillsMap = [];
+
+        for (const ev of user.evidences || []) {
+          for (const skillName of ev.claimedSkills || []) {
+            const existing = skillsMap.find((s) => s.name.toLowerCase() === skillName.toLowerCase());
+            if (existing) {
+              existing.evidence.push({
+                id: ev.id,
+                title: ev.title,
+                tier: ev.verificationTier,
+                hash: ev.fileHash,
+              });
+            } else {
+              skillsMap.push({
+                name: skillName,
+                category: "Technical Competency",
+                tier: ev.verificationTier,
+                evidence: [
+                  {
+                    id: ev.id,
+                    title: ev.title,
+                    tier: ev.verificationTier,
+                    hash: ev.fileHash,
+                  },
+                ],
+              });
+            }
+          }
+        }
+
+        for (const userSkill of user.skills || []) {
+          if (!skillsMap.some((s) => s.name.toLowerCase() === userSkill.toLowerCase())) {
+            skillsMap.push({
+              name: userSkill,
+              category: "Self-Reported Competency",
+              tier: "verified-medium",
+              evidence: [],
+            });
+          }
+        }
+
+        passport = {
+          studentId: dbPassport.studentId,
+          studentName: user.name || "Student User",
+          gender: user.gender || "Student",
+          dob: user.dob || "Not Specified",
+          college: user.college || "Institution Not Specified",
+          degree: user.degree || "Degree Not Specified",
+          batch: user.batch || "Batch Not Specified",
+          photoUrl: user.image || null,
+          verified: (user.evidences && user.evidences.length > 0) || (user.skills && user.skills.length > 0),
+          issuer: dbPassport.issuer,
+          credentialHash: dbPassport.credentialHash,
+          shareToken: dbPassport.shareToken,
+          isPublic: dbPassport.isPublic,
+          updatedAt: dbPassport.updatedAt.toISOString(),
+          skills: skillsMap,
+        };
+      }
+    } else if (shareToken === "sp-token-9942a" || shareToken.startsWith("sp-token-")) {
       passport = INITIAL_PASSPORT;
+    } else {
+      errorState = "Invalid or expired share link token.";
     }
-  } else {
-    errorState = "Invalid or expired share link token.";
+  } catch (err) {
+    console.warn("Error fetching public passport:", err);
+    if (shareToken === "sp-token-9942a") {
+      passport = INITIAL_PASSPORT;
+    } else {
+      errorState = "Could not fetch public passport.";
+    }
   }
 
   if (errorState || !passport) {

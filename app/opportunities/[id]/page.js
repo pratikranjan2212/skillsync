@@ -3,7 +3,19 @@
 import React, { use } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Sparkles, AlertCircle, Building2, MapPin, ShieldCheck, Layers, FileCheck } from "lucide-react";
+import {
+  ArrowLeft,
+  Sparkles,
+  AlertCircle,
+  Building2,
+  MapPin,
+  ShieldCheck,
+  Layers,
+  FileCheck,
+  Globe,
+  Home,
+  Briefcase,
+} from "lucide-react";
 import Navbar from "@/app/components/layout/Navbar";
 import MatchExplanationCard from "@/app/components/opportunities/MatchExplanationCard";
 import AuthRequiredView from "@/app/components/auth/AuthRequiredView";
@@ -71,11 +83,38 @@ export default function MatchDetailPage({ params: paramsPromise }) {
   const opportunity = data?.opportunity;
   const explanation = data?.explanation;
 
+  const normalizedMode = (opportunity?.workMode || "").toLowerCase();
+  let modeBadge = {
+    label: "Remote",
+    icon: Globe,
+    style: "bg-teal-50 text-teal-800 border-teal-200",
+  };
+
+  if (normalizedMode === "hybrid") {
+    modeBadge = {
+      label: "Hybrid",
+      icon: Home,
+      style: "bg-indigo-50 text-indigo-800 border-indigo-200",
+    };
+  } else if (
+    normalizedMode === "on-site" ||
+    normalizedMode === "onsite" ||
+    normalizedMode === "offline"
+  ) {
+    modeBadge = {
+      label: "On-site",
+      icon: Building2,
+      style: "bg-amber-50 text-amber-900 border-amber-200",
+    };
+  }
+
+  const ModeIcon = modeBadge.icon;
+
   return (
     <div className="min-h-screen bg-[#F5F5F3] text-[#111111] pb-16">
       <Navbar />
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col gap-6">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col gap-6 pt-4 sm:pt-6">
         <div>
           <Link
             href="/opportunities"
@@ -90,25 +129,31 @@ export default function MatchDetailPage({ params: paramsPromise }) {
           <div className="bg-white rounded-[28px] p-6 shadow-md border border-black/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
-                <span className="px-3 py-1 bg-[#F5F5F3] text-[#494D4D] text-xs font-bold rounded-xl border border-black/5">
-                  via {opportunity.sourceApi}
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-xl border ${modeBadge.style}`}>
+                  <ModeIcon className="w-3.5 h-3.5" />
+                  <span>{modeBadge.label}</span>
                 </span>
-                <span className="text-xs font-mono text-neutral-400">Ref ID: {opportunity.sourceListingId}</span>
               </div>
               <h1 className="text-2xl font-black text-[#111111] mt-2">{opportunity.title}</h1>
-              <div className="flex items-center gap-4 text-xs font-semibold text-[#494D4D] mt-1">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs font-semibold text-[#494D4D] mt-1.5">
                 <span className="flex items-center gap-1">
                   <Building2 className="w-3.5 h-3.5 text-neutral-400" />
-                  {opportunity.company}
+                  <span className="font-bold text-neutral-800">{opportunity.company}</span>
                 </span>
                 <span className="flex items-center gap-1">
                   <MapPin className="w-3.5 h-3.5 text-neutral-400" />
-                  {opportunity.location}
+                  <span>{opportunity.location}</span>
                 </span>
+                {opportunity.stipend && (
+                  <span className="flex items-center gap-1 text-emerald-700 font-bold">
+                    <Briefcase className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>{opportunity.stipend}</span>
+                  </span>
+                )}
               </div>
             </div>
 
-            <div className="flex items-center gap-2 bg-emerald-50 text-emerald-800 px-4 py-2.5 rounded-2xl border border-emerald-200 text-xs font-bold self-start sm:self-center">
+            <div className="flex items-center gap-2 bg-emerald-50 text-emerald-800 px-4 py-2.5 rounded-2xl border border-emerald-200 text-xs font-bold self-start sm:self-center shrink-0">
               <Sparkles className="w-4 h-4 text-emerald-600" />
               <span>Verified Recommendation</span>
             </div>
@@ -126,18 +171,17 @@ export default function MatchDetailPage({ params: paramsPromise }) {
           <div className="bg-rose-50 rounded-[28px] p-8 border border-rose-200 text-center flex flex-col items-center gap-3">
             <AlertCircle className="w-8 h-8 text-rose-600" />
             <h3 className="text-lg font-bold text-rose-900">Failed to load match detail</h3>
-            <p className="text-xs text-rose-700">{error?.message}</p>
+            <p className="text-xs text-rose-700">{error?.message || "Opportunity details could not be retrieved."}</p>
           </div>
         )}
 
         {explanation && (
           <MatchExplanationCard
             explanation={explanation}
-            externalUrl={opportunity?.externalUrl}
+            externalUrl={opportunity?.url || opportunity?.externalUrl}
           />
         )}
       </main>
     </div>
   );
 }
-

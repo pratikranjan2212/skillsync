@@ -1,12 +1,44 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 
+// Hierarchy ranking to determine forward vs backward slide direction
+const ROUTE_HIERARCHY = {
+  "/": 0,
+  "/docs": 1,
+  "/privacy": 1,
+  "/terms": 1,
+  "/support": 1,
+  "/opportunities": 2,
+  "/passport": 3,
+  "/dashboard": 4,
+  "/signin": 5,
+  "/signup": 6,
+  "/admin": 7,
+  "/profile": 8,
+};
+
+function getRouteRank(path) {
+  if (!path) return 0;
+  if (path in ROUTE_HIERARCHY) return ROUTE_HIERARCHY[path];
+  for (const [key, rank] of Object.entries(ROUTE_HIERARCHY)) {
+    if (key !== "/" && path.startsWith(key)) return rank + 0.5;
+  }
+  return 1;
+}
+
+/**
+ * Root Template for Next.js App Router.
+ * Wraps page navigation with a subtle, silky-smooth horizontal slide & fade transition.
+ * Automatically detects direction (forward slides from right, backward slides from left).
+ */
 export default function Template({ children }) {
   const pathname = usePathname();
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const prevPathnameRef = useRef(pathname);
+  const [direction, setDirection] = useState(1);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -18,35 +50,35 @@ export default function Template({ children }) {
     }
   }, []);
 
+  useEffect(() => {
+    const prevRank = getRouteRank(prevPathnameRef.current);
+    const currRank = getRouteRank(pathname);
+    if (currRank < prevRank) {
+      setDirection(-1); // Backwards navigation: slides from left
+    } else {
+      setDirection(1); // Forward navigation: slides from right
+    }
+    prevPathnameRef.current = pathname;
+  }, [pathname]);
+
   if (prefersReducedMotion) {
     return <div className="flex-1 flex flex-col w-full">{children}</div>;
   }
 
+  const initialX = direction === -1 ? -28 : 28;
+
   return (
     <motion.div
       key={pathname}
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, x: initialX }}
+      animate={{ opacity: 1, x: 0 }}
       transition={{
-        duration: 0.38,
-        ease: [0.22, 1, 0.36, 1],
+        duration: 0.52,
+        ease: [0.16, 1, 0.3, 1], // Slower, silky-smooth luxury deceleration curve
       }}
-      className="flex-1 flex flex-col w-full"
+      className="flex-1 flex flex-col w-full overflow-x-clip"
     >
-      <motion.div
-        key={`progress-${pathname}`}
-        initial={{ scaleX: 0, opacity: 1 }}
-        animate={{ scaleX: 1, opacity: [1, 1, 0] }}
-        transition={{
-          duration: 0.5,
-          ease: [0.16, 1, 0.3, 1],
-          times: [0, 0.7, 1],
-        }}
-        style={{ transformOrigin: "0% 50%" }}
-        className="fixed top-0 left-0 right-0 h-[2.5px] bg-linear-to-r from-emerald-500 via-teal-400 to-emerald-300 z-50 pointer-events-none shadow-[0_0_8px_rgba(16,185,129,0.6)]"
-      />
       {children}
     </motion.div>
   );
 }
-
