@@ -36,7 +36,6 @@ export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
 
-  // Editable profile state initialized from mock / session data
   const [profileData, setProfileData] = useState({
     name: user?.name || INITIAL_PASSPORT.studentName,
     email: user?.email || "alex.chen@skillsync.edu",
@@ -79,7 +78,6 @@ export default function ProfilePage() {
       <Navbar />
 
       <main className="max-w-6xl mx-auto px-4 pt-4 sm:pt-6">
-        {/* Top Notification Toast */}
         {savedSuccess && (
           <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center gap-3 text-emerald-800 text-sm font-semibold shadow-xs animate-in fade-in slide-in-from-top-2 duration-300">
             <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
@@ -87,11 +85,9 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {/* Profile Header Card */}
         <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-xl border border-black/5 mb-8">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-6 border-b border-neutral-100">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
-              {/* Profile Avatar */}
               <div className="relative">
                 <img
                   src={INITIAL_PASSPORT.photoUrl}
@@ -103,7 +99,6 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* Identity & Badges */}
               <div className="flex flex-col gap-1.5">
                 <div className="flex flex-wrap items-center gap-2.5">
                   <h1 className="text-2xl sm:text-3xl font-extrabold text-[#111111] tracking-tight">
@@ -130,7 +125,6 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* Quick Actions */}
             <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
               <Link
                 href="/passport"
@@ -150,7 +144,6 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Tab Navigation */}
           <div className="flex items-center gap-2 pt-6 overflow-x-auto">
             <button
               onClick={() => setActiveTab("overview")}
@@ -185,12 +178,9 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Tab 1: Overview */}
         {activeTab === "overview" && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Main Info Column */}
             <div className="lg:col-span-2 flex flex-col gap-6">
-              {/* Bio & Details Form / View */}
               <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-xl border border-black/5">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-lg font-extrabold text-[#111111] flex items-center gap-2">
@@ -299,7 +289,6 @@ export default function ProfilePage() {
                 )}
               </div>
 
-              {/* Verified Skills Summary Card */}
               <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-xl border border-black/5">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-lg font-extrabold text-[#111111] flex items-center gap-2">
@@ -334,9 +323,7 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* Sidebar Column */}
             <div className="flex flex-col gap-6">
-              {/* Trust Score & Verification Status */}
               <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-xl border border-black/5">
                 <h3 className="text-sm font-bold text-[#111111] mb-3 flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-emerald-600" />
@@ -374,7 +361,6 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* Public Share Card */}
               <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-xl border border-black/5">
                 <h3 className="text-sm font-bold text-[#111111] mb-2 flex items-center gap-2">
                   <Share2 className="w-4 h-4 text-blue-600" />
@@ -401,7 +387,6 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {/* Tab 2: Academic */}
         {activeTab === "academic" && (
           <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-xl border border-black/5">
             <h2 className="text-lg font-extrabold text-[#111111] mb-6 flex items-center gap-2">
@@ -438,7 +423,6 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {/* Tab 3: Settings & Preferences */}
         {activeTab === "settings" && (
           <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-xl border border-black/5 flex flex-col gap-6">
             <div>
@@ -494,3 +478,4 @@ export default function ProfilePage() {
     </div>
   );
 }
+

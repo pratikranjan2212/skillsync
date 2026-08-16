@@ -3,12 +3,10 @@ import { NextResponse } from "next/server";
 export async function GET(req) {
   const { pathname } = new URL(req.url);
 
-  // Return CSRF token if requested
   if (pathname.endsWith("/csrf")) {
     return NextResponse.json({ csrfToken: "skillsync-csrf-token" });
   }
 
-  // Return providers list if requested
   if (pathname.endsWith("/providers")) {
     return NextResponse.json({
       credentials: {
@@ -21,7 +19,6 @@ export async function GET(req) {
     });
   }
 
-  // Check if session token cookie exists
   const sessionToken =
     req.cookies.get("next-auth.session-token")?.value ||
     req.cookies.get("skillsync_session")?.value ||
@@ -31,7 +28,6 @@ export async function GET(req) {
     return NextResponse.json(null);
   }
 
-  // Return current mock session
   const role = req.cookies.get("skillsync_role")?.value || "student";
   const user =
     role === "admin"
@@ -44,7 +40,6 @@ export async function GET(req) {
 export async function POST(req) {
   const { pathname } = new URL(req.url);
 
-  // Handle Sign Out
   if (pathname.includes("signout")) {
     const response = NextResponse.json({ url: "/" });
     response.cookies.set("skillsync_session", "", { path: "/", maxAge: 0, expires: new Date(0) });
@@ -59,7 +54,6 @@ export async function POST(req) {
     try {
       body = await req.json();
     } catch {
-      // Body might be empty or form-encoded
     }
 
     const { email, role } = body;
@@ -74,7 +68,6 @@ export async function POST(req) {
 
     const response = NextResponse.json({ ok: true, user, url: "/dashboard" });
 
-    // Set cookies for Next.js 16 proxy.js route validation
     response.cookies.set("skillsync_session", "session-active-token", { path: "/", httpOnly: false });
     response.cookies.set("next-auth.session-token", "session-active-token", { path: "/", httpOnly: false });
     response.cookies.set("skillsync_role", assignedRole, { path: "/", httpOnly: false });
@@ -84,3 +77,4 @@ export async function POST(req) {
     return NextResponse.json({ error: "Authentication failed" }, { status: 400 });
   }
 }
+

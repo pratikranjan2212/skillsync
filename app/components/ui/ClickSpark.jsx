@@ -2,23 +2,6 @@
 
 import React, { useEffect, useRef, useCallback } from "react";
 
-/**
- * ClickSpark
- * -----------
- * Wrap any part of your UI in this component and every click inside it
- * fires a small burst of radiating spark lines at the cursor position —
- * the burst fades and disperses outward, then cleans itself up.
- *
- * Color changes per component: give each wrapped section its own
- * `sparkColor` prop and that section's clicks burst in that color —
- * e.g. a dark hero gets white sparks, a blue panel gets cyan sparks,
- * a light panel gets near-black sparks — all from one implementation.
- *
- * Usage:
- *   <ClickSpark sparkColor="#ffffff">
- *     <section>...</section>
- *   </ClickSpark>
- */
 export default function ClickSpark({
   children,
   sparkColor = "#ffffff",
@@ -122,7 +105,6 @@ export default function ClickSpark({
   const parseColorToRgb = (colorStr) => {
     if (!colorStr) return null;
 
-    // Handle rgb/rgba
     const rgbMatch = colorStr.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/i);
     if (rgbMatch) {
       const alpha = rgbMatch[4] !== undefined ? parseFloat(rgbMatch[4]) : 1;
@@ -134,7 +116,6 @@ export default function ClickSpark({
       };
     }
 
-    // Handle hex #fff, #ffffff, #ffffffff
     const hexMatch = colorStr.match(/#([0-9a-f]{3,8})/i);
     if (hexMatch) {
       let hex = hexMatch[1];
@@ -156,13 +137,11 @@ export default function ClickSpark({
   };
 
   const resolveColor = (target, clientX, clientY) => {
-    // 0. Check explicit data-spark-color attribute on target or closest ancestor
     const explicitEl = target.closest?.("[data-spark-color]");
     if (explicitEl?.dataset?.sparkColor) {
       return explicitEl.dataset.sparkColor;
     }
 
-    // 1. Gather candidate elements under click point + target parent tree + inner background layers
     let candidates = [];
     if (typeof document !== "undefined" && document.elementsFromPoint && clientX !== undefined && clientY !== undefined) {
       candidates = Array.from(document.elementsFromPoint(clientX, clientY) || []);
@@ -183,13 +162,9 @@ export default function ClickSpark({
       curr = curr.parentElement;
     }
 
-    // Regex for standalone solid white background class (excludes translucent bg-white/10, bg-white/20, hover:bg-white/20, etc.)
     const solidWhiteRegex = /(?:^|\s)(?:[a-z0-9_-]+:)*bg-white(?:$|\s)/;
-
-    // Regex for standalone dark background classes and dark gradients
     const darkBgRegex = /(?:^|\s)(?:[a-z0-9_-]+:)*(?:bg-neutral-900|bg-neutral-950|bg-slate-900|bg-slate-950|bg-[#0d1f18]|bg-[#091510]|bg-[#0f241c]|bg-[#111111]|bg-[#1C1C1C]|from-slate-900|from-slate-950|from-neutral-900|from-neutral-950|from-black|from-[#0d1f18]|bg-black)(?:$|\s)/;
 
-    // 2. Inspect candidates from top to bottom to sample background color & calculate luminance contrast
     for (const el of candidates) {
       if (!el || el === document.documentElement || el === document.body) continue;
 
@@ -202,7 +177,6 @@ export default function ClickSpark({
       const bgImage = style.backgroundImage;
       const className = typeof el.className === "string" ? el.className : "";
 
-      // Check computed solid backgroundColor (require alpha > 0.4 so semi-transparent overlays like bg-white/10 fall through)
       if (bg && bg !== "transparent" && bg !== "rgba(0, 0, 0, 0)") {
         const rgb = parseColorToRgb(bg);
         if (rgb && rgb.alpha > 0.4) {
@@ -211,7 +185,6 @@ export default function ClickSpark({
         }
       }
 
-      // Check explicit class names with strict boundaries
       if (className) {
         if (solidWhiteRegex.test(className) || className.includes("bg-[#F5F5F3]") || className.includes("bg-[#F2F3F5]") || className.includes("bg-[#F8F9FA]")) {
           return "#111111";
@@ -221,7 +194,6 @@ export default function ClickSpark({
         }
       }
 
-      // Check CSS background gradients
       if (bgImage && bgImage !== "none") {
         const matches = bgImage.match(/(?:rgb|rgba|#)[^\s,)]+/g);
         if (matches && matches.length > 0) {
@@ -242,7 +214,6 @@ export default function ClickSpark({
       }
     }
 
-    // 3. Fallback: inspect computed text color on target (light text implies dark element -> white spark)
     if (target) {
       const fg = window.getComputedStyle(target).color;
       if (fg) {
@@ -269,8 +240,6 @@ export default function ClickSpark({
     const durationAttr = e.target.closest?.("[data-spark-duration]")?.dataset?.sparkDuration;
     const sparkDuration = durationAttr ? parseInt(durationAttr, 10) : duration;
 
-    // Angles fanned across an upward arc (umbrella shape), centered
-    // straight up at -90deg, instead of spreading a full 360deg circle.
     const centerAngle = -Math.PI / 2;
     const newSparks = Array.from({ length: sparkCount }, (_, i) => {
       const t = sparkCount > 1 ? i / (sparkCount - 1) : 0.5;
@@ -288,3 +257,4 @@ export default function ClickSpark({
     </div>
   );
 }
+

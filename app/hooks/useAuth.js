@@ -3,10 +3,6 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 
-/**
- * Universal useAuth hook for SkillSync.
- * Reactively checks both NextAuth session and local document auth cookies.
- */
 export function useAuth() {
   const { data: session, status } = useSession();
   const [hasCookie, setHasCookie] = useState(false);
@@ -35,3 +31,4 @@ export function useAuth() {
     user: session?.user || (hasCookie ? { name: "Alex Chen", email: "alex.chen@skillsync.edu", role: "student" } : null),
   };
 }
+

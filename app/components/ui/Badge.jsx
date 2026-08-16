@@ -2,18 +2,6 @@ import React from "react";
 import { CheckCircle2, AlertTriangle, ShieldAlert, ShieldCheck, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-/**
- * Verification Tier & Status Badge Primitive.
- * Renders verified-high (green), verified-medium (yellow), and flagged-low (gray/red) badges.
- * @param {Object} props
- * @param {"verified-high" | "verified-medium" | "flagged-low" | "verified" | string} [props.tier]
- * @param {string} [props.variant]
- * @param {React.ComponentType} [props.icon]
- * @param {string} [props.size]
- * @param {string} [props.className]
- * @param {boolean} [props.showIcon=true]
- * @param {React.ReactNode} [props.children]
- */
 export default function Badge({ tier, variant, icon: CustomIcon, size, className, showIcon = true, children }) {
   let badgeStyles = "bg-gray-100 text-gray-800 border-gray-200";
   let Icon = CustomIcon || Sparkles;
@@ -60,3 +48,4 @@ export default function Badge({ tier, variant, icon: CustomIcon, size, className
     </span>
   );
 }
+

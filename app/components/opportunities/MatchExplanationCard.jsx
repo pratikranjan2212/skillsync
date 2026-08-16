@@ -2,14 +2,6 @@ import React from "react";
 import { ShieldCheck, CheckCircle2, XCircle, ExternalLink, Sparkles, AlertCircle, Scale } from "lucide-react";
 import Badge from "@/app/components/ui/Badge";
 
-/**
- * Match Explanation Card - Demo Centerpiece.
- * Renders exact Section 4 match explanation structure including supporting evidence citations,
- * missing skills breakdown, and explicit rendering of excludedFromRanking attributes for guaranteed algorithmic fairness.
- * @param {Object} props
- * @param {Object} props.explanation - Section 4 Match Explanation JSON Object
- * @param {string} [props.externalUrl] - Link to original external job listing
- */
 export default function MatchExplanationCard({ explanation, externalUrl }) {
   if (!explanation) return null;
 
@@ -23,7 +15,6 @@ export default function MatchExplanationCard({ explanation, externalUrl }) {
 
   const scorePercentage = Math.round((matchScore || 0) * 100);
 
-  // Parse evidence tier from text (e.g. "verified-high", "verified-medium", "flagged-low")
   const getTierFromEvidenceText = (text) => {
     if (text?.includes("verified-high")) return "verified-high";
     if (text?.includes("verified-medium")) return "verified-medium";
@@ -33,7 +24,6 @@ export default function MatchExplanationCard({ explanation, externalUrl }) {
 
   return (
     <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-xl border border-black/5 flex flex-col gap-8">
-      {/* Header Banner: Title & Match Score Percentage */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 pb-6 border-b border-neutral-100">
         <div>
           <span className="px-3.5 py-1 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-full border border-emerald-200">
@@ -47,7 +37,6 @@ export default function MatchExplanationCard({ explanation, externalUrl }) {
           </p>
         </div>
 
-        {/* Large Score Gauge */}
         <div className="flex items-center gap-3 bg-[#F5F5F3] px-5 py-3.5 rounded-2xl border border-black/5 shrink-0">
           <div className="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-xl shadow-md">
             {scorePercentage}%
@@ -62,7 +51,6 @@ export default function MatchExplanationCard({ explanation, externalUrl }) {
         </div>
       </div>
 
-      {/* 1. Supporting Evidence Citations */}
       <div>
         <h3 className="text-lg font-bold text-[#111111] flex items-center gap-2 mb-4">
           <CheckCircle2 className="w-5 h-5 text-emerald-600" />
@@ -97,7 +85,6 @@ export default function MatchExplanationCard({ explanation, externalUrl }) {
         </div>
       </div>
 
-      {/* 2. Missing Skills List */}
       <div>
         <h3 className="text-lg font-bold text-[#111111] flex items-center gap-2 mb-4">
           <AlertCircle className="w-5 h-5 text-amber-500" />
@@ -125,7 +112,6 @@ export default function MatchExplanationCard({ explanation, externalUrl }) {
         )}
       </div>
 
-      {/* 3. Explicit Fairness Guarantee Exclusion List (Demo Requirement) */}
       <div className="bg-gradient-to-br from-slate-900 to-neutral-900 text-white rounded-2xl p-6 shadow-lg border border-slate-800 flex flex-col gap-4" data-spark-color="#ffffff">
         <div className="flex items-center justify-between gap-3" data-spark-color="#ffffff">
           <div className="flex items-center gap-2.5" data-spark-color="#ffffff">
@@ -147,7 +133,6 @@ export default function MatchExplanationCard({ explanation, externalUrl }) {
           <ShieldCheck className="w-6 h-6 text-emerald-400 shrink-0 hidden sm:block" />
         </div>
 
-        {/* Excluded Attributes Badges */}
         <div className="flex flex-wrap gap-2 pt-1" data-spark-color="#ffffff">
           {excludedFromRanking.map((attr, index) => (
             <div
@@ -163,7 +148,6 @@ export default function MatchExplanationCard({ explanation, externalUrl }) {
         </div>
       </div>
 
-      {/* External Link Action */}
       {externalUrl && (
         <div className="pt-2 flex justify-end">
           <a
@@ -180,3 +164,4 @@ export default function MatchExplanationCard({ explanation, externalUrl }) {
     </div>
   );
 }
+

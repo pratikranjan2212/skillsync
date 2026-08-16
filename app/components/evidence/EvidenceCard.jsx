@@ -3,13 +3,6 @@ import { FileCheck, ExternalLink, Calendar, Key, ShieldCheck } from "lucide-reac
 import Badge from "@/app/components/ui/Badge";
 import RollingText from "@/app/components/ui/RollingText";
 
-/**
- * Evidence Card Component.
- * Displays a student's verified coursework, project, competition, or micro-credential.
- * @param {Object} props
- * @param {Object} props.evidence - Section 4 Evidence Object
- * @param {Function} [props.onOverride] - Optional admin override handler
- */
 export default function EvidenceCard({ evidence, onOverride }) {
   const [hovered, setHovered] = useState(false);
   const {
@@ -37,7 +30,6 @@ export default function EvidenceCard({ evidence, onOverride }) {
   return (
     <div className="bg-white rounded-[24px] p-6 shadow-md hover:shadow-lg transition-all border border-black/5 flex flex-col justify-between gap-4">
       <div className="flex flex-col gap-3">
-        {/* Top bar: Type Pill & Tier Badge */}
         <div className="flex items-center justify-between gap-2 flex-wrap">
           <span className="px-3 py-1 bg-[#F5F5F3] text-[#494D4D] text-xs font-bold uppercase tracking-wider rounded-xl">
             {type}
@@ -45,7 +37,6 @@ export default function EvidenceCard({ evidence, onOverride }) {
           <Badge tier={verificationTier} />
         </div>
 
-        {/* Title & Description */}
         <div>
           <h3 className="text-lg font-bold text-[#111111] flex items-center gap-2">
             <FileCheck className="w-5 h-5 text-emerald-600 shrink-0" />
@@ -56,7 +47,6 @@ export default function EvidenceCard({ evidence, onOverride }) {
           </p>
         </div>
 
-        {/* Claimed Skills Tags */}
         {claimedSkills && claimedSkills.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-1">
             {claimedSkills.map((skill, index) => (
@@ -70,7 +60,6 @@ export default function EvidenceCard({ evidence, onOverride }) {
           </div>
         )}
 
-        {/* Verification Detail & Reason */}
         <div className="bg-[#F8F9FA] rounded-2xl p-3 text-xs text-[#494D4D] border border-black/5 mt-2 flex flex-col gap-1.5">
           <div className="flex items-start gap-2">
             <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
@@ -89,7 +78,6 @@ export default function EvidenceCard({ evidence, onOverride }) {
         </div>
       </div>
 
-      {/* Footer: Date & File Link / Admin Controls */}
       <div className="pt-3 border-t border-neutral-100 flex items-center justify-between gap-3 text-xs text-[#494D4D]">
         <div className="flex items-center gap-1.5 text-neutral-500">
           <Calendar className="w-3.5 h-3.5" />
@@ -133,3 +121,4 @@ export default function EvidenceCard({ evidence, onOverride }) {
     </div>
   );
 }
+

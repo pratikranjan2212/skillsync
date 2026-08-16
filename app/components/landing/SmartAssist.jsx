@@ -27,7 +27,6 @@ export default function SmartAssist() {
           id="smart-assist"
           className="bg-white rounded-[32px] sm:rounded-4xl p-8 sm:p-12 shadow-sm hover:shadow-md transition-shadow duration-300 border border-black/8 flex flex-col gap-10 scroll-mt-24"
         >
-          {/* Section Header */}
           <FadeIn delay={0.02} distance={16} duration={0.4}>
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
               <div>
@@ -45,7 +44,6 @@ export default function SmartAssist() {
             </div>
           </FadeIn>
 
-          {/* Feature Cards Grid (all 4 cards appear together at once) */}
           <FadeIn delay={0.06} distance={18} duration={0.45}>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {SMART_ASSIST_CARDS.map((card) => {
@@ -72,7 +70,6 @@ export default function SmartAssist() {
             </div>
           </FadeIn>
 
-          {/* Action Bar (appears at once with the 4 cards) */}
           <FadeIn delay={0.06} distance={18} duration={0.45}>
             <div className="pt-6 border-t border-neutral-100 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="text-xs sm:text-sm font-semibold text-[#494D4D]">
@@ -102,3 +99,4 @@ export default function SmartAssist() {
     </section>
   );
 }
+

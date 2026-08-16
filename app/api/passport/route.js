@@ -4,7 +4,6 @@ import { INITIAL_PASSPORT } from "@/app/data/mockData";
 let passportStore = { ...INITIAL_PASSPORT };
 
 export async function GET(request) {
-  // TODO: replace mock once /api/passport backend service is live
   return NextResponse.json({ success: true, passport: passportStore });
 }
 
@@ -20,3 +19,4 @@ export async function POST(request) {
     return NextResponse.json({ error: "Failed to update passport visibility" }, { status: 400 });
   }
 }
+

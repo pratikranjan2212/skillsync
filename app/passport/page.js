@@ -15,10 +15,6 @@ async function fetchPassportData() {
   return data.passport;
 }
 
-/**
- * Skill Passport Page.
- * Displays exclusively the interactive light-themed Skill Passport Card with all details & actions self-contained.
- */
 export default function SkillPassportPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
 
@@ -87,9 +83,7 @@ export default function SkillPassportPage() {
     <div className="min-h-screen bg-[#F5F5F3] text-[#111111] pb-24">
       <Navbar />
 
-      {/* Main View with generous horizontal margin (x-axis) */}
       <main className="max-w-5xl mx-auto px-6 sm:px-12 md:px-16 lg:px-20 flex flex-col items-center justify-center pt-4 sm:pt-8">
-        {/* Loading State */}
         {isLoading && (
           <div className="w-full bg-white rounded-4xl p-16 text-center border border-black/5 flex flex-col items-center gap-4 shadow-sm animate-pulse">
             <div className="w-10 h-10 rounded-full border-4 border-emerald-500 border-t-transparent animate-spin"></div>
@@ -97,7 +91,6 @@ export default function SkillPassportPage() {
           </div>
         )}
 
-        {/* Error State */}
         {isError && (
           <div className="w-full bg-rose-50 rounded-[28px] p-8 border border-rose-200 text-center flex flex-col items-center gap-3">
             <AlertCircle className="w-8 h-8 text-rose-600" />
@@ -111,7 +104,6 @@ export default function SkillPassportPage() {
           </div>
         )}
 
-        {/* ================= ALL-IN-ONE PASSPORT CARD ================= */}
         {passport && (
           <div className="w-full flex justify-center">
             <InteractivePassportCard 
@@ -124,3 +116,4 @@ export default function SkillPassportPage() {
     </div>
   );
 }
+

@@ -2,12 +2,6 @@ import React from "react";
 import Link from "next/link";
 import { Building2, MapPin, Sparkles, ArrowRight, CheckCircle2 } from "lucide-react";
 
-/**
- * Opportunity Card Component.
- * Displays ingested internship listing with calculated match percentage.
- * @param {Object} props
- * @param {Object} props.opportunity - Opportunity object
- */
 export default function OpportunityCard({ opportunity }) {
   const {
     id,
@@ -30,7 +24,6 @@ export default function OpportunityCard({ opportunity }) {
   return (
     <div className="bg-white rounded-[24px] p-6 shadow-md hover:shadow-lg transition-all border border-black/5 flex flex-col justify-between gap-5 group">
       <div className="flex flex-col gap-3">
-        {/* Top Header: Source Tag & Match Score Gauge */}
         <div className="flex items-center justify-between gap-2">
           <span className="px-3 py-1 bg-[#F5F5F3] text-[#494D4D] text-xs font-bold rounded-xl border border-black/5">
             via {sourceApi}
@@ -41,7 +34,6 @@ export default function OpportunityCard({ opportunity }) {
           </div>
         </div>
 
-        {/* Title & Company info */}
         <div>
           <h3 className="text-xl font-bold text-[#111111] group-hover:text-emerald-700 transition-colors">
             {title}
@@ -58,12 +50,10 @@ export default function OpportunityCard({ opportunity }) {
           </div>
         </div>
 
-        {/* Short Description */}
         <p className="text-sm text-[#494D4D] leading-relaxed line-clamp-2">
           {description}
         </p>
 
-        {/* Required Skills list */}
         {requiredSkills && requiredSkills.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-1">
             {requiredSkills.map((skill, index) => (
@@ -79,7 +69,6 @@ export default function OpportunityCard({ opportunity }) {
         )}
       </div>
 
-      {/* Footer CTA button */}
       <div className="pt-3 border-t border-neutral-100 flex items-center justify-between">
         <span className="text-xs text-neutral-400 font-mono">ID: {id}</span>
         <Link
@@ -93,3 +82,4 @@ export default function OpportunityCard({ opportunity }) {
     </div>
   );
 }
+

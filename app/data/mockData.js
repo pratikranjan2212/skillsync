@@ -1,5 +1,3 @@
-// SkillSync Mock Data Store - Section 4 Data Contracts
-
 export const INITIAL_EVIDENCE = [
   {
     id: "ev-101",
