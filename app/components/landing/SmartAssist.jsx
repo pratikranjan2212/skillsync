@@ -45,7 +45,7 @@ export default function SmartAssist() {
       <FadeIn distance={24} duration={0.55}>
         <div
           id="smart-assist"
-          className="bg-white rounded-[36px] sm:rounded-[44px] p-8 sm:p-12 md:p-14 shadow-[0_24px_70px_-15px_rgba(0,0,0,0.08)] border border-black/5 flex flex-col gap-10 scroll-mt-24"
+          className="bg-white rounded-[36px] sm:rounded-[44px] p-8 sm:p-12 md:p-14 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.06)] border border-black/5 flex flex-col gap-10 scroll-mt-24"
         >
           {/* Header Row */}
           <FadeIn delay={0.02} distance={16} duration={0.4}>
@@ -65,7 +65,7 @@ export default function SmartAssist() {
             </div>
           </FadeIn>
 
-          {/* 4 Feature Cards (Smooth Fade-In Entrance, No Popout Hover) */}
+          {/* 4 Feature Cards (Smooth Fade-In, Subtle Icon Rotation on Hover) */}
           <motion.div
             variants={containerVariants}
             initial="hidden"
@@ -79,13 +79,13 @@ export default function SmartAssist() {
                 <motion.div
                   key={card.id}
                   variants={itemVariants}
-                  className={`bg-white p-7 sm:p-8 rounded-[28px] sm:rounded-[32px] ${card.cardGlow} transition-shadow duration-300 flex flex-col justify-start min-h-[330px]`}
+                  className={`group bg-white p-7 sm:p-8 rounded-[28px] sm:rounded-[32px] ${card.cardGlow} transition-all duration-300 flex flex-col justify-start min-h-[330px] cursor-pointer`}
                 >
-                  {/* Circular Icon Badge */}
+                  {/* Circular Icon Badge with Gentle Rotation Animation on Hover */}
                   <div
-                    className={`w-13 h-13 sm:w-14 sm:h-14 rounded-full ${card.iconBg} ${card.iconShadow} text-white flex items-center justify-center mb-6`}
+                    className={`w-13 h-13 sm:w-14 sm:h-14 rounded-full ${card.iconBg} ${card.iconShadow} text-white flex items-center justify-center mb-6 transition-transform duration-500 ease-out group-hover:rotate-[15deg] group-hover:scale-110`}
                   >
-                    <Icon className="w-6 h-6 stroke-[2.2]" />
+                    <Icon className="w-6 h-6 stroke-[2.2] transition-transform duration-500 group-hover:scale-105" />
                   </div>
 
                   <h3 className="text-lg sm:text-xl font-black text-[#111111] tracking-tight leading-snug mb-3">
