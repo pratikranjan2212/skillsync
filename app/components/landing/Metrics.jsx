@@ -20,14 +20,15 @@ import {
   FileText,
   Lock,
   Layers,
-  Cpu,
-  MousePointer
+  Cpu
 } from "lucide-react";
 
 export default function Metrics() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [activeModal, setActiveModal] = useState(null);
+  
+  const containerRef = useRef(null);
   const wheelLockRef = useRef(false);
 
   const metricsData = [
@@ -82,22 +83,34 @@ export default function Metrics() {
     return () => clearInterval(timer);
   }, [isAutoPlaying, activeModal, metricsData.length]);
 
-  // Smooth Mouse Scroll Wheel Navigation with 450ms Cooldown
-  const handleWheel = (e) => {
-    if (wheelLockRef.current || activeModal) return;
-    const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-    if (Math.abs(delta) > 12) {
-      if (delta > 0) {
-        handleNext();
-      } else {
-        handlePrev();
+  // Non-passive native wheel listener to PREVENT page vertical scroll when wheeling over carousel
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const handleWheelNative = (e) => {
+      // Prevent browser default window scrolling (page going up/down)
+      e.preventDefault();
+
+      if (wheelLockRef.current || activeModal) return;
+
+      const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+      if (Math.abs(delta) > 10) {
+        if (delta > 0) {
+          setCurrentIndex((prev) => (prev + 1) % metricsData.length);
+        } else {
+          setCurrentIndex((prev) => (prev - 1 + metricsData.length) % metricsData.length);
+        }
+        wheelLockRef.current = true;
+        setTimeout(() => {
+          wheelLockRef.current = false;
+        }, 450);
       }
-      wheelLockRef.current = true;
-      setTimeout(() => {
-        wheelLockRef.current = false;
-      }, 450);
-    }
-  };
+    };
+
+    el.addEventListener("wheel", handleWheelNative, { passive: false });
+    return () => el.removeEventListener("wheel", handleWheelNative);
+  }, [activeModal, metricsData.length]);
 
   const handleNext = () => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % metricsData.length);
@@ -119,9 +132,9 @@ export default function Metrics() {
       transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       className="py-16 md:py-24 px-4 sm:px-6 max-w-7xl mx-auto"
     >
-      {/* Outer Card Wrapper with Mouse Wheel Navigation */}
+      {/* Outer Card Wrapper with Non-Passive Wheel Interception */}
       <div
-        onWheel={handleWheel}
+        ref={containerRef}
         onMouseEnter={() => setIsAutoPlaying(false)}
         onMouseLeave={() => setIsAutoPlaying(true)}
         className="relative bg-white rounded-[36px] sm:rounded-[44px] border border-black/10 p-6 sm:p-10 md:p-12 shadow-2xl overflow-hidden group/card"
@@ -137,15 +150,9 @@ export default function Metrics() {
               Engine Benchmarks & Guarantee Standards
             </h2>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-1.5 text-xs text-neutral-600 bg-neutral-100 px-3 py-1.5 rounded-full border border-neutral-200/80 font-bold">
-              <MousePointer className="w-3.5 h-3.5 text-emerald-600 animate-bounce" />
-              Scroll wheel supported
-            </div>
-            <p className="text-sm sm:text-base text-[#494D4D] font-medium max-w-md leading-relaxed hidden lg:block">
-              Real-time quantitative performance metrics powering candidate verification & job matching.
-            </p>
-          </div>
+          <p className="text-sm sm:text-base text-[#494D4D] font-medium max-w-md leading-relaxed">
+            Real-time quantitative performance metrics powering candidate verification, bias elimination, and explainable job matching.
+          </p>
         </div>
 
         {/* Dynamic Carousel Stage with Easing & Ambient Radial Glow */}
