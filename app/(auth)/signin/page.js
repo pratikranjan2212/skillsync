@@ -7,6 +7,13 @@ import { useForm } from "react-hook-form";
 import { LogIn, Mail, Lock, ArrowRight, ShieldCheck, UserCheck } from "lucide-react";
 import Navbar from "@/app/components/layout/Navbar";
 
+function setAuthCookies(assignedRole) {
+  if (typeof document === "undefined") return;
+  document.cookie = `skillsync_session=active-token; path=/;`;
+  document.cookie = `next-auth.session-token=active-token; path=/;`;
+  document.cookie = `skillsync_role=${assignedRole}; path=/;`;
+}
+
 /**
  * Sign In Screen.
  * Supports Student and Admin sign in with one-click demo login presets.
@@ -72,11 +79,8 @@ export default function SignInPage() {
       });
 
       if (res.ok) {
-        document.cookie = `skillsync_session=active-token; path=/;`;
-        document.cookie = `next-auth.session-token=active-token; path=/;`;
-        document.cookie = `skillsync_role=${assignedRole}; path=/;`;
-
-        window.location.href = "/dashboard";
+        setAuthCookies(assignedRole);
+        router.push("/dashboard");
       } else {
         setErrorMsg("Invalid credentials.");
       }
@@ -188,7 +192,7 @@ export default function SignInPage() {
           </form>
 
           <div className="text-center text-sm text-[#494D4D]">
-            Don't have an account yet?{" "}
+            Don&apos;t have an account yet?{" "}
             <Link href="/signup" className="font-bold text-[#111111] hover:underline">
               Register as Student
             </Link>

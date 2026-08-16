@@ -7,6 +7,13 @@ import { useForm } from "react-hook-form";
 import { Sparkles, User, Mail, Lock, ArrowRight, Check, Eye, EyeOff } from "lucide-react";
 import Navbar from "@/app/components/layout/Navbar";
 
+function setSignupCookies() {
+  if (typeof document === "undefined") return;
+  document.cookie = "skillsync_session=active-token; path=/;";
+  document.cookie = "next-auth.session-token=active-token; path=/;";
+  document.cookie = "skillsync_role=student; path=/;";
+}
+
 /**
  * Student Registration Screen.
  * Single-role sign-up (Student only; Admin is seeded manually).
@@ -32,6 +39,7 @@ export default function SignUpPage() {
     mode: "onChange",
   });
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const passwordValue = watch("password") || "";
 
   // Password constraints evaluations
@@ -67,11 +75,8 @@ export default function SignUpPage() {
       });
 
       if (res.ok) {
-        // Set client fallback session cookies
-        document.cookie = "skillsync_session=active-token; path=/;";
-        document.cookie = "next-auth.session-token=active-token; path=/;";
-        document.cookie = "skillsync_role=student; path=/;";
-        window.location.href = "/dashboard";
+        setSignupCookies();
+        router.push("/dashboard");
       } else {
         setErrorMsg("Registration failed. Please try again.");
       }

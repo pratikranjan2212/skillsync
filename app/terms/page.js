@@ -83,7 +83,7 @@ export default function TermsAndConditionsPage() {
             <ul className="space-y-2 text-sm text-[#494D4D] list-disc list-inside pl-2">
               <li>SkillSync calculated match percentages are recommendations based strictly on taxonomy skill overlap.</li>
               <li>SkillSync does not guarantee interview offers, hiring outcomes, or employment contracts.</li>
-              <li>External job postings are governed by the respective hiring employers' policies.</li>
+              <li>External job postings are governed by the respective hiring employers&apos; policies.</li>
             </ul>
           </section>
 
@@ -105,7 +105,7 @@ export default function TermsAndConditionsPage() {
               <span>5. Limitation of Liability</span>
             </h2>
             <p className="text-sm text-[#494D4D] leading-relaxed">
-              SkillSync is provided on an "as is" and "as available" basis. To the maximum extent permitted by applicable law, SkillSync and its operators shall not be liable for any direct, indirect, incidental, or consequential damages resulting from the use or inability to use the platform.
+              SkillSync is provided on an &quot;as is&quot; and &quot;as available&quot; basis. To the maximum extent permitted by applicable law, SkillSync and its operators shall not be liable for any direct, indirect, incidental, or consequential damages resulting from the use or inability to use the platform.
             </p>
           </section>
         </div>

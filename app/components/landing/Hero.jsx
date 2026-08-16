@@ -160,7 +160,7 @@ export default function Hero({ onOpenAppModal, onOpenDemoModal }) {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h3 className="font-black text-base sm:text-lg text-white leading-tight">
-                    Alex Chen's Skill Passport
+                    Alex Chen&apos;s Skill Passport
                   </h3>
                   <p className="text-[11px] sm:text-xs text-neutral-400 font-medium mt-0.5">
                     3 of 5 verified skills

@@ -101,7 +101,7 @@ export default function SkillPassportPage() {
               <span className="text-xs text-[#494D4D] font-mono">ID: {passport?.studentId || "std-101"}</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black text-[#111111] mt-2">
-              Alex Chen's Skill Passport
+              Alex Chen&apos;s Skill Passport
             </h1>
             <p className="text-sm text-[#494D4D] mt-1 max-w-2xl">
               Skills grouped by taxonomy domain with citations of backing coursework, projects, and micro-credentials.

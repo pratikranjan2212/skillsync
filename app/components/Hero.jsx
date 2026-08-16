@@ -108,7 +108,7 @@ export default function Hero({ onOpenAppModal, onOpenDemoModal }) {
                     <ShieldCheck className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="font-extrabold text-sm text-white">Alex Chen's Skill Passport</h3>
+                    <h3 className="font-extrabold text-sm text-white">Alex Chen&apos;s Skill Passport</h3>
                     <p className="text-[11px] text-neutral-400">Automated Verification Active</p>
                   </div>
                 </div>

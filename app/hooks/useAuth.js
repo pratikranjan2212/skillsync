@@ -10,10 +10,9 @@ import { useSession } from "next-auth/react";
 export function useAuth() {
   const { data: session, status } = useSession();
   const [hasCookie, setHasCookie] = useState(false);
-  const [isClient, setIsClient] = useState(false);
+  const [isClient, setIsClient] = useState(() => typeof window !== "undefined");
 
   useEffect(() => {
-    setIsClient(true);
     const checkCookies = () => {
       const cookies = typeof document !== "undefined" ? document.cookie : "";
       const authenticated =

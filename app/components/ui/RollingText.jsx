@@ -2,7 +2,7 @@
 // Adds new animation options: bounce, wave, elastic, spring, easeIn, easeOut, easeInOut, and more
 // New features: Animation direction, Custom character sets, Performance & Accessibility
 
-import React, { useState, useEffect, useRef, startTransition } from "react"
+import React, { useState, useEffect, useRef, useMemo, startTransition } from "react"
 import { motion, useInView } from "framer-motion"
 
 /**
@@ -58,13 +58,12 @@ export default function RollingText(props) {
         return index < prefixLength || index >= totalLength - suffixLength
     }
 
-    // Check for reduced motion preference
+    // Check for reduced motion preference changes
     useEffect(() => {
         if (typeof window !== "undefined" && respectReducedMotion) {
             const mediaQuery = window.matchMedia(
                 "(prefers-reduced-motion: reduce)"
             )
-            setPrefersReducedMotion(mediaQuery.matches)
 
             const handleChange = (e) => {
                 setPrefersReducedMotion(e.matches)
@@ -90,7 +89,7 @@ export default function RollingText(props) {
             )
             return () => clearTimeout(timer)
         } else {
-            setIsAnimating(false)
+            startTransition(() => setIsAnimating(false))
         }
     }, [
         autoPlay,
@@ -102,9 +101,10 @@ export default function RollingText(props) {
 
     const characters = displayText.split("")
 
-    // For random, generate a stable random delay per character
-    const randomDelays = characters.map(
-        () => Math.random() * staggerDelay * characters.length
+    // For random, generate a deterministic pseudo-random delay per character
+    const randomDelays = useMemo(() => 
+        characters.map((_, i) => (((i * 37) % 100) / 100) * staggerDelay * characters.length),
+        [characters, staggerDelay]
     )
 
     // For wave, bounce, elastic, spring, easeIn, easeOut, easeInOut, set up pattern-specific delays and easings
@@ -213,7 +213,7 @@ export default function RollingText(props) {
         result.push(targetChar) // Always start with the target character
         const extraCount = Math.max(2, duplicateCount) - 2
         for (let i = 0; i < extraCount; i++) {
-            const randomChar = chars[Math.floor(Math.random() * chars.length)]
+            const randomChar = chars[(i * 7 + targetChar.charCodeAt(0)) % chars.length]
             result.push(randomChar)
         }
         result.push(targetChar) // Always end with the target character

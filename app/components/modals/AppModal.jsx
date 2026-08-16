@@ -33,9 +33,9 @@ export default function AppModal({ isOpen, onClose }) {
             <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-4">
               <CheckCircle2 className="w-8 h-8" />
             </div>
-            <h3 className="text-2xl font-extrabold text-neutral-900 mb-2">You're on the list!</h3>
+            <h3 className="text-2xl font-extrabold text-neutral-900 mb-2">You&apos;re on the list!</h3>
             <p className="text-xs text-neutral-600 font-medium mb-6">
-              We've sent an instant download link to <span className="font-bold text-neutral-900">{email}</span>.
+              We&apos;ve sent an instant download link to <span className="font-bold text-neutral-900">{email}</span>.
             </p>
             <button
               onClick={onClose}

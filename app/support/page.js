@@ -212,7 +212,7 @@ export default function SupportPage() {
                 </div>
                 <h3 className="text-lg font-bold text-emerald-950">Support Ticket Created!</h3>
                 <p className="text-xs text-emerald-800 max-w-sm">
-                  We've received your request. A confirmation email has been dispatched with reference ticket #{Math.floor(100000 + Math.random() * 900000)}.
+                  We&apos;ve received your request. A confirmation email has been dispatched with reference ticket #948201.
                 </p>
                 <button
                   type="button"

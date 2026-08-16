@@ -213,7 +213,7 @@ export default function DocumentationPage() {
               </p>
 
               <div className="bg-[#111111] text-white p-5 rounded-2xl font-mono text-xs overflow-x-auto shadow-inner mb-6">
-                <div className="text-emerald-400 font-bold mb-2">// SkillSync Match Percentage Calculation</div>
+                <div className="text-emerald-400 font-bold mb-2">{ "// SkillSync Match Percentage Calculation" }</div>
                 <div>MatchScore = ( ∑ (SkillWeight × TierFactor) / TotalJobRequirements ) × 100</div>
                 <div className="text-neutral-400 mt-2">where:</div>
                 <div className="text-neutral-400">  TierFactor(verified-high)   = 1.0</div>
@@ -277,7 +277,7 @@ export default function DocumentationPage() {
                     <span className="font-bold text-[#111111]">/api/passport</span>
                   </div>
                   <p className="text-xs text-[#494D4D] mt-2">
-                    Fetches the authenticated student's Skill Passport with all categorized skills and backing evidence citations.
+                    Fetches the authenticated student&apos;s Skill Passport with all categorized skills and backing evidence citations.
                   </p>
                 </div>
 
