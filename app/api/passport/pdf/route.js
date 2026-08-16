@@ -23,6 +23,7 @@ export async function GET(request) {
         college: dbPassport.user.college || "Ramaiah Institute of Technology",
         degree: dbPassport.user.degree || "B.Tech in Computer Science & Engineering",
         batch: dbPassport.user.batch || "2022 – 2026",
+        dob: dbPassport.user.dob || "Not Specified",
         shareToken: dbPassport.shareToken,
         updatedAt: dbPassport.updatedAt.toISOString(),
         skills: INITIAL_PASSPORT.skills,
@@ -38,6 +39,7 @@ export async function GET(request) {
 =====================================================
 Student ID: ${passport.studentId}
 Student Name: ${passport.studentName || "Alex Chen"}
+Date of Birth (DOB): ${passport.dob || "Not Specified"}
 Institution: ${passport.college || "Ramaiah Institute of Technology"}
 Degree: ${passport.degree || "B.Tech in Computer Science & Engineering"}
 Batch: ${passport.batch || "2022 – 2026"}

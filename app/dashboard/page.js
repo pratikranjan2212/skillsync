@@ -75,12 +75,14 @@ export default function UnifiedDashboardPage() {
     queryKey: ["dash-evidence"],
     queryFn: fetchEvidence,
     enabled: isAuthenticated,
+    refetchOnMount: "always",
   });
 
   const { data: passport, isLoading: loadingPass, refetch: refetchPass } = useQuery({
     queryKey: ["dash-passport"],
     queryFn: fetchPassport,
     enabled: isAuthenticated,
+    refetchOnMount: "always",
   });
 
   const { data: pipeline = [], refetch: refetchPipe } = useQuery({
