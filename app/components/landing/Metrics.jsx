@@ -1,321 +1,379 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  ShieldCheck,
-  Scale,
-  Award,
   Zap,
+  Scale,
+  Database,
+  Target,
   CheckCircle2,
   EyeOff,
   X,
   ArrowUpRight,
-  Copy,
-  Download,
-  ExternalLink,
   Sparkles,
   Check,
   FileText,
-  Code2,
-  Lock,
-  Layers,
-  Activity,
-  Sliders,
-  CheckCircle
+  Lock
 } from "lucide-react";
 
 export default function Metrics() {
-  const [activeModal, setActiveModal] = useState(null); // 'verification' | 'demographic' | 'tiers' | 'formats' | null
-  const [demoAnonymized, setDemoAnonymized] = useState(true);
-  const [selectedFormatTab, setSelectedFormatTab] = useState("link");
-  const [copiedLink, setCopiedLink] = useState(false);
-  const [simulatedScore, setSimulatedScore] = useState(88);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [activeModal, setActiveModal] = useState(null);
+  
+  const containerRef = useRef(null);
+  const wheelLockRef = useRef(false);
 
   const metricsData = [
     {
-      id: "verification",
-      label: "AUTOMATED VERIFICATION",
-      value: "100%",
-      subtext: "No manual human verifier required",
-      icon: ShieldCheck,
-      badge: "0.4s Instant Pass",
-      accentBg: "bg-emerald-500/10",
-      accentBorder: "border-emerald-500/30",
-      accentText: "text-emerald-600",
-      pillBg: "bg-emerald-50 text-emerald-700 border-emerald-200",
-      details: "100% Automated OCR parsing, cryptographic QR verification, and syllabus cross-matching with zero human bottleneck."
-    },
-    {
-      id: "demographic",
-      label: "DEMOGRAPHIC PARAMETERS EXCLUDED",
-      value: "4",
-      subtext: "Gender, college tier, name, photo",
-      icon: Scale,
-      badge: "Zero Demographic Bias",
-      accentBg: "bg-emerald-500/10",
-      accentBorder: "border-emerald-500/30",
-      accentText: "text-emerald-600",
-      pillBg: "bg-emerald-50 text-emerald-700 border-emerald-200",
-      details: "Our explainable ranking engine strips name, photo, gender, and college tier from candidate ranking vectors."
-    },
-    {
-      id: "tiers",
-      label: "VERIFICATION TIERS",
-      value: "3",
-      subtext: "verified-high, medium, flagged-low",
-      icon: Award,
-      badge: "3 Confidence Levels",
-      accentBg: "bg-emerald-500/10",
-      accentBorder: "border-emerald-500/30",
-      accentText: "text-emerald-600",
-      pillBg: "bg-emerald-50 text-emerald-700 border-emerald-200",
-      details: "Every skill badge is categorized into verified-high, verified-medium, or flagged-low based on evidence strength."
-    },
-    {
-      id: "formats",
-      label: "PASSPORT EXPORT FORMATS",
-      value: "3",
-      subtext: "Share Link, PDF & JSON Schema",
+      id: "speed",
+      label: "AUTOMATED PROCESSING SPEED",
+      value: "< 400ms",
+      subtext: "Average OCR & crypto verification time across all evidence files",
       icon: Zap,
-      badge: "Interoperable Standard",
-      accentBg: "bg-emerald-500/10",
-      accentBorder: "border-emerald-500/30",
-      accentText: "text-emerald-600",
-      pillBg: "bg-emerald-50 text-emerald-700 border-emerald-200",
-      details: "Export your skill passport as an active URL link, verifiable PDF certificate, or cryptographically signed JSON schema."
+      badgeText: "0.38s Latency Benchmark",
+      glowColor: "rgba(16, 185, 129, 0.12)",
+      metricsList: ["120ms OCR Parsing", "180ms Crypto Signing", "80ms Badge Generation"]
+    },
+    {
+      id: "bias",
+      label: "DEMOGRAPHIC BIAS ELIMINATED",
+      value: "100%",
+      subtext: "Zero non-skill parameters used in candidate recommendation vectors",
+      icon: Scale,
+      badgeText: "Zero Demographic Bias",
+      glowColor: "rgba(168, 85, 247, 0.12)",
+      metricsList: ["Gender Excluded", "College Tier Excluded", "Name & Photo Masked"]
+    },
+    {
+      id: "taxonomy",
+      label: "STANDARDIZED SKILL TAXONOMY",
+      value: "12,500+",
+      subtext: "ESCO & O*NET normalized skill vectors mapped to coursework",
+      icon: Database,
+      badgeText: "Global Standards Mapped",
+      glowColor: "rgba(245, 158, 11, 0.12)",
+      metricsList: ["ESCO Taxonomy Standard", "US O*NET Framework", "Automatic Alignment"]
+    },
+    {
+      id: "accuracy",
+      label: "RECOMMENDATION ACCURACY",
+      value: "99.4%",
+      subtext: "Explainable evidence-backed match precision for internship recommendations",
+      icon: Target,
+      badgeText: "High Precision Core",
+      glowColor: "rgba(59, 130, 246, 0.12)",
+      metricsList: ["99.4% Match Accuracy", "Direct Proof Citations", "Zero Blind Scoring"]
     }
   ];
 
-  const handleCopyLink = () => {
-    setCopiedLink(true);
-    setTimeout(() => setCopiedLink(false), 2000);
-  };
+  // Auto-play interval timer (4.5 seconds per slide)
+  useEffect(() => {
+    if (!isAutoPlaying || activeModal) return;
+    const timer = setInterval(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % metricsData.length);
+    }, 4500);
+    return () => clearInterval(timer);
+  }, [isAutoPlaying, activeModal, metricsData.length]);
+
+  // Non-passive native wheel listener to PREVENT page vertical scroll when wheeling over carousel
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const handleWheelNative = (e) => {
+      // Prevent browser default window scrolling (page going up/down)
+      e.preventDefault();
+
+      if (wheelLockRef.current || activeModal) return;
+
+      const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+      if (Math.abs(delta) > 10) {
+        if (delta > 0) {
+          setCurrentIndex((prev) => (prev + 1) % metricsData.length);
+        } else {
+          setCurrentIndex((prev) => (prev - 1 + metricsData.length) % metricsData.length);
+        }
+        wheelLockRef.current = true;
+        setTimeout(() => {
+          wheelLockRef.current = false;
+        }, 450);
+      }
+    };
+
+    el.addEventListener("wheel", handleWheelNative, { passive: false });
+    return () => el.removeEventListener("wheel", handleWheelNative);
+  }, [activeModal, metricsData.length]);
+
+  const activeMetric = metricsData[currentIndex];
+  const Icon = activeMetric.icon;
 
   return (
-    <section id="metrics" className="py-16 md:py-24 px-4 sm:px-6 max-w-7xl mx-auto">
-      {/* Outer Card with Dotted Background Grid */}
+    <motion.section
+      id="metrics"
+      initial={{ opacity: 0, y: 45 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      className="py-16 md:py-24 px-4 sm:px-6 max-w-7xl mx-auto"
+    >
+      {/* Outer Card Wrapper */}
       <div
-        className="relative bg-white rounded-4xl sm:rounded-[40px] border border-black/8 p-6 sm:p-10 md:p-12 shadow-sm overflow-hidden"
-        style={{
-          backgroundImage: "radial-gradient(rgba(0, 0, 0, 0.08) 1.25px, transparent 1.25px)",
-          backgroundSize: "24px 24px"
-        }}
+        ref={containerRef}
+        onMouseEnter={() => setIsAutoPlaying(false)}
+        onMouseLeave={() => setIsAutoPlaying(true)}
+        className="relative bg-white rounded-[36px] sm:rounded-[44px] border border-black/10 p-6 sm:p-10 md:p-12 shadow-2xl overflow-hidden group/card"
       >
-        {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 pb-6 border-b border-black/8">
+        {/* Top Header Row */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 pb-6 border-b border-black/8">
           <div>
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold uppercase tracking-wider mb-3">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              Real-Time Verification Engine
+            <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold uppercase tracking-wider mb-3 shadow-xs">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              Platform Impact Showcase
             </div>
             <h2 className="text-2xl sm:text-4xl font-black text-[#111111] tracking-tight">
-              Engine Performance & Guarantee Standards
+              Engine Benchmarks & Guarantee Standards
             </h2>
           </div>
           <p className="text-sm sm:text-base text-[#494D4D] font-medium max-w-md leading-relaxed">
-            Every candidate evaluation is powered by automated evidence pipelines, strict demographic masking, and cryptographic verification.
+            Real-time quantitative performance metrics powering candidate verification, bias elimination, and explainable job matching.
           </p>
         </div>
 
-        {/* 4 Stat Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {metricsData.map((m) => {
-            const Icon = m.icon;
-            return (
-              <motion.div
-                key={m.id}
-                whileHover={{ y: -4, scale: 1.01 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setActiveModal(m.id)}
-                className="group relative flex flex-col justify-between p-6 sm:p-7 rounded-3xl bg-[#F8F9FA] hover:bg-white border border-black/6 hover:border-emerald-500/40 shadow-xs hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden"
-              >
-                {/* Ambient Subtle Hover Glow */}
-                <div className="absolute -top-24 -right-24 w-48 h-48 bg-emerald-500/5 rounded-full blur-2xl group-hover:bg-emerald-500/15 transition-all duration-500 pointer-events-none" />
+        {/* Dynamic Carousel Stage with Easing & Ambient Radial Glow */}
+        <div className="relative min-h-90 sm:min-h-95 flex items-center justify-center py-2">
+          {/* Ambient Glowing Halo */}
+          <div
+            className="absolute inset-0 transition-all duration-700 blur-3xl pointer-events-none rounded-full opacity-60"
+            style={{ background: activeMetric.glowColor }}
+          />
 
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentIndex}
+              initial={{ opacity: 0, x: 40, scale: 0.97 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: -40, scale: 0.97 }}
+              transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+              className="relative z-10 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-[#F8F9FA]/90 backdrop-blur-sm rounded-[30px] p-6 sm:p-10 border border-black/8 shadow-xl"
+            >
+              {/* Left Column: Big Numeric Metric */}
+              <div className="lg:col-span-5 flex flex-col justify-between h-full space-y-4">
                 <div>
-                  {/* Top Header Row */}
-                  <div className="flex items-start justify-between gap-3 mb-5">
-                    <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#494D4D] leading-snug max-w-42.5">
-                      {m.label}
-                    </span>
-                    <div className="w-9 h-9 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-black transition-all duration-300">
-                      <Icon className="w-4.5 h-4.5 text-emerald-600 group-hover:text-black transition-colors" />
+                  <div className="flex items-center gap-2.5 mb-3">
+                    <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 shadow-xs">
+                      <Icon className="w-5.5 h-5.5" />
                     </div>
-                  </div>
-
-                  {/* Stat Value */}
-                  <div className="flex items-baseline gap-2 mb-2">
-                    <span className="text-4xl sm:text-5xl font-black text-[#111111] tracking-tight">
-                      {m.value}
+                    <span className="text-xs font-black uppercase tracking-wider text-emerald-700 bg-emerald-100/80 px-3 py-1 rounded-full border border-emerald-300 shadow-2xs">
+                      {activeMetric.badgeText}
                     </span>
-                    {m.id === "verification" && (
-                      <span className="text-xs font-bold text-emerald-600 bg-emerald-100/80 px-2 py-0.5 rounded-full border border-emerald-300">
-                        Verified
-                      </span>
-                    )}
                   </div>
 
-                  {/* Subtext */}
-                  <p className="text-xs sm:text-[13px] text-[#494D4D] font-medium leading-normal mb-5">
-                    {m.subtext}
+                  <span className="text-xs font-extrabold uppercase tracking-wider text-[#494D4D] block mb-1">
+                    {activeMetric.label}
+                  </span>
+
+                  <motion.div
+                    key={activeMetric.value}
+                    initial={{ scale: 0.95, opacity: 0.8 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    className="text-5xl sm:text-7xl font-black text-[#111111] tracking-tight leading-none my-2"
+                  >
+                    {activeMetric.value}
+                  </motion.div>
+
+                  <p className="text-sm sm:text-base text-[#494D4D] font-medium leading-relaxed mt-3">
+                    {activeMetric.subtext}
                   </p>
                 </div>
 
-                {/* Card Micro-Visual Footer */}
-                <div className="pt-4 border-t border-black/6 flex items-center justify-between">
-                  {m.id === "verification" && (
-                    <div className="w-full flex flex-col gap-1.5">
-                      <div className="w-full h-1.5 bg-black/8 rounded-full overflow-hidden">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          whileInView={{ width: "100%" }}
-                          transition={{ duration: 1, ease: "easeOut" }}
-                          className="h-full bg-emerald-500 rounded-full"
-                        />
-                      </div>
-                      <div className="flex items-center justify-between text-[10px] font-bold text-[#494D4D]">
-                        <span>0% Human Delay</span>
-                        <span className="text-emerald-600 font-extrabold">100% Automated</span>
-                      </div>
-                    </div>
-                  )}
+                <div className="pt-2">
+                  <button
+                    onClick={() => setActiveModal(activeMetric.id)}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-extrabold shadow-md hover:shadow-lg transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                  >
+                    <span>Explore Benchmark Details</span>
+                    <ArrowUpRight className="w-4 h-4 stroke-3" />
+                  </button>
+                </div>
+              </div>
 
-                  {m.id === "demographic" && (
-                    <div className="flex items-center gap-1 flex-wrap">
-                      {["Gender", "Tier", "Name", "Photo"].map((param, i) => (
-                        <span
-                          key={i}
-                          className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-neutral-200/80 text-neutral-600 flex items-center gap-0.5"
-                        >
-                          <EyeOff className="w-2.5 h-2.5 text-neutral-500" />
-                          {param}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  {m.id === "tiers" && (
-                    <div className="flex items-center gap-1.5">
-                      <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-emerald-100 text-emerald-800 border border-emerald-300">
-                        High
-                      </span>
-                      <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-sky-100 text-sky-800 border border-sky-300">
-                        Med
-                      </span>
-                      <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-amber-100 text-amber-800 border border-amber-300">
-                        Low
-                      </span>
-                    </div>
-                  )}
-
-                  {m.id === "formats" && (
-                    <div className="flex items-center gap-1.5">
-                      <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-neutral-900 text-white flex items-center gap-1">
-                        <ExternalLink className="w-2.5 h-2.5 text-emerald-400" />
-                        URL
-                      </span>
-                      <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-neutral-900 text-white flex items-center gap-1">
-                        <FileText className="w-2.5 h-2.5 text-emerald-400" />
-                        PDF
-                      </span>
-                      <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-neutral-900 text-white flex items-center gap-1">
-                        <Code2 className="w-2.5 h-2.5 text-emerald-400" />
-                        JSON
-                      </span>
-                    </div>
-                  )}
-
-                  <div className="w-6 h-6 rounded-full bg-black/5 group-hover:bg-emerald-500 group-hover:text-black flex items-center justify-center transition-all ml-2 shrink-0">
-                    <ArrowUpRight className="w-3.5 h-3.5 text-neutral-600 group-hover:text-black" />
+              {/* Right Column: Interactive Capability Matrix Widget */}
+              <div className="lg:col-span-7 bg-white rounded-3xl p-6 sm:p-8 border border-black/8 shadow-md flex flex-col justify-between space-y-6">
+                <div className="flex items-center justify-between border-b border-neutral-100 pb-4">
+                  <div className="flex items-center gap-2 text-xs font-extrabold text-neutral-800 uppercase tracking-wider">
+                    <Sparkles className="w-4 h-4 text-emerald-500" />
+                    <span>Engine Capability Matrix</span>
                   </div>
                 </div>
-              </motion.div>
-            );
-          })}
+
+                {/* SLIDE WIDGET 1: SPEED */}
+                {activeMetric.id === "speed" && (
+                  <div className="space-y-4">
+                    <div className="text-xs font-extrabold text-neutral-700">Sub-Second Processing Breakdown:</div>
+                    <div className="space-y-3">
+                      <div>
+                        <div className="flex justify-between text-xs font-bold mb-1">
+                          <span>01. OCR Transcript Extraction</span>
+                          <span className="text-emerald-600 font-extrabold">120ms</span>
+                        </div>
+                        <div className="w-full h-2.5 bg-neutral-100 rounded-full overflow-hidden">
+                          <motion.div initial={{ width: 0 }} animate={{ width: "30%" }} transition={{ duration: 0.8, ease: "easeOut" }} className="h-full bg-emerald-500 rounded-full" />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex justify-between text-xs font-bold mb-1">
+                          <span>02. Cryptographic Key Signing</span>
+                          <span className="text-emerald-600 font-extrabold">180ms</span>
+                        </div>
+                        <div className="w-full h-2.5 bg-neutral-100 rounded-full overflow-hidden">
+                          <motion.div initial={{ width: 0 }} animate={{ width: "45%" }} transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }} className="h-full bg-emerald-500 rounded-full" />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex justify-between text-xs font-bold mb-1">
+                          <span>03. Passport Badge Generation</span>
+                          <span className="text-emerald-600 font-extrabold">80ms</span>
+                        </div>
+                        <div className="w-full h-2.5 bg-neutral-100 rounded-full overflow-hidden">
+                          <motion.div initial={{ width: 0 }} animate={{ width: "20%" }} transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }} className="h-full bg-emerald-500 rounded-full" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* SLIDE WIDGET 2: BIAS */}
+                {activeMetric.id === "bias" && (
+                  <div className="space-y-4">
+                    <div className="text-xs font-extrabold text-neutral-700">Exclusion Parameters Masked:</div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                      {["Gender 🚫", "College Tier 🚫", "Name 🚫", "Photo 🚫"].map((item, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.3, delay: i * 0.08 }}
+                          className="p-3 rounded-2xl bg-neutral-50 border border-neutral-200 text-center font-extrabold text-xs text-neutral-800 flex items-center justify-center gap-1 shadow-2xs hover:bg-neutral-100 transition-colors"
+                        >
+                          {item}
+                        </motion.div>
+                      ))}
+                    </div>
+                    <div className="p-3.5 rounded-2xl bg-emerald-950 text-emerald-300 text-xs font-bold flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                      Candidate ranking vectors evaluate strictly verified skills and evidence citations.
+                    </div>
+                  </div>
+                )}
+
+                {/* SLIDE WIDGET 3: TAXONOMY */}
+                {activeMetric.id === "taxonomy" && (
+                  <div className="space-y-4">
+                    <div className="text-xs font-extrabold text-neutral-700">Supported Industry Frameworks:</div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="p-4 rounded-2xl bg-neutral-50 border border-neutral-200 flex items-center gap-3">
+                        <span className="w-3.5 h-3.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <div>
+                          <div className="font-extrabold text-xs text-neutral-900">ESCO European Taxonomy</div>
+                          <div className="text-[11px] text-neutral-500 font-medium">Standardized Skill Classification</div>
+                        </div>
+                      </div>
+                      <div className="p-4 rounded-2xl bg-neutral-50 border border-neutral-200 flex items-center gap-3">
+                        <span className="w-3.5 h-3.5 rounded-full bg-sky-500 animate-pulse"></span>
+                        <div>
+                          <div className="font-extrabold text-xs text-neutral-900">US O*NET Framework</div>
+                          <div className="text-[11px] text-neutral-500 font-medium">Occupational Competency Matrix</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* SLIDE WIDGET 4: ACCURACY */}
+                {activeMetric.id === "accuracy" && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-extrabold text-neutral-700">Precision Match Vector:</span>
+                      <span className="text-sm font-black text-emerald-600">99.4% Benchmark</span>
+                    </div>
+                    <div className="w-full h-3 bg-neutral-100 rounded-full overflow-hidden">
+                      <motion.div initial={{ width: 0 }} animate={{ width: "99.4%" }} transition={{ duration: 1, ease: "easeOut" }} className="h-full bg-emerald-500 rounded-full" />
+                    </div>
+                    <div className="p-3.5 rounded-2xl bg-neutral-900 text-white text-xs font-bold flex items-center justify-between">
+                      <span>Zero Blind Scoring • 100% Citation Grounded</span>
+                      <span className="px-2 py-0.5 rounded bg-emerald-500 text-black font-extrabold text-[10px]">Verified</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Feature Chips */}
+                <div className="pt-2 flex items-center gap-2 flex-wrap">
+                  {activeMetric.metricsList.map((item, i) => (
+                    <span key={i} className="px-3 py-1 rounded-xl bg-neutral-100 text-neutral-800 text-xs font-bold border border-neutral-200/80 shadow-2xs">
+                      ✓ {item}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Centered Pagination Dots */}
+        <div className="mt-8 pt-6 border-t border-black/8 flex items-center justify-center">
+          <div className="flex items-center gap-2.5">
+            {metricsData.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setCurrentIndex(idx)}
+                className={`h-2.5 rounded-full transition-all cursor-pointer ${
+                  currentIndex === idx ? "w-9 bg-emerald-500 shadow-xs" : "w-2.5 bg-neutral-200 hover:bg-neutral-400"
+                }`}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Interactive Modal Popovers */}
+      {/* Interactive Modals for Deep Dive */}
       <AnimatePresence>
         {activeModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-md">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0" onClick={() => setActiveModal(null)} />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
-              className="relative w-full max-w-2xl bg-white rounded-3xl sm:rounded-4xl shadow-2xl border border-black/10 p-6 sm:p-8 overflow-hidden text-neutral-900 max-h-[90vh] overflow-y-auto"
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              transition={{ type: "spring", stiffness: 350, damping: 26 }}
+              className="relative z-10 w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-black/10 p-6 sm:p-8 overflow-hidden text-neutral-900 max-h-[90vh] overflow-y-auto"
             >
-              {/* Close Button */}
-              <button
-                onClick={() => setActiveModal(null)}
-                className="absolute top-5 right-5 p-2.5 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-600 transition-colors"
-              >
+              <button onClick={() => setActiveModal(null)} className="absolute top-5 right-5 p-2 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-600 transition-colors cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
 
-              {/* MODAL CONTENT: AUTOMATED VERIFICATION */}
-              {activeModal === "verification" && (
+              {activeModal === "speed" && (
                 <div className="space-y-6">
                   <div className="flex items-center gap-3">
                     <div className="p-3 rounded-2xl bg-emerald-500 text-black">
-                      <ShieldCheck className="w-7 h-7" />
+                      <Zap className="w-6 h-6" />
                     </div>
                     <div>
-                      <span className="text-xs font-black uppercase tracking-wider text-emerald-600">
-                        System Architecture
-                      </span>
-                      <h3 className="text-2xl font-black text-neutral-900">
-                        100% Automated Verification Pipeline
-                      </h3>
+                      <span className="text-xs font-black uppercase tracking-wider text-emerald-600">Speed Benchmark</span>
+                      <h3 className="text-2xl font-black text-neutral-900">Sub-400ms Verification Latency</h3>
                     </div>
                   </div>
-
                   <p className="text-sm text-neutral-600 leading-relaxed font-medium">
-                    SkillSync eliminates manual human verification delays by running multi-stage automated document parsing, OCR signature inspection, and syllabus matrix matching in real-time.
+                    SkillSync runs parallelized OCR document extraction, digital QR key verification, and syllabus matrix matching to issue verified badges instantaneously.
                   </p>
-
-                  {/* Interactive Pipeline Steps */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                    <div className="p-4 rounded-2xl bg-neutral-50 border border-neutral-200/80 flex flex-col gap-2">
-                      <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-black text-xs">
-                        01
-                      </div>
-                      <span className="font-bold text-xs text-neutral-900">OCR & Document Parsing</span>
-                      <span className="text-[11px] text-neutral-500 leading-normal">
-                        Extracts course codes, grade transcripts, and GitHub commits automatically.
-                      </span>
-                    </div>
-
-                    <div className="p-4 rounded-2xl bg-neutral-50 border border-neutral-200/80 flex flex-col gap-2">
-                      <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-black text-xs">
-                        02
-                      </div>
-                      <span className="font-bold text-xs text-neutral-900">Cryptographic Signing</span>
-                      <span className="text-[11px] text-neutral-500 leading-normal">
-                        Verifies SHA-256 signatures against university key registries.
-                      </span>
-                    </div>
-
-                    <div className="p-4 rounded-2xl bg-neutral-50 border border-neutral-200/80 flex flex-col gap-2">
-                      <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-black text-xs">
-                        03
-                      </div>
-                      <span className="font-bold text-xs text-neutral-900">Badge Issuance</span>
-                      <span className="text-[11px] text-neutral-500 leading-normal">
-                        Generates verified skill passport badge in under 400 milliseconds.
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Benchmark Stat Box */}
-                  <div className="p-4 rounded-2xl bg-emerald-950 text-white flex items-center justify-between">
+                  <div className="p-4 rounded-2xl bg-emerald-950 text-white flex items-center justify-between shadow-lg">
                     <div className="flex items-center gap-3">
                       <Sparkles className="w-5 h-5 text-emerald-400 shrink-0" />
                       <div>
-                        <div className="text-xs font-extrabold text-emerald-400">BENCHMARK PERFORMANCE</div>
-                        <div className="text-xs text-neutral-300">Average Processing Time per Evidence File</div>
+                        <div className="text-xs font-extrabold text-emerald-400 uppercase tracking-wider">LATENCY SCORE</div>
+                        <div className="text-xs text-neutral-300">Average Total Processing Time per Document</div>
                       </div>
                     </div>
                     <div className="text-2xl font-black text-emerald-400">380ms</div>
@@ -323,331 +381,64 @@ export default function Metrics() {
                 </div>
               )}
 
-              {/* MODAL CONTENT: DEMOGRAPHIC EXCLUSION */}
-              {activeModal === "demographic" && (
+              {activeModal === "bias" && (
                 <div className="space-y-6">
                   <div className="flex items-center gap-3">
                     <div className="p-3 rounded-2xl bg-emerald-500 text-black">
-                      <Scale className="w-7 h-7" />
+                      <Scale className="w-6 h-6" />
                     </div>
                     <div>
-                      <span className="text-xs font-black uppercase tracking-wider text-emerald-600">
-                        Interactive Bias Simulator
-                      </span>
-                      <h3 className="text-2xl font-black text-neutral-900">
-                        Zero Demographic Bias Guarantee
-                      </h3>
+                      <span className="text-xs font-black uppercase tracking-wider text-emerald-600">Bias Simulator</span>
+                      <h3 className="text-2xl font-black text-neutral-900">100% Demographic Bias Elimination</h3>
                     </div>
                   </div>
-
                   <p className="text-sm text-neutral-600 leading-relaxed font-medium">
-                    Toggle below to preview how candidate profiles appear to recruiters. SkillSync explicitly masks non-skill demographic attributes to ensure 100% meritocratic matching.
+                    SkillSync explicitly masks non-skill demographic attributes to guarantee 100% meritocratic matching.
                   </p>
-
-                  {/* Toggle Switch */}
-                  <div className="flex items-center justify-between p-3 rounded-2xl bg-neutral-100 border border-neutral-200">
-                    <span className="text-xs font-extrabold text-neutral-700">Preview View Mode:</span>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => setDemoAnonymized(false)}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all ${
-                          !demoAnonymized
-                            ? "bg-rose-500 text-white shadow-sm"
-                            : "text-neutral-600 hover:text-neutral-900"
-                        }`}
-                      >
-                        Unmasked (Legacy)
-                      </button>
-                      <button
-                        onClick={() => setDemoAnonymized(true)}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all ${
-                          demoAnonymized
-                            ? "bg-emerald-500 text-black shadow-sm"
-                            : "text-neutral-600 hover:text-neutral-900"
-                        }`}
-                      >
-                        SkillSync Anonymized
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Simulated Profile Card */}
-                  <div className="p-5 rounded-3xl bg-neutral-900 text-white border border-neutral-800 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center font-bold text-sm text-emerald-400">
-                          {demoAnonymized ? "#8492" : "AR"}
-                        </div>
-                        <div>
-                          <div className="font-extrabold text-base flex items-center gap-2">
-                            {demoAnonymized ? (
-                              <span className="text-emerald-400 flex items-center gap-1.5">
-                                <Lock className="w-4 h-4" /> Candidate #8492
-                              </span>
-                            ) : (
-                              <span>Alex Rivera</span>
-                            )}
-                          </div>
-                          <div className="text-xs text-neutral-400">
-                            {demoAnonymized ? (
-                              <span className="text-emerald-300 font-semibold">
-                                Demographic data excluded from ranking vector
-                              </span>
-                            ) : (
-                              <span>Male • Tier-1 Institution • San Francisco, CA</span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-extrabold">
-                        98% Skill Match
-                      </span>
-                    </div>
-
-                    <div className="pt-3 border-t border-neutral-800">
-                      <span className="text-[11px] font-extrabold uppercase text-neutral-400 tracking-wider mb-2 block">
-                        Verified Evidence Badges:
-                      </span>
-                      <div className="flex flex-wrap gap-2">
-                        <span className="px-2.5 py-1 rounded-lg bg-emerald-950 text-emerald-300 border border-emerald-500/30 text-xs font-bold flex items-center gap-1">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                          PyTorch & Deep Learning (Verified-High)
-                        </span>
-                        <span className="px-2.5 py-1 rounded-lg bg-emerald-950 text-emerald-300 border border-emerald-500/30 text-xs font-bold flex items-center gap-1">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                          SQL Query Optimization (Verified-High)
-                        </span>
-                      </div>
-                    </div>
+                  <div className="p-5 rounded-3xl bg-neutral-900 text-white border border-neutral-800 space-y-3">
+                    <div className="text-xs text-emerald-400 font-extrabold">Excluded from Ranking Vector:</div>
+                    <div className="text-sm font-semibold text-neutral-300">[Gender, College Tier, Name, Photo]</div>
                   </div>
                 </div>
               )}
 
-              {/* MODAL CONTENT: VERIFICATION TIERS */}
-              {activeModal === "tiers" && (
+              {activeModal === "taxonomy" && (
                 <div className="space-y-6">
                   <div className="flex items-center gap-3">
                     <div className="p-3 rounded-2xl bg-emerald-500 text-black">
-                      <Award className="w-7 h-7" />
+                      <Database className="w-6 h-6" />
                     </div>
                     <div>
-                      <span className="text-xs font-black uppercase tracking-wider text-emerald-600">
-                        Interactive Score Simulator
-                      </span>
-                      <h3 className="text-2xl font-black text-neutral-900">
-                        3-Tier Verification Engine
-                      </h3>
+                      <span className="text-xs font-black uppercase tracking-wider text-emerald-600">Taxonomy Mapping</span>
+                      <h3 className="text-2xl font-black text-neutral-900">12,500+ Normalized Skill Vectors</h3>
                     </div>
                   </div>
-
                   <p className="text-sm text-neutral-600 leading-relaxed font-medium">
-                    Adjust the evidence confidence score below to see how SkillSync categorizes credentials into verified tiers.
+                    SkillSync standardizes messy course titles into international ESCO and O*NET taxonomy standards.
                   </p>
-
-                  {/* Score Slider */}
-                  <div className="p-5 rounded-3xl bg-neutral-50 border border-neutral-200 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-extrabold text-neutral-700">Simulate Evidence Score:</span>
-                      <span className="text-lg font-black text-neutral-900">{simulatedScore}%</span>
-                    </div>
-                    <input
-                      type="range"
-                      min="30"
-                      max="100"
-                      value={simulatedScore}
-                      onChange={(e) => setSimulatedScore(Number(e.target.value))}
-                      className="w-full accent-emerald-500 h-2 bg-neutral-200 rounded-lg cursor-pointer"
-                    />
-                    <div className="flex justify-between text-[10px] text-neutral-500 font-bold">
-                      <span>30% Low</span>
-                      <span>60% Medium</span>
-                      <span>85%+ High</span>
-                    </div>
-                  </div>
-
-                  {/* Tier Cards Breakdown */}
-                  <div className="space-y-2.5">
-                    {/* High */}
-                    <div
-                      className={`p-4 rounded-2xl border transition-all flex items-center justify-between ${
-                        simulatedScore >= 85
-                          ? "bg-emerald-50 border-emerald-400 ring-2 ring-emerald-500/20"
-                          : "bg-white border-neutral-200 opacity-60"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="w-3 h-3 rounded-full bg-emerald-500"></span>
-                        <div>
-                          <div className="font-black text-sm text-neutral-900">Verified-High</div>
-                          <div className="text-xs text-neutral-600">Score ≥ 85% • Digital QR + Instructor Signature</div>
-                        </div>
-                      </div>
-                      <span className="px-3 py-1 rounded-full bg-emerald-500 text-black font-extrabold text-xs">
-                        Gold Badge
-                      </span>
-                    </div>
-
-                    {/* Medium */}
-                    <div
-                      className={`p-4 rounded-2xl border transition-all flex items-center justify-between ${
-                        simulatedScore >= 60 && simulatedScore < 85
-                          ? "bg-sky-50 border-sky-400 ring-2 ring-sky-500/20"
-                          : "bg-white border-neutral-200 opacity-60"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="w-3 h-3 rounded-full bg-sky-500"></span>
-                        <div>
-                          <div className="font-black text-sm text-neutral-900">Verified-Medium</div>
-                          <div className="text-xs text-neutral-600">Score 60% – 84% • Course Transcript & Syllabus Match</div>
-                        </div>
-                      </div>
-                      <span className="px-3 py-1 rounded-full bg-sky-500 text-white font-extrabold text-xs">
-                        Silver Badge
-                      </span>
-                    </div>
-
-                    {/* Low */}
-                    <div
-                      className={`p-4 rounded-2xl border transition-all flex items-center justify-between ${
-                        simulatedScore < 60
-                          ? "bg-amber-50 border-amber-400 ring-2 ring-amber-500/20"
-                          : "bg-white border-neutral-200 opacity-60"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="w-3 h-3 rounded-full bg-amber-500"></span>
-                        <div>
-                          <div className="font-black text-sm text-neutral-900">Flagged-Low</div>
-                          <div className="text-xs text-neutral-600">Score &lt; 60% • Self-Reported without cryptokey validation</div>
-                        </div>
-                      </div>
-                      <span className="px-3 py-1 rounded-full bg-amber-500 text-black font-extrabold text-xs">
-                        Audit Flag
-                      </span>
-                    </div>
-                  </div>
                 </div>
               )}
 
-              {/* MODAL CONTENT: EXPORT FORMATS */}
-              {activeModal === "formats" && (
+              {activeModal === "accuracy" && (
                 <div className="space-y-6">
                   <div className="flex items-center gap-3">
                     <div className="p-3 rounded-2xl bg-emerald-500 text-black">
-                      <Zap className="w-7 h-7" />
+                      <Target className="w-6 h-6" />
                     </div>
                     <div>
-                      <span className="text-xs font-black uppercase tracking-wider text-emerald-600">
-                        Export Playground
-                      </span>
-                      <h3 className="text-2xl font-black text-neutral-900">
-                        3 Passport Export Formats
-                      </h3>
+                      <span className="text-xs font-black uppercase tracking-wider text-emerald-600">Precision Match</span>
+                      <h3 className="text-2xl font-black text-neutral-900">99.4% Recommendation Accuracy</h3>
                     </div>
                   </div>
-
-                  {/* Export Tabs */}
-                  <div className="flex gap-2 p-1.5 rounded-2xl bg-neutral-100 border border-neutral-200">
-                    <button
-                      onClick={() => setSelectedFormatTab("link")}
-                      className={`flex-1 py-2 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all ${
-                        selectedFormatTab === "link"
-                          ? "bg-white text-neutral-900 shadow-sm"
-                          : "text-neutral-600 hover:text-neutral-900"
-                      }`}
-                    >
-                      <ExternalLink className="w-3.5 h-3.5 text-emerald-600" /> Share Link
-                    </button>
-                    <button
-                      onClick={() => setSelectedFormatTab("pdf")}
-                      className={`flex-1 py-2 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all ${
-                        selectedFormatTab === "pdf"
-                          ? "bg-white text-neutral-900 shadow-sm"
-                          : "text-neutral-600 hover:text-neutral-900"
-                      }`}
-                    >
-                      <FileText className="w-3.5 h-3.5 text-emerald-600" /> PDF Document
-                    </button>
-                    <button
-                      onClick={() => setSelectedFormatTab("json")}
-                      className={`flex-1 py-2 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all ${
-                        selectedFormatTab === "json"
-                          ? "bg-white text-neutral-900 shadow-sm"
-                          : "text-neutral-600 hover:text-neutral-900"
-                      }`}
-                    >
-                      <Code2 className="w-3.5 h-3.5 text-emerald-600" /> JSON Schema
-                    </button>
-                  </div>
-
-                  {/* Format Tab Contents */}
-                  <div className="p-5 rounded-3xl bg-neutral-900 text-white border border-neutral-800">
-                    {selectedFormatTab === "link" && (
-                      <div className="space-y-3">
-                        <div className="text-xs text-neutral-400 font-medium">Public Shareable Passport Link:</div>
-                        <div className="flex items-center gap-2 p-3 rounded-2xl bg-black border border-neutral-800">
-                          <code className="text-xs font-mono text-emerald-400 flex-1 truncate">
-                            https://skillsync.id/passport/verify/8492-alex-rivera
-                          </code>
-                          <button
-                            onClick={handleCopyLink}
-                            className="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold flex items-center gap-1 transition-all"
-                          >
-                            {copiedLink ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                            {copiedLink ? "Copied!" : "Copy"}
-                          </button>
-                        </div>
-                        <p className="text-[11px] text-neutral-400">
-                          Anyone with this URL can view verified evidence badges and inspect cryptographic signatures.
-                        </p>
-                      </div>
-                    )}
-
-                    {selectedFormatTab === "pdf" && (
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <div className="text-xs text-neutral-400 font-medium">Verifiable PDF Certificate:</div>
-                          <span className="px-2 py-0.5 rounded-md bg-emerald-950 text-emerald-400 text-[10px] font-bold">
-                            High-Res 300DPI
-                          </span>
-                        </div>
-                        <div className="p-4 rounded-2xl bg-neutral-800 border border-neutral-700 flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <FileText className="w-8 h-8 text-emerald-400" />
-                            <div>
-                              <div className="font-bold text-sm">SkillSync_Verified_Passport.pdf</div>
-                              <div className="text-[11px] text-neutral-400">1.4 MB • Digital QR Embedded</div>
-                            </div>
-                          </div>
-                          <button className="px-4 py-2 rounded-xl bg-emerald-500 text-black font-extrabold text-xs flex items-center gap-1.5 hover:bg-emerald-400 transition-all">
-                            <Download className="w-3.5 h-3.5" /> Download
-                          </button>
-                        </div>
-                      </div>
-                    )}
-
-                    {selectedFormatTab === "json" && (
-                      <div className="space-y-2">
-                        <div className="text-xs text-neutral-400 font-medium">Cryptographic JSON Payload:</div>
-                        <pre className="p-3.5 rounded-2xl bg-black font-mono text-[11px] text-emerald-400 overflow-x-auto border border-neutral-800">
-{`{
-  "passport_id": "PASSPORT-8492",
-  "issuer": "SkillSync Verification Engine",
-  "evidence_tier": "verified-high",
-  "signature": "0x9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1f0e",
-  "skills": ["Machine Learning", "PyTorch", "SQL Optimization"]
-}`}
-                        </pre>
-                      </div>
-                    )}
-                  </div>
+                  <p className="text-sm text-neutral-600 leading-relaxed font-medium">
+                    Our explainable matching vector algorithm scores candidate evidence directly against verified job requirements.
+                  </p>
                 </div>
               )}
             </motion.div>
           </div>
         )}
       </AnimatePresence>
-    </section>
+    </motion.section>
   );
 }
