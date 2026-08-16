@@ -17,7 +17,6 @@ import {
   Sparkles,
   Check,
   FileText,
-  Code2,
   Lock
 } from "lucide-react";
 
@@ -56,10 +55,10 @@ export default function Metrics() {
     {
       id: "formats",
       label: "PASSPORT EXPORT FORMATS",
-      value: "3",
-      subtext: "Share Link, PDF & JSON Schema",
+      value: "2",
+      subtext: "Share Link & PDF Certificate",
       icon: Zap,
-      details: "Export your skill passport as an active URL link, verifiable PDF certificate, or cryptographically signed JSON schema."
+      details: "Export your skill passport as an active shareable URL link or a verifiable PDF certificate."
     }
   ];
 
@@ -70,45 +69,52 @@ export default function Metrics() {
 
   // Stagger animation container
   const containerVariants = {
-    hidden: { opacity: 0, y: 25 },
+    hidden: { opacity: 0, y: 35 },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
-        duration: 0.6,
+        duration: 0.7,
         ease: [0.16, 1, 0.3, 1],
-        staggerChildren: 0.1
+        staggerChildren: 0.12
       }
     }
   };
 
   const cardVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 25 },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
-        duration: 0.5,
+        duration: 0.55,
         ease: [0.16, 1, 0.3, 1]
       }
     }
   };
 
   return (
-    <section id="metrics" className="py-16 md:py-20 px-4 sm:px-6 max-w-7xl mx-auto">
-      {/* Outer Card - Clean & Spacious */}
+    <motion.section
+      id="metrics"
+      initial={{ opacity: 0, y: 45 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      className="py-16 md:py-24 px-4 sm:px-6 max-w-7xl mx-auto"
+    >
+      {/* Outer Card with Strong Drop Shadow */}
       <motion.div
         variants={containerVariants}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, margin: "-50px" }}
-        className="relative bg-white rounded-[32px] border border-black/8 p-6 sm:p-10 md:p-12 shadow-sm overflow-hidden"
+        viewport={{ once: true }}
+        className="relative bg-white rounded-[32px] sm:rounded-[40px] border border-black/10 p-6 sm:p-10 md:p-12 shadow-xl sm:shadow-2xl overflow-hidden"
       >
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 pb-6 border-b border-black/8">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold uppercase tracking-wider mb-3">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold uppercase tracking-wider mb-3 shadow-xs">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
               Real-Time Verification Engine
             </div>
             <h2 className="text-2xl sm:text-4xl font-black text-[#111111] tracking-tight">
@@ -120,47 +126,50 @@ export default function Metrics() {
           </p>
         </div>
 
-        {/* 4 Stat Cards Grid - Simple & Readable */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {/* 4 Stat Cards Grid with Drop Shadows & Spring Pop-Up Hover Animation */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {metricsData.map((m) => {
             const Icon = m.icon;
             return (
               <motion.div
                 key={m.id}
                 variants={cardVariants}
-                whileHover={{ y: -4 }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                whileHover={{ y: -10, scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: "spring", stiffness: 380, damping: 19 }}
                 onClick={() => setActiveModal(m.id)}
-                className="group relative flex flex-col justify-between p-6 rounded-[22px] bg-[#F8F9FA] hover:bg-white border border-black/6 hover:border-emerald-500/40 shadow-xs hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden"
+                className="group relative flex flex-col justify-between p-6 sm:p-7 rounded-[24px] bg-white border border-black/8 shadow-lg hover:shadow-2xl hover:shadow-emerald-500/10 hover:border-emerald-500/40 transition-all duration-300 cursor-pointer overflow-hidden"
               >
+                {/* Subtle Glow inside Card */}
+                <div className="absolute -top-20 -right-20 w-44 h-44 bg-emerald-500/5 rounded-full blur-2xl group-hover:bg-emerald-500/15 transition-all duration-500 pointer-events-none" />
+
                 <div>
                   {/* Top Header Row */}
                   <div className="flex items-start justify-between gap-2 mb-4">
                     <span className="text-xs font-extrabold uppercase tracking-wider text-[#494D4D] leading-snug">
                       {m.label}
                     </span>
-                    <div className="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0 group-hover:bg-emerald-500 group-hover:text-black transition-all duration-300">
-                      <Icon className="w-4 h-4 text-emerald-600 group-hover:text-black transition-colors" />
+                    <div className="w-9 h-9 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0 group-hover:bg-emerald-500 group-hover:text-black transition-all duration-300 shadow-xs">
+                      <Icon className="w-4.5 h-4.5 text-emerald-600 group-hover:text-black transition-colors" />
                     </div>
                   </div>
 
-                  {/* Clean Large Stat Value (No badge crowding) */}
+                  {/* Large Stat Value */}
                   <div className="text-4xl sm:text-5xl font-black text-[#111111] tracking-tight mb-2">
                     {m.value}
                   </div>
 
-                  {/* Clear Subtext */}
+                  {/* Subtext */}
                   <p className="text-xs sm:text-sm text-[#494D4D] font-medium leading-relaxed mb-6">
                     {m.subtext}
                   </p>
                 </div>
 
-                {/* Simplified & Clean Micro-Visual Footer */}
+                {/* Micro-Visual Footer */}
                 <div className="pt-4 border-t border-black/6 flex items-center justify-between gap-2">
                   {m.id === "verification" && (
                     <div className="w-full flex items-center gap-2">
-                      <div className="flex-1 h-1.5 bg-black/8 rounded-full overflow-hidden">
+                      <div className="flex-1 h-2 bg-black/8 rounded-full overflow-hidden">
                         <motion.div
                           initial={{ width: 0 }}
                           whileInView={{ width: "100%" }}
@@ -176,11 +185,11 @@ export default function Metrics() {
                   )}
 
                   {m.id === "demographic" && (
-                    <div className="flex items-center gap-1 flex-wrap">
+                    <div className="flex items-center gap-1.5 flex-wrap">
                       {["Gender", "Tier", "Name", "Photo"].map((param, i) => (
                         <span
                           key={i}
-                          className="px-1.5 py-0.5 text-[10px] font-bold rounded bg-neutral-200/80 text-neutral-600"
+                          className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-neutral-100 text-neutral-700 border border-neutral-200/80 shadow-2xs"
                         >
                           {param}
                         </span>
@@ -189,34 +198,33 @@ export default function Metrics() {
                   )}
 
                   {m.id === "tiers" && (
-                    <div className="flex items-center gap-1">
-                      <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-emerald-100 text-emerald-800 border border-emerald-300">
+                    <div className="flex items-center gap-1.5">
+                      <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs">
                         High
                       </span>
-                      <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-sky-100 text-sky-800 border border-sky-300">
+                      <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-sky-100 text-sky-800 border border-sky-300 shadow-2xs">
                         Med
                       </span>
-                      <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-amber-100 text-amber-800 border border-amber-300">
+                      <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-amber-100 text-amber-800 border border-amber-300 shadow-2xs">
                         Low
                       </span>
                     </div>
                   )}
 
                   {m.id === "formats" && (
-                    <div className="flex items-center gap-1">
-                      <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-neutral-900 text-white">
+                    <div className="flex items-center gap-1.5">
+                      <span className="px-2.5 py-0.5 text-[10px] font-bold rounded-md bg-neutral-900 text-white shadow-2xs flex items-center gap-1">
+                        <ExternalLink className="w-2.5 h-2.5 text-emerald-400" />
                         URL
                       </span>
-                      <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-neutral-900 text-white">
+                      <span className="px-2.5 py-0.5 text-[10px] font-bold rounded-md bg-neutral-900 text-white shadow-2xs flex items-center gap-1">
+                        <FileText className="w-2.5 h-2.5 text-emerald-400" />
                         PDF
-                      </span>
-                      <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-neutral-900 text-white">
-                        JSON
                       </span>
                     </div>
                   )}
 
-                  <div className="w-6 h-6 rounded-full bg-black/5 group-hover:bg-emerald-500 group-hover:text-black flex items-center justify-center transition-all shrink-0">
+                  <div className="w-6.5 h-6.5 rounded-full bg-black/5 group-hover:bg-emerald-500 group-hover:text-black flex items-center justify-center transition-all shrink-0 shadow-xs">
                     <ArrowUpRight className="w-3.5 h-3.5 text-neutral-600 group-hover:text-black" />
                   </div>
                 </div>
@@ -307,7 +315,7 @@ export default function Metrics() {
                     </div>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-emerald-950 text-white flex items-center justify-between">
+                  <div className="p-4 rounded-2xl bg-emerald-950 text-white flex items-center justify-between shadow-lg">
                     <div className="flex items-center gap-3">
                       <Sparkles className="w-5 h-5 text-emerald-400 shrink-0" />
                       <div>
@@ -445,7 +453,7 @@ export default function Metrics() {
                     Adjust the evidence confidence score below to see how SkillSync categorizes credentials into verified tiers.
                   </p>
 
-                  <div className="p-5 rounded-3xl bg-neutral-50 border border-neutral-200 space-y-3">
+                  <div className="p-5 rounded-3xl bg-neutral-50 border border-neutral-200 space-y-3 shadow-inner">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-extrabold text-neutral-800">
                         Simulate Evidence Score:
@@ -469,7 +477,7 @@ export default function Metrics() {
 
                   <div className="space-y-2.5">
                     <div
-                      className={`p-4 rounded-2xl border transition-all flex items-center justify-between ${
+                      className={`p-4 rounded-2xl border transition-all flex items-center justify-between shadow-xs ${
                         simulatedScore >= 85
                           ? "bg-emerald-50 border-emerald-400 ring-2 ring-emerald-500/20"
                           : "bg-white border-neutral-200 opacity-60"
@@ -490,7 +498,7 @@ export default function Metrics() {
                     </div>
 
                     <div
-                      className={`p-4 rounded-2xl border transition-all flex items-center justify-between ${
+                      className={`p-4 rounded-2xl border transition-all flex items-center justify-between shadow-xs ${
                         simulatedScore >= 60 && simulatedScore < 85
                           ? "bg-sky-50 border-sky-400 ring-2 ring-sky-500/20"
                           : "bg-white border-neutral-200 opacity-60"
@@ -511,7 +519,7 @@ export default function Metrics() {
                     </div>
 
                     <div
-                      className={`p-4 rounded-2xl border transition-all flex items-center justify-between ${
+                      className={`p-4 rounded-2xl border transition-all flex items-center justify-between shadow-xs ${
                         simulatedScore < 60
                           ? "bg-amber-50 border-amber-400 ring-2 ring-amber-500/20"
                           : "bg-white border-neutral-200 opacity-60"
@@ -534,7 +542,7 @@ export default function Metrics() {
                 </div>
               )}
 
-              {/* MODAL CONTENT: EXPORT FORMATS */}
+              {/* MODAL CONTENT: EXPORT FORMATS (JSON REMOVED) */}
               {activeModal === "formats" && (
                 <div className="space-y-6">
                   <div className="flex items-center gap-3">
@@ -546,7 +554,7 @@ export default function Metrics() {
                         Export Playground
                       </span>
                       <h3 className="text-2xl font-black text-neutral-900">
-                        3 Passport Export Formats
+                        2 Passport Export Formats
                       </h3>
                     </div>
                   </div>
@@ -554,7 +562,7 @@ export default function Metrics() {
                   <div className="flex gap-2 p-1.5 rounded-2xl bg-neutral-100 border border-neutral-200">
                     <button
                       onClick={() => setSelectedFormatTab("link")}
-                      className={`flex-1 py-2 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                      className={`flex-1 py-2.5 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                         selectedFormatTab === "link"
                           ? "bg-white text-neutral-900 shadow-sm"
                           : "text-neutral-600 hover:text-neutral-900"
@@ -564,23 +572,13 @@ export default function Metrics() {
                     </button>
                     <button
                       onClick={() => setSelectedFormatTab("pdf")}
-                      className={`flex-1 py-2 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                      className={`flex-1 py-2.5 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                         selectedFormatTab === "pdf"
                           ? "bg-white text-neutral-900 shadow-sm"
                           : "text-neutral-600 hover:text-neutral-900"
                       }`}
                     >
                       <FileText className="w-3.5 h-3.5 text-emerald-600" /> PDF Document
-                    </button>
-                    <button
-                      onClick={() => setSelectedFormatTab("json")}
-                      className={`flex-1 py-2 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                        selectedFormatTab === "json"
-                          ? "bg-white text-neutral-900 shadow-sm"
-                          : "text-neutral-600 hover:text-neutral-900"
-                      }`}
-                    >
-                      <Code2 className="w-3.5 h-3.5 text-emerald-600" /> JSON Schema
                     </button>
                   </div>
 
@@ -632,23 +630,6 @@ export default function Metrics() {
                         </div>
                       </div>
                     )}
-
-                    {selectedFormatTab === "json" && (
-                      <div className="space-y-2">
-                        <div className="text-xs text-neutral-400 font-medium">
-                          Cryptographic JSON Payload:
-                        </div>
-                        <pre className="p-3.5 rounded-2xl bg-black font-mono text-[11px] text-emerald-400 overflow-x-auto border border-neutral-800 leading-relaxed">
-{`{
-  "passport_id": "PASSPORT-8492",
-  "issuer": "SkillSync Verification Engine",
-  "evidence_tier": "verified-high",
-  "signature": "0x9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1f0e",
-  "skills": ["Machine Learning", "PyTorch", "SQL Optimization"]
-}`}
-                        </pre>
-                      </div>
-                    )}
                   </div>
                 </div>
               )}
@@ -656,6 +637,6 @@ export default function Metrics() {
           </div>
         )}
       </AnimatePresence>
-    </section>
+    </motion.section>
   );
 }
