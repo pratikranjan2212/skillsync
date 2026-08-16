@@ -24,8 +24,6 @@ import {
 } from "lucide-react";
 import Navbar from "@/app/components/layout/Navbar";
 import EvidenceCard from "@/app/components/evidence/EvidenceCard";
-import ShareExportButtons from "@/app/components/passport/ShareExportButtons";
-import InteractivePassportCard from "@/app/components/passport/InteractivePassportCard";
 import Badge from "@/app/components/ui/Badge";
 import AuthRequiredView from "@/app/components/auth/AuthRequiredView";
 import { useAuth } from "@/app/hooks/useAuth";
@@ -144,14 +142,7 @@ export default function UnifiedDashboardPage() {
     );
   }
 
-  const handleTogglePublic = async (isPublic) => {
-    await fetch("/api/passport", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ isPublic }),
-    });
-    refetchPass();
-  };
+
 
   const handleApplyOverride = async () => {
     if (!overrideModalItem) return;
@@ -183,13 +174,7 @@ export default function UnifiedDashboardPage() {
   };
 
   const auditLogs = fairnessData?.audits || [];
-  const excludedParameters = fairnessData?.excludedParameters || ["gender", "college tier", "name", "photo"];
-  const chartData = auditLogs[0]?.scoreDistribution || [
-    { scoreRange: "90-100%", count: 18 },
-    { scoreRange: "80-89%", count: 42 },
-    { scoreRange: "70-79%", count: 54 },
-    { scoreRange: "< 70%", count: 28 },
-  ];
+  const chartData = auditLogs[0]?.scoreDistribution || [];
 
   return (
     <div className="min-h-screen bg-[#F5F5F3] text-[#111111] pb-16">
@@ -208,7 +193,7 @@ export default function UnifiedDashboardPage() {
               Integrated Verification & Match Console
             </h1>
             <p className="text-sm text-[#494D4D] mt-1 max-w-2xl">
-              Access your verified evidence records, Skill Passport exports, and automated audit pipeline in one place.
+              Access your verified evidence records and automated audit pipeline in one place.
             </p>
           </div>
 
@@ -227,7 +212,6 @@ export default function UnifiedDashboardPage() {
           <div className="flex items-center gap-1 min-w-max">
             {[
               { id: "evidence", label: "Evidence Records", icon: FileCheck, count: evidenceList.length },
-              { id: "passport", label: "Skill Passport", icon: Award, count: passport?.skills?.length || 0 },
               { id: "audit", label: "Audit & Pipeline Console", icon: SlidersHorizontal },
             ].map((tab) => {
               const Icon = tab.icon;
@@ -328,52 +312,8 @@ export default function UnifiedDashboardPage() {
           </div>
         )}
 
-        {activeTab === "passport" && passport && (
-          <div className="flex justify-center w-full py-2">
-            <InteractivePassportCard 
-              passportData={passport} 
-              onTogglePublic={handleTogglePublic}
-            />
-          </div>
-        )}
-
         {activeTab === "audit" && (
           <div className="flex flex-col gap-8">
-            <div className="bg-linear-to-r from-neutral-900 via-slate-900 to-neutral-900 text-white rounded-4xl p-6 sm:p-8 shadow-xl border border-slate-800 flex flex-col gap-4" data-spark-color="#ffffff">
-              <div className="flex items-center justify-between gap-3" data-spark-color="#ffffff">
-                <div className="flex items-center gap-3" data-spark-color="#ffffff">
-                  <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30" data-spark-color="#ffffff">
-                    <ShieldCheck className="w-6 h-6" />
-                  </div>
-                  <div data-spark-color="#ffffff">
-                    <h2 className="text-lg font-bold text-white flex items-center gap-2" data-spark-color="#ffffff">
-                      <span>Explicit Model Parameter Exclusion List</span>
-                      <span className="px-2.5 py-0.5 bg-emerald-500/20 text-emerald-300 text-[10px] uppercase font-mono tracking-wider rounded-md border border-emerald-500/30" data-spark-color="#ffffff">
-                        VERIFIED AUDIT ENFORCED
-                      </span>
-                    </h2>
-                    <p className="text-xs text-slate-300" data-spark-color="#ffffff">
-                      The following candidate attributes are explicitly stripped from ranking models:
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap gap-2.5 pt-1" data-spark-color="#ffffff">
-                {excludedParameters.map((param, idx) => (
-                  <div
-                    key={idx}
-                    data-spark-color="#ffffff"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 text-slate-100 rounded-2xl text-xs font-mono font-bold border border-white/10"
-                  >
-                    <span className="w-2 h-2 rounded-full bg-rose-400"></span>
-                    <span className="line-through decoration-rose-400">{param}</span>
-                    <span className="text-[10px] text-emerald-400 ml-1">EXCLUDED</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
             <div className="bg-white rounded-4xl p-6 sm:p-8 shadow-md border border-black/5 flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -385,25 +325,33 @@ export default function UnifiedDashboardPage() {
                 </div>
               </div>
 
-              <div className="h-64 w-full pt-4">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis dataKey="scoreRange" stroke="#494D4D" fontSize={12} tickLine={false} />
-                    <YAxis stroke="#494D4D" fontSize={12} tickLine={false} />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: "#111111",
-                        borderRadius: "16px",
-                        color: "#ffffff",
-                        fontSize: "12px",
-                        border: "none",
-                      }}
-                    />
-                    <Bar dataKey="count" fill="#059669" radius={[8, 8, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+              {chartData.length === 0 ? (
+                <div className="py-12 text-center flex flex-col items-center justify-center gap-2">
+                  <BarChart2 className="w-8 h-8 text-neutral-300" />
+                  <p className="text-sm font-bold text-neutral-700">No Candidate Score Distribution Recorded Yet</p>
+                  <p className="text-xs text-[#494D4D]">Score metrics will populate automatically after pipeline evaluation runs.</p>
+                </div>
+              ) : (
+                <div className="h-64 w-full pt-4">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                      <XAxis dataKey="scoreRange" stroke="#494D4D" fontSize={12} tickLine={false} />
+                      <YAxis stroke="#494D4D" fontSize={12} tickLine={false} />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "#111111",
+                          borderRadius: "16px",
+                          color: "#ffffff",
+                          fontSize: "12px",
+                          border: "none",
+                        }}
+                      />
+                      <Bar dataKey="count" fill="#059669" radius={[8, 8, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
             </div>
 
             <div className="bg-white rounded-4xl p-6 shadow-md border border-black/5 overflow-x-auto">
@@ -414,46 +362,54 @@ export default function UnifiedDashboardPage() {
                 </h3>
               </div>
 
-              <table className="w-full text-left border-collapse min-w-175">
-                <thead>
-                  <tr className="border-b border-neutral-200 text-[11px] font-bold uppercase tracking-wider text-[#494D4D]">
-                    <th className="pb-3 px-3">Student ID</th>
-                    <th className="pb-3 px-3">Title</th>
-                    <th className="pb-3 px-3">Stage</th>
-                    <th className="pb-3 px-3">Tier</th>
-                    <th className="pb-3 px-3">Verification Reason</th>
-                    <th className="pb-3 px-3 text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-neutral-100 text-xs">
-                  {pipeline.map((item) => (
-                    <tr key={item.id} className="hover:bg-neutral-50/80 transition-colors">
-                      <td className="py-4 px-3 font-mono font-bold text-neutral-600">{item.studentId}</td>
-                      <td className="py-4 px-3 font-bold text-[#111111]">{item.title}</td>
-                      <td className="py-4 px-3">
-                        <span className="px-2.5 py-1 bg-neutral-100 text-neutral-700 rounded-lg text-[11px] font-mono">
-                          {item.verificationStage}
-                        </span>
-                      </td>
-                      <td className="py-4 px-3">
-                        <Badge tier={item.verificationTier} />
-                      </td>
-                      <td className="py-4 px-3 text-neutral-600 max-w-xs truncate">{item.verificationReason}</td>
-                      <td className="py-4 px-3 text-right">
-                        <button
-                          onClick={() => {
-                            setOverrideModalItem(item);
-                            setSelectedTier(item.verificationTier);
-                          }}
-                          className="px-3 py-1.5 bg-neutral-900 text-white rounded-xl font-bold text-xs hover:bg-neutral-800"
-                        >
-                          Override
-                        </button>
-                      </td>
+              {pipeline.length === 0 ? (
+                <div className="py-10 text-center flex flex-col items-center justify-center gap-2">
+                  <ListFilter className="w-8 h-8 text-neutral-300" />
+                  <p className="text-sm font-bold text-neutral-700">No Evidence Pipeline Audit Records</p>
+                  <p className="text-xs text-[#494D4D]">Audit logs will appear here when evidence items are processed through the verification pipeline.</p>
+                </div>
+              ) : (
+                <table className="w-full text-left border-collapse min-w-175">
+                  <thead>
+                    <tr className="border-b border-neutral-200 text-[11px] font-bold uppercase tracking-wider text-[#494D4D]">
+                      <th className="pb-3 px-3">Student ID</th>
+                      <th className="pb-3 px-3">Title</th>
+                      <th className="pb-3 px-3">Stage</th>
+                      <th className="pb-3 px-3">Tier</th>
+                      <th className="pb-3 px-3">Verification Reason</th>
+                      <th className="pb-3 px-3 text-right">Action</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-neutral-100 text-xs">
+                    {pipeline.map((item) => (
+                      <tr key={item.id} className="hover:bg-neutral-50/80 transition-colors">
+                        <td className="py-4 px-3 font-mono font-bold text-neutral-600">{item.studentId || "std-101"}</td>
+                        <td className="py-4 px-3 font-bold text-[#111111]">{item.title}</td>
+                        <td className="py-4 px-3">
+                          <span className="px-2.5 py-1 bg-neutral-100 text-neutral-700 rounded-lg text-[11px] font-mono">
+                            {item.verificationStage || "completed"}
+                          </span>
+                        </td>
+                        <td className="py-4 px-3">
+                          <Badge tier={item.verificationTier} />
+                        </td>
+                        <td className="py-4 px-3 text-neutral-600 max-w-xs truncate">{item.verificationReason}</td>
+                        <td className="py-4 px-3 text-right">
+                          <button
+                            onClick={() => {
+                              setOverrideModalItem(item);
+                              setSelectedTier(item.verificationTier);
+                            }}
+                            className="px-3 py-1.5 bg-neutral-900 text-white rounded-xl font-bold text-xs hover:bg-neutral-800 cursor-pointer"
+                          >
+                            Override
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
 
             <div className="bg-white rounded-4xl p-6 shadow-md border border-black/5 flex flex-col gap-4">
@@ -467,26 +423,34 @@ export default function UnifiedDashboardPage() {
                 </div>
                 <button
                   onClick={() => setIsAddSkillOpen(true)}
-                  className="px-4 py-2 bg-neutral-900 text-white rounded-xl text-xs font-bold flex items-center gap-1.5"
+                  className="px-4 py-2 bg-neutral-900 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer"
                 >
                   <Plus className="w-4 h-4 text-emerald-400" />
                   <span>Add Skill</span>
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {taxonomy.map((skill) => (
-                  <div key={skill.id} className="bg-[#F8F9FA] p-4 rounded-2xl border border-black/5 flex items-center justify-between gap-2">
-                    <div>
-                      <div className="text-xs font-bold text-[#111111]">{skill.name}</div>
-                      <div className="text-[10px] text-neutral-500 font-mono">{skill.category}</div>
+              {taxonomy.length === 0 ? (
+                <div className="py-8 text-center flex flex-col items-center justify-center gap-2">
+                  <Database className="w-8 h-8 text-neutral-300" />
+                  <p className="text-sm font-bold text-neutral-700">No Skills Registered in Taxonomy</p>
+                  <p className="text-xs text-[#494D4D]">Click "+ Add Skill" above to register custom skills and categories.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  {taxonomy.map((skill) => (
+                    <div key={skill.id} className="bg-[#F8F9FA] p-4 rounded-2xl border border-black/5 flex items-center justify-between gap-2">
+                      <div>
+                        <div className="text-xs font-bold text-[#111111]">{skill.name}</div>
+                        <div className="text-[10px] text-neutral-500 font-mono">{skill.category}</div>
+                      </div>
+                      <button onClick={() => handleDeleteSkill(skill.id)} className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg cursor-pointer">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
-                    <button onClick={() => handleDeleteSkill(skill.id)} className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}

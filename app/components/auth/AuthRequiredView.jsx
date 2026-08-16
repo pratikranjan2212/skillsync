@@ -20,7 +20,7 @@ export default function AuthRequiredView({
   badgeIcon: BadgeIcon = Lock,
   badgeColor = "emerald",
   title = "Sign In to Access This Section",
-  subtitle = "This section contains personalized verified records and features. Sign in or try our instant demo to view.",
+  subtitle = "This section contains personalized verified records and features. Please sign in with your account to view.",
   sectionName = "Protected Content",
   features = [],
   publicLink,
@@ -28,35 +28,6 @@ export default function AuthRequiredView({
   backLink,
   backText,
 }) {
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const [loginError, setLoginError] = useState("");
-
-  const handleDemoSignIn = async (role = "student") => {
-    setIsLoggingIn(true);
-    setLoginError("");
-    try {
-      const email = role === "admin" ? "admin@skillsync.edu" : "alex.chen@skillsync.edu";
-      const res = await fetch("/api/auth/callback/credentials", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password: "demo", role }),
-      });
-
-      if (res.ok) {
-        document.cookie = `skillsync_session=active-token; path=/;`;
-        document.cookie = `next-auth.session-token=active-token; path=/;`;
-        document.cookie = `skillsync_role=${role}; path=/;`;
-        window.location.reload();
-      } else {
-        setLoginError("Demo sign in failed. Please try again.");
-      }
-    } catch (err) {
-      setLoginError("An error occurred during demo sign in.");
-    } finally {
-      setIsLoggingIn(false);
-    }
-  };
-
   const badgeColorClasses = {
     amber: "bg-amber-50 text-amber-800 border-amber-200",
     emerald: "bg-emerald-50 text-emerald-800 border-emerald-200",
@@ -102,37 +73,21 @@ export default function AuthRequiredView({
             {subtitle}
           </p>
 
-          {loginError && (
-            <div className="mt-4 p-3 bg-rose-50 text-rose-800 text-xs font-semibold rounded-2xl border border-rose-200">
-              {loginError}
-            </div>
-          )}
-
           <div className="mt-6 flex flex-wrap items-center gap-3">
-            <button
-              type="button"
-              onClick={() => handleDemoSignIn("student")}
-              disabled={isLoggingIn}
-              className="inline-flex items-center gap-2 px-5 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-bold text-xs sm:text-sm shadow-md transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
-            >
-              <UserCheck className="w-4 h-4" />
-              <span>{isLoggingIn ? "Signing In..." : "⚡ Quick Demo Student Sign In"}</span>
-            </button>
-
             <Link
               href="/signin"
-              className="inline-flex items-center gap-2 px-5 py-3.5 bg-neutral-900 hover:bg-neutral-800 text-white rounded-2xl font-bold text-xs sm:text-sm shadow-md transition-all active:scale-95"
+              className="inline-flex items-center gap-2 px-6 py-3.5 bg-neutral-900 hover:bg-neutral-800 text-white rounded-2xl font-bold text-xs sm:text-sm shadow-md transition-all active:scale-95"
             >
               <LogIn className="w-4 h-4 text-emerald-400" />
-              <span>Sign In with Email</span>
+              <span>Sign In to Account</span>
             </Link>
 
             <Link
               href="/signup"
-              className="inline-flex items-center gap-2 px-4 py-3.5 bg-[#F5F5F3] hover:bg-[#EAEAEA] text-[#111111] rounded-2xl font-bold text-xs sm:text-sm border border-black/5 transition-all"
+              className="inline-flex items-center gap-2 px-5 py-3.5 bg-[#F5F5F3] hover:bg-[#EAEAEA] text-[#111111] rounded-2xl font-bold text-xs sm:text-sm border border-black/5 transition-all"
             >
               <UserPlus className="w-4 h-4 text-neutral-600" />
-              <span>Create Account</span>
+              <span>Register as Student</span>
             </Link>
           </div>
         </div>

@@ -14,6 +14,8 @@ export function useAuth() {
       const cookies = typeof document !== "undefined" ? document.cookie : "";
       const authenticated =
         cookies.includes("skillsync_session=") ||
+        cookies.includes("authjs.session-token=") ||
+        cookies.includes("__Secure-authjs.session-token=") ||
         cookies.includes("next-auth.session-token=") ||
         cookies.includes("__Secure-next-auth.session-token=");
       setHasCookie(authenticated);
@@ -23,7 +25,7 @@ export function useAuth() {
   }, [session]);
 
   const isAuthenticated = Boolean(session?.user || hasCookie);
-  const isLoading = status === "loading" && !isClient;
+  const isLoading = status === "loading" || !isClient;
 
   return {
     isAuthenticated,

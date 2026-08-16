@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { INITIAL_FAIRNESS_AUDIT_LOGS } from "@/app/data/mockData";
 
 export async function GET(request) {
   let audits = [];
@@ -15,10 +14,6 @@ export async function GET(request) {
     }
   } catch (err) {
     console.warn("DB Fairness Audit GET fallback:", err.message);
-  }
-
-  if (audits.length === 0) {
-    audits = INITIAL_FAIRNESS_AUDIT_LOGS;
   }
 
   return NextResponse.json({

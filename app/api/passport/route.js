@@ -1,38 +1,88 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { INITIAL_PASSPORT, INITIAL_EVIDENCE } from "@/app/data/mockData";
-import { computePassportHash } from "@/lib/verification/cryptoHash";
-
-let passportMemoryStore = { ...INITIAL_PASSPORT };
+import { auth } from "@/lib/auth";
+import { INITIAL_PASSPORT } from "@/app/data/mockData";
 
 export async function GET(request) {
   try {
-    const passport = await prisma.passport.findFirst({
-      include: {
-        user: {
-          include: {
-            evidences: true,
+    const session = await auth();
+    let userEmail = session?.user?.email;
+
+    let user = null;
+    if (userEmail) {
+      user = await prisma.user.findUnique({
+        where: { email: userEmail },
+        include: {
+          passport: true,
+          evidences: {
+            orderBy: { createdAt: "desc" },
           },
         },
-      },
-    });
+      });
+    }
 
-    if (passport) {
+    if (!user) {
+      user = await prisma.user.findFirst({
+        where: { role: "student" },
+        include: {
+          passport: true,
+          evidences: {
+            orderBy: { createdAt: "desc" },
+          },
+        },
+      });
+    }
+
+    if (user) {
+      let passport = user.passport;
+      if (!passport) {
+        const studentTag = `SS-${new Date().getFullYear()}-${user.id.substring(0, 6).toUpperCase()}`;
+        const shareToken = `sp-token-${Math.random().toString(36).substring(2, 9)}`;
+        try {
+          passport = await prisma.passport.create({
+            data: {
+              userId: user.id,
+              studentId: studentTag,
+              isPublic: true,
+              shareToken,
+              credentialHash: `0x${Math.random().toString(16).substring(2, 42).toUpperCase()}`,
+              issuer: "SkillSync Verifiable Credential Engine",
+            },
+          });
+        } catch (passErr) {
+          console.warn("Passport creation warning:", passErr.message);
+        }
+      }
+
       const skills = [];
-      for (const ev of passport.user.evidences || []) {
+      for (const ev of user.evidences || []) {
         for (const skillName of ev.claimedSkills || []) {
+          const existing = skills.find((s) => s.name.toLowerCase() === skillName.toLowerCase());
+          if (!existing) {
+            skills.push({
+              name: skillName,
+              category: "Technical Competency",
+              tier: ev.verificationTier,
+              evidence: [
+                {
+                  id: ev.id,
+                  title: ev.title,
+                  tier: ev.verificationTier,
+                  hash: ev.fileHash,
+                },
+              ],
+            });
+          }
+        }
+      }
+
+      for (const userSkill of user.skills || []) {
+        if (!skills.some((s) => s.name.toLowerCase() === userSkill.toLowerCase())) {
           skills.push({
-            name: skillName,
-            category: "Technical Competency",
-            tier: ev.verificationTier,
-            evidence: [
-              {
-                id: ev.id,
-                title: ev.title,
-                tier: ev.verificationTier,
-                hash: ev.fileHash,
-              },
-            ],
+            name: userSkill,
+            category: "Self-Reported Competency",
+            tier: "verified-medium",
+            evidence: [],
           });
         }
       }
@@ -40,18 +90,18 @@ export async function GET(request) {
       return NextResponse.json({
         success: true,
         passport: {
-          studentId: passport.studentId,
-          studentName: passport.user.name || "Alex Chen",
-          college: passport.user.college || "Ramaiah Institute of Technology",
-          degree: passport.user.degree || "B.Tech in Computer Science & Engineering",
-          batch: passport.user.batch || "2022 – 2026",
-          verified: true,
-          issuer: passport.issuer,
-          credentialHash: passport.credentialHash,
-          shareToken: passport.shareToken,
-          isPublic: passport.isPublic,
-          updatedAt: passport.updatedAt.toISOString(),
-          skills: skills.length > 0 ? skills : INITIAL_PASSPORT.skills,
+          studentId: passport?.studentId || `SS-${new Date().getFullYear()}-${user.id.substring(0, 6).toUpperCase()}`,
+          studentName: user.name || (user.email ? user.email.split("@")[0] : "Student User"),
+          college: user.college || "Institution Not Specified",
+          degree: user.degree || "Degree Not Specified",
+          batch: user.batch || "Batch Not Specified",
+          verified: user.evidences && user.evidences.length > 0,
+          issuer: passport?.issuer || "SkillSync Verifiable Credential Engine",
+          credentialHash: passport?.credentialHash || `0x${Math.random().toString(16).substring(2, 42).toUpperCase()}`,
+          shareToken: passport?.shareToken || `sp-token-${user.id.substring(0, 7)}`,
+          isPublic: passport?.isPublic ?? true,
+          updatedAt: passport?.updatedAt?.toISOString() || new Date().toISOString(),
+          skills: skills,
         },
       });
     }
@@ -59,7 +109,7 @@ export async function GET(request) {
     console.warn("DB Passport GET fallback (offline mode):", err.message);
   }
 
-  return NextResponse.json({ success: true, passport: passportMemoryStore });
+  return NextResponse.json({ success: true, passport: INITIAL_PASSPORT });
 }
 
 export async function POST(request) {

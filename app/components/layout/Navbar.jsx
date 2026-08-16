@@ -44,18 +44,30 @@ export default function Navbar() {
   const isDocked = !isHomePage || (isScrolled && !isScrollingUp);
 
   const [hasAuthCookie, setHasAuthCookie] = useState(false);
+  const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
     const checkAuth = () => {
       const cookies = typeof document !== "undefined" ? document.cookie : "";
       const hasCookie =
         cookies.includes("skillsync_session=") ||
+        cookies.includes("authjs.session-token=") ||
+        cookies.includes("__Secure-authjs.session-token=") ||
         cookies.includes("next-auth.session-token=");
       setHasAuthCookie(hasCookie);
+
+      const roleMatch = cookies.match(/skillsync_role=([^;]+)/);
+      if (roleMatch && roleMatch[1]) {
+        setUserRole(roleMatch[1]);
+      } else if (session?.user?.role) {
+        setUserRole(session.user.role);
+      } else {
+        setUserRole(null);
+      }
     };
 
     checkAuth();
-  }, [pathname]);
+  }, [pathname, session]);
 
   const isAuthenticated = Boolean(session?.user || hasAuthCookie);
 
@@ -66,6 +78,8 @@ export default function Navbar() {
     }
     try {
       document.cookie = "skillsync_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+      document.cookie = "authjs.session-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+      document.cookie = "__Secure-authjs.session-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
       document.cookie = "next-auth.session-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
       document.cookie = "skillsync_role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
       document.cookie = "__Secure-next-auth.session-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
@@ -149,6 +163,20 @@ export default function Navbar() {
               <Briefcase className={`w-4 h-4 shrink-0 transition-colors duration-500 ${pathname.startsWith("/opportunities") ? "text-emerald-600" : "text-neutral-500"}`} />
               <span className="whitespace-nowrap">Opportunities</span>
             </Link>
+
+            {userRole === "admin" && (
+              <Link
+                href="/admin"
+                className={`text-sm font-bold transition-all duration-500 ease-out px-5 py-[18px] rounded-xl flex items-center gap-2 whitespace-nowrap shrink-0 ${
+                  pathname.startsWith("/admin")
+                    ? "bg-slate-900 text-white"
+                    : "text-slate-900 hover:bg-slate-100"
+                }`}
+              >
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="whitespace-nowrap">Admin Console</span>
+              </Link>
+            )}
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
@@ -237,6 +265,15 @@ export default function Navbar() {
             >
               Opportunities Feed
             </Link>
+            {userRole === "admin" && (
+              <Link
+                href="/admin"
+                className="px-4 py-2.5 rounded-xl text-base font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 flex items-center gap-2"
+              >
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Admin Console</span>
+              </Link>
+            )}
             <div className="pt-2 border-t border-neutral-100 flex flex-col gap-2">
               {isAuthenticated ? (
                 <>

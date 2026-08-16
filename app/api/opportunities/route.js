@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getMatchingFeatures } from "@/lib/matching/getMatchingFeatures";
 import { calculateMatchScore } from "@/lib/matching/scoring";
-import { INITIAL_OPPORTUNITIES, INITIAL_EVIDENCE } from "@/app/data/mockData";
+import { INITIAL_OPPORTUNITIES } from "@/app/data/mockData";
 
 export async function GET(request) {
   let opportunities = [];
@@ -24,14 +24,26 @@ export async function GET(request) {
     console.warn("DB Opportunities GET fallback (offline mode):", err.message);
   }
 
+  // If there are no database opportunities yet, load available opportunities pool
   if (opportunities.length === 0) {
     opportunities = INITIAL_OPPORTUNITIES;
   }
-  if (evidenceList.length === 0) {
-    evidenceList = INITIAL_EVIDENCE;
+
+  // User has not built their skill passport yet (no evidence uploaded/verified)
+  if (!evidenceList || evidenceList.length === 0) {
+    return NextResponse.json({
+      success: true,
+      hasPassport: false,
+      opportunities: [],
+      message: "Build your Skill Passport to unlock AI-matched opportunities.",
+      fairnessAudit: {
+        excludedParameters: ["gender", "college tier", "name", "photo"],
+        verifiedAt: new Date().toISOString(),
+      },
+    });
   }
 
-  // Compute student matching features (strictly excluding demographic parameters)
+  // User has built their skill passport with verified evidence
   const matchingFeatures = getMatchingFeatures({}, evidenceList);
 
   // Score each opportunity
@@ -50,6 +62,7 @@ export async function GET(request) {
 
   return NextResponse.json({
     success: true,
+    hasPassport: true,
     opportunities: scoredOpportunities,
     fairnessAudit: {
       excludedParameters: ["gender", "college tier", "name", "photo"],
@@ -57,3 +70,4 @@ export async function GET(request) {
     },
   });
 }
+

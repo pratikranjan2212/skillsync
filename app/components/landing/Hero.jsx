@@ -8,7 +8,7 @@ import RollingText from "@/app/components/ui/RollingText";
 import { FadeIn, FadeInStagger, FadeInItem } from "@/app/components/ui/FadeIn";
 import MagnifyingEvidence from "@/app/components/ui/MagnifyingEvidence";
 
-export default function Hero({ onOpenAppModal, onOpenDemoModal }) {
+export default function Hero() {
   const [hoveredButton, setHoveredButton] = useState(null);
   return (
     <section className="relative overflow-hidden w-full bg-[#0d1f18]">

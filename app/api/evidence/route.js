@@ -1,78 +1,89 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 import { runVerificationPipeline } from "@/lib/verification/pipeline";
-import { INITIAL_EVIDENCE } from "@/app/data/mockData";
-
-let fallbackStore = [...INITIAL_EVIDENCE];
 
 export async function GET(request) {
   try {
-    const evidenceList = await prisma.evidence.findMany({
+    const session = await auth();
+    let userEmail = session?.user?.email;
+
+    let user = null;
+    if (userEmail) {
+      user = await prisma.user.findUnique({
+        where: { email: userEmail },
+      });
+    }
+
+    if (user) {
+      const evidenceList = await prisma.evidence.findMany({
+        where: { userId: user.id },
+        orderBy: { createdAt: "desc" },
+      });
+
+      return NextResponse.json({ success: true, evidence: evidenceList || [] });
+    }
+
+    // Unauthenticated fallback
+    const allEvidence = await prisma.evidence.findMany({
       orderBy: { createdAt: "desc" },
     });
-
-    if (evidenceList && evidenceList.length > 0) {
-      return NextResponse.json({ success: true, evidence: evidenceList });
-    }
+    return NextResponse.json({ success: true, evidence: allEvidence || [] });
   } catch (err) {
-    console.warn("DB Evidence GET fallback (offline mode):", err.message);
+    console.warn("DB Evidence GET fallback:", err.message);
+    return NextResponse.json({ success: true, evidence: [] });
   }
-
-  return NextResponse.json({ success: true, evidence: fallbackStore });
 }
 
 export async function POST(request) {
   try {
+    const session = await auth();
     const body = await request.json();
     const verifiedData = await runVerificationPipeline(body);
 
-    try {
-      // Attempt to find demo student user
-      let student = await prisma.user.findFirst({
+    let userEmail = session?.user?.email;
+    let student = null;
+
+    if (userEmail) {
+      student = await prisma.user.findUnique({
+        where: { email: userEmail },
+      });
+    }
+
+    if (!student) {
+      student = await prisma.user.findFirst({
         where: { role: "student" },
       });
+    }
 
-      if (!student) {
-        student = await prisma.user.create({
-          data: {
-            name: "Alex Chen",
-            email: "alex.chen@skillsync.edu",
-            role: "student",
-          },
-        });
-      }
-
-      const created = await prisma.evidence.create({
+    if (!student) {
+      student = await prisma.user.create({
         data: {
-          userId: student.id,
-          type: verifiedData.type,
-          title: verifiedData.title,
-          description: verifiedData.description,
-          fileUrl: verifiedData.fileUrl,
-          fileHash: verifiedData.fileHash,
-          verificationTier: verifiedData.verificationTier,
-          verificationReason: verifiedData.verificationReason,
-          verificationStage: verifiedData.verificationStage,
-          verifiedAt: new Date(verifiedData.verifiedAt),
-          adminOverride: false,
-          claimedSkills: verifiedData.claimedSkills,
+          name: session?.user?.name || "Student User",
+          email: userEmail || "student@skillsync.edu",
+          role: "student",
         },
       });
-
-      fallbackStore.unshift({ ...created, studentId: student.id });
-      return NextResponse.json({ success: true, evidence: created }, { status: 201 });
-    } catch (dbErr) {
-      console.warn("DB Evidence POST fallback (offline mode):", dbErr.message);
-
-      const fallbackItem = {
-        id: `ev-${Date.now()}`,
-        studentId: "std-101",
-        ...verifiedData,
-      };
-
-      fallbackStore.unshift(fallbackItem);
-      return NextResponse.json({ success: true, evidence: fallbackItem }, { status: 201 });
     }
+
+    const created = await prisma.evidence.create({
+      data: {
+        userId: student.id,
+        type: verifiedData.type,
+        title: verifiedData.title,
+        description: verifiedData.description,
+        fileUrl: verifiedData.fileUrl,
+        fileHash: verifiedData.fileHash,
+        verificationTier: verifiedData.verificationTier,
+        verificationReason: verifiedData.verificationReason,
+        verificationStage: verifiedData.verificationStage,
+        verifiedAt: new Date(verifiedData.verifiedAt),
+        adminOverride: false,
+        claimedSkills: verifiedData.claimedSkills || [],
+      },
+    });
+
+    return NextResponse.json({ success: true, evidence: created }, { status: 201 });
   } catch (err) {
     console.error("Evidence submission error:", err);
     return NextResponse.json({ error: "Failed to submit evidence" }, { status: 400 });

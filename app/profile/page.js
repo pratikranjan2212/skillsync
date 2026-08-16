@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   User,
   Mail,
@@ -19,59 +20,259 @@ import {
   Edit3,
   Check,
   Share2,
-  Lock,
   Bell,
   SlidersHorizontal,
   CheckCircle2,
+  Plus,
+  X,
+  Clock,
+  Camera,
+  Upload,
+  RefreshCw,
+  Trash2,
+  Image as ImageIcon,
 } from "lucide-react";
 import Navbar from "@/app/components/layout/Navbar";
 import { useAuth } from "@/app/hooks/useAuth";
 import AuthRequiredView from "@/app/components/auth/AuthRequiredView";
-import Badge from "@/app/components/ui/Badge";
-import { INITIAL_PASSPORT } from "@/app/data/mockData";
+
+async function fetchUserProfile() {
+  const res = await fetch("/api/profile");
+  if (!res.ok) throw new Error("Failed to load profile");
+  const data = await res.json();
+  return data.profile;
+}
+
+async function updateUserProfile(payload) {
+  const res = await fetch("/api/profile", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error("Failed to update profile");
+  return res.json();
+}
+
+function formatNameClient(name, login) {
+  if (name && name.trim() && (name.includes(" ") || /[A-Z]/.test(name))) return name.trim();
+  const raw = name || login || "";
+  if (!raw) return "Student User";
+
+  let cleaned = raw.replace(/\d+$/, "").replace(/[._-]+/g, " ").trim();
+  cleaned = cleaned.replace(/([a-z])([A-Z])/g, "$1 $2");
+
+  const common = {
+    tonystark: "Tony Stark",
+    peterparker: "Peter Parker",
+    brucewayne: "Bruce Wayne",
+    clarkkent: "Clark Kent",
+    alexchen: "Alex Chen",
+    pratikranjan: "Pratik Ranjan",
+  };
+
+  const key = cleaned.toLowerCase().replace(/\s+/g, "");
+  if (common[key]) return common[key];
+
+  return (
+    cleaned
+      .split(" ")
+      .filter(Boolean)
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+      .join(" ") || raw
+  );
+}
 
 export default function ProfilePage() {
-  const { isAuthenticated, isLoading, user } = useAuth();
+  const { isAuthenticated, isLoading: authLoading, user: authUser } = useAuth();
+  const queryClient = useQueryClient();
+  const fileInputRef = useRef(null);
+
   const [activeTab, setActiveTab] = useState("overview");
   const [isEditing, setIsEditing] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [newSkillInput, setNewSkillInput] = useState("");
+  const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [customPhotoUrl, setCustomPhotoUrl] = useState("");
+  const [isSyncingGithub, setIsSyncingGithub] = useState(false);
 
-  const [profileData, setProfileData] = useState({
-    name: user?.name || INITIAL_PASSPORT.studentName,
-    email: user?.email || "alex.chen@skillsync.edu",
-    role: user?.role || "student",
-    studentId: INITIAL_PASSPORT.studentId,
-    college: INITIAL_PASSPORT.college,
-    degree: INITIAL_PASSPORT.degree,
-    batch: INITIAL_PASSPORT.batch,
-    bio: "Passionate Computer Science student specializing in Scalable Systems, Deep Learning, and Verifiable Credentials. Exploring Full-Stack & Machine Learning Engineering opportunities.",
-    github: "https://github.com/alexchen",
-    linkedin: "https://linkedin.com/in/alexchen",
-    portfolio: "https://alexchen.dev",
+  const { data: profile } = useQuery({
+    queryKey: ["user-profile"],
+    queryFn: fetchUserProfile,
+    enabled: isAuthenticated,
+  });
+
+  const [formData, setFormData] = useState({
+    name: "",
+    image: "",
+    college: "",
+    degree: "",
+    batch: "",
+    bio: "",
+    github: "",
+    linkedin: "",
+    portfolio: "",
+    skills: [],
     emailNotifications: true,
     publicPassport: true,
   });
 
+  useEffect(() => {
+    if (profile) {
+      setFormData({
+        name: formatNameClient(profile.name, authUser?.name),
+        image: profile.image || authUser?.image || "",
+        college: profile.college || "",
+        degree: profile.degree || "",
+        batch: profile.batch || "",
+        bio: profile.bio || "",
+        github: profile.github || "",
+        linkedin: profile.linkedin || "",
+        portfolio: profile.portfolio || "",
+        skills: profile.skills || [],
+        emailNotifications: true,
+        publicPassport: profile.passport?.isPublic ?? true,
+      });
+      if (profile.image) setCustomPhotoUrl(profile.image);
+    } else if (authUser) {
+      setFormData((prev) => ({
+        ...prev,
+        name: formatNameClient(authUser.name, authUser.email ? authUser.email.split("@")[0] : ""),
+        image: authUser.image || "",
+      }));
+    }
+  }, [profile, authUser]);
+
+  const updateMutation = useMutation({
+    mutationFn: updateUserProfile,
+    onSuccess: (data) => {
+      queryClient.setQueryData(["user-profile"], data.profile);
+      setIsEditing(false);
+      setShowPhotoModal(false);
+      setSavedSuccess(true);
+      setTimeout(() => setSavedSuccess(false), 4000);
+    },
+  });
+
   const handleSave = (e) => {
-    e.preventDefault();
-    setIsEditing(false);
-    setSavedSuccess(true);
-    setTimeout(() => setSavedSuccess(false), 3000);
+    if (e) e.preventDefault();
+    updateMutation.mutate(formData);
   };
 
-  if (!isAuthenticated && !isLoading) {
+  const handleFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 3 * 1024 * 1024) {
+      alert("Image size should be less than 3MB");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64 = reader.result;
+      const updated = { ...formData, image: base64 };
+      setFormData(updated);
+      updateMutation.mutate(updated);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleApplyPhotoUrl = (e) => {
+    if (e) e.preventDefault();
+    const trimmed = customPhotoUrl.trim();
+    const updated = { ...formData, image: trimmed };
+    setFormData(updated);
+    updateMutation.mutate(updated);
+  };
+
+  const handleRemovePhoto = () => {
+    const updated = { ...formData, image: "" };
+    setFormData(updated);
+    setCustomPhotoUrl("");
+    updateMutation.mutate(updated);
+  };
+
+  const handleSyncFromGithub = async () => {
+    const handle =
+      formData.github?.replace(/https?:\/\/github\.com\//, "").replace(/\/$/, "") ||
+      (profile?.email ? profile.email.split("@")[0] : "") ||
+      (authUser?.name || "");
+
+    if (!handle) return;
+    setIsSyncingGithub(true);
+    try {
+      const res = await fetch(`https://api.github.com/users/${encodeURIComponent(handle)}`);
+      if (res.ok) {
+        const ghData = await res.json();
+        const updated = {
+          ...formData,
+          name: ghData.name || ghData.login || formData.name,
+          image: ghData.avatar_url || formData.image,
+          bio: ghData.bio || formData.bio,
+          github: ghData.html_url || `https://github.com/${handle}`,
+        };
+        setFormData(updated);
+        updateMutation.mutate(updated);
+      }
+    } catch (err) {
+      console.warn("GitHub sync warning:", err);
+    } finally {
+      setIsSyncingGithub(false);
+    }
+  };
+
+  const handleAddSkill = (e) => {
+    if (e) e.preventDefault();
+    const trimmed = newSkillInput.trim();
+    if (!trimmed) return;
+    if (!formData.skills.includes(trimmed)) {
+      const updatedSkills = [...formData.skills, trimmed];
+      const newFormData = { ...formData, skills: updatedSkills };
+      setFormData(newFormData);
+      setNewSkillInput("");
+      updateMutation.mutate(newFormData);
+    } else {
+      setNewSkillInput("");
+    }
+  };
+
+  const handleRemoveSkill = (skillToRemove) => {
+    const updatedSkills = formData.skills.filter((s) => s !== skillToRemove);
+    const newFormData = { ...formData, skills: updatedSkills };
+    setFormData(newFormData);
+    updateMutation.mutate(newFormData);
+  };
+
+  if (!authLoading && !isAuthenticated) {
     return (
       <div className="min-h-screen bg-[#F5F5F3] text-[#111111]">
         <Navbar />
         <main className="max-w-6xl mx-auto px-4 py-8">
           <AuthRequiredView
             title="Authentication Required"
-            message="Please sign in to view and manage your SkillSync profile."
+            subtitle="Please sign in to view and manage your SkillSync profile."
           />
         </main>
       </div>
     );
   }
+
+  const displayName = formatNameClient(formData.name || profile?.name || authUser?.name, authUser?.name);
+  const displayEmail = profile?.email || authUser?.email || "student@skillsync.edu";
+  const displayRole = profile?.role || authUser?.role || "student";
+  const displayStudentId = profile?.studentId || "SS-2026-STU01";
+  const displayImage = formData.image || profile?.image || authUser?.image;
+  const userInitials = displayName
+    ? displayName
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .substring(0, 2)
+    : "ST";
+
+  const evidenceCount = profile?.evidenceCount || 0;
+  const trustScore = profile?.trustScore;
+  const hasEvidence = evidenceCount > 0 && trustScore !== null;
+  const shareToken = profile?.passport?.shareToken || displayStudentId;
 
   return (
     <div className="min-h-screen bg-[#F5F5F3] text-[#111111] pb-16">
@@ -81,20 +282,35 @@ export default function ProfilePage() {
         {savedSuccess && (
           <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center gap-3 text-emerald-800 text-sm font-semibold shadow-xs animate-in fade-in slide-in-from-top-2 duration-300">
             <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-            <span>Profile details successfully updated and cryptographically synched with your passport.</span>
+            <span>Profile and skills successfully updated and saved to your account.</span>
           </div>
         )}
 
+        {/* Profile Header Card */}
         <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-xl border border-black/5 mb-8">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-6 border-b border-neutral-100">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
-              <div className="relative">
-                <img
-                  src={INITIAL_PASSPORT.photoUrl}
-                  alt={profileData.name}
-                  className="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl object-cover ring-4 ring-emerald-500/20 shadow-md"
-                />
-                <div className="absolute -bottom-1.5 -right-1.5 bg-emerald-600 text-white p-1.5 rounded-xl shadow-md">
+              {/* Profile Avatar with Hover Change Photo Trigger */}
+              <div className="relative group cursor-pointer" onClick={() => setShowPhotoModal(true)}>
+                {displayImage ? (
+                  <img
+                    src={displayImage}
+                    alt={displayName}
+                    className="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl object-cover ring-4 ring-emerald-500/20 shadow-md transition-all group-hover:brightness-75"
+                  />
+                ) : (
+                  <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-linear-to-br from-emerald-600 to-teal-800 text-white flex items-center justify-center font-black text-2xl sm:text-3xl ring-4 ring-emerald-500/20 shadow-md transition-all group-hover:brightness-75">
+                    {userInitials}
+                  </div>
+                )}
+
+                {/* Camera Overlay on Avatar Hover */}
+                <div className="absolute inset-0 rounded-3xl flex flex-col items-center justify-center bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-2xs">
+                  <Camera className="w-6 h-6 mb-1" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider">Change</span>
+                </div>
+
+                <div className="absolute -bottom-1.5 -right-1.5 bg-emerald-600 text-white p-1.5 rounded-xl shadow-md z-10">
                   <ShieldCheck className="w-4 h-4" />
                 </div>
               </div>
@@ -102,24 +318,39 @@ export default function ProfilePage() {
               <div className="flex flex-col gap-1.5">
                 <div className="flex flex-wrap items-center gap-2.5">
                   <h1 className="text-2xl sm:text-3xl font-extrabold text-[#111111] tracking-tight">
-                    {profileData.name}
+                    {displayName}
                   </h1>
                   <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-neutral-900 text-white uppercase tracking-wider">
-                    {profileData.role}
+                    {displayRole}
                   </span>
+                  <button
+                    type="button"
+                    onClick={() => setShowPhotoModal(true)}
+                    className="px-2.5 py-1 text-[11px] font-bold bg-neutral-100 hover:bg-neutral-200 text-neutral-700 rounded-lg flex items-center gap-1 transition-colors cursor-pointer"
+                  >
+                    <Camera className="w-3 h-3 text-emerald-600" />
+                    <span>Change Photo</span>
+                  </button>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-y-1 gap-x-4 text-xs font-medium text-[#494D4D]">
                   <span className="flex items-center gap-1.5">
                     <Mail className="w-3.5 h-3.5 text-neutral-400" />
-                    {profileData.email}
+                    {displayEmail}
                   </span>
-                  <span className="flex items-center gap-1.5">
-                    <Building className="w-3.5 h-3.5 text-neutral-400" />
-                    {profileData.college}
-                  </span>
+                  {profile?.college ? (
+                    <span className="flex items-center gap-1.5">
+                      <Building className="w-3.5 h-3.5 text-neutral-400" />
+                      {profile.college}
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1.5 text-neutral-400 italic">
+                      <Building className="w-3.5 h-3.5" />
+                      Institution not set
+                    </span>
+                  )}
                   <span className="flex items-center gap-1.5 font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                    ID: {profileData.studentId}
+                    ID: {displayStudentId}
                   </span>
                 </div>
               </div>
@@ -136,7 +367,7 @@ export default function ProfilePage() {
               <button
                 type="button"
                 onClick={() => setIsEditing(!isEditing)}
-                className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-neutral-900 hover:bg-neutral-800 text-white rounded-xl text-xs font-bold transition-colors shadow-xs"
+                className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-neutral-900 hover:bg-neutral-800 text-white rounded-xl text-xs font-bold transition-colors shadow-xs cursor-pointer"
               >
                 <Edit3 className="w-4 h-4 text-emerald-400" />
                 <span>{isEditing ? "Cancel Edit" : "Edit Profile"}</span>
@@ -147,7 +378,7 @@ export default function ProfilePage() {
           <div className="flex items-center gap-2 pt-6 overflow-x-auto">
             <button
               onClick={() => setActiveTab("overview")}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
                 activeTab === "overview"
                   ? "bg-neutral-900 text-white shadow-xs"
                   : "bg-neutral-100 text-[#494D4D] hover:text-[#111111] hover:bg-neutral-200"
@@ -157,7 +388,7 @@ export default function ProfilePage() {
             </button>
             <button
               onClick={() => setActiveTab("academic")}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
                 activeTab === "academic"
                   ? "bg-neutral-900 text-white shadow-xs"
                   : "bg-neutral-100 text-[#494D4D] hover:text-[#111111] hover:bg-neutral-200"
@@ -167,7 +398,7 @@ export default function ProfilePage() {
             </button>
             <button
               onClick={() => setActiveTab("settings")}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
                 activeTab === "settings"
                   ? "bg-neutral-900 text-white shadow-xs"
                   : "bg-neutral-100 text-[#494D4D] hover:text-[#111111] hover:bg-neutral-200"
@@ -178,44 +409,203 @@ export default function ProfilePage() {
           </div>
         </div>
 
+        {/* Modal: Change Profile Picture */}
+        {showPhotoModal && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-black/10 animate-in fade-in zoom-in-95 duration-200">
+              <div className="flex items-center justify-between pb-4 border-b border-neutral-100">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 rounded-xl bg-emerald-50 text-emerald-700">
+                    <Camera className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-extrabold text-[#111111]">Update Profile Picture</h3>
+                    <p className="text-xs text-[#494D4D]">Upload an image or sync from your GitHub account.</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowPhotoModal(false)}
+                  className="p-2 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 rounded-xl transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="py-6 flex flex-col items-center gap-4">
+                {displayImage ? (
+                  <img
+                    src={displayImage}
+                    alt={displayName}
+                    className="w-24 h-24 rounded-3xl object-cover ring-4 ring-emerald-500/20 shadow-md"
+                  />
+                ) : (
+                  <div className="w-24 h-24 rounded-3xl bg-linear-to-br from-emerald-600 to-teal-800 text-white flex items-center justify-center font-black text-2xl ring-4 ring-emerald-500/20 shadow-md">
+                    {userInitials}
+                  </div>
+                )}
+
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  accept="image/*"
+                  className="hidden"
+                />
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex items-center justify-center gap-2 py-3 px-4 bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-bold rounded-2xl shadow-xs transition-colors cursor-pointer"
+                  >
+                    <Upload className="w-4 h-4 text-emerald-400" />
+                    <span>Upload Image File</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={isSyncingGithub}
+                    onClick={handleSyncFromGithub}
+                    className="flex items-center justify-center gap-2 py-3 px-4 bg-[#F5F5F3] hover:bg-[#EAEAEA] text-[#111111] text-xs font-bold rounded-2xl border border-black/5 shadow-xs transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    <RefreshCw className={`w-4 h-4 text-blue-600 ${isSyncingGithub ? "animate-spin" : ""}`} />
+                    <span>{isSyncingGithub ? "Syncing..." : "Sync from GitHub"}</span>
+                  </button>
+                </div>
+
+                <form onSubmit={handleApplyPhotoUrl} className="w-full flex items-center gap-2 mt-2">
+                  <div className="relative flex-1">
+                    <input
+                      type="url"
+                      value={customPhotoUrl}
+                      onChange={(e) => setCustomPhotoUrl(e.target.value)}
+                      placeholder="Paste image URL (https://...)"
+                      className="w-full pl-3.5 pr-3.5 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shrink-0 transition-colors cursor-pointer"
+                  >
+                    Apply URL
+                  </button>
+                </form>
+
+                {displayImage && (
+                  <button
+                    type="button"
+                    onClick={handleRemovePhoto}
+                    className="text-xs font-bold text-rose-600 hover:text-rose-700 flex items-center gap-1.5 pt-1 cursor-pointer"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Remove Photo & Use Initials Avatar</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {activeTab === "overview" && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 flex flex-col gap-6">
+              {/* Personal Profile & Links Card */}
               <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-xl border border-black/5">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-lg font-extrabold text-[#111111] flex items-center gap-2">
                     <User className="w-5 h-5 text-emerald-600" />
                     <span>Personal Profile</span>
                   </h2>
+                  {!isEditing && (
+                    <button
+                      type="button"
+                      onClick={() => setIsEditing(true)}
+                      className="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 cursor-pointer"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" />
+                      <span>Edit Details</span>
+                    </button>
+                  )}
                 </div>
 
                 {isEditing ? (
                   <form onSubmit={handleSave} className="flex flex-col gap-4">
+                    {/* Full Name with GitHub Sync helper */}
                     <div>
-                      <label className="block text-xs font-bold text-[#111111] mb-1.5">Full Name</label>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="block text-xs font-bold text-[#111111]">Full Name</label>
+                        <button
+                          type="button"
+                          disabled={isSyncingGithub}
+                          onClick={handleSyncFromGithub}
+                          className="text-[11px] font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                        >
+                          <RefreshCw className={`w-3 h-3 ${isSyncingGithub ? "animate-spin" : ""}`} />
+                          <span>Fetch Name & Info from GitHub</span>
+                        </button>
+                      </div>
                       <input
                         type="text"
-                        value={profileData.name}
-                        onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        placeholder="e.g. Tony Stark / Pratik Ranjan"
                         className="w-full px-4 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
                       />
                     </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-[#111111] mb-1.5">College / Institution</label>
+                        <input
+                          type="text"
+                          value={formData.college}
+                          onChange={(e) => setFormData({ ...formData, college: e.target.value })}
+                          placeholder="e.g. Stanford University / Tech Institute"
+                          className="w-full px-4 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-[#111111] mb-1.5">Degree / Major</label>
+                        <input
+                          type="text"
+                          value={formData.degree}
+                          onChange={(e) => setFormData({ ...formData, degree: e.target.value })}
+                          placeholder="e.g. B.S. Computer Science"
+                          className="w-full px-4 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-[#111111] mb-1.5">Batch / Graduation Year</label>
+                      <input
+                        type="text"
+                        value={formData.batch}
+                        onChange={(e) => setFormData({ ...formData, batch: e.target.value })}
+                        placeholder="e.g. 2023 – 2027"
+                        className="w-full px-4 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      />
+                    </div>
+
                     <div>
                       <label className="block text-xs font-bold text-[#111111] mb-1.5">Bio / Summary</label>
                       <textarea
                         rows={3}
-                        value={profileData.bio}
-                        onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
+                        value={formData.bio}
+                        onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                        placeholder="Introduce your technical background, current specialization, or career goals..."
                         className="w-full px-4 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
                       />
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div>
                         <label className="block text-xs font-bold text-[#111111] mb-1.5">GitHub Profile</label>
                         <input
                           type="text"
-                          value={profileData.github}
-                          onChange={(e) => setProfileData({ ...profileData, github: e.target.value })}
+                          value={formData.github}
+                          onChange={(e) => setFormData({ ...formData, github: e.target.value })}
+                          placeholder="https://github.com/username"
                           className="w-full px-4 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
                         />
                       </div>
@@ -223,77 +613,128 @@ export default function ProfilePage() {
                         <label className="block text-xs font-bold text-[#111111] mb-1.5">LinkedIn Profile</label>
                         <input
                           type="text"
-                          value={profileData.linkedin}
-                          onChange={(e) => setProfileData({ ...profileData, linkedin: e.target.value })}
+                          value={formData.linkedin}
+                          onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
+                          placeholder="https://linkedin.com/in/username"
+                          className="w-full px-4 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-[#111111] mb-1.5">Portfolio / Website</label>
+                        <input
+                          type="text"
+                          value={formData.portfolio}
+                          onChange={(e) => setFormData({ ...formData, portfolio: e.target.value })}
+                          placeholder="https://yourportfolio.dev"
                           className="w-full px-4 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
                         />
                       </div>
                     </div>
+
                     <div className="flex justify-end gap-2 pt-2">
                       <button
                         type="button"
                         onClick={() => setIsEditing(false)}
-                        className="px-4 py-2 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-xs font-bold text-[#494D4D]"
+                        className="px-4 py-2.5 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-xs font-bold text-[#494D4D] cursor-pointer"
                       >
                         Cancel
                       </button>
                       <button
                         type="submit"
-                        className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-xs font-bold text-white shadow-xs"
+                        disabled={updateMutation.isPending}
+                        className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-xs font-bold text-white shadow-xs disabled:opacity-50 cursor-pointer"
                       >
-                        Save Changes
+                        {updateMutation.isPending ? "Saving..." : "Save Changes"}
                       </button>
                     </div>
                   </form>
                 ) : (
                   <div className="flex flex-col gap-4">
                     <p className="text-xs text-[#494D4D] leading-relaxed">
-                      {profileData.bio}
+                      {formData.bio || (
+                        <span className="text-neutral-400 italic">
+                          No bio provided yet. Click &quot;Edit Details&quot; to describe your technical focus, current year, or aspirations.
+                        </span>
+                      )}
                     </p>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                      <a
-                        href={profileData.github}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center gap-2 p-3 bg-[#F8F9FA] hover:bg-[#F1F3F5] rounded-2xl border border-black/5 transition-colors text-xs font-bold text-[#111111]"
-                      >
-                        <Code2 className="w-4 h-4 text-neutral-800 shrink-0" />
-                        <span className="truncate">GitHub</span>
-                        <ExternalLink className="w-3 h-3 ml-auto text-neutral-400" />
-                      </a>
+                      {formData.github ? (
+                        <a
+                          href={formData.github.startsWith("http") ? formData.github : `https://${formData.github}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center gap-2 p-3 bg-[#F8F9FA] hover:bg-[#F1F3F5] rounded-2xl border border-black/5 transition-colors text-xs font-bold text-[#111111]"
+                        >
+                          <Code2 className="w-4 h-4 text-neutral-800 shrink-0" />
+                          <span className="truncate">GitHub</span>
+                          <ExternalLink className="w-3 h-3 ml-auto text-neutral-400" />
+                        </a>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setIsEditing(true)}
+                          className="flex items-center gap-2 p-3 bg-neutral-50 hover:bg-neutral-100 border border-dashed border-neutral-300 rounded-2xl text-xs font-medium text-neutral-500 cursor-pointer"
+                        >
+                          <Code2 className="w-4 h-4" />
+                          <span>+ Add GitHub Link</span>
+                        </button>
+                      )}
 
-                      <a
-                        href={profileData.linkedin}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center gap-2 p-3 bg-[#F8F9FA] hover:bg-[#F1F3F5] rounded-2xl border border-black/5 transition-colors text-xs font-bold text-[#111111]"
-                      >
-                        <Globe className="w-4 h-4 text-blue-600 shrink-0" />
-                        <span className="truncate">LinkedIn</span>
-                        <ExternalLink className="w-3 h-3 ml-auto text-neutral-400" />
-                      </a>
+                      {formData.linkedin ? (
+                        <a
+                          href={formData.linkedin.startsWith("http") ? formData.linkedin : `https://${formData.linkedin}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center gap-2 p-3 bg-[#F8F9FA] hover:bg-[#F1F3F5] rounded-2xl border border-black/5 transition-colors text-xs font-bold text-[#111111]"
+                        >
+                          <Globe className="w-4 h-4 text-blue-600 shrink-0" />
+                          <span className="truncate">LinkedIn</span>
+                          <ExternalLink className="w-3 h-3 ml-auto text-neutral-400" />
+                        </a>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setIsEditing(true)}
+                          className="flex items-center gap-2 p-3 bg-neutral-50 hover:bg-neutral-100 border border-dashed border-neutral-300 rounded-2xl text-xs font-medium text-neutral-500 cursor-pointer"
+                        >
+                          <Globe className="w-4 h-4" />
+                          <span>+ Add LinkedIn Link</span>
+                        </button>
+                      )}
 
-                      <a
-                        href={profileData.portfolio}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center gap-2 p-3 bg-[#F8F9FA] hover:bg-[#F1F3F5] rounded-2xl border border-black/5 transition-colors text-xs font-bold text-[#111111]"
-                      >
-                        <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
-                        <span className="truncate">Portfolio</span>
-                        <ExternalLink className="w-3 h-3 ml-auto text-neutral-400" />
-                      </a>
+                      {formData.portfolio ? (
+                        <a
+                          href={formData.portfolio.startsWith("http") ? formData.portfolio : `https://${formData.portfolio}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center gap-2 p-3 bg-[#F8F9FA] hover:bg-[#F1F3F5] rounded-2xl border border-black/5 transition-colors text-xs font-bold text-[#111111]"
+                        >
+                          <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
+                          <span className="truncate">Portfolio</span>
+                          <ExternalLink className="w-3 h-3 ml-auto text-neutral-400" />
+                        </a>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setIsEditing(true)}
+                          className="flex items-center gap-2 p-3 bg-neutral-50 hover:bg-neutral-100 border border-dashed border-neutral-300 rounded-2xl text-xs font-medium text-neutral-500 cursor-pointer"
+                        >
+                          <Sparkles className="w-4 h-4" />
+                          <span>+ Add Portfolio Link</span>
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}
               </div>
 
+              {/* Skills Card with Add/Delete Feature */}
               <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-xl border border-black/5">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                   <h2 className="text-lg font-extrabold text-[#111111] flex items-center gap-2">
                     <Award className="w-5 h-5 text-amber-600" />
-                    <span>Active Verifiable Skills ({INITIAL_PASSPORT.skills.length})</span>
+                    <span>Active Verifiable Skills ({formData.skills.length})</span>
                   </h2>
                   <Link
                     href="/passport"
@@ -304,51 +745,128 @@ export default function ProfilePage() {
                   </Link>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {INITIAL_PASSPORT.skills.map((skill) => (
-                    <div
-                      key={skill.skillId}
-                      className="p-3.5 bg-[#F8F9FA] rounded-2xl border border-black/5 flex items-center justify-between"
-                    >
-                      <div>
-                        <div className="text-xs font-extrabold text-[#111111]">{skill.name}</div>
-                        <div className="text-[10px] text-[#494D4D]">{skill.category}</div>
+                {/* Inline Add Skill Input */}
+                <form onSubmit={handleAddSkill} className="flex items-center gap-2 mb-4">
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      value={newSkillInput}
+                      onChange={(e) => setNewSkillInput(e.target.value)}
+                      placeholder="Add a skill (e.g. Next.js, Python, PostgreSQL, Docker)..."
+                      className="w-full pl-4 pr-10 py-2.5 rounded-2xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="px-4 py-2.5 bg-neutral-900 hover:bg-neutral-800 text-white rounded-2xl text-xs font-bold flex items-center gap-1.5 shrink-0 transition-colors cursor-pointer"
+                  >
+                    <Plus className="w-4 h-4 text-emerald-400" />
+                    <span>Add Skill</span>
+                  </button>
+                </form>
+
+                {formData.skills.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {formData.skills.map((skillName, index) => (
+                      <div
+                        key={index}
+                        className="p-3 bg-[#F8F9FA] rounded-2xl border border-black/5 flex items-center justify-between group hover:border-black/10 transition-all"
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                          <span className="text-xs font-extrabold text-[#111111]">{skillName}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 text-[10px] font-bold rounded-md border border-emerald-200">
+                            Competency
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveSkill(skillName)}
+                            title="Remove Skill"
+                            className="p-1 text-neutral-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer opacity-80 group-hover:opacity-100"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
-                      <Badge tier="verified-high" size="xs">
-                        {skill.level}
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-8 text-center bg-[#F8F9FA] rounded-2xl border border-dashed border-neutral-300 flex flex-col items-center justify-center gap-2">
+                    <Award className="w-8 h-8 text-neutral-300" />
+                    <div className="text-xs font-bold text-[#111111]">No Skills Added Yet</div>
+                    <p className="text-[11px] text-[#494D4D] max-w-sm">
+                      Add your technical competencies above or submit evidence records in the dashboard to automatically extract and verify skills.
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 
+            {/* Sidebar Column */}
             <div className="flex flex-col gap-6">
+              {/* Credential Trust Score Card */}
               <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-xl border border-black/5">
                 <h3 className="text-sm font-bold text-[#111111] mb-3 flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-emerald-600" />
                   <span>Credential Trust Score</span>
                 </h3>
 
-                <div className="bg-emerald-50/60 rounded-2xl p-4 border border-emerald-200/60 mb-4 text-center">
-                  <div className="text-3xl font-black text-emerald-800">98.4%</div>
-                  <div className="text-[11px] font-bold text-emerald-700 mt-1">High Institutional Trust</div>
-                </div>
+                {hasEvidence ? (
+                  <>
+                    <div className="bg-emerald-50/60 rounded-2xl p-4 border border-emerald-200/60 mb-4 text-center">
+                      <div className="text-3xl font-black text-emerald-800">{trustScore}%</div>
+                      <div className="text-[11px] font-bold text-emerald-700 mt-1">
+                        {parseFloat(trustScore) >= 85
+                          ? "High Institutional Trust"
+                          : parseFloat(trustScore) >= 65
+                          ? "Moderate Institutional Trust"
+                          : "Verification In Progress"}
+                      </div>
+                    </div>
 
-                <ul className="flex flex-col gap-2.5 text-xs text-[#494D4D]">
-                  <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Cryptographically signed hash</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>OCR transcript domain matched</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>No unverified claim flags</span>
-                  </li>
-                </ul>
+                    <ul className="flex flex-col gap-2.5 text-xs text-[#494D4D]">
+                      <li className="flex items-center gap-2">
+                        <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <span>Cryptographically signed credential hash</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <span>OCR transcript domain validated</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <span>{evidenceCount} verified evidence {evidenceCount === 1 ? "record" : "records"} attached</span>
+                      </li>
+                    </ul>
+                  </>
+                ) : (
+                  <>
+                    <div className="bg-neutral-50 rounded-2xl p-5 border border-dashed border-neutral-300 mb-4 text-center flex flex-col items-center gap-1.5">
+                      <Clock className="w-6 h-6 text-neutral-400" />
+                      <div className="text-sm font-black text-neutral-700">Awaiting Evidence</div>
+                      <div className="text-[11px] text-neutral-500 font-medium leading-tight">
+                        Trust score will calculate once you submit your first coursework or GitHub evidence.
+                      </div>
+                    </div>
+
+                    <ul className="flex flex-col gap-2.5 text-xs text-neutral-400">
+                      <li className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full border border-neutral-300 flex items-center justify-center shrink-0 text-[10px]">1</div>
+                        <span>Upload transcript or project evidence</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full border border-neutral-300 flex items-center justify-center shrink-0 text-[10px]">2</div>
+                        <span>Automated OCR & cryptographic validation</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full border border-neutral-300 flex items-center justify-center shrink-0 text-[10px]">3</div>
+                        <span>Verifiable credential trust score generated</span>
+                      </li>
+                    </ul>
+                  </>
+                )}
 
                 <div className="mt-5 pt-4 border-t border-neutral-100">
                   <Link
@@ -356,11 +874,12 @@ export default function ProfilePage() {
                     className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs"
                   >
                     <FileCheck className="w-4 h-4" />
-                    <span>Submit New Evidence</span>
+                    <span>{hasEvidence ? "Submit New Evidence" : "Submit First Evidence"}</span>
                   </Link>
                 </div>
               </div>
 
+              {/* Public Passport Link Card */}
               <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-xl border border-black/5">
                 <h3 className="text-sm font-bold text-[#111111] mb-2 flex items-center gap-2">
                   <Share2 className="w-4 h-4 text-blue-600" />
@@ -371,11 +890,11 @@ export default function ProfilePage() {
                 </p>
 
                 <div className="p-2.5 bg-[#F5F5F3] rounded-xl border border-black/5 text-[11px] font-mono text-[#111111] truncate mb-3 select-all">
-                  https://skillsync.edu/passport/{INITIAL_PASSPORT.shareToken}
+                  https://skillsync.edu/passport/{shareToken}
                 </div>
 
                 <Link
-                  href={`/passport/${INITIAL_PASSPORT.shareToken}`}
+                  href={`/passport/${shareToken}`}
                   target="_blank"
                   className="w-full flex items-center justify-center gap-1.5 py-2.5 bg-neutral-900 hover:bg-neutral-800 text-white rounded-xl text-xs font-bold transition-colors"
                 >
@@ -397,26 +916,42 @@ export default function ProfilePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="p-5 bg-[#F8F9FA] rounded-2xl border border-black/5 flex flex-col gap-3">
                 <div className="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">Primary Degree</div>
-                <div className="text-base font-extrabold text-[#111111]">{profileData.degree}</div>
+                <div className="text-base font-extrabold text-[#111111]">
+                  {profile?.degree || formData.degree || "Degree not specified"}
+                </div>
                 <div className="text-xs text-[#494D4D] flex items-center gap-2">
                   <Building className="w-4 h-4 text-neutral-400" />
-                  <span>{profileData.college}</span>
+                  <span>{profile?.college || formData.college || "Institution not specified"}</span>
                 </div>
                 <div className="text-xs text-[#494D4D] flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-neutral-400" />
-                  <span>Batch: {profileData.batch}</span>
+                  <span>Batch: {profile?.batch || formData.batch || "Not specified"}</span>
+                </div>
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveTab("overview");
+                      setIsEditing(true);
+                    }}
+                    className="text-xs font-bold text-emerald-700 hover:underline cursor-pointer"
+                  >
+                    Edit Academic Details →
+                  </button>
                 </div>
               </div>
 
               <div className="p-5 bg-[#F8F9FA] rounded-2xl border border-black/5 flex flex-col gap-3">
                 <div className="text-[11px] font-bold text-neutral-500 uppercase tracking-wider">Verification Authority</div>
-                <div className="text-base font-extrabold text-[#111111]">{INITIAL_PASSPORT.issuer}</div>
+                <div className="text-base font-extrabold text-[#111111]">
+                  {profile?.passport?.issuer || "SkillSync Verifiable Credential Engine"}
+                </div>
                 <div className="text-xs font-mono text-[#494D4D] break-all bg-white p-2.5 rounded-xl border border-black/5">
-                  Hash: {INITIAL_PASSPORT.credentialHash}
+                  Hash: {profile?.passport?.credentialHash || "0x7F8A2B9942ACD081884C7D659A2FEAA015A3BF4F"}
                 </div>
                 <div className="text-xs text-emerald-700 font-bold flex items-center gap-1.5 mt-auto">
                   <ShieldCheck className="w-4 h-4" />
-                  <span>Signed & Tamper-Proof Verified</span>
+                  <span>Signed & Tamper-Proof Cryptographic ID</span>
                 </div>
               </div>
             </div>
@@ -448,8 +983,8 @@ export default function ProfilePage() {
                 </div>
                 <input
                   type="checkbox"
-                  checked={profileData.emailNotifications}
-                  onChange={(e) => setProfileData({ ...profileData, emailNotifications: e.target.checked })}
+                  checked={formData.emailNotifications}
+                  onChange={(e) => setFormData({ ...formData, emailNotifications: e.target.checked })}
                   className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer"
                 />
               </div>
@@ -466,8 +1001,8 @@ export default function ProfilePage() {
                 </div>
                 <input
                   type="checkbox"
-                  checked={profileData.publicPassport}
-                  onChange={(e) => setProfileData({ ...profileData, publicPassport: e.target.checked })}
+                  checked={formData.publicPassport}
+                  onChange={(e) => setFormData({ ...formData, publicPassport: e.target.checked })}
                   className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer"
                 />
               </div>
