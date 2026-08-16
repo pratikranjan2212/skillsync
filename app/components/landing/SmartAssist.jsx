@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { SMART_ASSIST_CARDS } from "@/app/data/skillsyncData.js";
 import { Sparkles, CheckCircle2, Award, Briefcase, Scale, ArrowRight } from "lucide-react";
 import RollingText from "@/app/components/ui/RollingText";
@@ -18,6 +19,25 @@ export default function SmartAssist() {
       case "Scale": return Scale;
       default: return Sparkles;
     }
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.12,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 24 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
+    },
   };
 
   return (
@@ -44,31 +64,38 @@ export default function SmartAssist() {
             </div>
           </FadeIn>
 
-          <FadeIn delay={0.06} distance={18} duration={0.45}>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {SMART_ASSIST_CARDS.map((card) => {
-                const Icon = getIcon(card.icon);
-                return (
-                  <div
-                    key={card.id}
-                    className={`group bg-[#F8F9FA] hover:bg-white p-6 sm:p-7 rounded-3xl border border-black/5 ${card.cardBorder || "hover:border-black/10"} transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-xl hover:shadow-black/5 flex flex-col justify-between gap-4 h-full`}
-                  >
-                    <div>
-                      <div
-                        className={`w-12 h-12 rounded-2xl ${card.iconBg} ${card.iconShadow} text-white flex items-center justify-center mb-5 transition-transform duration-300 group-hover:scale-105`}
-                      >
-                        <Icon className="w-6 h-6" />
-                      </div>
-                      <h3 className="text-lg font-extrabold text-[#111111] tracking-tight">{card.title}</h3>
-                      <p className="text-xs sm:text-[13px] text-[#494D4D] mt-2 leading-relaxed font-medium">
-                        {card.description}
-                      </p>
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-40px" }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+          >
+            {SMART_ASSIST_CARDS.map((card) => {
+              const Icon = getIcon(card.icon);
+              return (
+                <motion.div
+                  key={card.id}
+                  variants={itemVariants}
+                  whileHover={{ y: -8, scale: 1.02 }}
+                  transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                  className={`group bg-white p-6 sm:p-7 rounded-[28px] sm:rounded-3xl ${card.cardGlow} transition-all duration-300 flex flex-col justify-between gap-4 h-full cursor-pointer`}
+                >
+                  <div>
+                    <div
+                      className={`w-12 h-12 rounded-2xl ${card.iconBg} ${card.iconShadow} text-white flex items-center justify-center mb-5 transition-transform duration-300 group-hover:scale-105`}
+                    >
+                      <Icon className="w-6 h-6" />
                     </div>
+                    <h3 className="text-lg font-extrabold text-[#111111] tracking-tight">{card.title}</h3>
+                    <p className="text-xs sm:text-[13px] text-[#494D4D] mt-2.5 leading-relaxed font-medium">
+                      {card.description}
+                    </p>
                   </div>
-                );
-              })}
-            </div>
-          </FadeIn>
+                </motion.div>
+              );
+            })}
+          </motion.div>
 
           <FadeIn delay={0.06} distance={18} duration={0.45}>
             <div className="pt-6 border-t border-neutral-100 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -99,4 +126,3 @@ export default function SmartAssist() {
     </section>
   );
 }
-
