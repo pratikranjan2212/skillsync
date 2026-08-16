@@ -94,87 +94,19 @@ export default function InteractivePassportCard({
   };
 
   const student = {
-    id: passportData?.studentId || "SS-2024-7F8A2B",
-    name: passportData?.studentName || "Ananya Sharma",
-    gender: passportData?.gender || "Female",
-    dob: passportData?.dob || "12 May 2003",
-    college: passportData?.college || "Ramaiah Institute of Technology",
-    degree: passportData?.degree || "B.Tech in Computer Science & Engineering (Pursuing)",
-    batch: passportData?.batch || "2022 – 2026",
-    photoUrl: passportData?.photoUrl || "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=800&auto=format&fit=crop",
+    id: passportData?.studentId || "SS-2026-STU01",
+    name: passportData?.studentName || "Student User",
+    gender: passportData?.gender || "Student",
+    dob: passportData?.dob || "Enrolled 2026",
+    college: passportData?.college || "Institution Not Specified",
+    degree: passportData?.degree || "Degree Not Specified",
+    batch: passportData?.batch || "Batch Not Specified",
+    photoUrl: passportData?.photoUrl || null,
     credentialHash: passportData?.credentialHash || "0x7F8A2B9942ACD081884C7D659A2FEAA015A3BF4F",
-    shareToken: passportData?.shareToken || "sp-token-9942a",
+    shareToken: passportData?.shareToken || "sp-token-user",
     verified: passportData?.verified ?? true,
-    skills: passportData?.skills || [
-      {
-        skillId: "sk-react",
-        name: "React.js",
-        category: "Frontend Web",
-        icon: "react",
-        level: "Advanced",
-        endorsements: 14,
-        evidence: [{ title: "EcoTrack Component Architecture", tier: "verified-high" }]
-      },
-      {
-        skillId: "sk-node",
-        name: "Node.js",
-        category: "Backend Engineering",
-        icon: "nodejs",
-        level: "Advanced",
-        endorsements: 11,
-        evidence: [{ title: "ShopNest REST & Microservices", tier: "verified-high" }]
-      },
-      {
-        skillId: "sk-python",
-        name: "Python",
-        category: "Programming Languages",
-        icon: "python",
-        level: "Advanced",
-        endorsements: 19,
-        evidence: [{ title: "ETL Data Pipeline & Pandas", tier: "verified-high" }]
-      },
-      {
-        skillId: "sk-js",
-        name: "JavaScript",
-        category: "Frontend & Scripting",
-        icon: "javascript",
-        level: "Expert",
-        endorsements: 22,
-        evidence: [{ title: "Full-Stack Web Dev Capstone (96%)", tier: "verified-high" }]
-      },
-      {
-        skillId: "sk-git",
-        name: "Git & GitHub",
-        category: "DevOps & Tooling",
-        icon: "git",
-        level: "Advanced",
-        endorsements: 16,
-        evidence: [{ title: "Verified 200+ Open Source Commits", tier: "verified-high" }]
-      }
-    ],
-    projects: passportData?.projects || [
-      {
-        id: "proj-1",
-        title: "EcoTrack – Carbon Footprint Tracker",
-        description: "A web application to track and analyze carbon footprint using interactive dashboards and ML insights.",
-        githubUrl: "https://github.com/ananya-sharma/ecotrack",
-        skills: ["React.js", "Python"]
-      },
-      {
-        id: "proj-2",
-        title: "ShopNest – E-commerce Web App",
-        description: "Full-stack e-commerce platform with authentication, payment integration, and order management.",
-        githubUrl: "https://github.com/ananya-sharma/shopnest",
-        skills: ["React.js", "Node.js", "JavaScript"]
-      },
-      {
-        id: "proj-3",
-        title: "NexusChat – Real-time Chat Application",
-        description: "Real-time chat application using Socket.io, Express.js, and MongoDB.",
-        githubUrl: "https://github.com/ananya-sharma/nexuschat",
-        skills: ["Node.js", "JavaScript", "Git & GitHub"]
-      }
-    ]
+    skills: passportData?.skills || [],
+    projects: passportData?.projects || [],
   };
 
   const handleCopyId = (e) => {
@@ -403,16 +335,22 @@ export default function InteractivePassportCard({
                 <div className="lg:col-span-5 flex flex-col gap-6">
                   <div className="flex items-center gap-5 sm:gap-6">
                     <div className="relative shrink-0">
-                      <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-2 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.3)] bg-neutral-100 relative">
-                        <Image
-                          src={student.photoUrl}
-                          alt={student.name}
-                          fill
-                          unoptimized
-                          sizes="(max-width: 768px) 112px, 112px"
-                          className="object-cover"
-                          priority
-                        />
+                      <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-2 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.3)] bg-neutral-100 relative flex items-center justify-center">
+                        {student.photoUrl ? (
+                          <Image
+                            src={student.photoUrl}
+                            alt={student.name}
+                            fill
+                            unoptimized
+                            sizes="(max-width: 768px) 112px, 112px"
+                            className="object-cover"
+                            priority
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-linear-to-br from-emerald-600 to-teal-800 text-white flex items-center justify-center font-black text-2xl">
+                            {student.name ? student.name.split(" ").map((n) => n[0]).join("").toUpperCase().substring(0, 2) : "ST"}
+                          </div>
+                        )}
                       </div>
                       
                       <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-white border-2 border-emerald-500 flex items-center justify-center shadow-md">

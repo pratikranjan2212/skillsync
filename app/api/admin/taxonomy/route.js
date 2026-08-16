@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { INITIAL_SKILL_TAXONOMY } from "@/app/data/mockData";
-
-let taxonomyStore = [...INITIAL_SKILL_TAXONOMY];
 
 export async function GET(request) {
   try {
@@ -10,14 +7,11 @@ export async function GET(request) {
       orderBy: { name: "asc" },
     });
 
-    if (dbSkills && dbSkills.length > 0) {
-      return NextResponse.json({ success: true, taxonomy: dbSkills });
-    }
+    return NextResponse.json({ success: true, taxonomy: dbSkills || [] });
   } catch (err) {
     console.warn("DB Taxonomy GET fallback:", err.message);
+    return NextResponse.json({ success: true, taxonomy: [] });
   }
-
-  return NextResponse.json({ success: true, taxonomy: taxonomyStore });
 }
 
 export async function POST(request) {

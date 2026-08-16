@@ -1,6 +1,80 @@
 # SkillSync — Application Build Log
-Running log of every change made to the application, in chronological order (newest entry at the top).
+Running log of every change made to the frontend, in chronological order (newest entry at the top).
 Each entry explains *what* changed and *why*, plus a section-by-section explanation of any new or modified code.
+
+---
+## [2026-08-16 18:11] Removed Parameter Exclusion Card and Cleared Dummy Data in Audit Console
+
+**Files changed:**
+- `app/dashboard/page.js` (modified)
+- `app/api/admin/pipeline/route.js` (modified)
+- `app/api/admin/taxonomy/route.js` (modified)
+- `app/api/admin/fairness/route.js` (modified)
+
+**What changed and why:**
+1. **Removed Exclusion Card** — Completely removed the dark "Explicit Model Parameter Exclusion List" card from the Audit & Pipeline Console on the Dashboard.
+2. **Removed Dummy Data & Added Clean Empty States**:
+   - Cleared hardcoded dummy score distribution charts, dummy evidence pipeline records, and dummy taxonomy items from API routes and dashboard state.
+   - Replaced with clean, responsive empty states for the Candidate Score Distribution Chart, Evidence Pipeline Audit Log, and Skill Taxonomy Catalog when no user records or audit logs exist.
+
+**Open items / follow-ups:**
+Production build verified with exit code 0 across all 28 routes.
+
+---
+## [2026-08-16 18:08] Removed Skill Passport Section from Dashboard Page
+
+**Files changed:**
+- `app/dashboard/page.js` (modified)
+
+**What changed and why:**
+Removed the embedded "Skill Passport" tab button and interactive card view from the Unified Dashboard page (`/dashboard`), leaving the dashboard dedicated to **Evidence Records** and the **Audit & Pipeline Console**. The full Skill Passport is accessed directly via its dedicated route (`/passport`).
+
+**Code explanation (section by section):**
+`app/dashboard/page.js`
+- **Dashboard Header Description** — Updated subtitle copy to reflect Evidence Records and Audit Pipeline focus.
+- **Tab Navigation** — Removed the `passport` tab item from the switcher.
+- **Tab Panels** — Removed the `{activeTab === "passport" && ...}` container and cleaned up unused passport component imports.
+
+**Open items / follow-ups:**
+Production build verified with exit code 0.
+
+---
+## [2026-08-16 17:47] Removed Authentication Badge Pills from Sign In Page
+
+**Files changed:**
+- `app/(auth)/signin/page.js` (modified)
+
+**What changed and why:**
+Removed the pill badge section (`Student Authentication` / `Admin Console Authentication`) from the top of the sign in card for a cleaner, streamlined header presentation.
+
+**Code explanation (section by section):**
+`app/(auth)/signin/page.js`
+- **Clean Sign In Header** — Removed the conditional badge pill above the headline, keeping the title ("Welcome Back" / "Administrator Sign In") and description cleanly aligned under the role selector tabs.
+
+**Open items / follow-ups:**
+Production build verified with exit code 0.
+
+---
+## [2026-08-16 17:47] Removed Demo Info, Enforced Passport-Gated Opportunities, and Added Admin Sign-In Switcher
+
+**Files changed:**
+- `app/(auth)/signin/page.js` (modified)
+- `proxy.js` (modified)
+- `app/components/auth/AuthRequiredView.jsx` (modified)
+- `app/api/opportunities/route.js` (modified)
+- `app/opportunities/page.js` (modified)
+- `app/components/layout/Navbar.jsx` (modified)
+- `app/components/landing/Hero.jsx` (modified)
+- `app/components/landing/FeatureBento.jsx` (modified)
+
+**What changed and why:**
+1. **Admin & Student Sign-In Option**: Added a dual role switcher (`Student Portal` vs. `Administrator`) on `/signin`. Admins can sign in with administrator credentials (`admin@skillsync.edu`) to be routed to `/admin`, while students are routed to `/dashboard`. Support URL query param `/signin?role=admin`.
+2. **Removed Demo Buttons & Info**: Cleaned up all one-click demo boxes and demo placeholders across the sign-in page and protected authentication views.
+3. **Passport-Gated Opportunities**: Kept the Opportunities feature intact while removing demo opportunities for new users. Users without verified evidence or a built Skill Passport now receive a dedicated "Build Your Skill Passport First" guide with a direct action button to `/dashboard/evidence/new`.
+4. **Admin Route Authorization in Middleware**: Updated `proxy.js` so authenticated administrators can seamlessly access `/admin/*` routes while redirecting unauthenticated users to `/signin?role=admin`.
+
+**Open items / follow-ups:**
+Clean Next.js 16 production build verified (exit code 0 across 27 routes).
 
 ---
 ## [2026-08-16 16:15] Implemented Complete Backend Architecture & Services (SOAIDEATHON-S30)

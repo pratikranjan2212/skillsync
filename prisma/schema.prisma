@@ -18,6 +18,11 @@ model User {
   college       String?
   degree        String?
   batch         String?
+  bio           String?   @db.Text
+  githubUrl     String?   @map("github_url")
+  linkedinUrl   String?   @map("linkedin_url")
+  portfolioUrl  String?   @map("portfolio_url")
+  skills        String[]  @default([])
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
 

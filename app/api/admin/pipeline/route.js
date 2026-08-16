@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { INITIAL_EVIDENCE } from "@/app/data/mockData";
-
-let pipelineStore = [...INITIAL_EVIDENCE];
 
 export async function GET(request) {
   try {
@@ -10,14 +7,11 @@ export async function GET(request) {
       orderBy: { createdAt: "desc" },
     });
 
-    if (evidenceList && evidenceList.length > 0) {
-      return NextResponse.json({ success: true, pipeline: evidenceList });
-    }
+    return NextResponse.json({ success: true, pipeline: evidenceList || [] });
   } catch (err) {
     console.warn("DB Admin Pipeline GET fallback:", err.message);
+    return NextResponse.json({ success: true, pipeline: [] });
   }
-
-  return NextResponse.json({ success: true, pipeline: pipelineStore });
 }
 
 export async function PATCH(request) {
