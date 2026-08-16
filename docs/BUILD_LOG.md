@@ -3,6 +3,21 @@ Running log of every change made to the frontend, in chronological order (newest
 Each entry explains *what* changed and *why*, plus a section-by-section explanation of any new or modified code.
 
 ---
+## [2026-08-16 15:36] Removed Top Progress Bar from Route Transitions
+
+**Files changed:**
+- `app/template.js` (modified)
+
+**What changed and why:**
+Removed the top green navigation progress bar while maintaining the clean, smooth page cross-fade and slide transitions across all routes.
+
+**Code explanation (section by section):**
+`app/template.js`
+- **Clean Page Transition** — Removed the top progress bar element and kept the smooth `opacity: 0, y: 12` $\rightarrow$ `opacity: 1, y: 0` route wrapper.
+
+**Open items / follow-ups:**
+Production build verified with exit code 0.
+
 ## [2026-08-16 14:39] Added Smooth Global Page Transitions & Routing Navigation Animations
 
 **Files changed:**
