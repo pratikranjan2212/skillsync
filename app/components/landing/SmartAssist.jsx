@@ -32,11 +32,11 @@ export default function SmartAssist() {
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 28 },
+    hidden: { opacity: 0, y: 32 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.65, ease: [0.16, 1, 0.3, 1] },
+      transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] },
     },
   };
 
@@ -45,7 +45,7 @@ export default function SmartAssist() {
       <FadeIn distance={24} duration={0.55}>
         <div
           id="smart-assist"
-          className="bg-white rounded-[36px] sm:rounded-[44px] p-8 sm:p-12 md:p-14 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.06)] border border-black/5 flex flex-col gap-10 scroll-mt-24"
+          className="bg-white rounded-[36px] sm:rounded-[44px] p-8 sm:p-12 md:p-14 shadow-[0_24px_70px_-15px_rgba(0,0,0,0.08)] border border-black/5 flex flex-col gap-10 scroll-mt-24"
         >
           {/* Header Row */}
           <FadeIn delay={0.02} distance={16} duration={0.4}>
@@ -65,13 +65,13 @@ export default function SmartAssist() {
             </div>
           </FadeIn>
 
-          {/* 4 Feature Cards with Circular Badges & Bottom Ambient Shadow */}
+          {/* 4 Feature Cards with 3D Pop Out & Deeper Ambient Shadow */}
           <motion.div
             variants={containerVariants}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-40px" }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 perspective-[1000px]"
           >
             {SMART_ASSIST_CARDS.map((card) => {
               const Icon = getIcon(card.icon);
@@ -79,22 +79,36 @@ export default function SmartAssist() {
                 <motion.div
                   key={card.id}
                   variants={itemVariants}
-                  whileHover={{ y: -8, scale: 1.02 }}
-                  transition={{ type: "spring", stiffness: 350, damping: 25 }}
-                  className={`group bg-white p-7 sm:p-8 rounded-[28px] sm:rounded-[32px] ${card.cardGlow} transition-all duration-300 flex flex-col justify-start min-h-[320px] cursor-pointer`}
+                  whileHover={{
+                    y: -14,
+                    scale: 1.045,
+                    rotateX: -3,
+                    rotateY: 2,
+                    z: 30,
+                  }}
+                  transition={{ type: "spring", stiffness: 380, damping: 20 }}
+                  className={`group bg-white p-7 sm:p-8 rounded-[28px] sm:rounded-[32px] ${card.cardGlow} transition-all duration-300 flex flex-col justify-start min-h-[330px] cursor-pointer relative z-10 transform-gpu`}
+                  style={{ transformStyle: "preserve-3d" }}
                 >
-                  {/* Circular Icon Badge */}
+                  {/* 3D Elevated Circular Icon Badge */}
                   <div
-                    className={`w-12 h-12 rounded-full ${card.iconBg} ${card.iconShadow} text-white flex items-center justify-center mb-6 transition-transform duration-300 group-hover:scale-105`}
+                    className={`w-13 h-13 sm:w-14 sm:h-14 rounded-full ${card.iconBg} ${card.iconShadow} text-white flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:-translate-y-2 group-hover:rotate-3`}
+                    style={{ transform: "translateZ(25px)" }}
                   >
-                    <Icon className="w-5.5 h-5.5 stroke-[2.2]" />
+                    <Icon className="w-6 h-6 stroke-[2.2]" />
                   </div>
 
-                  <h3 className="text-lg sm:text-xl font-extrabold text-[#111111] tracking-tight leading-snug mb-3">
+                  <h3
+                    className="text-lg sm:text-xl font-black text-[#111111] tracking-tight leading-snug mb-3 transition-transform duration-300 group-hover:translate-x-0.5"
+                    style={{ transform: "translateZ(15px)" }}
+                  >
                     {card.title}
                   </h3>
 
-                  <p className="text-xs sm:text-[13px] text-[#555959] leading-relaxed font-medium">
+                  <p
+                    className="text-xs sm:text-[13px] text-[#555959] leading-relaxed font-medium transition-colors duration-300 group-hover:text-[#262626]"
+                    style={{ transform: "translateZ(10px)" }}
+                  >
                     {card.description}
                   </p>
                 </motion.div>
@@ -112,7 +126,7 @@ export default function SmartAssist() {
                 href="/opportunities"
                 onMouseEnter={() => setHovered(true)}
                 onMouseLeave={() => setHovered(false)}
-                className="inline-flex items-center gap-2.5 px-7 py-4 bg-[#262626] hover:bg-neutral-800 text-white rounded-full font-extrabold text-sm transition-all hover:scale-95 active:scale-90 shadow-[0_12px_28px_rgba(0,0,0,0.22)]"
+                className="inline-flex items-center gap-2.5 px-7 py-4 bg-[#262626] hover:bg-neutral-800 text-white rounded-full font-extrabold text-sm transition-all hover:scale-95 active:scale-90 shadow-[0_14px_30px_rgba(0,0,0,0.28)]"
               >
                 <RollingText
                   text="Explore Opportunities Feed"
