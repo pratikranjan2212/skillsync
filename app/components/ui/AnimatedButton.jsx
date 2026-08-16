@@ -3,10 +3,6 @@
 import React, { useState } from "react";
 import RollingText from "./RollingText";
 
-/**
- * AnimatedButton wrapper that renders a button or custom container
- * with RollingText animation on hover/focus.
- */
 export default function AnimatedButton({
     children,
     text,
@@ -22,7 +18,6 @@ export default function AnimatedButton({
 }) {
     const [isHovered, setIsHovered] = useState(false);
 
-    // If string text is passed or simple children string
     const targetText = text || (typeof children === "string" ? children : null);
 
     if (targetText) {
@@ -59,3 +54,4 @@ export default function AnimatedButton({
         </Component>
     );
 }
+

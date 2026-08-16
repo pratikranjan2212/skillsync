@@ -12,10 +12,6 @@ async function fetchTaxonomyData() {
   return data.taxonomy || [];
 }
 
-/**
- * Admin Skill Taxonomy Manager Page.
- * Search, create, and manage skill taxonomy records in the system.
- */
 export default function AdminTaxonomyPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -65,7 +61,6 @@ export default function AdminTaxonomyPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Header Banner */}
       <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-md border border-black/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <span className="px-3.5 py-1 bg-[#F5F5F3] text-[#494D4D] text-xs font-bold rounded-full border border-black/5 inline-flex items-center gap-1.5">
@@ -87,7 +82,6 @@ export default function AdminTaxonomyPage() {
         </button>
       </div>
 
-      {/* Filter Bar */}
       <div className="bg-white rounded-[24px] p-4 shadow-sm border border-black/5 flex items-center justify-between gap-4">
         <div className="relative w-full sm:w-80">
           <Search className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3.5" />
@@ -108,7 +102,6 @@ export default function AdminTaxonomyPage() {
         </button>
       </div>
 
-      {/* Taxonomy Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {filteredTaxonomy.map((skill) => (
           <div
@@ -142,7 +135,6 @@ export default function AdminTaxonomyPage() {
         ))}
       </div>
 
-      {/* Add Skill Modal */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-[32px] p-6 max-w-md w-full border border-black/5 shadow-2xl flex flex-col gap-4">
@@ -204,3 +196,4 @@ export default function AdminTaxonomyPage() {
     </div>
   );
 }
+

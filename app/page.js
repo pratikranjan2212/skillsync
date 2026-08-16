@@ -14,10 +14,8 @@ import Footer from "@/app/components/layout/Footer";
 export default function App() {
   return (
     <div className="min-h-screen bg-[#F5F5F3] text-[#111111] relative selection:bg-emerald-500 selection:text-white">
-      {/* Sticky Navigation Bar */}
       <Navbar />
 
-      {/* Main Landing Sections */}
       <main>
         <Hero />
         <FeatureBento />
@@ -28,8 +26,8 @@ export default function App() {
         <FinalCTA />
       </main>
 
-      {/* Footer */}
       <Footer />
     </div>
   );
 }
+

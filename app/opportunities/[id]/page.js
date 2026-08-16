@@ -15,12 +15,6 @@ async function fetchMatchDetail(id) {
   return res.json();
 }
 
-/**
- * Match Detail Screen - The Demo Centerpiece.
- * Fetches and renders full explanation object including matched evidence citations,
- * missing skills breakdown, and explicit rendering of excludedFromRanking parameters.
- * Protected: Displays match explanation when signed in, or AuthRequiredView when signed out.
- */
 export default function MatchDetailPage({ params: paramsPromise }) {
   const params = use(paramsPromise);
   const { id } = params;
@@ -82,7 +76,6 @@ export default function MatchDetailPage({ params: paramsPromise }) {
       <Navbar />
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col gap-6">
-        {/* Back Button */}
         <div>
           <Link
             href="/opportunities"
@@ -93,7 +86,6 @@ export default function MatchDetailPage({ params: paramsPromise }) {
           </Link>
         </div>
 
-        {/* Opportunity Overview Header */}
         {opportunity && (
           <div className="bg-white rounded-[28px] p-6 shadow-md border border-black/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
@@ -123,15 +115,13 @@ export default function MatchDetailPage({ params: paramsPromise }) {
           </div>
         )}
 
-        {/* Loading State */}
         {isLoading && (
-          <div className="bg-white rounded-[32px] p-12 text-center border border-black/5 flex flex-col items-center gap-3 animate-pulse">
+          <div className="bg-white rounded-4xl p-12 text-center border border-black/5 flex flex-col items-center gap-3 animate-pulse">
             <div className="w-8 h-8 rounded-full bg-emerald-200 animate-spin"></div>
             <p className="text-xs font-bold text-neutral-500">Computing Explainable Match Detail...</p>
           </div>
         )}
 
-        {/* Error State */}
         {isError && (
           <div className="bg-rose-50 rounded-[28px] p-8 border border-rose-200 text-center flex flex-col items-center gap-3">
             <AlertCircle className="w-8 h-8 text-rose-600" />
@@ -140,7 +130,6 @@ export default function MatchDetailPage({ params: paramsPromise }) {
           </div>
         )}
 
-        {/* Match Explanation Card - Centerpiece */}
         {explanation && (
           <MatchExplanationCard
             explanation={explanation}
@@ -151,3 +140,4 @@ export default function MatchDetailPage({ params: paramsPromise }) {
     </div>
   );
 }
+

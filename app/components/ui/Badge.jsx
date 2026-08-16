@@ -1,39 +1,44 @@
 import React from "react";
-import { CheckCircle2, AlertTriangle, ShieldAlert, Sparkles } from "lucide-react";
+import { CheckCircle2, AlertTriangle, ShieldAlert, ShieldCheck, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-/**
- * Verification Tier & Status Badge Primitive.
- * Renders verified-high (green), verified-medium (yellow), and flagged-low (gray/red) badges.
- * @param {Object} props
- * @param {"verified-high" | "verified-medium" | "flagged-low" | string} props.tier
- * @param {string} [props.className]
- * @param {boolean} [props.showIcon=true]
- * @param {string} [props.children]
- */
-export default function Badge({ tier, className, showIcon = true, children }) {
+export default function Badge({ tier, variant, icon: CustomIcon, size, className, showIcon = true, children }) {
   let badgeStyles = "bg-gray-100 text-gray-800 border-gray-200";
-  let Icon = Sparkles;
-  let label = children || tier;
+  let Icon = CustomIcon || Sparkles;
+  let label = children || tier || variant;
 
-  if (tier === "verified-high") {
+  const normalized = (tier || variant)?.toLowerCase().replace(/\s+/g, "-");
+
+  if (normalized === "verified-high") {
     badgeStyles = "bg-emerald-50 text-emerald-700 border-emerald-200/80 shadow-xs";
-    Icon = CheckCircle2;
-    label = children || "verified-high (QR-confirmed)";
-  } else if (tier === "verified-medium") {
+    Icon = CustomIcon || CheckCircle2;
+    label = children || "verified-high";
+  } else if (normalized === "verified") {
+    badgeStyles = "bg-emerald-50 text-emerald-700 border-emerald-200/80 shadow-xs";
+    Icon = CustomIcon || ShieldCheck;
+    label = children || "Verified Identity";
+  } else if (normalized === "verified-medium" || normalized === "tier1") {
     badgeStyles = "bg-amber-50 text-amber-700 border-amber-200/80 shadow-xs";
-    Icon = AlertTriangle;
-    label = children || "verified-medium (OCR-parsed)";
-  } else if (tier === "flagged-low") {
+    Icon = CustomIcon || AlertTriangle;
+    label = children || "verified-medium";
+  } else if (normalized === "flagged-low") {
     badgeStyles = "bg-rose-50 text-rose-700 border-rose-200/80 shadow-xs";
-    Icon = ShieldAlert;
-    label = children || "flagged-low (Self-submitted)";
+    Icon = CustomIcon || ShieldAlert;
+    label = children || "flagged-low";
   }
+
+  const sizeStyles =
+    size === "xs"
+      ? "text-[10px] px-2 py-0.5"
+      : size === "sm"
+      ? "text-xs px-2.5 py-0.5"
+      : "text-xs px-3 py-1";
 
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border transition-all",
+        "inline-flex items-center gap-1.5 rounded-full font-semibold border transition-all",
+        sizeStyles,
         badgeStyles,
         className
       )}
@@ -43,3 +48,4 @@ export default function Badge({ tier, className, showIcon = true, children }) {
     </span>
   );
 }
+

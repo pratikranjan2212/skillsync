@@ -15,24 +15,6 @@ import {
   ArrowLeft,
 } from "lucide-react";
 
-/**
- * Reusable Auth Required Gate View for protected sections (Skill Passport & Opportunities).
- * Prompts user to sign in, use 1-click instant demo access, or create an account,
- * while showcasing preview features unlocked upon authentication.
- *
- * @param {Object} props
- * @param {string} props.badgeText - e.g. "Verified Portable Skill Passport"
- * @param {React.ComponentType} [props.badgeIcon] - Lucide icon
- * @param {string} [props.badgeColor] - "amber" | "emerald" | "blue"
- * @param {string} props.title - Main header title
- * @param {string} props.subtitle - Descriptive subtitle
- * @param {string} props.sectionName - "Skill Passport" | "Opportunities Feed"
- * @param {Array<{icon: React.ComponentType, title: string, desc: string}>} [props.features]
- * @param {string} [props.publicLink] - Optional public preview link URL
- * @param {string} [props.publicLinkText] - Optional public preview link text
- * @param {string} [props.backLink] - Optional back link URL
- * @param {string} [props.backText] - Optional back link text
- */
 export default function AuthRequiredView({
   badgeText = "Authentication Required",
   badgeIcon: BadgeIcon = Lock,
@@ -101,8 +83,7 @@ export default function AuthRequiredView({
         </div>
       )}
 
-      {/* Main Hero Card */}
-      <div className="bg-white rounded-[32px] p-6 sm:p-10 shadow-md border border-black/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+      <div className="bg-white rounded-4xl p-6 sm:p-10 shadow-md border border-black/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
         <div className="max-w-2xl">
           <div className="flex items-center gap-2">
             <span className={`px-3.5 py-1 text-xs font-bold rounded-full border inline-flex items-center gap-1.5 ${badgeColorClasses}`}>
@@ -127,7 +108,6 @@ export default function AuthRequiredView({
             </div>
           )}
 
-          {/* Action Buttons */}
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <button
               type="button"
@@ -157,7 +137,6 @@ export default function AuthRequiredView({
           </div>
         </div>
 
-        {/* Lock Info Box */}
         <div className="bg-[#F8F9FA] rounded-2xl p-5 border border-black/5 flex flex-col gap-3 w-full md:w-80 shrink-0">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center text-amber-800 shrink-0">
@@ -185,7 +164,6 @@ export default function AuthRequiredView({
         </div>
       </div>
 
-      {/* Feature Preview Cards */}
       {features && features.length > 0 && (
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
@@ -223,3 +201,4 @@ export default function AuthRequiredView({
     </div>
   );
 }
+

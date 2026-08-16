@@ -1,48 +1,3 @@
-// SkillSync Official Data File - Skill Verification & Match Engine Content
-
-export const NAV_LINKS = [
-  { id: "verification-tiers", label: "Verification Tiers" },
-  { id: "skill-passport", label: "Skill Passport" },
-  { id: "match-engine", label: "Match Engine" },
-  { id: "fairness-audit", label: "Fairness Guarantee" },
-];
-
-export const HERO_INITIAL_VERIFICATIONS = [
-  {
-    id: "1",
-    title: "Data Pipeline Project",
-    type: "GitHub Repository",
-    tier: "verified-high",
-    tierLabel: "verified-high (QR-confirmed)",
-    badgeColor: "emerald",
-    completed: true,
-  },
-  {
-    id: "2",
-    title: "CS229 Machine Learning Grade (92%)",
-    type: "University Transcript",
-    tier: "verified-medium",
-    tierLabel: "verified-medium (OCR-parsed)",
-    badgeColor: "amber",
-    completed: true,
-  },
-  {
-    id: "3",
-    title: "Deep Learning Specialization",
-    type: "Coursera API Certificate",
-    tier: "verified-high",
-    tierLabel: "verified-high (API-confirmed)",
-    badgeColor: "emerald",
-    completed: true,
-  },
-];
-
-export const HERO_SKILL_SCORES = [
-  { label: "Python", percentage: "95%", icon: "Code2" },
-  { label: "SQL", percentage: "92%", icon: "Database" },
-  { label: "TensorFlow", percentage: "88%", icon: "Cpu" },
-];
-
 export const AUDIENCE_TAGS = [
   "#Students",
   "#Engineers",
@@ -50,68 +5,6 @@ export const AUDIENCE_TAGS = [
   "#DataScientists",
   "#Developers",
   "#Graduates",
-];
-
-export const MARQUEE_ITEMS_TOP = [
-  {
-    id: "m1",
-    type: "card",
-    title: "Python Data Pipelines",
-    subtitle: "verified-high (QR-confirmed)",
-    icon: "Code2",
-    bgColor: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  },
-  {
-    id: "m2",
-    type: "card",
-    title: "DBMS Coursework (92%)",
-    subtitle: "verified-medium (OCR-parsed)",
-    icon: "Database",
-    bgColor: "bg-amber-50 text-amber-700 border-amber-200",
-  },
-  {
-    id: "m3",
-    type: "card",
-    title: "Deep Learning Certificate",
-    subtitle: "verified-high (API-confirmed)",
-    icon: "Award",
-    bgColor: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  },
-  {
-    id: "m4",
-    type: "card",
-    title: "Hackathon Prototype",
-    subtitle: "flagged-low (Self-submitted)",
-    icon: "ShieldAlert",
-    bgColor: "bg-rose-50 text-rose-700 border-rose-200",
-  },
-];
-
-export const MARQUEE_ITEMS_BOTTOM = [
-  {
-    id: "mb1",
-    type: "card",
-    title: "ML Intern - DataCo",
-    subtitle: "82% Match • Adzuna API",
-    icon: "Sparkles",
-    bgColor: "bg-purple-50 text-purple-700 border-purple-200",
-  },
-  {
-    id: "mb2",
-    type: "card",
-    title: "Junior Data Engineer",
-    subtitle: "95% Match • Jooble API",
-    icon: "Briefcase",
-    bgColor: "bg-cyan-50 text-cyan-700 border-cyan-200",
-  },
-  {
-    id: "mb3",
-    type: "card",
-    title: "Frontend Dev Intern",
-    subtitle: "60% Match • Remotive API",
-    icon: "Laptop",
-    bgColor: "bg-[#F5F5F3] text-neutral-800 border-black/10",
-  },
 ];
 
 export const FAIRNESS_EXCLUDED_PARAMS = [
@@ -200,30 +93,6 @@ export const SMART_ASSIST_CARDS = [
     cardShadow: "shadow-[0_20px_50px_-6px_rgba(0,0,0,0.15),0_10px_30px_-4px_rgba(17,17,17,0.25)] border-b-[5px] border-b-neutral-900/50 hover:border-b-neutral-900 hover:shadow-[0_30px_70px_-8px_rgba(17,17,17,0.45),0_15px_35px_-5px_rgba(0,0,0,0.18)]",
     title: "Non-Discriminatory Ranking Core",
     description: "Matches candidates strictly on verified skill vectors while masking demographic factors for 100% fair evaluation.",
-  },
-];
-
-export const MASONRY_REVIEWS = [
-  {
-    id: "r1",
-    quote: "SkillSync made my coursework count! My machine learning project got automatically verified with a QR signature.",
-    name: "Maya Zong",
-    role: "Computer Science Student",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200&auto=format&fit=crop",
-  },
-  {
-    id: "r2",
-    quote: "The explainable match card literally listed why I matched 82% with DataCo — citing my SQL coursework and Python pipeline.",
-    name: "Ethan Miller",
-    role: "Junior Data Engineer",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&auto=format&fit=crop",
-  },
-  {
-    id: "r3",
-    quote: "As an admin, being able to audit model parameters and override evidence tiers in real-time gives complete peace of mind.",
-    name: "Hannah Lee",
-    role: "Academic Compliance Lead",
-    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop",
   },
 ];
 

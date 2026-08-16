@@ -1,5 +1,3 @@
-// SkillSync Mock Data Store - Section 4 Data Contracts
-
 export const INITIAL_EVIDENCE = [
   {
     id: "ev-101",
@@ -75,44 +73,114 @@ export const INITIAL_SKILL_TAXONOMY = [
 ];
 
 export const INITIAL_PASSPORT = {
-  studentId: "std-101",
+  studentId: "SS-2024-7F8A2B",
+  studentName: "Ananya Sharma",
+  gender: "Female",
+  dob: "12 May 2003",
+  college: "Ramaiah Institute of Technology",
+  degree: "B.Tech in Computer Science & Engineering (Pursuing)",
+  batch: "2022 – 2026",
+  photoUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=800&auto=format&fit=crop",
+  verified: true,
+  issuer: "SkillSync Verifiable Credential Engine",
+  credentialHash: "0x7F8A2B9942ACD081884C7D659A2FEAA015A3BF4F",
   shareToken: "sp-token-9942a",
   isPublic: true,
   updatedAt: "2026-08-13T12:00:00Z",
   skills: [
     {
+      skillId: "sk-3",
+      name: "React.js",
+      category: "Frontend Web",
+      icon: "react",
+      level: "Advanced",
+      endorsements: 14,
+      evidence: [
+        { id: "ev-104", title: "EcoTrack & Hackathon 2026 Component Architecture", tier: "verified-high", hash: "sha256:11223344" },
+        { id: "ev-105", title: "Advanced React & Next.js Design Patterns Certification", tier: "verified-high", hash: "sha256:55667788" }
+      ]
+    },
+    {
+      skillId: "sk-node",
+      name: "Node.js",
+      category: "Backend Engineering",
+      icon: "nodejs",
+      level: "Advanced",
+      endorsements: 11,
+      evidence: [
+        { id: "ev-106", title: "ShopNest REST & Microservices Architecture", tier: "verified-high", hash: "sha256:99aabbcc" },
+        { id: "ev-107", title: "NexusChat Socket.io Realtime Server Suite", tier: "verified-medium", hash: "sha256:ddeeff00" }
+      ]
+    },
+    {
       skillId: "sk-1",
       name: "Python",
       category: "Programming Languages",
+      icon: "python",
+      level: "Advanced",
+      endorsements: 19,
       evidence: [
-        { id: "ev-101", title: "'Data Pipeline Project' — verified-high (QR-confirmed)", tier: "verified-high" },
-        { id: "ev-103", title: "Deep Learning Specialization — verified-high (API-confirmed)", tier: "verified-high" }
+        { id: "ev-101", title: "ETL Data Pipeline & Pandas Pipeline Demo", tier: "verified-high", hash: "sha256:9f86d081" },
+        { id: "ev-103", title: "Deep Learning Specialization - Coursera", tier: "verified-high", hash: "sha256:7c8b9a0f" }
       ]
     },
     {
-      skillId: "sk-2",
-      name: "SQL",
-      category: "Databases",
+      skillId: "sk-js",
+      name: "JavaScript",
+      category: "Frontend & Scripting",
+      icon: "javascript",
+      level: "Expert",
+      endorsements: 22,
       evidence: [
-        { id: "ev-102", title: "DBMS coursework, 92% — verified-medium (OCR-parsed)", tier: "verified-medium" },
-        { id: "ev-101", title: "'Data Pipeline Project' — verified-high (QR-confirmed)", tier: "verified-high" }
+        { id: "ev-108", title: "Full-Stack Web Dev Capstone (Grade 96%)", tier: "verified-high", hash: "sha256:33445566" },
+        { id: "ev-109", title: "Asynchronous JS & State Engine Lab", tier: "verified-medium", hash: "sha256:778899aa" }
       ]
     },
     {
-      skillId: "sk-4",
-      name: "TensorFlow",
-      category: "AI & Machine Learning",
+      skillId: "sk-git",
+      name: "Git & GitHub",
+      category: "DevOps & Tooling",
+      icon: "git",
+      level: "Advanced",
+      endorsements: 16,
       evidence: [
-        { id: "ev-103", title: "Deep Learning Specialization — verified-high (API-confirmed)", tier: "verified-high" }
+        { id: "ev-110", title: "Verified 200+ Open Source Commits & Signed GPG Keys", tier: "verified-high", hash: "sha256:bbccddee" }
       ]
+    }
+  ],
+  projects: [
+    {
+      id: "proj-1",
+      title: "EcoTrack – Carbon Footprint Tracker",
+      description: "A web application to track and analyze carbon footprint using interactive dashboards and ML insights.",
+      icon: "leaf",
+      color: "emerald",
+      githubUrl: "https://github.com/ananya-sharma/ecotrack",
+      liveUrl: "https://ecotrack.skillsync.dev",
+      skills: ["React.js", "Python", "Tailwind CSS"],
+      verified: true
     },
     {
-      skillId: "sk-7",
-      name: "Tailwind CSS",
-      category: "Frontend Web",
-      evidence: [
-        { id: "ev-104", title: "Hackathon 2026 — flagged-low (Self-submitted)", tier: "flagged-low" }
-      ]
+      id: "proj-2",
+      title: "ShopNest – E-commerce Web App",
+      description: "Full-stack e-commerce platform with authentication, payment integration, and order management.",
+      icon: "cart",
+      color: "purple",
+      githubUrl: "https://github.com/ananya-sharma/shopnest",
+      liveUrl: "https://shopnest.skillsync.dev",
+      skills: ["React.js", "Node.js", "JavaScript"],
+      verified: true
+    },
+    {
+      id: "proj-3",
+      title: "NexusChat – Real-time Chat Application",
+      description: "Real-time chat application using Socket.io, Express.js, and MongoDB.",
+      icon: "chat",
+      color: "blue",
+      githubUrl: "https://github.com/ananya-sharma/nexuschat",
+      liveUrl: "https://nexuschat.skillsync.dev",
+      skills: ["Node.js", "JavaScript", "Git & GitHub"],
+      verified: true
     }
   ]
 };
@@ -135,8 +203,8 @@ export const INITIAL_OPPORTUNITIES = [
       opportunity: "ML Intern - DataCo (via Adzuna)",
       matchScore: 0.82,
       supportingEvidence: [
-        { skill: "Python", evidence: "'Data Pipeline Project' — verified-high (QR-confirmed)" },
-        { skill: "SQL", evidence: "DBMS coursework, 92% — verified-medium (OCR-parsed)" }
+        { skill: "Python", evidence: "'Data Pipeline Project' — verified-high" },
+        { skill: "SQL", evidence: "DBMS coursework, 92% — verified-medium" }
       ],
       missingSkills: ["Docker", "REST API design"],
       excludedFromRanking: ["gender", "college tier", "name", "photo"]
@@ -159,9 +227,9 @@ export const INITIAL_OPPORTUNITIES = [
       opportunity: "Junior Data Engineer - Nexus Insights (via Jooble)",
       matchScore: 0.95,
       supportingEvidence: [
-        { skill: "Python", evidence: "'Data Pipeline Project' — verified-high (QR-confirmed)" },
-        { skill: "SQL", evidence: "DBMS coursework, 92% — verified-medium (OCR-parsed)" },
-        { skill: "Data Engineering", evidence: "'Data Pipeline Project' — verified-high (QR-confirmed)" }
+        { skill: "Python", evidence: "'Data Pipeline Project' — verified-high" },
+        { skill: "SQL", evidence: "DBMS coursework, 92% — verified-medium" },
+        { skill: "Data Engineering", evidence: "'Data Pipeline Project' — verified-high" }
       ],
       missingSkills: [],
       excludedFromRanking: ["gender", "college tier", "name", "photo"]
@@ -184,7 +252,7 @@ export const INITIAL_OPPORTUNITIES = [
       opportunity: "Frontend Developer Intern - CloudCanvas (via Remotive)",
       matchScore: 0.60,
       supportingEvidence: [
-        { skill: "Tailwind CSS", evidence: "Hackathon 2026 — flagged-low (Self-submitted)" }
+        { skill: "Tailwind CSS", evidence: "Hackathon 2026 — flagged-low" }
       ],
       missingSkills: ["React.js", "REST API design"],
       excludedFromRanking: ["gender", "college tier", "name", "photo"]

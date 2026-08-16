@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "SkillSync | Automated Skill Passport & Match Engine",
+  title: "SkillSync - Automated Skill Passport & Match Engine",
   description: "SkillSync automatically verifies coursework & credentials into a portable Skill Passport, matching students with internships through an explainable, fair matching engine.",
   icons: {
     icon: "/logo.svg",

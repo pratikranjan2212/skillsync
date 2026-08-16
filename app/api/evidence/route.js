@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
 import { INITIAL_EVIDENCE } from "@/app/data/mockData";
 
-// In-memory state for mock API persistence during session
 let evidenceStore = [...INITIAL_EVIDENCE];
 
 export async function GET(request) {
-  // TODO: replace mock once /api/evidence backend service is live
   return NextResponse.json({ success: true, evidence: evidenceStore });
 }
 
@@ -14,7 +12,6 @@ export async function POST(request) {
     const body = await request.json();
     const { type, title, description, fileUrl, claimedSkills = [], hasQrCode } = body;
 
-    // Automated verification tier decision logic
     let tier = "verified-medium";
     let reason = "OCR-parsed document verification completed";
 
@@ -49,3 +46,4 @@ export async function POST(request) {
     return NextResponse.json({ error: "Failed to submit evidence" }, { status: 400 });
   }
 }
+

@@ -1,16 +1,6 @@
-// Rolling Text Animation with Advanced Animation Patterns
-// Adds new animation options: bounce, wave, elastic, spring, easeIn, easeOut, easeInOut, and more
-// New features: Animation direction, Custom character sets, Performance & Accessibility
-
 import React, { useState, useEffect, useRef, useMemo, startTransition } from "react"
 import { motion, useInView } from "framer-motion"
 
-/**
- * Vertical Text Rolling Animation (Advanced)
- *
- * Each character position shows a vertical column of characters rolling to reveal the final character.
- * Now with animation direction control, custom character sets, and accessibility features.
- */
 export default function RollingText(props) {
     const {
         mode = "text",
@@ -43,13 +33,11 @@ export default function RollingText(props) {
     const containerRef = useRef(null)
     const isInView = useInView(containerRef, { once: true })
 
-    // Determine what text to display based on mode
     const displayText =
         mode === "number" ? `${prefix}${finalNumber}${suffix}` : text
     const initialText =
         mode === "number" ? `${prefix}${initialNumber}${suffix}` : text
 
-    // Helper to determine if a character at a given index is prefix or suffix
     const isPrefixOrSuffix = (index) => {
         if (mode !== "number") return false
         const prefixLength = prefix.length
@@ -107,7 +95,6 @@ export default function RollingText(props) {
         [characters, staggerDelay]
     )
 
-    // For wave, bounce, elastic, spring, easeIn, easeOut, easeInOut, set up pattern-specific delays and easings
     function getDelay(index) {
         const baseDelay = (() => {
             switch (animationPattern) {
@@ -161,24 +148,18 @@ export default function RollingText(props) {
             case "easeInOut":
                 return [0.42, 0, 0.58, 1]
             default:
-                return [0.22, 1, 0.36, 1] // Quintic smooth cubic-bezier for liquid motion
+                return [0.22, 1, 0.36, 1]
         }
     }
 
-
-    // Generate character set for rolling effect
     function generateCharacterSet(targetChar, charIndex) {
         if (mode === "number") {
-            // Check if the current character is a digit
             if (!/^\d$/.test(targetChar)) {
-                // If it's not a digit (prefix/suffix), just return the character as-is
                 return [targetChar]
             }
 
-            // For number mode, generate a sequence from initial digit to target digit
             const targetDigit = parseInt(targetChar, 10)
 
-            // Find the corresponding digit in the initial text
             let initialDigit = 0
             if (charIndex < initialText.length) {
                 const initialChar = initialText[charIndex]
@@ -188,11 +169,8 @@ export default function RollingText(props) {
             }
 
             const sequence = []
-
-            // Start with the initial digit
             sequence.push(initialDigit.toString())
 
-            // Add intermediate digits for rolling effect
             const count = Math.max(1, duplicateCount - 1)
             for (let i = 0; i < count; i++) {
                 sequence.push(targetChar)
@@ -202,26 +180,23 @@ export default function RollingText(props) {
         }
 
         if (!useCustomCharacterSet) {
-            // Default behavior: roll character exactly duplicateCount times (default 2 = roll once)
             return Array(Math.max(2, duplicateCount)).fill(targetChar)
         }
 
         const chars = customCharacterSet.split("")
         const result = []
 
-        // Start with target character, fill with random characters, end with target character
-        result.push(targetChar) // Always start with the target character
+        result.push(targetChar)
         const extraCount = Math.max(2, duplicateCount) - 2
         for (let i = 0; i < extraCount; i++) {
             const randomChar = chars[(i * 7 + targetChar.charCodeAt(0)) % chars.length]
             result.push(randomChar)
         }
-        result.push(targetChar) // Always end with the target character
+        result.push(targetChar)
 
         return result
     }
 
-    // If reduced motion is preferred, show static text
     if (prefersReducedMotion && respectReducedMotion) {
         return (
             <div
@@ -293,7 +268,6 @@ export default function RollingText(props) {
                         {separator &&
                             (() => {
                                 if (mode === "number") {
-                                    // For numbers, only add separator after every 3 digits from the right
                                     const totalLength = displayText.length
                                     const suffixLength = suffix.length
                                     const prefixLength = prefix.length
@@ -302,19 +276,16 @@ export default function RollingText(props) {
                                         prefixLength -
                                         suffixLength
 
-                                    // Check if current position is within the number part
                                     const isInNumberPart =
                                         index >= prefixLength &&
                                         index < totalLength - suffixLength
 
                                     if (isInNumberPart) {
-                                        // Calculate position from right within the number part only
                                         const positionInNumber =
                                             index - prefixLength
                                         const positionFromRightInNumber =
                                             numberLength - 1 - positionInNumber
 
-                                        // Add separator if position from right is divisible by 3 and not at the end
                                         const shouldAddSeparator =
                                             positionFromRightInNumber > 0 &&
                                             positionFromRightInNumber % 3 === 0
@@ -334,7 +305,6 @@ export default function RollingText(props) {
                                     }
                                     return null
                                 } else {
-                                    // For text mode, add separator between all characters
                                     if (index < characters.length - 1) {
                                         return (
                                             <span
@@ -372,15 +342,12 @@ function CharacterColumn({
     ease,
     animationDirection,
 }) {
-    // Calculate the height needed to show one character
     const lineHeight = parseFloat(font?.lineHeight || "1.2em")
     const fontSize = parseFloat(font?.fontSize || "16px")
     const characterHeight = fontSize * lineHeight
 
-    // Calculate total scroll distance (all characters minus the final visible one)
     const totalScrollDistance = characterHeight * (characterSet.length - 1)
 
-    // Determine animation direction
     let shouldRollFromBottom = false
 
     if (animationDirection === "down") {
@@ -388,13 +355,11 @@ function CharacterColumn({
     } else if (animationDirection === "up") {
         shouldRollFromBottom = false
     } else {
-        // auto
         const isOddPosition = characterIndex % 2 === 1
         shouldRollFromBottom =
             animationPattern === "alternating" ? isOddPosition : false
     }
 
-    // Set initial and final positions based on direction
     const initialY = shouldRollFromBottom ? -totalScrollDistance : 0
     const finalY = shouldRollFromBottom ? 0 : -totalScrollDistance
 
@@ -451,3 +416,4 @@ function CharacterColumn({
         </div>
     )
 }
+

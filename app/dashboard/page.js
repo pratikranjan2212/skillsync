@@ -6,15 +6,11 @@ import { useQuery } from "@tanstack/react-query";
 import {
   FileCheck,
   Award,
-  Briefcase,
-  Scale,
   PlusCircle,
   RefreshCw,
   AlertCircle,
   ShieldCheck,
   Sparkles,
-  Search,
-  Filter,
   Layers,
   ListFilter,
   Database,
@@ -29,14 +25,13 @@ import {
 import Navbar from "@/app/components/layout/Navbar";
 import EvidenceCard from "@/app/components/evidence/EvidenceCard";
 import ShareExportButtons from "@/app/components/passport/ShareExportButtons";
-import OpportunityCard from "@/app/components/opportunities/OpportunityCard";
+import InteractivePassportCard from "@/app/components/passport/InteractivePassportCard";
 import Badge from "@/app/components/ui/Badge";
 import AuthRequiredView from "@/app/components/auth/AuthRequiredView";
 import { useAuth } from "@/app/hooks/useAuth";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { useForm } from "react-hook-form";
 
-// API Fetchers
 async function fetchEvidence() {
   const res = await fetch("/api/evidence");
   if (!res.ok) throw new Error("Failed to fetch evidence");
@@ -49,13 +44,6 @@ async function fetchPassport() {
   if (!res.ok) throw new Error("Failed to fetch passport");
   const data = await res.json();
   return data.passport;
-}
-
-async function fetchOpportunities() {
-  const res = await fetch("/api/opportunities");
-  if (!res.ok) throw new Error("Failed to fetch opportunities");
-  const data = await res.json();
-  return data.opportunities || [];
 }
 
 async function fetchPipelineLog() {
@@ -78,21 +66,13 @@ async function fetchFairnessAudits() {
   return res.json();
 }
 
-/**
- * Unified Dashboard Screen.
- * Integrates Evidence Records, Skill Passport Export, Ingested Opportunities,
- * and Governance Fairness Auditing into a single dashboard.
- */
 export default function UnifiedDashboardPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
-  const [activeTab, setActiveTab] = useState("evidence"); // evidence | passport | opportunities | governance
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedSource, setSelectedSource] = useState("all");
+  const [activeTab, setActiveTab] = useState("evidence");
   const [overrideModalItem, setOverrideModalItem] = useState(null);
   const [selectedTier, setSelectedTier] = useState("verified-high");
   const [isAddSkillOpen, setIsAddSkillOpen] = useState(false);
 
-  // Queries
   const { data: evidenceList = [], isLoading: loadingEv, refetch: refetchEv } = useQuery({
     queryKey: ["dash-evidence"],
     queryFn: fetchEvidence,
@@ -102,12 +82,6 @@ export default function UnifiedDashboardPage() {
   const { data: passport, isLoading: loadingPass, refetch: refetchPass } = useQuery({
     queryKey: ["dash-passport"],
     queryFn: fetchPassport,
-    enabled: isAuthenticated,
-  });
-
-  const { data: opportunities = [], isLoading: loadingOpp, refetch: refetchOpp } = useQuery({
-    queryKey: ["dash-opportunities"],
-    queryFn: fetchOpportunities,
     enabled: isAuthenticated,
   });
 
@@ -131,7 +105,6 @@ export default function UnifiedDashboardPage() {
 
   const { register: regSkill, handleSubmit: submitSkill, reset: resetSkill } = useForm();
 
-  // Tier Counters
   const highCount = evidenceList.filter((e) => e.verificationTier === "verified-high").length;
   const medCount = evidenceList.filter((e) => e.verificationTier === "verified-medium").length;
   const lowCount = evidenceList.filter((e) => e.verificationTier === "flagged-low").length;
@@ -146,7 +119,7 @@ export default function UnifiedDashboardPage() {
             badgeIcon={LayoutDashboard}
             badgeColor="emerald"
             title="SkillSync Dashboard Access"
-            subtitle="Sign in to manage your evidence records, view your Skill Passport, explore matched opportunities, and monitor governance audits."
+            subtitle="Sign in to manage your evidence records, view your Skill Passport, and monitor pipeline audit logs."
             sectionName="Dashboard"
             features={[
               {
@@ -160,9 +133,9 @@ export default function UnifiedDashboardPage() {
                 desc: "Group verified skills into taxonomy domains, generate official PDF transcripts, and toggle public share links.",
               },
               {
-                icon: Briefcase,
-                title: "Personalized Job Match Engine",
-                desc: "Explore AI-ranked internships with explainable score breakdowns and zero demographic bias.",
+                icon: SlidersHorizontal,
+                title: "Pipeline & Audit Governance",
+                desc: "Monitor multi-stage verification audit logs, score distributions, and custom taxonomy catalog.",
               },
             ]}
           />
@@ -171,7 +144,6 @@ export default function UnifiedDashboardPage() {
     );
   }
 
-  // Handlers
   const handleTogglePublic = async (isPublic) => {
     await fetch("/api/passport", {
       method: "POST",
@@ -210,18 +182,6 @@ export default function UnifiedDashboardPage() {
     refetchTax();
   };
 
-  // Filtered Opportunities
-  const filteredOpportunities = opportunities.filter((op) => {
-    const matchesKeyword =
-      op.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      op.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      op.requiredSkills.some((s) => s.toLowerCase().includes(searchTerm.toLowerCase()));
-
-    const matchesSource = selectedSource === "all" || op.sourceApi.toLowerCase() === selectedSource.toLowerCase();
-
-    return matchesKeyword && matchesSource;
-  });
-
   const auditLogs = fairnessData?.audits || [];
   const excludedParameters = fairnessData?.excludedParameters || ["gender", "college tier", "name", "photo"];
   const chartData = auditLogs[0]?.scoreDistribution || [
@@ -236,8 +196,7 @@ export default function UnifiedDashboardPage() {
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col gap-8">
-        {/* Main Dashboard Header */}
-        <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-md border border-black/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="bg-white rounded-4xl p-6 sm:p-8 shadow-md border border-black/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div>
             <div className="flex items-center gap-2">
               <span className="px-3.5 py-1 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-full border border-emerald-200">
@@ -249,7 +208,7 @@ export default function UnifiedDashboardPage() {
               Integrated Verification & Match Console
             </h1>
             <p className="text-sm text-[#494D4D] mt-1 max-w-2xl">
-              Access your verified evidence records, Skill Passport exports, ingested opportunity rankings, and fairness governance in one place.
+              Access your verified evidence records, Skill Passport exports, and automated audit pipeline in one place.
             </p>
           </div>
 
@@ -264,14 +223,12 @@ export default function UnifiedDashboardPage() {
           </div>
         </div>
 
-        {/* Dashboard Navigation Tabs */}
-        <div className="bg-white rounded-[24px] p-2 shadow-md border border-black/5 flex items-center justify-between gap-2 overflow-x-auto">
+        <div className="bg-white rounded-3xl p-2 shadow-md border border-black/5 flex items-center justify-between gap-2 overflow-x-auto">
           <div className="flex items-center gap-1 min-w-max">
             {[
               { id: "evidence", label: "Evidence Records", icon: FileCheck, count: evidenceList.length },
               { id: "passport", label: "Skill Passport", icon: Award, count: passport?.skills?.length || 0 },
-              { id: "opportunities", label: "Opportunity Feed", icon: Briefcase, count: opportunities.length },
-              { id: "governance", label: "Fairness & Governance", icon: Scale },
+              { id: "audit", label: "Audit & Pipeline Console", icon: SlidersHorizontal },
             ].map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -279,7 +236,7 @@ export default function UnifiedDashboardPage() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`inline-flex items-center gap-2 px-5 py-3 rounded-2xl text-xs font-bold transition-all ${
+                  className={`inline-flex items-center gap-2 px-5 py-3 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
                     isActive
                       ? "bg-neutral-900 text-white shadow-sm"
                       : "text-[#494D4D] hover:text-[#111111] hover:bg-[#F5F5F3]"
@@ -303,12 +260,10 @@ export default function UnifiedDashboardPage() {
           </div>
         </div>
 
-        {/* ==================== TAB 1: EVIDENCE RECORDS ==================== */}
         {activeTab === "evidence" && (
           <div className="flex flex-col gap-6">
-            {/* Verification Tier Summary Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="bg-white rounded-[24px] p-5 shadow-xs border border-black/5 flex items-center justify-between">
+              <div className="bg-white rounded-3xl p-5 shadow-xs border border-black/5 flex items-center justify-between">
                 <div>
                   <div className="text-xs font-bold uppercase tracking-wider text-[#494D4D]">Verified High Tier</div>
                   <div className="text-2xl font-extrabold text-emerald-700 mt-1">{highCount} Items</div>
@@ -318,7 +273,7 @@ export default function UnifiedDashboardPage() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-[24px] p-5 shadow-xs border border-black/5 flex items-center justify-between">
+              <div className="bg-white rounded-3xl p-5 shadow-xs border border-black/5 flex items-center justify-between">
                 <div>
                   <div className="text-xs font-bold uppercase tracking-wider text-[#494D4D]">Verified Medium Tier</div>
                   <div className="text-2xl font-extrabold text-amber-700 mt-1">{medCount} Items</div>
@@ -328,7 +283,7 @@ export default function UnifiedDashboardPage() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-[24px] p-5 shadow-xs border border-black/5 flex items-center justify-between">
+              <div className="bg-white rounded-3xl p-5 shadow-xs border border-black/5 flex items-center justify-between">
                 <div>
                   <div className="text-xs font-bold uppercase tracking-wider text-[#494D4D]">Flagged Low Tier</div>
                   <div className="text-2xl font-extrabold text-rose-700 mt-1">{lowCount} Items</div>
@@ -339,7 +294,6 @@ export default function UnifiedDashboardPage() {
               </div>
             </div>
 
-            {/* Evidence Header */}
             <div className="flex items-center justify-between gap-4">
               <h2 className="text-xl font-bold text-[#111111]">
                 Coursework & Evidence Items ({evidenceList.length})
@@ -353,9 +307,8 @@ export default function UnifiedDashboardPage() {
               </button>
             </div>
 
-            {/* Evidence Grid */}
             {evidenceList.length === 0 ? (
-              <div className="bg-white rounded-[32px] p-12 text-center border border-black/5 shadow-sm flex flex-col items-center gap-4">
+              <div className="bg-white rounded-4xl p-12 text-center border border-black/5 shadow-sm flex flex-col items-center gap-4">
                 <FilePlus2 className="w-10 h-10 text-neutral-300" />
                 <h3 className="text-xl font-bold text-[#111111]">No Evidence Uploaded Yet</h3>
                 <Link
@@ -375,113 +328,18 @@ export default function UnifiedDashboardPage() {
           </div>
         )}
 
-        {/* ==================== TAB 2: SKILL PASSPORT ==================== */}
         {activeTab === "passport" && passport && (
-          <div className="flex flex-col gap-6">
-            <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-md border border-black/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-              <div>
-                <span className="px-3.5 py-1 bg-amber-50 text-amber-800 text-xs font-bold rounded-full border border-amber-200">
-                  Verified Skill Passport
-                </span>
-                <h2 className="text-2xl font-black text-[#111111] mt-2">Skills Grouped by Taxonomy</h2>
-                <p className="text-xs text-[#494D4D] mt-1">Export signed PDF or toggle public link.</p>
-              </div>
-
-              <ShareExportButtons
-                passportData={passport}
-                isPublic={passport.isPublic}
-                shareToken={passport.shareToken}
-                onTogglePublic={handleTogglePublic}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {passport.skills.map((skillItem) => (
-                <div
-                  key={skillItem.skillId}
-                  className="bg-white rounded-[28px] p-6 shadow-sm border border-black/5 flex flex-col justify-between gap-4"
-                >
-                  <div>
-                    <span className="px-3 py-1 bg-[#F5F5F3] text-[#494D4D] text-[11px] font-bold uppercase tracking-wider rounded-xl border border-black/5">
-                      {skillItem.category}
-                    </span>
-                    <h3 className="text-xl font-extrabold text-[#111111] mt-2.5 flex items-center gap-2">
-                      <Layers className="w-5 h-5 text-emerald-600 shrink-0" />
-                      {skillItem.name}
-                    </h3>
-
-                    <div className="mt-4 flex flex-col gap-2">
-                      <div className="text-[11px] font-bold uppercase tracking-wider text-[#494D4D]">
-                        Supporting Evidence ({skillItem.evidence?.length || 0}):
-                      </div>
-                      {skillItem.evidence.map((ev, idx) => (
-                        <div
-                          key={idx}
-                          className="bg-[#F8F9FA] p-3 rounded-2xl border border-black/5 flex items-center justify-between gap-2 text-xs"
-                        >
-                          <span className="font-semibold text-[#111111]">{ev.title}</span>
-                          <Badge tier={ev.tier} showIcon={false} />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+          <div className="flex justify-center w-full py-2">
+            <InteractivePassportCard 
+              passportData={passport} 
+              onTogglePublic={handleTogglePublic}
+            />
           </div>
         )}
 
-        {/* ==================== TAB 3: OPPORTUNITIES FEED ==================== */}
-        {activeTab === "opportunities" && (
-          <div className="flex flex-col gap-6">
-            {/* Filter Bar */}
-            <div className="bg-white rounded-[24px] p-4 shadow-sm border border-black/5 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="relative w-full sm:w-80">
-                <Search className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3.5" />
-                <input
-                  type="text"
-                  placeholder="Search role, company, or skill..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                />
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1 bg-[#F5F5F3] p-1 rounded-2xl border border-black/5 text-xs font-bold">
-                  {["all", "adzuna", "jooble", "remotive"].map((src) => (
-                    <button
-                      key={src}
-                      onClick={() => setSelectedSource(src)}
-                      className={`px-3 py-1.5 rounded-xl uppercase text-[11px] ${
-                        selectedSource === src ? "bg-neutral-900 text-white" : "text-[#494D4D]"
-                      }`}
-                    >
-                      {src}
-                    </button>
-                  ))}
-                </div>
-
-                <button onClick={() => refetchOpp()} className="p-2.5 bg-[#F5F5F3] rounded-2xl border border-black/5">
-                  <RefreshCw className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            {/* Opportunities Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredOpportunities.map((op) => (
-                <OpportunityCard key={op.id} opportunity={op} />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* ==================== TAB 4: GOVERNANCE & FAIRNESS AUDIT ==================== */}
-        {activeTab === "governance" && (
+        {activeTab === "audit" && (
           <div className="flex flex-col gap-8">
-            {/* Explicit Fairness Guarantee Callout */}
-            <div className="bg-gradient-to-r from-neutral-900 via-slate-900 to-neutral-900 text-white rounded-[32px] p-6 sm:p-8 shadow-xl border border-slate-800 flex flex-col gap-4" data-spark-color="#ffffff">
+            <div className="bg-linear-to-r from-neutral-900 via-slate-900 to-neutral-900 text-white rounded-4xl p-6 sm:p-8 shadow-xl border border-slate-800 flex flex-col gap-4" data-spark-color="#ffffff">
               <div className="flex items-center justify-between gap-3" data-spark-color="#ffffff">
                 <div className="flex items-center gap-3" data-spark-color="#ffffff">
                   <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30" data-spark-color="#ffffff">
@@ -516,8 +374,7 @@ export default function UnifiedDashboardPage() {
               </div>
             </div>
 
-            {/* Recharts Score Distribution Chart */}
-            <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-md border border-black/5 flex flex-col gap-4">
+            <div className="bg-white rounded-4xl p-6 sm:p-8 shadow-md border border-black/5 flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-bold text-[#111111] flex items-center gap-2">
@@ -549,8 +406,7 @@ export default function UnifiedDashboardPage() {
               </div>
             </div>
 
-            {/* Pipeline Audit Log Table */}
-            <div className="bg-white rounded-[32px] p-6 shadow-md border border-black/5 overflow-x-auto">
+            <div className="bg-white rounded-4xl p-6 shadow-md border border-black/5 overflow-x-auto">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-[#111111] flex items-center gap-2">
                   <ListFilter className="w-5 h-5 text-emerald-600" />
@@ -558,7 +414,7 @@ export default function UnifiedDashboardPage() {
                 </h3>
               </div>
 
-              <table className="w-full text-left border-collapse min-w-[700px]">
+              <table className="w-full text-left border-collapse min-w-175">
                 <thead>
                   <tr className="border-b border-neutral-200 text-[11px] font-bold uppercase tracking-wider text-[#494D4D]">
                     <th className="pb-3 px-3">Student ID</th>
@@ -600,8 +456,7 @@ export default function UnifiedDashboardPage() {
               </table>
             </div>
 
-            {/* Skill Taxonomy Manager */}
-            <div className="bg-white rounded-[32px] p-6 shadow-md border border-black/5 flex flex-col gap-4">
+            <div className="bg-white rounded-4xl p-6 shadow-md border border-black/5 flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-bold text-[#111111] flex items-center gap-2">
@@ -636,10 +491,9 @@ export default function UnifiedDashboardPage() {
           </div>
         )}
 
-        {/* Manual Tier Override Modal */}
         {overrideModalItem && (
           <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white rounded-[32px] p-6 max-w-md w-full border border-black/5 shadow-2xl flex flex-col gap-5">
+            <div className="bg-white rounded-4xl p-6 max-w-md w-full border border-black/5 shadow-2xl flex flex-col gap-5">
               <div>
                 <h3 className="text-xl font-extrabold text-[#111111]">Manual Tier Override</h3>
                 <p className="text-xs text-[#494D4D] mt-1">{overrideModalItem.title}</p>
@@ -672,10 +526,9 @@ export default function UnifiedDashboardPage() {
           </div>
         )}
 
-        {/* Add Skill Modal */}
         {isAddSkillOpen && (
           <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white rounded-[32px] p-6 max-w-md w-full border border-black/5 shadow-2xl flex flex-col gap-4">
+            <div className="bg-white rounded-4xl p-6 max-w-md w-full border border-black/5 shadow-2xl flex flex-col gap-4">
               <h3 className="text-xl font-extrabold text-[#111111]">Add Skill to Taxonomy</h3>
               <form onSubmit={submitSkill(handleAddSkill)} className="flex flex-col gap-3">
                 <input
@@ -706,3 +559,4 @@ export default function UnifiedDashboardPage() {
     </div>
   );
 }
+

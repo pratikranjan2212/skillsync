@@ -3,12 +3,9 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, LayoutDashboard, Award, Briefcase, LogIn, UserPlus, LogOut } from "lucide-react";
+import { Menu, X, LayoutDashboard, Award, Briefcase, LogIn, UserPlus, LogOut, User } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 
-/**
- * Universal Unified Navbar for SkillSync across all pages.
- */
 export default function Navbar() {
   const pathname = usePathname();
   const { data: session } = useSession();
@@ -30,7 +27,6 @@ export default function Navbar() {
         setIsScrolled(false);
       }
 
-      // Detect scrolling up vs scrolling down anywhere on the landing page
       if (currentScrollY < lastScrollY && currentScrollY > 50) {
         setIsScrollingUp(true);
       } else {
@@ -45,7 +41,6 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // On individual pages, components are permanently stuck together with no scroll-driven expansion/animation
   const isDocked = !isHomePage || (isScrolled && !isScrollingUp);
 
   const [hasAuthCookie, setHasAuthCookie] = useState(false);
@@ -70,23 +65,18 @@ export default function Navbar() {
       e.stopPropagation();
     }
     try {
-      // Clear all authentication cookies client-side
       document.cookie = "skillsync_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
       document.cookie = "next-auth.session-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
       document.cookie = "skillsync_role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
       document.cookie = "__Secure-next-auth.session-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
 
-      // Clear server-side session cookies
       await fetch("/api/auth/signout", { method: "POST" }).catch(() => {});
 
-      // Trigger NextAuth signOut
       try {
         await signOut({ redirect: false });
       } catch {
-        // continue
       }
 
-      // Force full reload and redirect to landing page
       window.location.href = "/";
     } catch {
       window.location.href = "/";
@@ -106,10 +96,9 @@ export default function Navbar() {
             isHomePage ? "transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]" : ""
           } ${isDocked ? "gap-2 sm:gap-3" : "gap-5 md:gap-8 lg:gap-12"}`}
         >
-          {/* Left Pill: Logo */}
           <div
             onClick={(e) => e.stopPropagation()}
-            className={`pointer-events-auto bg-white rounded-2xl flex items-center shadow-lg border border-black/5 px-5 py-[18px] shrink-0 ${
+            className={`pointer-events-auto bg-white rounded-2xl flex items-center shadow-lg border border-black/5 px-5 py-[18px] hover:scale-95 shrink-0 ${
               isHomePage ? "transition-all duration-500" : ""
             }`}
           >
@@ -119,7 +108,6 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Center Pill: Navigation Links (Desktop) */}
           <div
             onClick={(e) => e.stopPropagation()}
             className={`pointer-events-auto hidden lg:flex items-center bg-white rounded-2xl shadow-lg border border-black/5 px-1.5 py-1 shrink-0 ${
@@ -163,21 +151,34 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Right Pill: Auth Buttons */}
           <div className="flex items-center gap-2 shrink-0">
             <div
               onClick={(e) => e.stopPropagation()}
               className="pointer-events-auto hidden sm:flex items-center gap-2 bg-white rounded-2xl shadow-lg border border-black/5 px-3.5 py-[18px] transition-all duration-500 shrink-0"
             >
               {isAuthenticated ? (
-                <button
-                  type="button"
-                  onClick={handleSignOut}
-                  className="px-4 py-2.5 rounded-xl bg-[#F5F5F3] hover:bg-[#EAEAEA] flex items-center gap-1.5 text-sm font-bold text-[#111111] transition-colors whitespace-nowrap shrink-0 cursor-pointer"
-                >
-                  <LogOut className="w-4 h-4 shrink-0 text-neutral-600" />
-                  <span className="whitespace-nowrap">Sign Out</span>
-                </button>
+                <>
+                  <Link
+                    href="/profile"
+                    className={`px-4 py-2.5 rounded-xl flex items-center gap-1.5 text-sm font-bold transition-all whitespace-nowrap shrink-0 ${
+                      pathname === "/profile"
+                        ? "bg-[#D5D5D2] text-[#111111]"
+                        : "bg-[#F5F5F3] hover:bg-[#EAEAEA] text-[#111111]"
+                    }`}
+                  >
+                    <User className={`w-4 h-4 shrink-0 ${pathname === "/profile" ? "text-emerald-600" : "text-neutral-600"}`} />
+                    <span className="whitespace-nowrap">My Profile</span>
+                  </Link>
+
+                  <button
+                    type="button"
+                    onClick={handleSignOut}
+                    className="px-4 py-2.5 rounded-xl bg-[#F5F5F3] hover:bg-[#EAEAEA] flex items-center gap-1.5 text-sm font-bold text-[#111111] transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+                  >
+                    <LogOut className="w-4 h-4 shrink-0 text-neutral-600" />
+                    <span className="whitespace-nowrap">Sign Out</span>
+                  </button>
+                </>
               ) : (
                 <>
                   <Link
@@ -198,7 +199,6 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Mobile Hamburger Toggle */}
             <div
               onClick={(e) => e.stopPropagation()}
               className="pointer-events-auto lg:hidden bg-white rounded-2xl shadow-lg border border-black/5 p-1.5 transition-all duration-500 shrink-0"
@@ -214,7 +214,6 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Mobile Dropdown Drawer */}
         {isMobileMenuOpen && (
           <div
             onClick={(e) => e.stopPropagation()}
@@ -238,15 +237,24 @@ export default function Navbar() {
             >
               Opportunities Feed
             </Link>
-            <div className="pt-2 border-t border-neutral-100 flex items-center justify-between gap-2">
+            <div className="pt-2 border-t border-neutral-100 flex flex-col gap-2">
               {isAuthenticated ? (
-                <button
-                  type="button"
-                  onClick={handleSignOut}
-                  className="w-full py-2.5 text-center bg-neutral-100 rounded-xl text-sm font-bold text-[#111111] cursor-pointer"
-                >
-                  Sign Out
-                </button>
+                <>
+                  <Link
+                    href="/profile"
+                    className="w-full py-2.5 text-center bg-neutral-900 text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2"
+                  >
+                    <User className="w-4 h-4 text-emerald-400" />
+                    <span>My Profile</span>
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={handleSignOut}
+                    className="w-full py-2.5 text-center bg-neutral-100 rounded-xl text-sm font-bold text-[#111111] cursor-pointer"
+                  >
+                    Sign Out
+                  </button>
+                </>
               ) : (
                 <>
                   <Link href="/signin" className="w-full py-2.5 text-center bg-neutral-100 rounded-xl text-sm font-bold text-[#111111]">
@@ -261,8 +269,8 @@ export default function Navbar() {
           </div>
         )}
       </nav>
-      {/* Spacer for non-landing pages so top navbar doesn't obscure headers */}
       {pathname !== "/" && <div className="h-24 sm:h-28" />}
     </>
   );
 }
+
