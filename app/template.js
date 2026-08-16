@@ -33,18 +33,6 @@ export default function Template({ children }) {
       }}
       className="flex-1 flex flex-col w-full"
     >
-      <motion.div
-        key={`progress-${pathname}`}
-        initial={{ scaleX: 0, opacity: 1 }}
-        animate={{ scaleX: 1, opacity: [1, 1, 0] }}
-        transition={{
-          duration: 0.5,
-          ease: [0.16, 1, 0.3, 1],
-          times: [0, 0.7, 1],
-        }}
-        style={{ transformOrigin: "0% 50%" }}
-        className="fixed top-0 left-0 right-0 h-[2.5px] bg-linear-to-r from-emerald-500 via-teal-400 to-emerald-300 z-50 pointer-events-none shadow-[0_0_8px_rgba(16,185,129,0.6)]"
-      />
       {children}
     </motion.div>
   );
