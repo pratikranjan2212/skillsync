@@ -7,10 +7,6 @@ import {
   Scale,
   Database,
   Target,
-  ChevronLeft,
-  ChevronRight,
-  Pause,
-  Play,
   CheckCircle2,
   EyeOff,
   X,
@@ -18,9 +14,7 @@ import {
   Sparkles,
   Check,
   FileText,
-  Lock,
-  Layers,
-  Cpu
+  Lock
 } from "lucide-react";
 
 export default function Metrics() {
@@ -112,14 +106,6 @@ export default function Metrics() {
     return () => el.removeEventListener("wheel", handleWheelNative);
   }, [activeModal, metricsData.length]);
 
-  const handleNext = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % metricsData.length);
-  };
-
-  const handlePrev = () => {
-    setCurrentIndex((prevIndex) => (prevIndex - 1 + metricsData.length) % metricsData.length);
-  };
-
   const activeMetric = metricsData[currentIndex];
   const Icon = activeMetric.icon;
 
@@ -132,7 +118,7 @@ export default function Metrics() {
       transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       className="py-16 md:py-24 px-4 sm:px-6 max-w-7xl mx-auto"
     >
-      {/* Outer Card Wrapper with Non-Passive Wheel Interception */}
+      {/* Outer Card Wrapper */}
       <div
         ref={containerRef}
         onMouseEnter={() => setIsAutoPlaying(false)}
@@ -218,7 +204,7 @@ export default function Metrics() {
               <div className="lg:col-span-7 bg-white rounded-3xl p-6 sm:p-8 border border-black/8 shadow-md flex flex-col justify-between space-y-6">
                 <div className="flex items-center justify-between border-b border-neutral-100 pb-4">
                   <div className="flex items-center gap-2 text-xs font-extrabold text-neutral-800 uppercase tracking-wider">
-                    <Sparkles className="w-4 h-4 text-emerald-500 animate-spin-slow" />
+                    <Sparkles className="w-4 h-4 text-emerald-500" />
                     <span>Engine Capability Matrix</span>
                   </div>
                   <span className="text-xs font-bold text-neutral-600 bg-neutral-100 px-2.5 py-0.5 rounded-md">
@@ -339,39 +325,9 @@ export default function Metrics() {
           </AnimatePresence>
         </div>
 
-        {/* Carousel Bottom Control Navigation Bar */}
-        <div className="mt-8 pt-6 border-t border-black/8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          {/* Left / Right Nav Buttons + Play Pause */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handlePrev}
-              className="w-10 h-10 rounded-full bg-neutral-100 hover:bg-neutral-900 hover:text-white text-neutral-800 flex items-center justify-center transition-all shadow-xs hover:scale-105 active:scale-95 cursor-pointer"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-
-            <button
-              onClick={handleNext}
-              className="w-10 h-10 rounded-full bg-neutral-100 hover:bg-neutral-900 hover:text-white text-neutral-800 flex items-center justify-center transition-all shadow-xs hover:scale-105 active:scale-95 cursor-pointer"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
-
-            <button
-              onClick={() => setIsAutoPlaying(!isAutoPlaying)}
-              className="w-10 h-10 rounded-full bg-neutral-100 hover:bg-neutral-900 hover:text-white text-neutral-700 flex items-center justify-center transition-all shadow-xs hover:scale-105 active:scale-95 cursor-pointer"
-              title={isAutoPlaying ? "Pause Autoplay" : "Play Autoplay"}
-            >
-              {isAutoPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
-            </button>
-
-            <span className="text-xs font-extrabold text-neutral-600 ml-2">
-              0{currentIndex + 1} / 0{metricsData.length}
-            </span>
-          </div>
-
-          {/* Progress Bar & Dots */}
-          <div className="flex items-center gap-2">
+        {/* Centered Pagination Dots */}
+        <div className="mt-8 pt-6 border-t border-black/8 flex items-center justify-center">
+          <div className="flex items-center gap-2.5">
             {metricsData.map((_, idx) => (
               <button
                 key={idx}
