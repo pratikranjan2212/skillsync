@@ -3,16 +3,13 @@
 import React from "react";
 import { motion } from "framer-motion";
 
-/**
- * Reusable FadeIn component for smooth, subtle bottom-to-top scroll reveal animations.
- */
 export function FadeIn({
   children,
   className = "",
   delay = 0,
   duration = 0.85,
   distance = 32,
-  direction = "up", // "up" | "down" | "none"
+  direction = "up",
   viewport = { once: true, amount: 0.15, margin: "0px 0px -80px 0px" },
   as = "div",
   ...props
@@ -33,7 +30,7 @@ export function FadeIn({
       transition={{
         duration,
         delay,
-        ease: [0.16, 1, 0.3, 1], // Silky smooth, luxury deceleration curve
+        ease: [0.16, 1, 0.3, 1],
       }}
       className={className}
       {...props}
@@ -43,9 +40,6 @@ export function FadeIn({
   );
 }
 
-/**
- * Container that staggers child motion components automatically when scrolling into view.
- */
 export function FadeInStagger({
   children,
   className = "",
@@ -82,9 +76,6 @@ export function FadeInStagger({
   );
 }
 
-/**
- * Child item for use inside FadeInStagger.
- */
 export function FadeInItem({
   children,
   className = "",
@@ -119,3 +110,4 @@ export function FadeInItem({
 }
 
 export default FadeIn;
+

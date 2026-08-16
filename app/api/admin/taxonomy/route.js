@@ -4,7 +4,6 @@ import { INITIAL_SKILL_TAXONOMY } from "@/app/data/mockData";
 let taxonomyStore = [...INITIAL_SKILL_TAXONOMY];
 
 export async function GET(request) {
-  // TODO: replace mock once /api/admin/taxonomy backend service is live
   return NextResponse.json({ success: true, taxonomy: taxonomyStore });
 }
 
@@ -38,3 +37,4 @@ export async function DELETE(request) {
     return NextResponse.json({ error: "Failed to delete skill record" }, { status: 400 });
   }
 }
+

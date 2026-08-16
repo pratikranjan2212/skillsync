@@ -12,10 +12,6 @@ async function fetchPipelineData() {
   return data.pipeline || [];
 }
 
-/**
- * Admin Evidence Pipeline Log Page.
- * Renders evidence items table with stage/tier/reason and manual tier override control.
- */
 export default function AdminPipelinePage() {
   const [overrideModalItem, setOverrideModalItem] = useState(null);
   const [selectedTier, setSelectedTier] = useState("verified-high");
@@ -51,7 +47,6 @@ export default function AdminPipelinePage() {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Header Banner */}
       <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-md border border-black/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <span className="px-3.5 py-1 bg-[#F5F5F3] text-[#494D4D] text-xs font-bold rounded-full border border-black/5 inline-flex items-center gap-1.5">
@@ -73,7 +68,6 @@ export default function AdminPipelinePage() {
         </button>
       </div>
 
-      {/* Table Section */}
       <div className="bg-white rounded-[32px] p-6 shadow-md border border-black/5 overflow-x-auto">
         {isLoading ? (
           <div className="p-8 text-center text-xs font-bold text-neutral-400">Loading Pipeline Log...</div>
@@ -129,7 +123,6 @@ export default function AdminPipelinePage() {
         )}
       </div>
 
-      {/* Manual Override Modal */}
       {overrideModalItem && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-[32px] p-6 max-w-md w-full border border-black/5 shadow-2xl flex flex-col gap-5 animate-in zoom-in-95">
@@ -187,3 +180,4 @@ export default function AdminPipelinePage() {
     </div>
   );
 }
+

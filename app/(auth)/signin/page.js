@@ -7,10 +7,6 @@ import { useForm } from "react-hook-form";
 import { LogIn, Mail, Lock, ArrowRight, ShieldCheck, UserCheck } from "lucide-react";
 import Navbar from "@/app/components/layout/Navbar";
 
-/**
- * Sign In Screen.
- * Supports Student and Admin sign in with one-click demo login presets.
- */
 export default function SignInPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -104,7 +100,6 @@ export default function SignInPage() {
             </p>
           </div>
 
-          {/* One-Click Quick Demo Sign In Presets */}
           <div className="bg-[#F8F9FA] rounded-2xl p-3.5 border border-black/5 flex flex-col gap-2">
             <div className="text-xs font-bold uppercase tracking-wider text-[#494D4D]">
               ⚡ Quick Demo One-Click Sign In
@@ -136,7 +131,6 @@ export default function SignInPage() {
           )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3.5">
-            {/* Email */}
             <div>
               <label className="block text-sm font-bold text-[#111111] mb-1.5">
                 Email Address <span className="text-red-500">*</span>
@@ -159,7 +153,6 @@ export default function SignInPage() {
               {errors.email && <p className="text-xs text-rose-600 mt-1 font-medium">{errors.email.message}</p>}
             </div>
 
-            {/* Password */}
             <div>
               <label className="block text-sm font-bold text-[#111111] mb-1.5">
                 Password <span className="text-red-500">*</span>
@@ -176,7 +169,6 @@ export default function SignInPage() {
               {errors.password && <p className="text-xs text-rose-600 mt-1 font-medium">{errors.password.message}</p>}
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={isSubmitting}
@@ -198,3 +190,4 @@ export default function SignInPage() {
     </div>
   );
 }
+

@@ -5,10 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ListFilter, Database, Scale, ShieldCheck } from "lucide-react";
 
-/**
- * Admin Navigation Bar.
- * Renders tab links for Admin Dashboard sections (/admin/pipeline, /admin/taxonomy, /admin/fairness).
- */
 export default function AdminNav() {
   const pathname = usePathname();
 
@@ -48,3 +44,4 @@ export default function AdminNav() {
     </div>
   );
 }
+

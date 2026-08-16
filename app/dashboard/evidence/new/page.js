@@ -23,11 +23,6 @@ const SKILL_TAXONOMY_OPTIONS = [
   "Mathematics",
 ];
 
-/**
- * Add Evidence Form Screen.
- * Client Component utilizing React Hook Form and client-side jsQR pre-scanning.
- * Protected: Displays submission form when signed in, or AuthRequiredView when signed out.
- */
 export default function AddEvidencePage() {
   const router = useRouter();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
@@ -59,7 +54,6 @@ export default function AddEvidencePage() {
     }
   };
 
-  // Client-side jsQR scan pre-check handler
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -163,7 +157,6 @@ export default function AddEvidencePage() {
 
       <main className="max-w-2xl mx-auto px-4">
         <div className="bg-white rounded-4xl p-6 sm:p-8 shadow-xl border border-black/5 flex flex-col gap-6">
-          {/* Header */}
           <div>
             <span className="inline-flex items-center gap-1.5 px-3.5 py-1 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-full border border-emerald-200">
               <FilePlus className="w-3.5 h-3.5" />
@@ -177,7 +170,6 @@ export default function AddEvidencePage() {
             </p>
           </div>
 
-          {/* Verification Result Banner (when finished submitting) */}
           {assignedResult && (
             <div className="p-5 bg-emerald-50 rounded-2xl border border-emerald-200 flex items-center justify-between gap-4 animate-in fade-in">
               <div>
@@ -190,7 +182,6 @@ export default function AddEvidencePage() {
           )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
-            {/* Evidence Type */}
             <div>
               <label className="block text-xs font-bold text-[#111111] mb-1.5">Evidence Category Type</label>
               <select
@@ -204,7 +195,6 @@ export default function AddEvidencePage() {
               </select>
             </div>
 
-            {/* Title */}
             <div>
               <label className="block text-xs font-bold text-[#111111] mb-1.5">Title / Course Name</label>
               <input
@@ -216,7 +206,6 @@ export default function AddEvidencePage() {
               {errors.title && <p className="text-[11px] text-rose-600 mt-1">{errors.title.message}</p>}
             </div>
 
-            {/* Description */}
             <div>
               <label className="text-xs font-bold text-[#111111] mb-1.5 flex items-center justify-between">
                 <span>Description & Key Highlights</span>
@@ -230,7 +219,6 @@ export default function AddEvidencePage() {
               />
             </div>
 
-            {/* File Upload with jsQR Pre-Check */}
             <div className="bg-[#F8F9FA] rounded-2xl p-4 border border-black/5 flex flex-col gap-3">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-xs font-bold text-[#111111] flex items-center gap-1.5">
@@ -247,7 +235,6 @@ export default function AddEvidencePage() {
                 className="block w-full text-xs text-neutral-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-neutral-900 file:text-white hover:file:bg-neutral-800"
               />
 
-              {/* QR Code Detection UX Hint */}
               {isQrDetected && (
                 <div className="p-3 bg-emerald-100/70 border border-emerald-300 text-emerald-900 rounded-xl text-xs font-semibold flex items-center gap-2">
                   <QrCode className="w-4 h-4 text-emerald-700 shrink-0" />
@@ -258,7 +245,6 @@ export default function AddEvidencePage() {
               )}
             </div>
 
-            {/* External URL */}
             <div>
               <label className="text-xs font-bold text-[#111111] mb-1.5 flex items-center gap-1">
                 <Link2 className="w-3.5 h-3.5 text-neutral-500" />
@@ -272,7 +258,6 @@ export default function AddEvidencePage() {
               />
             </div>
 
-            {/* Claimed Skills Selector */}
             <div>
               <label className="text-xs font-bold text-[#111111] mb-2 flex items-center justify-between">
                 <span>Select Claimed Skills ({selectedSkills.length})</span>
@@ -301,7 +286,6 @@ export default function AddEvidencePage() {
               </div>
             </div>
 
-            {/* Submit Action */}
             <button
               type="submit"
               disabled={isSubmitting}
@@ -321,7 +305,6 @@ export default function AddEvidencePage() {
             </button>
           </form>
 
-          {/* Guarantee */}
           <div className="p-3 bg-[#F8F9FA] rounded-2xl border border-black/5 text-[11px] text-[#494D4D] flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
             <span>Digital signatures and OCR matches are verified automatically within 2 seconds.</span>
@@ -331,3 +314,4 @@ export default function AddEvidencePage() {
     </div>
   );
 }
+

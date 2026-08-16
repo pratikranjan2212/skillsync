@@ -32,7 +32,6 @@ import { useAuth } from "@/app/hooks/useAuth";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { useForm } from "react-hook-form";
 
-// API Fetchers
 async function fetchEvidence() {
   const res = await fetch("/api/evidence");
   if (!res.ok) throw new Error("Failed to fetch evidence");
@@ -67,19 +66,13 @@ async function fetchFairnessAudits() {
   return res.json();
 }
 
-/**
- * Unified Dashboard Screen.
- * Integrates Evidence Records, Skill Passport Export,
- * and Verification Pipeline & Audit Logs into a single dashboard.
- */
 export default function UnifiedDashboardPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
-  const [activeTab, setActiveTab] = useState("evidence"); // evidence | passport | audit
+  const [activeTab, setActiveTab] = useState("evidence");
   const [overrideModalItem, setOverrideModalItem] = useState(null);
   const [selectedTier, setSelectedTier] = useState("verified-high");
   const [isAddSkillOpen, setIsAddSkillOpen] = useState(false);
 
-  // Queries
   const { data: evidenceList = [], isLoading: loadingEv, refetch: refetchEv } = useQuery({
     queryKey: ["dash-evidence"],
     queryFn: fetchEvidence,
@@ -112,7 +105,6 @@ export default function UnifiedDashboardPage() {
 
   const { register: regSkill, handleSubmit: submitSkill, reset: resetSkill } = useForm();
 
-  // Tier Counters
   const highCount = evidenceList.filter((e) => e.verificationTier === "verified-high").length;
   const medCount = evidenceList.filter((e) => e.verificationTier === "verified-medium").length;
   const lowCount = evidenceList.filter((e) => e.verificationTier === "flagged-low").length;
@@ -152,7 +144,6 @@ export default function UnifiedDashboardPage() {
     );
   }
 
-  // Handlers
   const handleTogglePublic = async (isPublic) => {
     await fetch("/api/passport", {
       method: "POST",
@@ -205,7 +196,6 @@ export default function UnifiedDashboardPage() {
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col gap-8">
-        {/* Main Dashboard Header */}
         <div className="bg-white rounded-4xl p-6 sm:p-8 shadow-md border border-black/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div>
             <div className="flex items-center gap-2">
@@ -233,7 +223,6 @@ export default function UnifiedDashboardPage() {
           </div>
         </div>
 
-        {/* Dashboard Navigation Tabs */}
         <div className="bg-white rounded-3xl p-2 shadow-md border border-black/5 flex items-center justify-between gap-2 overflow-x-auto">
           <div className="flex items-center gap-1 min-w-max">
             {[
@@ -271,10 +260,8 @@ export default function UnifiedDashboardPage() {
           </div>
         </div>
 
-        {/* ==================== TAB 1: EVIDENCE RECORDS ==================== */}
         {activeTab === "evidence" && (
           <div className="flex flex-col gap-6">
-            {/* Verification Tier Summary Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="bg-white rounded-3xl p-5 shadow-xs border border-black/5 flex items-center justify-between">
                 <div>
@@ -307,7 +294,6 @@ export default function UnifiedDashboardPage() {
               </div>
             </div>
 
-            {/* Evidence Header */}
             <div className="flex items-center justify-between gap-4">
               <h2 className="text-xl font-bold text-[#111111]">
                 Coursework & Evidence Items ({evidenceList.length})
@@ -321,7 +307,6 @@ export default function UnifiedDashboardPage() {
               </button>
             </div>
 
-            {/* Evidence Grid */}
             {evidenceList.length === 0 ? (
               <div className="bg-white rounded-4xl p-12 text-center border border-black/5 shadow-sm flex flex-col items-center gap-4">
                 <FilePlus2 className="w-10 h-10 text-neutral-300" />
@@ -343,7 +328,6 @@ export default function UnifiedDashboardPage() {
           </div>
         )}
 
-        {/* ==================== TAB 2: SKILL PASSPORT ==================== */}
         {activeTab === "passport" && passport && (
           <div className="flex justify-center w-full py-2">
             <InteractivePassportCard 
@@ -353,10 +337,8 @@ export default function UnifiedDashboardPage() {
           </div>
         )}
 
-        {/* ==================== TAB 3: AUDIT & PIPELINE CONSOLE ==================== */}
         {activeTab === "audit" && (
           <div className="flex flex-col gap-8">
-            {/* Explicit Fairness Guarantee Callout */}
             <div className="bg-linear-to-r from-neutral-900 via-slate-900 to-neutral-900 text-white rounded-4xl p-6 sm:p-8 shadow-xl border border-slate-800 flex flex-col gap-4" data-spark-color="#ffffff">
               <div className="flex items-center justify-between gap-3" data-spark-color="#ffffff">
                 <div className="flex items-center gap-3" data-spark-color="#ffffff">
@@ -392,7 +374,6 @@ export default function UnifiedDashboardPage() {
               </div>
             </div>
 
-            {/* Recharts Score Distribution Chart */}
             <div className="bg-white rounded-4xl p-6 sm:p-8 shadow-md border border-black/5 flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -425,7 +406,6 @@ export default function UnifiedDashboardPage() {
               </div>
             </div>
 
-            {/* Pipeline Audit Log Table */}
             <div className="bg-white rounded-4xl p-6 shadow-md border border-black/5 overflow-x-auto">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-[#111111] flex items-center gap-2">
@@ -476,7 +456,6 @@ export default function UnifiedDashboardPage() {
               </table>
             </div>
 
-            {/* Skill Taxonomy Manager */}
             <div className="bg-white rounded-4xl p-6 shadow-md border border-black/5 flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -512,7 +491,6 @@ export default function UnifiedDashboardPage() {
           </div>
         )}
 
-        {/* Manual Tier Override Modal */}
         {overrideModalItem && (
           <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
             <div className="bg-white rounded-4xl p-6 max-w-md w-full border border-black/5 shadow-2xl flex flex-col gap-5">
@@ -548,7 +526,6 @@ export default function UnifiedDashboardPage() {
           </div>
         )}
 
-        {/* Add Skill Modal */}
         {isAddSkillOpen && (
           <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
             <div className="bg-white rounded-4xl p-6 max-w-md w-full border border-black/5 shadow-2xl flex flex-col gap-4">
@@ -582,3 +559,4 @@ export default function UnifiedDashboardPage() {
     </div>
   );
 }
+

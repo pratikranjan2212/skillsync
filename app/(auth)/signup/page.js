@@ -7,10 +7,6 @@ import { useForm } from "react-hook-form";
 import { Sparkles, User, Mail, Lock, ArrowRight, Check, Eye, EyeOff } from "lucide-react";
 import Navbar from "@/app/components/layout/Navbar";
 
-/**
- * Student Registration Screen.
- * Single-role sign-up (Student only; Admin is seeded manually).
- */
 export default function SignUpPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -34,7 +30,6 @@ export default function SignUpPage() {
 
   const passwordValue = watch("password") || "";
 
-  // Password constraints evaluations
   const passwordCriteria = [
     { label: "At least 8 characters", valid: passwordValue.length >= 8 },
     { label: "One uppercase letter (A-Z)", valid: /[A-Z]/.test(passwordValue) },
@@ -67,7 +62,6 @@ export default function SignUpPage() {
       });
 
       if (res.ok) {
-        // Set client fallback session cookies
         document.cookie = "skillsync_session=active-token; path=/;";
         document.cookie = "next-auth.session-token=active-token; path=/;";
         document.cookie = "skillsync_role=student; path=/;";
@@ -106,7 +100,6 @@ export default function SignUpPage() {
           )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-            {/* Full Name */}
             <div>
               <label className="block text-sm font-bold text-[#111111] mb-1.5">
                 Full Name <span className="text-red-500">*</span>
@@ -126,7 +119,6 @@ export default function SignUpPage() {
               {errors.fullName && <p className="text-xs text-rose-600 mt-1 font-medium">{errors.fullName.message}</p>}
             </div>
 
-            {/* Email */}
             <div>
               <label className="block text-sm font-bold text-[#111111] mb-1.5">
                 Student Email <span className="text-red-500">*</span>
@@ -149,7 +141,6 @@ export default function SignUpPage() {
               {errors.email && <p className="text-xs text-rose-600 mt-1 font-medium">{errors.email.message}</p>}
             </div>
 
-            {/* Password */}
             <div>
               <label className="block text-sm font-bold text-[#111111] mb-1.5">
                 Password <span className="text-red-500">*</span>
@@ -179,7 +170,6 @@ export default function SignUpPage() {
               </div>
               {errors.password && <p className="text-xs text-rose-600 mt-1 font-medium">{errors.password.message}</p>}
 
-              {/* Password Requirements Checklist - Only appears when user focuses/clicks on password input */}
               {isPasswordFocused && (
                 <div className="mt-2.5 p-3.5 bg-[#F8F9FA] rounded-2xl border border-black/5 flex flex-col gap-1.5 animate-in fade-in slide-in-from-top-1 duration-200">
                   <span className="text-xs font-bold uppercase tracking-wider text-[#494D4D]">
@@ -208,7 +198,6 @@ export default function SignUpPage() {
               )}
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={isSubmitting}
@@ -230,3 +219,4 @@ export default function SignUpPage() {
     </div>
   );
 }
+

@@ -9,7 +9,6 @@ import { FadeIn } from "@/app/components/ui/FadeIn";
 export default function FeatureBento() {
   return (
     <section id="features" className="py-20 md:py-32 px-4 sm:px-6 max-w-7xl mx-auto scroll-mt-24">
-      {/* Section Header */}
       <FadeIn distance={28} duration={0.85} delay={0.1}>
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 md:mb-16 gap-6">
           <div>
@@ -28,9 +27,7 @@ export default function FeatureBento() {
         </div>
       </FadeIn>
 
-      {/* Bento Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Row 1 - Left Card (5 col): Verification Tiers */}
         <div className="lg:col-span-5 h-full">
           <FadeIn distance={36} delay={0.25} duration={0.9} className="h-full">
             <div className="bg-[#F2F3F5] border border-black/5 rounded-4xl p-6 sm:p-8 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow h-full">
@@ -75,7 +72,6 @@ export default function FeatureBento() {
           </FadeIn>
         </div>
 
-        {/* Row 1 - Right Card (7 col): Explainable Match Engine & Fairness Guarantee */}
         <div className="lg:col-span-7 h-full">
           <FadeIn distance={36} delay={0.45} duration={0.9} className="h-full">
             <div className="bg-[#0f241c] rounded-4xl p-6 sm:p-8 text-white flex flex-col justify-between shadow-xl relative overflow-hidden group h-full" data-spark-color="#ffffff">
@@ -90,7 +86,6 @@ export default function FeatureBento() {
                   Every job match cites supporting evidence, lists missing required skills, and explicitly strips non-skill demographic attributes from ranking logic.
                 </p>
 
-                {/* Explanation Box */}
                 <div className="bg-black/50 backdrop-blur-xl rounded-[28px] p-5 sm:p-6 border border-white/10 shadow-2xl flex flex-col gap-4" data-spark-color="#ffffff">
                   <div className="flex items-center justify-between" data-spark-color="#ffffff">
                     <div data-spark-color="#ffffff">
@@ -113,7 +108,6 @@ export default function FeatureBento() {
                     </div>
                   </div>
 
-                  {/* Excluded Attributes Pill */}
                   <div className="p-3 bg-slate-900/90 rounded-2xl border border-slate-700 text-[11px] font-mono text-slate-300" data-spark-color="#ffffff">
                     <div className="text-emerald-400 font-bold text-[10px] uppercase mb-1">
                       Enforced Fairness Exclusion List:
@@ -132,7 +126,6 @@ export default function FeatureBento() {
           </FadeIn>
         </div>
 
-        {/* Row 2 - Full Width Dark Card: Portable Skill Passport */}
         <div className="lg:col-span-12">
           <FadeIn distance={40} delay={0.25} duration={0.95}>
             <div className="bg-[#111111] border border-white/10 rounded-[40px] p-8 sm:p-12 text-white shadow-2xl relative overflow-hidden flex flex-col lg:flex-row items-center justify-between gap-8" data-spark-color="#ffffff">
@@ -195,3 +188,4 @@ export default function FeatureBento() {
     </section>
   );
 }
+

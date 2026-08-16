@@ -25,7 +25,6 @@ export default function UseCaseTabs() {
 
   return (
     <section id="use-cases" className="py-16 md:py-24 px-4 sm:px-6 max-w-7xl mx-auto scroll-mt-24">
-      {/* Outer Card with Dotted Background Pattern */}
       <FadeIn distance={20} duration={0.5}>
         <div 
           className="relative bg-white rounded-[32px] sm:rounded-[40px] border border-black/8 p-6 sm:p-10 md:p-14 shadow-sm overflow-hidden"
@@ -34,14 +33,12 @@ export default function UseCaseTabs() {
             backgroundSize: '24px 24px',
           }}
         >
-          {/* Top Pill Badge */}
           <div className="flex justify-center mb-3">
             <span className="px-4 py-1.5 rounded-full text-xs font-semibold text-neutral-600 bg-white border border-neutral-200/90 shadow-2xs">
               Built for the Ecosystem
             </span>
           </div>
 
-          {/* Section Heading & Subtitle */}
           <FadeIn delay={0.05} distance={18} duration={0.45}>
             <div className="text-center max-w-2xl mx-auto mb-8">
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-[#111111] tracking-tight leading-[1.15]">
@@ -54,7 +51,6 @@ export default function UseCaseTabs() {
             </div>
           </FadeIn>
 
-          {/* Tab Switcher */}
           <FadeIn delay={0.1} distance={16} duration={0.45}>
             <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 mb-8 sm:mb-10">
               {USE_CASE_TABS.map((tab) => {
@@ -78,10 +74,8 @@ export default function UseCaseTabs() {
             </div>
           </FadeIn>
 
-          {/* Main Showcase Hero Card */}
           <FadeIn delay={0.12} distance={20} duration={0.5}>
             <div className="relative w-full rounded-[24px] sm:rounded-[32px] overflow-hidden bg-neutral-950 min-h-[420px] sm:min-h-[480px] md:min-h-[520px] shadow-lg border border-black/10 flex items-end justify-end px-2 sm:px-4 md:px-5 py-4 sm:py-6 md:py-7">
-              {/* Full Cover Background Image */}
               <img
                 key={activeTab.id}
                 src={activeTab.imageUrl}
@@ -89,11 +83,9 @@ export default function UseCaseTabs() {
                 className="absolute inset-0 w-full h-full object-cover object-center transition-all duration-700 ease-out"
               />
 
-              {/* Soft Cinematic Ambient Overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/15 pointer-events-none" />
               <div className="absolute inset-0 bg-black/10 pointer-events-none" />
 
-              {/* Floating Frosted Glass Card with Image Blur */}
               <div 
                 className="relative z-10 w-full sm:max-w-[460px] md:max-w-[490px] bg-black/35 backdrop-blur-md sm:backdrop-blur-xl border border-white/20 rounded-2xl sm:rounded-3xl p-6 sm:p-7 text-white shadow-2xl transition-all duration-300 flex flex-col gap-3.5 sm:gap-4"
                 style={{
@@ -105,7 +97,6 @@ export default function UseCaseTabs() {
                   {activeTab.title}
                 </p>
 
-                {/* Metric & Label Row */}
                 <div className="flex items-baseline gap-3 flex-nowrap">
                   <span className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight whitespace-nowrap drop-shadow-sm">
                     {activeTab.metric}
@@ -118,10 +109,8 @@ export default function UseCaseTabs() {
             </div>
           </FadeIn>
 
-          {/* Bottom Action & Hashtags Section - CTA button and subtext appear at once together */}
           <FadeIn delay={0.06} distance={14} duration={0.35}>
             <div>
-              {/* CTA Button placed below the hero card */}
               <div className="flex justify-center mt-8 sm:mt-10">
                 <Link
                   href="/signup"
@@ -142,7 +131,6 @@ export default function UseCaseTabs() {
                 </Link>
               </div>
 
-              {/* Bottom Hashtags Section */}
               <div className="text-center mt-6 sm:mt-8">
                 <p className="text-xs sm:text-sm text-neutral-500 font-medium mb-2.5">
                   And for every kind of daily rhythm
@@ -162,3 +150,4 @@ export default function UseCaseTabs() {
   </section>
 );
 }
+

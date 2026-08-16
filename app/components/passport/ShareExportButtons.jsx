@@ -4,14 +4,6 @@ import React, { useState } from "react";
 import { Download, Share2, Check, Lock, Globe } from "lucide-react";
 import RollingText from "@/app/components/ui/RollingText";
 
-/**
- * Share & Export Buttons for Skill Passport.
- * @param {Object} props
- * @param {Object} props.passportData - Full Section 4 passport object
- * @param {boolean} props.isPublic - Initial public visibility status
- * @param {string} props.shareToken - Public share token
- * @param {Function} [props.onTogglePublic] - Handler to update public/private status
- */
 export default function ShareExportButtons({ passportData, isPublic: initialPublic, shareToken, onTogglePublic }) {
   const [isPublic, setIsPublic] = useState(initialPublic);
   const [copied, setCopied] = useState(false);
@@ -36,7 +28,6 @@ export default function ShareExportButtons({ passportData, isPublic: initialPubl
   const handleExportPdf = async () => {
     setIsExportingPdf(true);
     try {
-      // Trigger server-side PDF generator route
       const res = await fetch(`/api/passport/pdf?studentId=${passportData?.studentId || "std-101"}`);
       if (res.ok) {
         const blob = await res.blob();
@@ -48,7 +39,6 @@ export default function ShareExportButtons({ passportData, isPublic: initialPubl
         a.click();
         a.remove();
       } else {
-        // Fallback print/pdf trigger
         window.print();
       }
     } catch (err) {
@@ -61,7 +51,6 @@ export default function ShareExportButtons({ passportData, isPublic: initialPubl
 
   return (
     <div className="flex flex-wrap items-center gap-3">
-      {/* Public / Private Toggle */}
       <button
         onClick={handleToggle}
         onMouseEnter={() => setHovered('toggle')}
@@ -101,7 +90,6 @@ export default function ShareExportButtons({ passportData, isPublic: initialPubl
         )}
       </button>
 
-      {/* Copy Public Link */}
       {isPublic && (
         <button
           onClick={handleCopyLink}
@@ -131,7 +119,6 @@ export default function ShareExportButtons({ passportData, isPublic: initialPubl
         </button>
       )}
 
-      {/* Export PDF Button */}
       <button
         onClick={handleExportPdf}
         disabled={isExportingPdf}
@@ -153,4 +140,5 @@ export default function ShareExportButtons({ passportData, isPublic: initialPubl
     </div>
   );
 }
+
 

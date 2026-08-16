@@ -11,12 +11,10 @@
   --font-sans: "Stack Sans Headline", "Google Sans Flex Variable", "Google Sans Flex", Arial, Helvetica, sans-serif;
   --font-mono: var(--font-geist-mono);
   
-  /* Additional Tailwind Utilities required for design */
   --radius-4xl: 2rem;
   --radius-3xl: 1.5rem;
 }
 
-/* Custom Font Definitions */
 @font-face {
   font-family: "Google Sans Flex Variable";
   src: url("https://fonts.gstatic.com/s/googlesansflex/v16/t5t7IQcYNIWbFgDgAAzZ34auoVyXip6sfhcat2c.woff2") format("woff2");
@@ -138,7 +136,6 @@ button {
   will-change: transform;
 }
 
-/* Hide scrollbar for clean carousels */
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -146,3 +143,4 @@ button {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+

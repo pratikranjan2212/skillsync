@@ -35,7 +35,6 @@ export default function SkillEvidenceModal({
     setTimeout(() => setCopiedHash(null), 2000);
   };
 
-  // Find linked projects
   const linkedProjects = projects.filter((p) =>
     p.skills?.some((s) => s.toLowerCase().includes(skill.name.toLowerCase()) || skill.name.toLowerCase().includes(s.toLowerCase()))
   );
@@ -52,10 +51,8 @@ export default function SkillEvidenceModal({
         onClick={(e) => e.stopPropagation()}
         className="absolute top-full right-0 mt-1.5 z-50 w-full sm:w-[350px] bg-white/98 backdrop-blur-lg border border-emerald-200/80 rounded-2xl p-3.5 sm:p-4 shadow-[0_12px_36px_rgba(0,0,0,0.12),_0_0_0_1px_rgba(16,185,129,0.1)] text-neutral-900 overflow-hidden"
       >
-        {/* Subtle Ambient Corner Accent */}
         <div className="absolute -top-12 -right-12 w-28 h-28 bg-emerald-100/50 rounded-full blur-xl pointer-events-none" />
 
-        {/* Close Button */}
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -67,7 +64,6 @@ export default function SkillEvidenceModal({
           <X className="w-3 h-3" />
         </button>
 
-        {/* Header */}
         <div className="flex items-start gap-2.5 mb-2.5 pr-6">
           <div className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 shadow-2xs shrink-0">
             <Sparkles className="w-4 h-4" />
@@ -92,9 +88,7 @@ export default function SkillEvidenceModal({
           </div>
         </div>
 
-        {/* Compact Citations & Implementations */}
         <div className="space-y-2">
-          {/* Supporting Evidence Citations */}
           <div>
             <div className="text-[9px] font-bold text-[#494D4D] uppercase tracking-wider mb-1 flex items-center gap-1">
               <FileCheck className="w-2.5 h-2.5 text-emerald-600" />
@@ -135,7 +129,6 @@ export default function SkillEvidenceModal({
             </div>
           </div>
 
-          {/* Linked Projects Section */}
           {linkedProjects.length > 0 && (
             <div>
               <div className="text-[9px] font-bold text-[#494D4D] uppercase tracking-wider mb-1 flex items-center gap-1">
@@ -174,3 +167,4 @@ export default function SkillEvidenceModal({
     </AnimatePresence>
   );
 }
+

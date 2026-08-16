@@ -4,7 +4,6 @@ import { INITIAL_EVIDENCE } from "@/app/data/mockData";
 let pipelineStore = [...INITIAL_EVIDENCE];
 
 export async function GET(request) {
-  // TODO: replace mock once /api/admin/pipeline backend service is live
   return NextResponse.json({ success: true, pipeline: pipelineStore });
 }
 
@@ -25,3 +24,4 @@ export async function PATCH(request) {
     return NextResponse.json({ error: "Failed to apply manual override" }, { status: 400 });
   }
 }
+

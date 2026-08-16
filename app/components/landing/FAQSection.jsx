@@ -17,17 +17,14 @@ export default function FAQSection() {
   return (
     <section id="faq" className="pt-24 sm:pt-32 pb-16 sm:pb-24 px-4 sm:px-6 max-w-7xl mx-auto scroll-mt-24">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-stretch">
-        {/* Left Column: Heading & Contact Card */}
         <div className="lg:col-span-5 flex flex-col justify-between h-full gap-10">
           <FadeIn distance={28} duration={0.85} delay={0.1} className="flex flex-col justify-between h-full gap-10">
             <div>
-              {/* Pill with increased Y-axis padding */}
               <span className="px-4.5 py-2.5 sm:py-3 bg-white text-emerald-800 text-xs sm:text-sm font-bold rounded-full border border-black/5 shadow-2xs inline-flex items-center gap-2 mb-6 sm:mb-8">
                 <HelpCircle className="w-4 h-4 text-emerald-600" />
                 <span>Frequently Asked Questions</span>
               </span>
 
-              {/* Heading positioned nicely with middle spacing */}
               <h2 className="text-3xl sm:text-5xl font-black text-[#111111] leading-tight tracking-tight mt-2">
                 Everything<br />
                 about<br />
@@ -35,7 +32,6 @@ export default function FAQSection() {
               </h2>
             </div>
 
-            {/* Contact Support Box with increased right padding */}
             <div className="bg-white rounded-[28px] sm:rounded-4xl py-7 pl-7 pr-12 sm:py-9 sm:pl-9 sm:pr-16 border border-black/5 shadow-xs flex flex-col items-start gap-5 sm:gap-6 w-full max-w-95">
               <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/25 shrink-0">
                 <Headphones className="w-6 h-6 stroke-[2.5]" />
@@ -65,7 +61,6 @@ export default function FAQSection() {
           </FadeIn>
         </div>
 
-        {/* Right Column: Accordion Items */}
         <div className="lg:col-span-7">
           <FadeInStagger className="flex flex-col gap-3.5 sm:gap-4" staggerDelay={0.14} delayChildren={0.2}>
             {FAQ_ITEMS.map((faq) => {
@@ -118,3 +113,4 @@ export default function FAQSection() {
     </section>
   );
 }
+

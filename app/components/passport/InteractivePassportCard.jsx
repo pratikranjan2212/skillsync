@@ -93,7 +93,6 @@ export default function InteractivePassportCard({
     }, 250);
   };
 
-  // Fallback / default data matching the design
   const student = {
     id: passportData?.studentId || "SS-2024-7F8A2B",
     name: passportData?.studentName || "Ananya Sharma",
@@ -277,10 +276,8 @@ export default function InteractivePassportCard({
 
   return (
     <div className={`relative w-full flex flex-col items-center select-none ${className}`}>
-      {/* Top Integrated Action Bar */}
       {showControls && (
         <div className="w-full flex flex-wrap items-center justify-between gap-3 mb-4 px-2">
-          {/* Badge indicator with hover hint */}
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold shadow-2xs">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
@@ -292,9 +289,7 @@ export default function InteractivePassportCard({
             </span>
           </div>
 
-          {/* Quick Actions */}
           <div className="flex items-center gap-2 flex-wrap">
-            {/* Public/Private */}
             <button
               onClick={handleToggle}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-xs border transition-all cursor-pointer ${
@@ -316,7 +311,6 @@ export default function InteractivePassportCard({
               )}
             </button>
 
-            {/* Copy Link */}
             {isPublic && (
               <button
                 onClick={handleCopyLink}
@@ -336,7 +330,6 @@ export default function InteractivePassportCard({
               </button>
             )}
 
-            {/* Export PDF */}
             <button
               onClick={handleExportPdf}
               disabled={isExportingPdf}
@@ -346,7 +339,6 @@ export default function InteractivePassportCard({
               <span>{isExportingPdf ? "Exporting..." : "PDF"}</span>
             </button>
 
-            {/* Flip / Proof Button */}
             <button
               onClick={() => setIsFlipped(!isFlipped)}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-white text-neutral-700 border border-black/10 rounded-xl text-xs font-bold hover:bg-neutral-50 transition-all cursor-pointer shadow-2xs"
@@ -358,7 +350,6 @@ export default function InteractivePassportCard({
         </div>
       )}
 
-      {/* 3D Flip Card Container: Flips on Click */}
       <div 
         style={{ perspective: 1600 }} 
         className="w-full relative cursor-pointer"
@@ -370,9 +361,6 @@ export default function InteractivePassportCard({
           style={{ transformStyle: "preserve-3d" }}
           className="relative w-full"
         >
-          {/* ========================================================================= */}
-          {/* ========================= FRONT SIDE OF CARD =========================== */}
-          {/* ========================================================================= */}
           <div
             style={{ 
               backfaceVisibility: "hidden", 
@@ -380,11 +368,9 @@ export default function InteractivePassportCard({
             }}
             className="w-full bg-white text-neutral-900 rounded-[28px] sm:rounded-[36px] p-6 sm:p-9 lg:p-10 border border-neutral-200/90 shadow-[0_15px_45px_-10px_rgba(0,0,0,0.07),_0_0_0_1px_rgba(16,185,129,0.08)] overflow-hidden relative"
           >
-            {/* Subtle Ambient Radial Glows in Light Palette */}
             <div className="absolute -top-32 -left-32 w-96 h-96 bg-emerald-100/40 rounded-full blur-[90px] pointer-events-none" />
             <div className="absolute top-1/2 -right-32 w-96 h-96 bg-teal-100/30 rounded-full blur-[90px] pointer-events-none" />
             
-            {/* Subtle Cyberpunk Laser Mesh Wave Background (bottom left) */}
             <svg 
               className="absolute bottom-0 left-0 w-[55%] h-[40%] opacity-25 pointer-events-none" 
               viewBox="0 0 500 200" 
@@ -397,9 +383,7 @@ export default function InteractivePassportCard({
             </svg>
 
             <div className="relative z-10 flex flex-col justify-between h-full gap-8">
-              {/* TOP HEADER */}
               <div className="flex items-center justify-between gap-4 border-b border-black/5 pb-4">
-                {/* Left: SkillSync Brand Logo */}
                 <div className="flex items-center gap-2.5">
                   <SkillSyncLogo />
                   <span className="text-xl sm:text-2xl font-black tracking-tight text-[#111111]">
@@ -407,7 +391,6 @@ export default function InteractivePassportCard({
                   </span>
                 </div>
 
-                {/* Right: "SKILL PASSPORT" Badge */}
                 <div>
                   <span className="text-xs sm:text-sm font-extrabold tracking-[0.2em] text-emerald-700 uppercase bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200/80 shadow-2xs">
                     SKILL PASSPORT
@@ -415,14 +398,10 @@ export default function InteractivePassportCard({
                 </div>
               </div>
 
-              {/* MAIN CONTENT 2-COLUMN GRID */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
                 
-                {/* ================= LEFT COLUMN: STUDENT PROFILE & ACADEMICS (5 Cols) ================= */}
                 <div className="lg:col-span-5 flex flex-col gap-6">
-                  {/* Top sub-section: Photo + Name/Gender/DOB */}
                   <div className="flex items-center gap-5 sm:gap-6">
-                    {/* Avatar with glowing ring and verified shield */}
                     <div className="relative shrink-0">
                       <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-2 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.3)] bg-neutral-100 relative">
                         <Image
@@ -436,13 +415,11 @@ export default function InteractivePassportCard({
                         />
                       </div>
                       
-                      {/* Shield checkmark badge */}
                       <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-white border-2 border-emerald-500 flex items-center justify-center shadow-md">
                         <ShieldCheck className="w-4 h-4 text-emerald-600" />
                       </div>
                     </div>
 
-                    {/* Name, Gender, DOB */}
                     <div className="flex flex-col gap-3">
                       <div>
                         <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-bold text-neutral-500 uppercase tracking-wider">
@@ -478,9 +455,7 @@ export default function InteractivePassportCard({
                     </div>
                   </div>
 
-                  {/* Academic Details List */}
                   <div className="flex flex-col gap-3.5 pt-2">
-                    {/* College */}
                     <div className="flex items-start gap-3.5">
                       <div className="w-8 h-8 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0 mt-0.5 text-emerald-700 shadow-2xs">
                         <GraduationCap className="w-4 h-4" />
@@ -495,7 +470,6 @@ export default function InteractivePassportCard({
                       </div>
                     </div>
 
-                    {/* Degree */}
                     <div className="flex items-start gap-3.5">
                       <div className="w-8 h-8 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0 mt-0.5 text-emerald-700 shadow-2xs">
                         <BookOpen className="w-4 h-4" />
@@ -510,7 +484,6 @@ export default function InteractivePassportCard({
                       </div>
                     </div>
 
-                    {/* Batch */}
                     <div className="flex items-start gap-3.5">
                       <div className="w-8 h-8 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0 mt-0.5 text-emerald-700 shadow-2xs">
                         <Calendar className="w-4 h-4" />
@@ -527,16 +500,13 @@ export default function InteractivePassportCard({
                   </div>
                 </div>
 
-                {/* ================= RIGHT COLUMN: SKILLS & PROJECTS (7 Cols) ================= */}
                 <div className="lg:col-span-7 flex flex-col gap-6 relative">
-                  {/* 1. SKILLS SECTION */}
                   <div className="flex flex-col gap-3 relative">
                     <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#111111]">
                       <Hexagon className="w-3.5 h-3.5 text-emerald-600 fill-emerald-600/10" />
                       <span>SKILLS</span>
                     </div>
 
-                    {/* Skills Grid with Lucide React Icons & Full Name Visibility */}
                     <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-2.5">
                       {student.skills.map((skill) => (
                         <div
@@ -566,7 +536,6 @@ export default function InteractivePassportCard({
                       ))}
                     </div>
 
-                    {/* Contextual Floating Skill Popover (Positioned Near the Hovered Skills on the Right) */}
                     <SkillEvidenceModal
                       skill={selectedSkill}
                       isOpen={Boolean(selectedSkill)}
@@ -577,21 +546,18 @@ export default function InteractivePassportCard({
                     />
                   </div>
 
-                  {/* 2. PROJECTS SECTION (Clean - without redundant left icons) */}
                   <div className="flex flex-col gap-3 pt-1">
                     <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#111111]">
                       <FolderGit2 className="w-3.5 h-3.5 text-emerald-600" />
                       <span>PROJECTS</span>
                     </div>
 
-                    {/* Project Cards Stack */}
                     <div className="flex flex-col gap-2.5">
                       {student.projects.map((proj) => (
                         <div
                           key={proj.id}
                           className="bg-[#F8FAF9] border border-neutral-200/90 hover:border-emerald-500/50 rounded-2xl p-3.5 sm:p-4 flex items-center justify-between gap-3 sm:gap-4 transition-all hover:bg-white hover:shadow-md shadow-2xs"
                         >
-                          {/* Project Info */}
                           <div className="flex-1 min-w-0">
                             <h4 className="text-xs sm:text-sm font-bold text-[#111111] truncate">
                               {proj.title}
@@ -601,7 +567,6 @@ export default function InteractivePassportCard({
                             </p>
                           </div>
 
-                          {/* GitHub Icon Link */}
                           {proj.githubUrl && (
                             <a
                               href={proj.githubUrl}
@@ -621,9 +586,7 @@ export default function InteractivePassportCard({
                 </div>
               </div>
 
-              {/* BOTTOM FOOTER */}
               <div className="flex items-center justify-between pt-4 border-t border-black/5 text-xs">
-                {/* ID */}
                 <div className="flex items-center gap-1.5 font-mono">
                   <span className="text-neutral-500">ID:</span>
                   <button
@@ -636,7 +599,6 @@ export default function InteractivePassportCard({
                   </button>
                 </div>
 
-                {/* Tagline & Shield */}
                 <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-neutral-600">
                   <span>EMPOWERING VERIFIED SKILLS</span>
                   <ShieldCheck className="w-4 h-4 text-emerald-600" />
@@ -645,9 +607,6 @@ export default function InteractivePassportCard({
             </div>
           </div>
 
-          {/* ========================================================================= */}
-          {/* ========================== BACK SIDE OF CARD ============================ */}
-          {/* ========================================================================= */}
           <div
             style={{ 
               backfaceVisibility: "hidden", 
@@ -656,10 +615,8 @@ export default function InteractivePassportCard({
             }}
             className="absolute inset-0 w-full h-full bg-white text-neutral-900 rounded-[28px] sm:rounded-[36px] p-6 sm:p-9 lg:p-10 border border-neutral-200/90 shadow-[0_15px_45px_-10px_rgba(0,0,0,0.07),_0_0_0_1px_rgba(16,185,129,0.08)] overflow-hidden flex flex-col justify-between"
           >
-            {/* Ambient Lighting */}
             <div className="absolute -top-32 -right-32 w-96 h-96 bg-emerald-100/40 rounded-full blur-[90px] pointer-events-none" />
             
-            {/* Top Bar */}
             <div className="flex items-center justify-between border-b border-black/5 pb-4 relative z-10">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 shadow-2xs">
@@ -675,7 +632,6 @@ export default function InteractivePassportCard({
               </span>
             </div>
 
-            {/* Center Content Box: Student Details & QR Code */}
             <div className="grid grid-cols-1 md:grid-cols-12 gap-6 bg-[#F8FAF9] p-6 sm:p-7 rounded-2xl border border-neutral-200/80 my-auto relative z-10 shadow-2xs">
               <div className="md:col-span-7 space-y-4">
                 <div>
@@ -713,7 +669,6 @@ export default function InteractivePassportCard({
                 </div>
               </div>
 
-              {/* QR Code Container */}
               <div className="md:col-span-5 flex flex-col items-center justify-center p-5 bg-white rounded-xl border border-neutral-200/90 gap-2.5 text-center shadow-2xs">
                 <QrCode className="w-24 h-24 sm:w-28 sm:h-28 text-emerald-700" />
                 <span className="text-[11px] font-mono text-neutral-500">
@@ -722,7 +677,6 @@ export default function InteractivePassportCard({
               </div>
             </div>
 
-            {/* Bottom Footer on Back Side */}
             <div className="flex items-center justify-between pt-4 border-t border-black/5 text-xs text-neutral-500 gap-3 relative z-10">
               <span>Fairness Filter: Demographic parameters excluded from recruiter ranking algorithms.</span>
             </div>
@@ -732,3 +686,4 @@ export default function InteractivePassportCard({
     </div>
   );
 }
+

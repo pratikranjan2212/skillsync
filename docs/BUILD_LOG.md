@@ -1,3 +1,65 @@
+# SkillSync Frontend — Build Log
+Running log of every change made to the frontend, in chronological order (newest entry at the top).
+Each entry explains *what* changed and *why*, plus a section-by-section explanation of any new or modified code.
+
+---
+## [2026-08-16 14:39] Added Smooth Global Page Transitions & Routing Navigation Animations
+
+**Files changed:**
+- `app/template.js` (created)
+
+**What changed and why:**
+Implemented a unified, fluid page transition system across the entire application using Next.js App Router's `app/template.js`. Every route navigation (e.g., landing $\leftrightarrow$ dashboard, sign in $\leftrightarrow$ sign up, opportunities, passport, admin suites, etc.) now smoothly cross-fades and glides upward into view with a luxury cubic-bezier deceleration curve, accompanied by a subtle top-mounted emerald route indicator line.
+
+**Code explanation (section by section):**
+`app/template.js`
+- **Universal Route Wrapper** — Wraps all page components dynamically keyed on `pathname`, executing a smooth entrance transition (`opacity: 0, y: 12px` $\rightarrow$ `opacity: 1, y: 0px` over 0.38s with ease `[0.22, 1, 0.36, 1]`).
+- **Emerald Route Progress Bar** — Displays a sleek top-mounted progress line (`h-[2.5px]` emerald gradient) that pulses across the top on every page change.
+- **Accessibility** — Includes `prefers-reduced-motion` detection to provide immediate non-animated rendering for users who prefer reduced motion.
+
+**Open items / follow-ups:**
+Production build verified with exit code 0.
+
+## [2026-08-16 14:26] Enlarged Magnifying Glass Size & Fixed Automatic Animation Loop
+
+**Files changed:**
+- `app/components/ui/MagnifyingEvidence.jsx` (modified)
+
+**What changed and why:**
+Significantly enlarged the black magnifying glass lens and handle (from `w-13`/`w-16` to `w-20`/`sm:w-26`/`md:w-30` with a 52px+ lens diameter) and fixed the automatic movement loop by replacing state-driven transition callbacks with a high-performance, uninterrupted `requestAnimationFrame` continuous physics loop that automatically glides across the word without getting stuck.
+
+**Code explanation (section by section):**
+`app/components/ui/MagnifyingEvidence.jsx`
+- **Continuous RAF Animation Engine** — Eliminated React state re-render dependencies by driving the position, scale, opacity, and letter transforms directly via hardware-accelerated ref updates. The loop automatically moves across `e` $\rightarrow$ `v` $\rightarrow$ `i` $\rightarrow$ `d` $\rightarrow$ `e` $\rightarrow$ `n` $\rightarrow$ `c` $\rightarrow$ `e`, pauses, exits, rests, and repeats infinitely.
+- **Substantially Enlarged Glass Design** — Scaled the SVG viewBox to `100x100` with a generous 26px radius lens (`r=26`, diameter 52), thick 5px solid black rim, enhanced specular highlight arc, and a long 45-degree ergonomic grip handle.
+- **Enhanced Magnification Power** — Increased magnification scaling to up to $1.45\times$ with a wider 36px optical proximity radius.
+
+**Open items / follow-ups:**
+Production build verified with exit code 0.
+
+## [2026-08-16 14:24] Implemented Black Magnifying Glass Animation & Dynamic Text Magnification on "evidence"
+
+**Files changed:**
+- `app/components/ui/MagnifyingEvidence.jsx` (created)
+- `app/components/landing/Hero.jsx` (modified)
+- `app/components/Hero.jsx` (modified)
+
+**What changed and why:**
+Added a sleek black magnifying glass animation over the word "evidence" in the hero transition heading ("Verifiable evidence replaces manual resumes..."). The magnifying glass enters smoothly at the starting letter 'e', glides horizontally across the letters to the ending 'e', optically enlarges and lifts each letter dynamically as the lens passes directly over it, pauses on the final letter, and then gracefully lifts and fades out before repeating in a smooth loop. Also supports manual mouse tracking when hovered.
+
+**Code explanation (section by section):**
+`app/components/ui/MagnifyingEvidence.jsx`
+- **Dynamic Optical Magnification** — Measures exact letter centers via DOM coordinates and dynamically calculates the letter's proximity to the lens center (`Math.abs(lensX - charCenter)`), scaling letters up to 1.38x with bold weight and subtle emerald-tinted drop-shadow.
+- **Sleek Black Magnifying Glass SVG** — Custom SVG lens with realistic glass reflection gradient (`#lensReflect`), specular glare arc, deep matte black outer rim (`#blackRimGrad`), and a textured 45-degree ergonomic black handle.
+- **Phased Animation Engine** — Smooth 5-phase loop: Enter (smooth scale/fade in) $\rightarrow$ Sweep (smooth easeInOut travel across 'e'-to-'e') $\rightarrow$ Focus (brief pause on final letter) $\rightarrow$ Exit (smooth upward float and fade out) $\rightarrow$ Rest (clean delay before next loop).
+
+`app/components/landing/Hero.jsx` & `app/components/Hero.jsx`
+- **Integrated MagnifyingEvidence** — Wrapped the target word "evidence" inside `<MagnifyingEvidence text="evidence" />` within the heading.
+
+**Open items / follow-ups:**
+Production build verified cleanly with exit code 0.
+
+
 # SkillSync Frontend — Architecture & Component Structure
 
 This document provides a comprehensive structural guide and detailed component catalog for the entire SkillSync frontend application. It outlines the role of every folder, component, route, hook, data layer, and utility across the codebase.

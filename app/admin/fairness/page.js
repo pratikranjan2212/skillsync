@@ -11,10 +11,6 @@ async function fetchFairnessAuditLogs() {
   return res.json();
 }
 
-/**
- * Admin Algorithmic Fairness Audit Page.
- * Visualizes pipeline score distribution using recharts and audits explicit demographic parameter exclusions.
- */
 export default function AdminFairnessPage() {
   const {
     data,
@@ -39,7 +35,6 @@ export default function AdminFairnessPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Header Banner */}
       <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-md border border-black/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <span className="px-3.5 py-1 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-full border border-emerald-200 inline-flex items-center gap-1.5">
@@ -61,7 +56,6 @@ export default function AdminFairnessPage() {
         </button>
       </div>
 
-      {/* Explicit Excluded Demographic Parameters Callout */}
       <div className="bg-gradient-to-r from-neutral-900 via-slate-900 to-neutral-900 text-white rounded-[32px] p-6 sm:p-8 shadow-xl border border-slate-800 flex flex-col gap-4">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
@@ -96,7 +90,6 @@ export default function AdminFairnessPage() {
         </div>
       </div>
 
-      {/* Chart Section using Recharts */}
       <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-md border border-black/5 flex flex-col gap-4">
         <div className="flex items-center justify-between gap-2">
           <div>
@@ -129,7 +122,6 @@ export default function AdminFairnessPage() {
         </div>
       </div>
 
-      {/* Audit Logs Table */}
       <div className="bg-white rounded-[32px] p-6 shadow-md border border-black/5 overflow-x-auto">
         <h3 className="text-lg font-bold text-[#111111] mb-4">Audited Matching Runs</h3>
 
@@ -174,3 +166,4 @@ export default function AdminFairnessPage() {
     </div>
   );
 }
+

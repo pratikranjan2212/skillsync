@@ -30,10 +30,8 @@ export default function Footer() {
     <footer className="w-full bg-white text-neutral-900 antialiased border-t border-neutral-100">
       <FadeIn distance={32} duration={0.85} delay={0.1}>
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 pt-16 sm:pt-20 pb-10 sm:pb-12">
-        {/* Main Grid: Left Brand Info & Right 3 Columns */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-start">
           
-          {/* Left Column: Logo & Description */}
           <div className="lg:col-span-6 flex flex-col items-start pr-0 lg:pr-8">
             <Link 
               href="/" 
@@ -50,15 +48,12 @@ export default function Footer() {
               </span>
             </Link>
 
-            {/* Description Text from reference */}
             <p className="text-neutral-600 text-[14.5px] sm:text-[15px] font-normal mt-4 max-w-sm leading-relaxed">
               Automated skill verification and explainable job matching platform with guaranteed demographic non-discrimination.
             </p>
           </div>
 
-          {/* Right Columns: Quick links, Pages, Support */}
           <div className="lg:col-span-6 grid grid-cols-2 sm:grid-cols-3 gap-8 sm:gap-10 pt-2 lg:pt-0">
-            {/* Column 1: Quick links */}
             <div>
               <h3 className="font-bold text-[#111111] text-[15px] tracking-tight mb-4">
                 Quick links
@@ -81,7 +76,6 @@ export default function Footer() {
               </ul>
             </div>
 
-            {/* Column 2: Pages */}
             <div>
               <h3 className="font-bold text-[#111111] text-[15px] tracking-tight mb-4">
                 Pages
@@ -104,7 +98,6 @@ export default function Footer() {
               </ul>
             </div>
 
-            {/* Column 3: Support */}
             <div className="col-span-2 sm:col-span-1">
               <h3 className="font-bold text-[#111111] text-[15px] tracking-tight mb-4">
                 Support
@@ -130,10 +123,8 @@ export default function Footer() {
 
         </div>
 
-        {/* Fine Horizontal Separator Line */}
         <div className="border-t border-neutral-200/80 my-10 sm:my-12" />
 
-        {/* Bottom Bar: Copyright only */}
         <div className="flex items-center justify-between">
           <p className="text-xs sm:text-[13.5px] text-neutral-500 font-normal tracking-tight">
             © 2026 SkillSync Platform. All rights reserved.
@@ -143,4 +134,4 @@ export default function Footer() {
     </FadeIn>
   </footer>
 );
-}
+}

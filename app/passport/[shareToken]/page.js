@@ -7,7 +7,6 @@ import { INITIAL_PASSPORT } from "@/app/data/mockData";
 export default async function PublicPassportPage({ params }) {
   const { shareToken } = await params;
 
-  // Server-side validation of shareToken & public visibility state
   let passport = null;
   let errorState = null;
 
@@ -44,7 +43,6 @@ export default async function PublicPassportPage({ params }) {
   return (
     <div className="min-h-screen bg-[#F5F5F3] text-[#111111] py-8 sm:py-12 flex flex-col items-center">
       <main className="max-w-5xl w-full mx-auto px-6 sm:px-12 md:px-16 lg:px-20 flex flex-col gap-6">
-        {/* Top Navbar for Public Page */}
         <div className="w-full flex items-center justify-between">
           <Link
             href="/"
@@ -63,7 +61,6 @@ export default async function PublicPassportPage({ params }) {
           </Link>
         </div>
 
-        {/* Hero Interactive Card in Light Theme */}
         <div className="w-full flex justify-center">
           <InteractivePassportCard passportData={passport} />
         </div>
@@ -71,3 +68,4 @@ export default async function PublicPassportPage({ params }) {
     </div>
   );
 }
+

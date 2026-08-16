@@ -12,7 +12,6 @@ export default function PrivacyPolicyPage() {
       <Navbar />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 w-full flex-1">
-        {/* Header Card */}
         <div className="bg-white rounded-[32px] p-6 sm:p-10 shadow-md border border-black/5 flex flex-col gap-4 mb-8">
           <div className="flex items-center gap-2">
             <span className="px-3.5 py-1 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-full border border-emerald-200 inline-flex items-center gap-1.5">
@@ -31,7 +30,6 @@ export default function PrivacyPolicyPage() {
           </p>
         </div>
 
-        {/* Highlight Guarantee Box */}
         <div className="bg-gradient-to-r from-neutral-900 via-slate-900 to-neutral-900 text-white rounded-[32px] p-6 sm:p-8 shadow-xl border border-slate-800 flex flex-col gap-4 mb-8">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
@@ -60,9 +58,7 @@ export default function PrivacyPolicyPage() {
           </div>
         </div>
 
-        {/* Policy Sections */}
         <div className="bg-white rounded-[32px] p-6 sm:p-10 shadow-sm border border-black/5 space-y-8">
-          {/* Section 1 */}
           <section className="space-y-3">
             <h2 className="text-xl font-bold text-[#111111] flex items-center gap-2">
               <FileText className="w-5 h-5 text-emerald-600" />
@@ -79,7 +75,6 @@ export default function PrivacyPolicyPage() {
             </ul>
           </section>
 
-          {/* Section 2 */}
           <section className="space-y-3 pt-4 border-t border-neutral-100">
             <h2 className="text-xl font-bold text-[#111111] flex items-center gap-2">
               <Scale className="w-5 h-5 text-emerald-600" />
@@ -94,7 +89,6 @@ export default function PrivacyPolicyPage() {
             </div>
           </section>
 
-          {/* Section 3 */}
           <section className="space-y-3 pt-4 border-t border-neutral-100">
             <h2 className="text-xl font-bold text-[#111111] flex items-center gap-2">
               <Lock className="w-5 h-5 text-emerald-600" />
@@ -105,7 +99,6 @@ export default function PrivacyPolicyPage() {
             </p>
           </section>
 
-          {/* Section 4 */}
           <section className="space-y-3 pt-4 border-t border-neutral-100">
             <h2 className="text-xl font-bold text-[#111111] flex items-center gap-2">
               <Server className="w-5 h-5 text-emerald-600" />
@@ -121,7 +114,6 @@ export default function PrivacyPolicyPage() {
             </ul>
           </section>
 
-          {/* Section 5 */}
           <section className="space-y-3 pt-4 border-t border-neutral-100">
             <h2 className="text-xl font-bold text-[#111111] flex items-center gap-2">
               <Shield className="w-5 h-5 text-emerald-600" />
@@ -137,7 +129,6 @@ export default function PrivacyPolicyPage() {
           </section>
         </div>
 
-        {/* Back Link */}
         <div className="mt-8 flex items-center justify-between">
           <Link
             href="/terms"
@@ -160,3 +151,4 @@ export default function PrivacyPolicyPage() {
     </div>
   );
 }
+

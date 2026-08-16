@@ -15,11 +15,6 @@ async function fetchOpportunitiesFeed() {
   return data.opportunities || [];
 }
 
-/**
- * Opportunity Feed Screen.
- * Displays ingested internship listings ranked by match score with source tags and keyword search filters.
- * Protected: Displays full opportunities feed when signed in, or AuthRequiredView when signed out.
- */
 export default function OpportunityFeedPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
@@ -39,7 +34,6 @@ export default function OpportunityFeedPage() {
     enabled: isAuthenticated,
   });
 
-  // Filter opportunities by keyword & source API
   const filteredList = opportunities.filter((op) => {
     const matchesKeyword =
       op.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -91,7 +85,6 @@ export default function OpportunityFeedPage() {
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col gap-8">
-        {/* Banner */}
         <div className="bg-white rounded-4xl p-6 sm:p-8 shadow-md border border-black/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div>
             <span className="px-3.5 py-1 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-full border border-emerald-200 inline-flex items-center gap-1.5">
@@ -115,7 +108,6 @@ export default function OpportunityFeedPage() {
           </div>
         </div>
 
-        {/* Filter Bar */}
         <div className="bg-white rounded-3xl p-4 shadow-sm border border-black/5 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="relative w-full sm:w-80">
             <Search className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3.5" />
@@ -159,7 +151,6 @@ export default function OpportunityFeedPage() {
           </div>
         </div>
 
-        {/* Loading Skeletons */}
         {isLoading && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3].map((n) => (
@@ -173,7 +164,6 @@ export default function OpportunityFeedPage() {
           </div>
         )}
 
-        {/* Error State */}
         {isError && (
           <div className="bg-rose-50 rounded-[28px] p-8 border border-rose-200 text-center flex flex-col items-center gap-3">
             <AlertCircle className="w-8 h-8 text-rose-600" />
@@ -187,7 +177,6 @@ export default function OpportunityFeedPage() {
           </div>
         )}
 
-        {/* Empty State */}
         {!isLoading && !isError && filteredList.length === 0 && (
           <div className="bg-white rounded-4xl p-12 text-center border border-black/5 shadow-sm flex flex-col items-center gap-3">
             <Briefcase className="w-10 h-10 text-neutral-300" />
@@ -196,7 +185,6 @@ export default function OpportunityFeedPage() {
           </div>
         )}
 
-        {/* Opportunity Grid */}
         {!isLoading && !isError && filteredList.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredList.map((op) => (
@@ -208,3 +196,4 @@ export default function OpportunityFeedPage() {
     </div>
   );
 }
+
