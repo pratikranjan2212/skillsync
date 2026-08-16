@@ -1,12 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Zap,
   Scale,
   Database,
   Target,
+  ChevronLeft,
+  ChevronRight,
+  Pause,
+  Play,
   CheckCircle2,
   EyeOff,
   X,
@@ -18,75 +22,87 @@ import {
   Check,
   FileText,
   Lock,
+  Cpu,
   Layers,
-  Cpu
+  Activity
 } from "lucide-react";
 
 export default function Metrics() {
-  const [activeModal, setActiveModal] = useState(null); // 'speed' | 'bias' | 'taxonomy' | 'accuracy' | null
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [activeModal, setActiveModal] = useState(null); // modal for deep dive
   const [demoAnonymized, setDemoAnonymized] = useState(true);
-  const [simulatedScore, setSimulatedScore] = useState(99.4);
 
   const metricsData = [
     {
       id: "speed",
       label: "AUTOMATED PROCESSING SPEED",
       value: "< 400ms",
-      subtext: "Average OCR & crypto verification time",
+      subtext: "Average OCR & crypto verification time across all evidence files",
       icon: Zap,
+      accentColor: "emerald",
+      badgeText: "0.38s Latency Benchmark",
+      highlight: "Sub-second instant verification",
+      metricsList: ["120ms OCR Parsing", "180ms Crypto Signing", "80ms Badge Generation"],
       details: "Multi-threaded OCR document parsing, university key registry check, and instant badge issuance in under 400ms."
     },
     {
       id: "bias",
       label: "DEMOGRAPHIC BIAS ELIMINATED",
       value: "100%",
-      subtext: "Zero non-skill parameters used in ranking",
+      subtext: "Zero non-skill parameters used in candidate recommendation vectors",
       icon: Scale,
+      accentColor: "purple",
+      badgeText: "Zero Demographic Bias",
+      highlight: "Strict meritocratic evaluation",
+      metricsList: ["Gender Excluded", "College Tier Excluded", "Name & Photo Masked"],
       details: "Our explainable ranking engine strips name, photo, gender, and college tier from candidate ranking vectors."
     },
     {
       id: "taxonomy",
       label: "STANDARDIZED SKILL TAXONOMY",
       value: "12,500+",
-      subtext: "ESCO & O*NET normalized skill vectors",
+      subtext: "ESCO & O*NET normalized skill vectors mapped to coursework",
       icon: Database,
+      accentColor: "amber",
+      badgeText: "Global Standards Mapped",
+      highlight: "Universal skill recognition",
+      metricsList: ["ESCO Taxonomy Standard", "US O*NET Framework", "Automatic Alignment"],
       details: "Intelligent mapping of coursework modules to international ESCO and O*NET industry skill taxonomy standards."
     },
     {
       id: "accuracy",
       label: "RECOMMENDATION ACCURACY",
       value: "99.4%",
-      subtext: "Explainable evidence-backed match precision",
+      subtext: "Explainable evidence-backed match precision for internship recommendations",
       icon: Target,
+      accentColor: "blue",
+      badgeText: "High Precision Core",
+      highlight: "Explainable evidence citations",
+      metricsList: ["99.4% Match Accuracy", "Direct Proof Citations", "Zero Blind Scoring"],
       details: "Every match recommendation cites verified coursework evidence with mathematical skill coverage scores."
     }
   ];
 
-  // Stagger animation container
-  const containerVariants = {
-    hidden: { opacity: 0, y: 35 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.7,
-        ease: [0.16, 1, 0.3, 1],
-        staggerChildren: 0.12
-      }
-    }
+  // Auto-play interval timer (4 seconds per slide)
+  useEffect(() => {
+    if (!isAutoPlaying || activeModal) return;
+    const timer = setInterval(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % metricsData.length);
+    }, 4500);
+    return () => clearInterval(timer);
+  }, [isAutoPlaying, activeModal, metricsData.length]);
+
+  const handleNext = () => {
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % metricsData.length);
   };
 
-  const cardVariants = {
-    hidden: { opacity: 0, y: 25 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.55,
-        ease: [0.16, 1, 0.3, 1]
-      }
-    }
+  const handlePrev = () => {
+    setCurrentIndex((prevIndex) => (prevIndex - 1 + metricsData.length) % metricsData.length);
   };
+
+  const activeMetric = metricsData[currentIndex];
+  const Icon = activeMetric.icon;
 
   return (
     <motion.section
@@ -97,143 +113,259 @@ export default function Metrics() {
       transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       className="py-16 md:py-24 px-4 sm:px-6 max-w-7xl mx-auto"
     >
-      {/* Outer Card with Strong Drop Shadow */}
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        className="relative bg-white rounded-[32px] sm:rounded-[40px] border border-black/10 p-6 sm:p-10 md:p-12 shadow-xl sm:shadow-2xl overflow-hidden"
+      {/* Outer Card Wrapper */}
+      <div
+        className="relative bg-white rounded-[36px] sm:rounded-[44px] border border-black/10 p-6 sm:p-10 md:p-12 shadow-2xl overflow-hidden"
+        onMouseEnter={() => setIsAutoPlaying(false)}
+        onMouseLeave={() => setIsAutoPlaying(true)}
       >
-        {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 pb-6 border-b border-black/8">
+        {/* Top Header Row */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 pb-6 border-b border-black/8">
           <div>
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold uppercase tracking-wider mb-3 shadow-xs">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              Platform Impact & Performance
+              Platform Impact Showcase
             </div>
             <h2 className="text-2xl sm:text-4xl font-black text-[#111111] tracking-tight">
               Engine Benchmarks & Guarantee Standards
             </h2>
           </div>
-          <p className="text-sm sm:text-base text-[#494D4D] font-medium max-w-md leading-relaxed">
-            Real-time quantitative performance metrics powering candidate verification, bias elimination, and explainable job matching.
-          </p>
+
+          {/* Quick Slide Selector Tabs */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full no-scrollbar">
+            {metricsData.map((m, idx) => (
+              <button
+                key={m.id}
+                onClick={() => setCurrentIndex(idx)}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-extrabold transition-all whitespace-nowrap cursor-pointer ${
+                  currentIndex === idx
+                    ? "bg-neutral-900 text-white shadow-md scale-105"
+                    : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200 hover:text-neutral-900"
+                }`}
+              >
+                {m.label.split(" ")[0]}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* 4 Stat Cards Grid with Drop Shadows & Spring Pop-Up Hover Animation */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {metricsData.map((m) => {
-            const Icon = m.icon;
-            return (
-              <motion.div
-                key={m.id}
-                variants={cardVariants}
-                whileHover={{ y: -10, scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                transition={{ type: "spring", stiffness: 380, damping: 19 }}
-                onClick={() => setActiveModal(m.id)}
-                className="group relative flex flex-col justify-between p-6 sm:p-7 rounded-[24px] bg-white border border-black/8 shadow-lg hover:shadow-2xl hover:shadow-emerald-500/10 hover:border-emerald-500/40 transition-all duration-300 cursor-pointer overflow-hidden"
-              >
-                {/* Subtle Glow inside Card */}
-                <div className="absolute -top-20 -right-20 w-44 h-44 bg-emerald-500/5 rounded-full blur-2xl group-hover:bg-emerald-500/15 transition-all duration-500 pointer-events-none" />
-
+        {/* 3D Showcase Carousel Stage */}
+        <div className="relative min-h-[360px] sm:min-h-[380px] flex items-center justify-center py-4">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentIndex}
+              initial={{ opacity: 0, x: 50, scale: 0.96 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: -50, scale: 0.96 }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-[#F8F9FA] rounded-[30px] p-6 sm:p-10 border border-black/8 shadow-xl"
+            >
+              {/* Left Column: Big Numeric Metric & Highlight */}
+              <div className="lg:col-span-5 flex flex-col justify-between h-full space-y-4">
                 <div>
-                  {/* Top Header Row */}
-                  <div className="flex items-start justify-between gap-2 mb-4">
-                    <span className="text-xs font-extrabold uppercase tracking-wider text-[#494D4D] leading-snug">
-                      {m.label}
-                    </span>
-                    <div className="w-9 h-9 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0 group-hover:bg-emerald-500 group-hover:text-black transition-all duration-300 shadow-xs">
-                      <Icon className="w-4.5 h-4.5 text-emerald-600 group-hover:text-black transition-colors" />
+                  <div className="flex items-center gap-2.5 mb-3">
+                    <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 shadow-xs">
+                      <Icon className="w-5.5 h-5.5" />
                     </div>
+                    <span className="text-xs font-black uppercase tracking-wider text-emerald-700 bg-emerald-100/80 px-3 py-1 rounded-full border border-emerald-300">
+                      {activeMetric.badgeText}
+                    </span>
                   </div>
 
-                  {/* Large Stat Value */}
-                  <div className="text-4xl sm:text-5xl font-black text-[#111111] tracking-tight mb-2">
-                    {m.value}
+                  <span className="text-xs font-extrabold uppercase tracking-wider text-[#494D4D] block mb-1">
+                    {activeMetric.label}
+                  </span>
+
+                  <div className="text-5xl sm:text-7xl font-black text-[#111111] tracking-tight leading-none my-2">
+                    {activeMetric.value}
                   </div>
 
-                  {/* Subtext */}
-                  <p className="text-xs sm:text-sm text-[#494D4D] font-medium leading-relaxed mb-6">
-                    {m.subtext}
+                  <p className="text-sm sm:text-base text-[#494D4D] font-medium leading-relaxed mt-3">
+                    {activeMetric.subtext}
                   </p>
                 </div>
 
-                {/* Micro-Visual Footer */}
-                <div className="pt-4 border-t border-black/6 flex items-center justify-between gap-2">
-                  {m.id === "speed" && (
-                    <div className="w-full flex items-center gap-2">
-                      <div className="flex-1 h-2 bg-black/8 rounded-full overflow-hidden">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          whileInView={{ width: "100%" }}
-                          viewport={{ once: true }}
-                          transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
-                          className="h-full bg-emerald-500 rounded-full"
-                        />
-                      </div>
-                      <span className="text-[11px] font-extrabold text-emerald-700 whitespace-nowrap">
-                        0.38s Latency
-                      </span>
-                    </div>
-                  )}
+                <div className="pt-2">
+                  <button
+                    onClick={() => setActiveModal(activeMetric.id)}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-extrabold shadow-md hover:shadow-lg transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                  >
+                    <span>Explore Benchmark Details</span>
+                    <ArrowUpRight className="w-4 h-4 stroke-3" />
+                  </button>
+                </div>
+              </div>
 
-                  {m.id === "bias" && (
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      {["Gender", "Tier", "Name", "Photo"].map((param, i) => (
-                        <span
-                          key={i}
-                          className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-neutral-100 text-neutral-700 border border-neutral-200/80 shadow-2xs"
-                        >
-                          {param}
-                        </span>
+              {/* Right Column: Unique Interactive Feature Widget */}
+              <div className="lg:col-span-7 bg-white rounded-3xl p-6 sm:p-8 border border-black/8 shadow-md flex flex-col justify-between space-y-6">
+                <div className="flex items-center justify-between border-b border-neutral-100 pb-4">
+                  <div className="flex items-center gap-2 text-xs font-extrabold text-neutral-800 uppercase tracking-wider">
+                    <Sparkles className="w-4 h-4 text-emerald-500" />
+                    <span>Engine Capability Matrix</span>
+                  </div>
+                  <span className="text-xs font-bold text-neutral-600 bg-neutral-100 px-2.5 py-0.5 rounded-md">
+                    Slide {currentIndex + 1} / {metricsData.length}
+                  </span>
+                </div>
+
+                {/* SLIDE WIDGET 1: SPEED */}
+                {activeMetric.id === "speed" && (
+                  <div className="space-y-4">
+                    <div className="text-xs font-extrabold text-neutral-700">Sub-Second Processing Breakdown:</div>
+                    <div className="space-y-3">
+                      <div>
+                        <div className="flex justify-between text-xs font-bold mb-1">
+                          <span>01. OCR Transcript Extraction</span>
+                          <span className="text-emerald-600 font-extrabold">120ms</span>
+                        </div>
+                        <div className="w-full h-2.5 bg-neutral-100 rounded-full overflow-hidden">
+                          <motion.div initial={{ width: 0 }} animate={{ width: "30%" }} transition={{ duration: 0.8 }} className="h-full bg-emerald-500 rounded-full" />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex justify-between text-xs font-bold mb-1">
+                          <span>02. Cryptographic Key Signing</span>
+                          <span className="text-emerald-600 font-extrabold">180ms</span>
+                        </div>
+                        <div className="w-full h-2.5 bg-neutral-100 rounded-full overflow-hidden">
+                          <motion.div initial={{ width: 0 }} animate={{ width: "45%" }} transition={{ duration: 0.8, delay: 0.1 }} className="h-full bg-emerald-500 rounded-full" />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex justify-between text-xs font-bold mb-1">
+                          <span>03. Passport Badge Generation</span>
+                          <span className="text-emerald-600 font-extrabold">80ms</span>
+                        </div>
+                        <div className="w-full h-2.5 bg-neutral-100 rounded-full overflow-hidden">
+                          <motion.div initial={{ width: 0 }} animate={{ width: "20%" }} transition={{ duration: 0.8, delay: 0.2 }} className="h-full bg-emerald-500 rounded-full" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* SLIDE WIDGET 2: BIAS */}
+                {activeMetric.id === "bias" && (
+                  <div className="space-y-4">
+                    <div className="text-xs font-extrabold text-neutral-700">Exclusion Parameters Masked:</div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                      {["Gender 🚫", "College Tier 🚫", "Name 🚫", "Photo 🚫"].map((item, i) => (
+                        <div key={i} className="p-3 rounded-2xl bg-neutral-50 border border-neutral-200 text-center font-extrabold text-xs text-neutral-800 flex items-center justify-center gap-1 shadow-2xs">
+                          {item}
+                        </div>
                       ))}
                     </div>
-                  )}
-
-                  {m.id === "taxonomy" && (
-                    <div className="flex items-center gap-1.5">
-                      <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs">
-                        ESCO
-                      </span>
-                      <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-sky-100 text-sky-800 border border-sky-300 shadow-2xs">
-                        O*NET
-                      </span>
+                    <div className="p-3.5 rounded-2xl bg-emerald-950 text-emerald-300 text-xs font-bold flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                      Candidate ranking vectors evaluate strictly verified skills and evidence citations.
                     </div>
-                  )}
-
-                  {m.id === "accuracy" && (
-                    <div className="flex items-center gap-1.5">
-                      <span className="px-2.5 py-0.5 text-[10px] font-bold rounded-md bg-emerald-500 text-black shadow-2xs flex items-center gap-1">
-                        <CheckCircle2 className="w-2.5 h-2.5" /> 99.4% Match
-                      </span>
-                    </div>
-                  )}
-
-                  <div className="w-6.5 h-6.5 rounded-full bg-black/5 group-hover:bg-emerald-500 group-hover:text-black flex items-center justify-center transition-all shrink-0 shadow-xs">
-                    <ArrowUpRight className="w-3.5 h-3.5 text-neutral-600 group-hover:text-black" />
                   </div>
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
-      </motion.div>
+                )}
 
-      {/* Interactive Modals */}
+                {/* SLIDE WIDGET 3: TAXONOMY */}
+                {activeMetric.id === "taxonomy" && (
+                  <div className="space-y-4">
+                    <div className="text-xs font-extrabold text-neutral-700">Supported Industry Frameworks:</div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="p-4 rounded-2xl bg-neutral-50 border border-neutral-200 flex items-center gap-3">
+                        <span className="w-3 h-3 rounded-full bg-emerald-500"></span>
+                        <div>
+                          <div className="font-extrabold text-xs text-neutral-900">ESCO European Taxonomy</div>
+                          <div className="text-[11px] text-neutral-500 font-medium">Standardized Skill Classification</div>
+                        </div>
+                      </div>
+                      <div className="p-4 rounded-2xl bg-neutral-50 border border-neutral-200 flex items-center gap-3">
+                        <span className="w-3 h-3 rounded-full bg-sky-500"></span>
+                        <div>
+                          <div className="font-extrabold text-xs text-neutral-900">US O*NET Framework</div>
+                          <div className="text-[11px] text-neutral-500 font-medium">Occupational Competency Matrix</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* SLIDE WIDGET 4: ACCURACY */}
+                {activeMetric.id === "accuracy" && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-extrabold text-neutral-700">Precision Match Vector:</span>
+                      <span className="text-sm font-black text-emerald-600">99.4% Benchmark</span>
+                    </div>
+                    <div className="w-full h-3 bg-neutral-100 rounded-full overflow-hidden">
+                      <motion.div initial={{ width: 0 }} animate={{ width: "99.4%" }} transition={{ duration: 1 }} className="h-full bg-emerald-500 rounded-full" />
+                    </div>
+                    <div className="p-3.5 rounded-2xl bg-neutral-900 text-white text-xs font-bold flex items-center justify-between">
+                      <span>Zero Blind Scoring • 100% Citation Grounded</span>
+                      <span className="px-2 py-0.5 rounded bg-emerald-500 text-black font-extrabold text-[10px]">Verified</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Feature Chips */}
+                <div className="pt-2 flex items-center gap-2 flex-wrap">
+                  {activeMetric.metricsList.map((item, i) => (
+                    <span key={i} className="px-3 py-1 rounded-xl bg-neutral-100 text-neutral-800 text-xs font-bold border border-neutral-200/80">
+                      ✓ {item}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Carousel Bottom Control Navigation Bar */}
+        <div className="mt-8 pt-6 border-t border-black/8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          {/* Left / Right Nav Buttons + Play Pause */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handlePrev}
+              className="w-10 h-10 rounded-full bg-neutral-100 hover:bg-neutral-900 hover:text-white text-neutral-800 flex items-center justify-center transition-all shadow-xs cursor-pointer"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+
+            <button
+              onClick={handleNext}
+              className="w-10 h-10 rounded-full bg-neutral-100 hover:bg-neutral-900 hover:text-white text-neutral-800 flex items-center justify-center transition-all shadow-xs cursor-pointer"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+
+            <button
+              onClick={() => setIsAutoPlaying(!isAutoPlaying)}
+              className="w-10 h-10 rounded-full bg-neutral-100 hover:bg-neutral-900 hover:text-white text-neutral-700 flex items-center justify-center transition-all shadow-xs cursor-pointer"
+              title={isAutoPlaying ? "Pause Autoplay" : "Play Autoplay"}
+            >
+              {isAutoPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
+            </button>
+
+            <span className="text-xs font-extrabold text-neutral-600 ml-2">
+              0{currentIndex + 1} / 0{metricsData.length}
+            </span>
+          </div>
+
+          {/* Progress Bar & Dots */}
+          <div className="flex items-center gap-2">
+            {metricsData.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setCurrentIndex(idx)}
+                className={`h-2.5 rounded-full transition-all cursor-pointer ${
+                  currentIndex === idx ? "w-8 bg-emerald-500" : "w-2.5 bg-neutral-200 hover:bg-neutral-400"
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Interactive Modals for Deep Dive */}
       <AnimatePresence>
         {activeModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-md">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.25 }}
-              className="fixed inset-0"
-              onClick={() => setActiveModal(null)}
-            />
-
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0" onClick={() => setActiveModal(null)} />
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -241,15 +373,10 @@ export default function Metrics() {
               transition={{ type: "spring", stiffness: 350, damping: 26 }}
               className="relative z-10 w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-black/10 p-6 sm:p-8 overflow-hidden text-neutral-900 max-h-[90vh] overflow-y-auto"
             >
-              {/* Close Button */}
-              <button
-                onClick={() => setActiveModal(null)}
-                className="absolute top-5 right-5 p-2 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-600 transition-colors cursor-pointer"
-              >
+              <button onClick={() => setActiveModal(null)} className="absolute top-5 right-5 p-2 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-600 transition-colors cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
 
-              {/* MODAL CONTENT: SPEED */}
               {activeModal === "speed" && (
                 <div className="space-y-6">
                   <div className="flex items-center gap-3">
@@ -257,61 +384,19 @@ export default function Metrics() {
                       <Zap className="w-6 h-6" />
                     </div>
                     <div>
-                      <span className="text-xs font-black uppercase tracking-wider text-emerald-600">
-                        System Speed Benchmark
-                      </span>
-                      <h3 className="text-2xl font-black text-neutral-900">
-                        Sub-400ms Verification Latency
-                      </h3>
+                      <span className="text-xs font-black uppercase tracking-wider text-emerald-600">Speed Benchmark</span>
+                      <h3 className="text-2xl font-black text-neutral-900">Sub-400ms Verification Latency</h3>
                     </div>
                   </div>
-
                   <p className="text-sm text-neutral-600 leading-relaxed font-medium">
                     SkillSync runs parallelized OCR document extraction, digital QR key verification, and syllabus matrix matching to issue verified badges instantaneously.
                   </p>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                    <div className="p-4 rounded-2xl bg-neutral-50 border border-neutral-200/80 flex flex-col gap-1.5">
-                      <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-black text-xs">
-                        120ms
-                      </div>
-                      <span className="font-bold text-xs text-neutral-900">OCR Extraction</span>
-                      <span className="text-[11px] text-neutral-500 leading-normal">
-                        Parses transcript grades & project metadata.
-                      </span>
-                    </div>
-
-                    <div className="p-4 rounded-2xl bg-neutral-50 border border-neutral-200/80 flex flex-col gap-1.5">
-                      <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-black text-xs">
-                        180ms
-                      </div>
-                      <span className="font-bold text-xs text-neutral-900">Crypto Verification</span>
-                      <span className="text-[11px] text-neutral-500 leading-normal">
-                        Verifies SHA-256 signatures against registry.
-                      </span>
-                    </div>
-
-                    <div className="p-4 rounded-2xl bg-neutral-50 border border-neutral-200/80 flex flex-col gap-1.5">
-                      <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-black text-xs">
-                        80ms
-                      </div>
-                      <span className="font-bold text-xs text-neutral-900">Badge Issuance</span>
-                      <span className="text-[11px] text-neutral-500 leading-normal">
-                        Renders verified passport credential badge.
-                      </span>
-                    </div>
-                  </div>
-
                   <div className="p-4 rounded-2xl bg-emerald-950 text-white flex items-center justify-between shadow-lg">
                     <div className="flex items-center gap-3">
                       <Sparkles className="w-5 h-5 text-emerald-400 shrink-0" />
                       <div>
-                        <div className="text-xs font-extrabold text-emerald-400 uppercase tracking-wider">
-                          LATENCY SCORE
-                        </div>
-                        <div className="text-xs text-neutral-300">
-                          Average Total Processing Time per Document
-                        </div>
+                        <div className="text-xs font-extrabold text-emerald-400 uppercase tracking-wider">LATENCY SCORE</div>
+                        <div className="text-xs text-neutral-300">Average Total Processing Time per Document</div>
                       </div>
                     </div>
                     <div className="text-2xl font-black text-emerald-400">380ms</div>
@@ -319,7 +404,6 @@ export default function Metrics() {
                 </div>
               )}
 
-              {/* MODAL CONTENT: DEMOGRAPHIC BIAS */}
               {activeModal === "bias" && (
                 <div className="space-y-6">
                   <div className="flex items-center gap-3">
@@ -327,99 +411,20 @@ export default function Metrics() {
                       <Scale className="w-6 h-6" />
                     </div>
                     <div>
-                      <span className="text-xs font-black uppercase tracking-wider text-emerald-600">
-                        Interactive Bias Simulator
-                      </span>
-                      <h3 className="text-2xl font-black text-neutral-900">
-                        100% Demographic Bias Elimination
-                      </h3>
+                      <span className="text-xs font-black uppercase tracking-wider text-emerald-600">Bias Simulator</span>
+                      <h3 className="text-2xl font-black text-neutral-900">100% Demographic Bias Elimination</h3>
                     </div>
                   </div>
-
                   <p className="text-sm text-neutral-600 leading-relaxed font-medium">
-                    Toggle below to preview candidate profiles. SkillSync explicitly masks non-skill demographic attributes to guarantee 100% meritocratic matching.
+                    SkillSync explicitly masks non-skill demographic attributes to guarantee 100% meritocratic matching.
                   </p>
-
-                  <div className="flex items-center justify-between p-3 rounded-2xl bg-neutral-100 border border-neutral-200">
-                    <span className="text-xs font-extrabold text-neutral-800">
-                      Preview View Mode:
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => setDemoAnonymized(false)}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
-                          !demoAnonymized
-                            ? "bg-rose-500 text-white shadow-sm"
-                            : "text-neutral-600 hover:text-neutral-900"
-                        }`}
-                      >
-                        Unmasked (Legacy)
-                      </button>
-                      <button
-                        onClick={() => setDemoAnonymized(true)}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
-                          demoAnonymized
-                            ? "bg-emerald-500 text-black shadow-sm"
-                            : "text-neutral-600 hover:text-neutral-900"
-                        }`}
-                      >
-                        SkillSync Anonymized
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="p-5 rounded-3xl bg-neutral-900 text-white border border-neutral-800 space-y-4 shadow-lg">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center font-bold text-sm text-emerald-400">
-                          {demoAnonymized ? "#8492" : "AR"}
-                        </div>
-                        <div>
-                          <div className="font-extrabold text-base flex items-center gap-2">
-                            {demoAnonymized ? (
-                              <span className="text-emerald-400 flex items-center gap-1.5">
-                                <Lock className="w-4 h-4" /> Candidate #8492
-                              </span>
-                            ) : (
-                              <span>Alex Rivera</span>
-                            )}
-                          </div>
-                          <div className="text-xs text-neutral-400">
-                            {demoAnonymized ? (
-                              <span className="text-emerald-300 font-semibold">
-                                Demographic vector: [Gender, Tier, Name, Photo] strictly excluded
-                              </span>
-                            ) : (
-                              <span>Male • Tier-1 Institution • San Francisco, CA</span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-extrabold">
-                        98% Skill Match
-                      </span>
-                    </div>
-
-                    <div className="pt-3 border-t border-neutral-800">
-                      <span className="text-[11px] font-extrabold uppercase text-neutral-400 tracking-wider mb-2 block">
-                        Verified Skill Evidence:
-                      </span>
-                      <div className="flex flex-wrap gap-2">
-                        <span className="px-2.5 py-1 rounded-lg bg-emerald-950 text-emerald-300 border border-emerald-500/30 text-xs font-bold flex items-center gap-1">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                          PyTorch & Deep Learning
-                        </span>
-                        <span className="px-2.5 py-1 rounded-lg bg-emerald-950 text-emerald-300 border border-emerald-500/30 text-xs font-bold flex items-center gap-1">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                          SQL Query Optimization
-                        </span>
-                      </div>
-                    </div>
+                  <div className="p-5 rounded-3xl bg-neutral-900 text-white border border-neutral-800 space-y-3">
+                    <div className="text-xs text-emerald-400 font-extrabold">Excluded from Ranking Vector:</div>
+                    <div className="text-sm font-semibold text-neutral-300">[Gender, College Tier, Name, Photo]</div>
                   </div>
                 </div>
               )}
 
-              {/* MODAL CONTENT: TAXONOMY */}
               {activeModal === "taxonomy" && (
                 <div className="space-y-6">
                   <div className="flex items-center gap-3">
@@ -427,36 +432,16 @@ export default function Metrics() {
                       <Database className="w-6 h-6" />
                     </div>
                     <div>
-                      <span className="text-xs font-black uppercase tracking-wider text-emerald-600">
-                        Taxonomy Mapping
-                      </span>
-                      <h3 className="text-2xl font-black text-neutral-900">
-                        12,500+ Normalized Skill Vectors
-                      </h3>
+                      <span className="text-xs font-black uppercase tracking-wider text-emerald-600">Taxonomy Mapping</span>
+                      <h3 className="text-2xl font-black text-neutral-900">12,500+ Normalized Skill Vectors</h3>
                     </div>
                   </div>
-
                   <p className="text-sm text-neutral-600 leading-relaxed font-medium">
-                    SkillSync standardizes messy course titles into international ESCO and O*NET taxonomy standards so candidate skills are recognized universally by employers.
+                    SkillSync standardizes messy course titles into international ESCO and O*NET taxonomy standards.
                   </p>
-
-                  <div className="p-5 rounded-3xl bg-neutral-50 border border-neutral-200 space-y-3 shadow-sm">
-                    <div className="text-xs font-extrabold text-neutral-800">Supported Taxonomy Frameworks:</div>
-                    <div className="grid grid-cols-2 gap-2 text-xs font-bold">
-                      <div className="p-3 rounded-xl bg-white border border-neutral-200 text-neutral-900 flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                        European ESCO Skills Standard
-                      </div>
-                      <div className="p-3 rounded-xl bg-white border border-neutral-200 text-neutral-900 flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-sky-500"></span>
-                        US O*NET Occupational Framework
-                      </div>
-                    </div>
-                  </div>
                 </div>
               )}
 
-              {/* MODAL CONTENT: ACCURACY */}
               {activeModal === "accuracy" && (
                 <div className="space-y-6">
                   <div className="flex items-center gap-3">
@@ -464,28 +449,13 @@ export default function Metrics() {
                       <Target className="w-6 h-6" />
                     </div>
                     <div>
-                      <span className="text-xs font-black uppercase tracking-wider text-emerald-600">
-                        Match Precision
-                      </span>
-                      <h3 className="text-2xl font-black text-neutral-900">
-                        99.4% Recommendation Accuracy
-                      </h3>
+                      <span className="text-xs font-black uppercase tracking-wider text-emerald-600">Precision Match</span>
+                      <h3 className="text-2xl font-black text-neutral-900">99.4% Recommendation Accuracy</h3>
                     </div>
                   </div>
-
                   <p className="text-sm text-neutral-600 leading-relaxed font-medium">
-                    Our explainable matching vector algorithm scores candidate evidence directly against verified job skill requirements with 99.4% benchmark precision.
+                    Our explainable matching vector algorithm scores candidate evidence directly against verified job requirements.
                   </p>
-
-                  <div className="p-5 rounded-3xl bg-neutral-900 text-white border border-neutral-800 space-y-3 shadow-lg">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-neutral-400 font-medium">Verified Match Vector Score:</span>
-                      <span className="text-xl font-black text-emerald-400">99.4% Precision</span>
-                    </div>
-                    <div className="w-full h-2.5 bg-neutral-800 rounded-full overflow-hidden">
-                      <div className="h-full bg-emerald-500 rounded-full w-[99.4%]"></div>
-                    </div>
-                  </div>
                 </div>
               )}
             </motion.div>
