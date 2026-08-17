@@ -47,13 +47,13 @@ export default function AdminPipelinePage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-md border border-black/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="bg-white rounded-3xl sm:rounded-[32px] p-5 sm:p-8 shadow-md border border-black/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <span className="px-3.5 py-1 bg-[#F5F5F3] text-[#494D4D] text-xs font-bold rounded-full border border-black/5 inline-flex items-center gap-1.5">
             <ListFilter className="w-3.5 h-3.5 text-emerald-600" />
             <span>Audit & Verification Pipeline Log</span>
           </span>
-          <h1 className="text-2xl font-black text-[#111111] mt-2">Evidence Pipeline Records</h1>
+          <h1 className="text-xl sm:text-2xl font-black text-[#111111] mt-2">Evidence Pipeline Records</h1>
           <p className="text-xs text-[#494D4D] mt-1">
             Review automated verification stages, confidence reasons, and trigger manual tier overrides when required.
           </p>
@@ -61,14 +61,14 @@ export default function AdminPipelinePage() {
 
         <button
           onClick={() => refetch()}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-[#111111] hover:bg-neutral-50 rounded-2xl text-xs font-bold border border-black/10 transition-all shadow-xs"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-[#111111] hover:bg-neutral-50 rounded-2xl text-xs font-bold border border-black/10 transition-all shadow-xs w-full sm:w-auto cursor-pointer"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? "animate-spin text-emerald-600" : ""}`} />
           <span>Refresh Records</span>
         </button>
       </div>
 
-      <div className="bg-white rounded-[32px] p-6 shadow-md border border-black/5 overflow-x-auto">
+      <div className="bg-white rounded-3xl sm:rounded-[32px] p-4 sm:p-6 shadow-md border border-black/5 overflow-x-auto">
         {isLoading ? (
           <div className="p-8 text-center text-xs font-bold text-neutral-400">Loading Pipeline Log...</div>
         ) : isError ? (

@@ -101,25 +101,25 @@ export default function Navbar() {
     <>
       <nav
         id="top-navbar"
-        className={`fixed left-0 right-0 z-50 w-full max-w-7xl mx-auto px-4 sm:px-6 pointer-events-none ${
+        className={`fixed left-0 right-0 z-50 w-full max-w-7xl 2xl:max-w-[1536px] mx-auto px-3.5 sm:px-6 2xl:px-8 pointer-events-none ${
           isHomePage ? "transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]" : ""
-        } ${isDocked ? "top-3" : "top-6"}`}
+        } ${isDocked ? "top-2.5 sm:top-3" : "top-4 sm:top-6"}`}
       >
         <div
           className={`flex items-stretch justify-center ${
             isHomePage ? "transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]" : ""
-          } ${isDocked ? "gap-2 sm:gap-3" : "gap-5 md:gap-8 lg:gap-12"}`}
+          } ${isDocked ? "gap-1.5 sm:gap-3" : "gap-3 sm:gap-5 md:gap-8 lg:gap-12"}`}
         >
           {/* Left Pill: Logo */}
           <div
             onClick={(e) => e.stopPropagation()}
-            className={`pointer-events-auto bg-white rounded-full flex items-center shadow-lg border border-black/5 px-6 py-4 hover:scale-95 shrink-0 ${
+            className={`pointer-events-auto bg-white rounded-full flex items-center shadow-lg border border-black/5 px-4 sm:px-6 py-3 sm:py-4 hover:scale-95 shrink-0 ${
               isHomePage ? "transition-all duration-500" : ""
             }`}
           >
-            <Link href="/" className="flex items-center gap-2.5 group whitespace-nowrap">
-              <img src="/logo.svg" alt="SkillSync Logo" className="h-7 w-auto object-contain shrink-0" />
-              <span className="text-xl font-extrabold text-[#111111] tracking-tight whitespace-nowrap">SkillSync</span>
+            <Link href="/" className="flex items-center gap-2 sm:gap-2.5 group whitespace-nowrap">
+              <img src="/logo.svg" alt="SkillSync Logo" className="h-6 sm:h-7 w-auto object-contain shrink-0" />
+              <span className="text-lg sm:text-xl font-extrabold text-[#111111] tracking-tight whitespace-nowrap">SkillSync</span>
             </Link>
           </div>
 
@@ -132,7 +132,7 @@ export default function Navbar() {
           >
             <Link
               href="/dashboard"
-              className={`text-sm font-bold transition-all duration-500 ease-out px-5 py-3 rounded-full flex items-center gap-2 whitespace-nowrap shrink-0 ${
+              className={`text-sm font-bold transition-all duration-500 ease-out px-4 xl:px-5 py-3 rounded-full flex items-center gap-2 whitespace-nowrap shrink-0 ${
                 pathname === "/dashboard"
                   ? "bg-[#D5D5D2] text-[#111111]"
                   : "text-[#494D4D] hover:text-[#111111] hover:bg-[#E2E2E0]"
@@ -150,7 +150,7 @@ export default function Navbar() {
 
             <Link
               href="/passport"
-              className={`text-sm font-bold transition-all duration-500 ease-out px-5 py-3 rounded-full flex items-center gap-2 whitespace-nowrap shrink-0 ${
+              className={`text-sm font-bold transition-all duration-500 ease-out px-4 xl:px-5 py-3 rounded-full flex items-center gap-2 whitespace-nowrap shrink-0 ${
                 pathname.startsWith("/passport")
                   ? "bg-[#D5D5D2] text-[#111111]"
                   : "text-[#494D4D] hover:text-[#111111] hover:bg-[#E2E2E0]"
@@ -168,7 +168,7 @@ export default function Navbar() {
 
             <Link
               href="/opportunities"
-              className={`text-sm font-bold transition-all duration-500 ease-out px-5 py-3 rounded-full flex items-center gap-2 whitespace-nowrap shrink-0 ${
+              className={`text-sm font-bold transition-all duration-500 ease-out px-4 xl:px-5 py-3 rounded-full flex items-center gap-2 whitespace-nowrap shrink-0 ${
                 pathname.startsWith("/opportunities")
                   ? "bg-[#D5D5D2] text-[#111111]"
                   : "text-[#494D4D] hover:text-[#111111] hover:bg-[#E2E2E0]"
@@ -187,7 +187,7 @@ export default function Navbar() {
             {userRole === "admin" && (
               <Link
                 href="/admin"
-                className={`text-sm font-bold transition-all duration-500 ease-out px-5 py-3 rounded-full flex items-center gap-2 whitespace-nowrap shrink-0 ${
+                className={`text-sm font-bold transition-all duration-500 ease-out px-4 xl:px-5 py-3 rounded-full flex items-center gap-2 whitespace-nowrap shrink-0 ${
                   pathname.startsWith("/admin")
                     ? "bg-slate-900 text-white"
                     : "text-slate-900 hover:bg-slate-100"
@@ -203,13 +203,13 @@ export default function Navbar() {
           <div className="flex items-center gap-2 shrink-0">
             <div
               onClick={(e) => e.stopPropagation()}
-              className="pointer-events-auto hidden sm:flex items-center gap-2 bg-white rounded-full shadow-lg border border-black/5 px-3 py-2 transition-all duration-500 shrink-0"
+              className="pointer-events-auto hidden sm:flex items-center gap-2 bg-white rounded-full shadow-lg border border-black/5 px-2.5 sm:px-3 py-1.5 sm:py-2 transition-all duration-500 shrink-0"
             >
               {isAuthenticated ? (
                 <>
                   <Link
                     href="/profile"
-                    className={`px-4 py-2.5 rounded-full flex items-center gap-1.5 text-sm font-bold transition-all whitespace-nowrap shrink-0 ${
+                    className={`px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-full flex items-center gap-1.5 text-xs sm:text-sm font-bold transition-all whitespace-nowrap shrink-0 ${
                       pathname === "/profile"
                         ? "bg-[#D5D5D2] text-[#111111]"
                         : "bg-[#F5F5F3] hover:bg-[#EAEAEA] text-[#111111]"
@@ -228,7 +228,7 @@ export default function Navbar() {
                   <button
                     type="button"
                     onClick={handleSignOut}
-                    className="px-4 py-2.5 rounded-full bg-[#F5F5F3] hover:bg-[#EAEAEA] flex items-center gap-1.5 text-sm font-bold text-[#111111] transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+                    className="px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-full bg-[#F5F5F3] hover:bg-[#EAEAEA] flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#111111] transition-colors whitespace-nowrap shrink-0 cursor-pointer"
                   >
                     <LogOut className="w-4 h-4 shrink-0 text-neutral-600" />
                     <span className="whitespace-nowrap">Sign Out</span>
@@ -238,14 +238,14 @@ export default function Navbar() {
                 <>
                   <Link
                     href="/signin"
-                    className="px-4 py-2.5 rounded-full bg-[#F5F5F3] hover:bg-[#EAEAEA] flex items-center gap-1.5 text-sm font-bold text-[#111111] transition-colors whitespace-nowrap shrink-0"
+                    className="px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-full bg-[#F5F5F3] hover:bg-[#EAEAEA] flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#111111] transition-colors whitespace-nowrap shrink-0"
                   >
                     <LogIn className="w-4 h-4 shrink-0 text-neutral-600" />
                     <span className="whitespace-nowrap">Sign In</span>
                   </Link>
                   <Link
                     href="/signup"
-                    className="px-5 py-2.5 rounded-full bg-neutral-900 text-white hover:bg-neutral-800 flex items-center gap-1.5 text-sm font-bold transition-colors shadow-xs whitespace-nowrap shrink-0"
+                    className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-neutral-900 text-white hover:bg-neutral-800 flex items-center gap-1.5 text-xs sm:text-sm font-bold transition-colors shadow-xs whitespace-nowrap shrink-0"
                   >
                     <UserPlus className="w-4 h-4 text-emerald-400 shrink-0" />
                     <span className="whitespace-nowrap">Get Started</span>
@@ -257,11 +257,11 @@ export default function Navbar() {
             {/* Mobile Hamburger Toggle */}
             <div
               onClick={(e) => e.stopPropagation()}
-              className="pointer-events-auto lg:hidden bg-white rounded-full shadow-lg border border-black/5 p-2 transition-all duration-500 shrink-0"
+              className="pointer-events-auto lg:hidden bg-white rounded-full shadow-lg border border-black/5 p-1.5 sm:p-2 transition-all duration-500 shrink-0"
             >
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="p-2.5 rounded-full text-[#111111] hover:bg-[#EAEAEA] transition-colors"
+                className="p-2 sm:p-2.5 rounded-full text-[#111111] hover:bg-[#EAEAEA] transition-colors cursor-pointer"
                 aria-label="Toggle Menu"
               >
                 {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -274,59 +274,78 @@ export default function Navbar() {
         {isMobileMenuOpen && (
           <div
             onClick={(e) => e.stopPropagation()}
-            className="pointer-events-auto lg:hidden mt-3 bg-white border border-black/5 rounded-3xl p-4 shadow-xl flex flex-col gap-2 animate-in fade-in slide-in-from-top-2 duration-200"
+            className="pointer-events-auto lg:hidden mt-3 bg-white/95 backdrop-blur-xl border border-black/10 rounded-3xl p-4 shadow-2xl flex flex-col gap-1.5 animate-in fade-in slide-in-from-top-2 duration-200 max-w-md mx-auto"
           >
             <Link
               href="/dashboard"
-              className="px-5 py-3 rounded-full text-base font-bold text-[#494D4D] hover:text-[#111111] hover:bg-[#F5F5F3]"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="px-5 py-3 rounded-2xl text-base font-bold text-[#494D4D] hover:text-[#111111] hover:bg-[#F5F5F3] flex items-center gap-3 transition-colors"
             >
-              Dashboard
+              <LayoutDashboard className="w-5 h-5 text-emerald-600" />
+              <span>Dashboard</span>
             </Link>
             <Link
               href="/passport"
-              className="px-5 py-3 rounded-full text-base font-bold text-[#494D4D] hover:text-[#111111] hover:bg-[#F5F5F3]"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="px-5 py-3 rounded-2xl text-base font-bold text-[#494D4D] hover:text-[#111111] hover:bg-[#F5F5F3] flex items-center gap-3 transition-colors"
             >
-              Skill Passport
+              <Award className="w-5 h-5 text-amber-600" />
+              <span>Skill Passport</span>
             </Link>
             <Link
               href="/opportunities"
-              className="px-5 py-3 rounded-full text-base font-bold text-[#494D4D] hover:text-[#111111] hover:bg-[#F5F5F3]"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="px-5 py-3 rounded-2xl text-base font-bold text-[#494D4D] hover:text-[#111111] hover:bg-[#F5F5F3] flex items-center gap-3 transition-colors"
             >
-              Opportunities Feed
+              <Briefcase className="w-5 h-5 text-emerald-600" />
+              <span>Opportunities Feed</span>
             </Link>
             {userRole === "admin" && (
               <Link
                 href="/admin"
-                className="px-5 py-3 rounded-full text-base font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 flex items-center gap-2"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="px-5 py-3 rounded-2xl text-base font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 flex items-center gap-3"
               >
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
                 <span>Admin Console</span>
               </Link>
             )}
-            <div className="pt-2 border-t border-neutral-100 flex flex-col gap-2">
+            <div className="pt-2 mt-1 border-t border-neutral-100 flex flex-col gap-2">
               {isAuthenticated ? (
                 <>
                   <Link
                     href="/profile"
-                    className="w-full py-3 text-center bg-neutral-900 text-white rounded-full text-sm font-bold flex items-center justify-center gap-2"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-full py-3.5 text-center bg-neutral-900 text-white rounded-2xl text-sm font-bold flex items-center justify-center gap-2 shadow-sm"
                   >
                     <User className="w-4 h-4 text-emerald-400" />
                     <span>My Profile</span>
                   </Link>
                   <button
                     type="button"
-                    onClick={handleSignOut}
-                    className="w-full py-3 text-center bg-neutral-100 rounded-full text-sm font-bold text-[#111111] cursor-pointer hover:bg-neutral-200 transition-colors"
+                    onClick={(e) => {
+                      setIsMobileMenuOpen(false);
+                      handleSignOut(e);
+                    }}
+                    className="w-full py-3 text-center bg-neutral-100 rounded-2xl text-sm font-bold text-[#111111] cursor-pointer hover:bg-neutral-200 transition-colors"
                   >
                     Sign Out
                   </button>
                 </>
               ) : (
                 <>
-                  <Link href="/signin" className="w-full py-3 text-center bg-neutral-100 rounded-full text-sm font-bold text-[#111111] hover:bg-neutral-200 transition-colors">
+                  <Link
+                    href="/signin"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-full py-3 text-center bg-neutral-100 rounded-2xl text-sm font-bold text-[#111111] hover:bg-neutral-200 transition-colors"
+                  >
                     Sign In
                   </Link>
-                  <Link href="/signup" className="w-full py-3 text-center bg-neutral-900 text-white rounded-full text-sm font-bold hover:bg-neutral-800 transition-colors">
+                  <Link
+                    href="/signup"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-full py-3.5 text-center bg-neutral-900 text-white rounded-2xl text-sm font-bold hover:bg-neutral-800 transition-colors shadow-sm"
+                  >
                     Get Started
                   </Link>
                 </>
@@ -335,7 +354,7 @@ export default function Navbar() {
           </div>
         )}
       </nav>
-      {pathname !== "/" && <div className="h-24 sm:h-28" />}
+      {pathname !== "/" && <div className="h-20 sm:h-28" />}
     </>
   );
 }

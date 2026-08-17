@@ -15,29 +15,29 @@ export default function FAQSection() {
   };
 
   return (
-    <section id="faq" className="pt-24 sm:pt-32 pb-16 sm:pb-24 px-4 sm:px-6 max-w-7xl mx-auto scroll-mt-24">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-stretch">
-        <div className="lg:col-span-5 flex flex-col justify-between h-full gap-10">
-          <FadeIn distance={28} duration={0.85} delay={0.1} className="flex flex-col justify-between h-full gap-10">
+    <section id="faq" className="pt-20 sm:pt-32 pb-14 sm:pb-24 px-3.5 sm:px-6 2xl:px-8 max-w-7xl 2xl:max-w-[1536px] mx-auto scroll-mt-24">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-stretch">
+        <div className="lg:col-span-5 flex flex-col justify-between h-full gap-8 sm:gap-10">
+          <FadeIn distance={28} duration={0.85} delay={0.1} className="flex flex-col justify-between h-full gap-8 sm:gap-10">
             <div>
-              <span className="px-4.5 py-2.5 sm:py-3 bg-white text-emerald-800 text-xs sm:text-sm font-bold rounded-full border border-black/5 shadow-2xs inline-flex items-center gap-2 mb-6 sm:mb-8">
+              <span className="px-3.5 sm:px-4.5 py-2 sm:py-3 bg-white text-emerald-800 text-xs sm:text-sm font-bold rounded-full border border-black/5 shadow-2xs inline-flex items-center gap-2 mb-4 sm:mb-8">
                 <HelpCircle className="w-4 h-4 text-emerald-600" />
                 <span>Frequently Asked Questions</span>
               </span>
 
-              <h2 className="text-3xl sm:text-5xl font-black text-[#111111] leading-tight tracking-tight mt-2">
+              <h2 className="text-2xl sm:text-5xl font-black text-[#111111] leading-tight tracking-tight mt-2">
                 Everything<br />
                 about<br />
                 SkillSync
               </h2>
             </div>
 
-            <div className="bg-white rounded-[28px] sm:rounded-4xl py-7 pl-7 pr-12 sm:py-9 sm:pl-9 sm:pr-16 border border-black/5 shadow-xs flex flex-col items-start gap-5 sm:gap-6 w-full max-w-95">
-              <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/25 shrink-0">
-                <Headphones className="w-6 h-6 stroke-[2.5]" />
+            <div className="bg-white rounded-3xl sm:rounded-4xl p-6 sm:py-9 sm:pl-9 sm:pr-16 border border-black/5 shadow-xs flex flex-col items-start gap-4 sm:gap-6 w-full lg:max-w-95">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/25 shrink-0">
+                <Headphones className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5]" />
               </div>
 
-              <h3 className="text-xl sm:text-2xl font-bold text-[#111111] leading-snug">
+              <h3 className="text-lg sm:text-2xl font-bold text-[#111111] leading-snug">
                 Can’t find your answer?
               </h3>
 
@@ -45,7 +45,7 @@ export default function FAQSection() {
                 href="mailto:support@skillsync.dev"
                 onMouseEnter={() => setHovered(true)}
                 onMouseLeave={() => setHovered(false)}
-                className="px-6 py-3.5 bg-[#111111] hover:bg-black text-white text-xs sm:text-sm font-bold rounded-full shadow-[0_18px_40px_rgba(0,0,0,0.35)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.25)] transition-all hover:scale-95 active:scale-90 inline-flex items-center justify-center"
+                className="w-full sm:w-auto px-6 py-3.5 bg-[#111111] hover:bg-black text-white text-xs sm:text-sm font-bold rounded-full shadow-[0_18px_40px_rgba(0,0,0,0.35)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.25)] transition-all hover:scale-95 active:scale-90 inline-flex items-center justify-center"
               >
                 <RollingText
                   text="Contact us"
@@ -68,16 +68,16 @@ export default function FAQSection() {
               return (
                 <FadeInItem key={faq.id}>
                   <div
-                    className="bg-white rounded-3xl sm:rounded-[28px] p-6 sm:p-7 shadow-xs border border-black/5 transition-all duration-200"
+                    className="bg-white rounded-2xl sm:rounded-[28px] p-5 sm:p-7 shadow-xs border border-black/5 transition-all duration-200"
                   >
                     <button
                       onClick={() => toggle(faq.id)}
-                      className="w-full flex items-center justify-between gap-4 text-left font-bold text-[17px] sm:text-xl text-[#111111] group"
+                      className="w-full flex items-center justify-between gap-3 sm:gap-4 text-left font-bold text-base sm:text-xl text-[#111111] group cursor-pointer"
                     >
                       <span className="leading-snug">{faq.question}</span>
-                      <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-neutral-100 group-hover:bg-neutral-200/80 flex items-center justify-center shrink-0 transition-colors">
+                      <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-neutral-100 group-hover:bg-neutral-200/80 flex items-center justify-center shrink-0 transition-colors">
                         <Plus
-                          className={`w-5 h-5 sm:w-6 sm:h-6 text-neutral-700 stroke-[2.5] transition-transform duration-500 ease-out ${
+                          className={`w-4 h-4 sm:w-6 sm:h-6 text-neutral-700 stroke-[2.5] transition-transform duration-500 ease-out ${
                             isOpen ? "rotate-45" : "rotate-0"
                           }`}
                         />
@@ -93,7 +93,7 @@ export default function FAQSection() {
                     >
                       <div className="overflow-hidden">
                         <p
-                          className={`text-sm sm:text-[15px] text-[#494D4D] leading-relaxed font-medium transition-all duration-500 ease-out transform ${
+                          className={`text-xs sm:text-[15px] text-[#494D4D] leading-relaxed font-medium transition-all duration-500 ease-out transform ${
                             isOpen
                               ? "translate-y-0 opacity-100"
                               : "translate-y-3 opacity-0"

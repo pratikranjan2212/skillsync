@@ -194,9 +194,9 @@ export default function AddEvidencePage() {
 
   if (!authLoading && !isAuthenticated) {
     return (
-      <div className="h-screen overflow-hidden bg-[#F5F5F3] text-[#111111] flex flex-col justify-start">
+      <div className="min-h-screen pb-12 bg-[#F5F5F3] text-[#111111] flex flex-col justify-start">
         <Navbar />
-        <main className="max-w-2xl mx-auto px-4 w-full">
+        <main className="max-w-2xl 2xl:max-w-3xl mx-auto px-3.5 sm:px-6 w-full">
           <AuthRequiredView
             badgeText="Evidence Ingestion & Verification"
             badgeIcon={FilePlus}
@@ -233,14 +233,14 @@ export default function AddEvidencePage() {
     <div className="min-h-screen bg-[#F5F5F3] text-[#111111] pb-16">
       <Navbar />
 
-      <main className="max-w-2xl mx-auto px-4">
-        <div className="bg-white rounded-4xl p-6 sm:p-8 shadow-xl border border-black/5 flex flex-col gap-6">
+      <main className="max-w-2xl 2xl:max-w-3xl mx-auto px-3.5 sm:px-6">
+        <div className="bg-white rounded-3xl sm:rounded-4xl p-5 sm:p-8 shadow-xl border border-black/5 flex flex-col gap-6">
           <div>
             <span className="inline-flex items-center gap-1.5 px-3.5 py-1 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-full border border-emerald-200">
               <FilePlus className="w-3.5 h-3.5" />
               Evidence Submission
             </span>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#111111] mt-2">
+            <h1 className="text-xl sm:text-3xl font-extrabold text-[#111111] mt-2">
               Submit Coursework or Project
             </h1>
             <p className="text-xs text-[#494D4D] mt-1">

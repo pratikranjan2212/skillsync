@@ -47,9 +47,9 @@ export default function SkillPassportPage() {
 
   if (!authLoading && !isAuthenticated) {
     return (
-      <div className="h-screen overflow-hidden bg-[#F5F5F3] text-[#111111] flex flex-col justify-start">
+      <div className="min-h-screen pb-12 bg-[#F5F5F3] text-[#111111] flex flex-col justify-start">
         <Navbar />
-        <main className="max-w-7xl mx-auto px-6 sm:px-12 w-full">
+        <main className="max-w-7xl 2xl:max-w-[1536px] mx-auto px-3.5 sm:px-6 2xl:px-8 w-full">
           <AuthRequiredView
             badgeText="Verified Portable Skill Passport"
             badgeIcon={Award}
@@ -86,7 +86,7 @@ export default function SkillPassportPage() {
     <div className="min-h-screen bg-[#F5F5F3] text-[#111111] pb-24">
       <Navbar />
 
-      <main className="max-w-5xl mx-auto px-6 sm:px-12 md:px-16 lg:px-20 flex flex-col items-center justify-center pt-4 sm:pt-8">
+      <main className="max-w-5xl 2xl:max-w-6xl mx-auto px-3.5 sm:px-8 md:px-12 flex flex-col items-center justify-center pt-4 sm:pt-8">
         {isLoading && (
           <div className="w-full bg-white rounded-4xl p-16 text-center border border-black/5 flex flex-col items-center gap-4 shadow-sm animate-pulse">
             <div className="w-10 h-10 rounded-full border-4 border-emerald-500 border-t-transparent animate-spin"></div>

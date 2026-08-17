@@ -223,8 +223,8 @@ export default function ImageCropperModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-white rounded-[32px] p-6 sm:p-8 max-w-md w-full shadow-2xl border border-black/10 flex flex-col gap-5 animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-3.5 sm:p-4">
+      <div className="bg-white rounded-3xl sm:rounded-[32px] p-5 sm:p-8 max-w-md w-full shadow-2xl border border-black/10 flex flex-col gap-4 sm:gap-5 animate-in fade-in zoom-in-95 duration-200">
         <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
           <div className="flex items-center gap-2.5">
             <div className="p-2 rounded-2xl bg-emerald-50 text-emerald-700">

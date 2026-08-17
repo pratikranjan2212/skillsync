@@ -148,16 +148,16 @@ export default function OpportunityCard({ opportunity }) {
   const missingList = missingRequired.length > 0 ? missingRequired : (missingSkills || []);
 
   return (
-    <div className="bg-white rounded-3xl p-6 shadow-md hover:shadow-lg transition-all border border-black/5 flex flex-col justify-between gap-5 group">
+    <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-md hover:shadow-lg transition-all border border-black/5 flex flex-col justify-between gap-4 sm:gap-5 group">
       <div className="flex flex-col gap-3">
         {/* Top Header Row: Work Mode (Sky/Rose/Amber) vs Match Score (Emerald Green) */}
         <div className="flex items-center justify-between gap-2">
-          <span className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-xl border ${modeBadge.style}`}>
+          <span className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs font-bold rounded-xl border ${modeBadge.style}`}>
             <ModeIcon className="w-3.5 h-3.5" />
             <span>{modeBadge.label}</span>
           </span>
 
-          <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold border ${band.badgeBg}`}>
+          <div className={`inline-flex items-center gap-1 px-2.5 sm:px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold border ${band.badgeBg}`}>
             <span>{scorePercentage}%</span>
             <span className="text-[10px] opacity-80">• {displayLabel}</span>
           </div>
@@ -166,7 +166,7 @@ export default function OpportunityCard({ opportunity }) {
         <div>
           <Link
             href={`/opportunities/${id}`}
-            className="text-xl font-bold text-[#111111] group-hover:text-emerald-700 transition-colors inline-block"
+            className="text-lg sm:text-xl font-bold text-[#111111] group-hover:text-emerald-700 transition-colors inline-block"
           >
             {cleanTitle}
           </Link>

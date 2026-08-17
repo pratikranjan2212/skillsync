@@ -372,7 +372,7 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-[#F5F5F3] text-[#111111] pb-16">
       <Navbar />
 
-      <main className="max-w-6xl mx-auto px-4 pt-4 sm:pt-6">
+      <main className="max-w-6xl 2xl:max-w-7xl mx-auto px-3.5 sm:px-6 pt-4 sm:pt-6">
         {savedSuccess && (
           <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center gap-3 text-emerald-800 text-sm font-semibold shadow-xs animate-in fade-in slide-in-from-top-2 duration-300">
             <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
@@ -381,7 +381,7 @@ export default function ProfilePage() {
         )}
 
         {/* Profile Header Card */}
-        <div className="bg-white rounded-4xl p-6 sm:p-8 shadow-xl border border-black/5 mb-8">
+        <div className="bg-white rounded-3xl sm:rounded-4xl p-5 sm:p-8 shadow-xl border border-black/5 mb-6 sm:mb-8">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-6 border-b border-neutral-100">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
               {/* Profile Avatar with Hover Change Photo Trigger */}
