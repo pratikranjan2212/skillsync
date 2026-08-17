@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
+import { MagnifyingGlassIcon } from "@/app/components/icons";
 
 export default function MagnifyingEvidence({ text = "evidence", className = "" }) {
   const containerRef = useRef(null);
@@ -178,108 +179,7 @@ export default function MagnifyingEvidence({ text = "evidence", className = "" }
           willChange: "transform, opacity, left, top",
         }}
       >
-        <svg
-          viewBox="0 0 100 100"
-          className="w-20 h-20 sm:w-26 sm:h-26 md:w-30 md:h-30 drop-shadow-[0_14px_28px_rgba(0,0,0,0.42)]"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <defs>
-            <radialGradient id="largeLensReflect" cx="35%" cy="35%" r="65%">
-              <stop offset="0%" stopColor="#ffffff" stopOpacity="0.55" />
-              <stop offset="35%" stopColor="#38bdf8" stopOpacity="0.16" />
-              <stop offset="65%" stopColor="#10b981" stopOpacity="0.09" />
-              <stop offset="100%" stopColor="#000000" stopOpacity="0.22" />
-            </radialGradient>
-
-            <linearGradient id="largeBlackRimGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#323336" />
-              <stop offset="45%" stopColor="#161719" />
-              <stop offset="100%" stopColor="#09090a" />
-            </linearGradient>
-
-            <linearGradient id="largeBlackHandleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#3c3d40" />
-              <stop offset="40%" stopColor="#1c1d1f" />
-              <stop offset="100%" stopColor="#0a0a0b" />
-            </linearGradient>
-          </defs>
-
-          <circle cx="38" cy="38" r="25.5" fill="url(#largeLensReflect)" />
-
-          <path
-            d="M 21 35 A 19 19 0 0 1 37 19"
-            stroke="#ffffff"
-            strokeWidth="3.2"
-            strokeLinecap="round"
-            opacity="0.9"
-          />
-          <circle cx="23" cy="26" r="1.8" fill="#ffffff" opacity="0.95" />
-
-          <circle
-            cx="38"
-            cy="38"
-            r="27"
-            stroke="#4e5054"
-            strokeWidth="1"
-            opacity="0.6"
-          />
-
-          <circle
-            cx="38"
-            cy="38"
-            r="25.5"
-            stroke="url(#largeBlackRimGrad)"
-            strokeWidth="5"
-          />
-
-          <circle
-            cx="38"
-            cy="38"
-            r="23"
-            stroke="#ffffff"
-            strokeWidth="0.8"
-            opacity="0.4"
-          />
-
-          <path
-            d="M 55 55 L 61 61"
-            stroke="#141517"
-            strokeWidth="9"
-            strokeLinecap="round"
-          />
-
-          <rect
-            x="58"
-            y="54"
-            width="11"
-            height="34"
-            rx="5.5"
-            transform="rotate(-45 63.5 57)"
-            fill="url(#largeBlackHandleGrad)"
-            stroke="#09090a"
-            strokeWidth="1.6"
-          />
-
-          <line
-            x1="65"
-            y1="70"
-            x2="70"
-            y2="75"
-            stroke="#525458"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-          />
-          <line
-            x1="70"
-            y1="75"
-            x2="75"
-            y2="80"
-            stroke="#525458"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-          />
-        </svg>
+        <MagnifyingGlassIcon />
       </div>
     </span>
   );
