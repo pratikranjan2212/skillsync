@@ -110,6 +110,12 @@ export default function MatchDetailPage({ params: paramsPromise }) {
 
   const ModeIcon = modeBadge.icon;
 
+  const directLinkedInUrl =
+    opportunity?.linkedinUrl ||
+    opportunity?.url ||
+    opportunity?.externalUrl ||
+    (opportunity ? `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(`${opportunity.title} ${opportunity.company}`.trim())}` : "");
+
   return (
     <div className="min-h-screen bg-[#F5F5F3] text-[#111111] pb-16">
       <Navbar />
@@ -118,7 +124,7 @@ export default function MatchDetailPage({ params: paramsPromise }) {
         <div>
           <Link
             href="/opportunities"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-white text-[#111111] hover:bg-neutral-50 rounded-2xl text-xs font-bold border border-black/5 transition-all shadow-xs"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white text-[#111111] hover:bg-neutral-50 rounded-2xl text-xs font-bold border border-black/5 transition-all shadow-xs cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4 text-neutral-600" />
             <span>Back to Opportunities Feed</span>
@@ -153,9 +159,26 @@ export default function MatchDetailPage({ params: paramsPromise }) {
               </div>
             </div>
 
-            <div className="flex items-center gap-2 bg-emerald-50 text-emerald-800 px-4 py-2.5 rounded-2xl border border-emerald-200 text-xs font-bold self-start sm:self-center shrink-0">
-              <Sparkles className="w-4 h-4 text-emerald-600" />
-              <span>Verified Recommendation</span>
+            <div className="flex flex-wrap items-center gap-2.5 self-start sm:self-center shrink-0">
+              {directLinkedInUrl && (
+                <a
+                  href={directLinkedInUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-[#0A66C2]/10 hover:bg-[#0A66C2]/20 text-[#0A66C2] rounded-2xl text-xs font-bold transition-all border border-[#0A66C2]/20 hover:border-[#0A66C2]/40 active:scale-95 group/linkedin cursor-pointer"
+                  title="View job directly on LinkedIn"
+                >
+                  <svg className="w-3.5 h-3.5 fill-[#0A66C2]" viewBox="0 0 24 24">
+                    <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/>
+                  </svg>
+                  <span>LinkedIn Listing</span>
+                </a>
+              )}
+
+              <div className="flex items-center gap-2 bg-emerald-50 text-emerald-800 px-4 py-2.5 rounded-2xl border border-emerald-200 text-xs font-bold">
+                <Sparkles className="w-4 h-4 text-emerald-600" />
+                <span>Verified Match</span>
+              </div>
             </div>
           </div>
         )}
@@ -178,7 +201,7 @@ export default function MatchDetailPage({ params: paramsPromise }) {
         {explanation && (
           <MatchExplanationCard
             explanation={explanation}
-            externalUrl={opportunity?.url || opportunity?.externalUrl}
+            externalUrl={directLinkedInUrl}
           />
         )}
       </main>

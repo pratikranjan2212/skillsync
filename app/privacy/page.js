@@ -12,7 +12,7 @@ export default function PrivacyPolicyPage() {
       <Navbar />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 w-full flex-1">
-        <div className="bg-white rounded-[32px] p-6 sm:p-10 shadow-md border border-black/5 flex flex-col gap-4 mb-8">
+        <div className="bg-white rounded-4xl p-6 sm:p-10 shadow-md border border-black/5 flex flex-col gap-4 mb-8">
           <div className="flex items-center gap-2">
             <span className="px-3.5 py-1 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-full border border-emerald-200 inline-flex items-center gap-1.5">
               <Shield className="w-3.5 h-3.5 text-emerald-600" />
@@ -30,7 +30,7 @@ export default function PrivacyPolicyPage() {
           </p>
         </div>
 
-        <div className="bg-gradient-to-r from-neutral-900 via-slate-900 to-neutral-900 text-white rounded-[32px] p-6 sm:p-8 shadow-xl border border-slate-800 flex flex-col gap-4 mb-8">
+        <div className="bg-linear-to-r from-neutral-900 via-slate-900 to-neutral-900 text-white rounded-4xl p-6 sm:p-8 shadow-xl border border-slate-800 flex flex-col gap-4 mb-8">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
               <EyeOff className="w-5 h-5" />
@@ -58,7 +58,7 @@ export default function PrivacyPolicyPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-[32px] p-6 sm:p-10 shadow-sm border border-black/5 space-y-8">
+        <div className="bg-white rounded-4xl p-6 sm:p-10 shadow-sm border border-black/5 space-y-8">
           <section className="space-y-3">
             <h2 className="text-xl font-bold text-[#111111] flex items-center gap-2">
               <FileText className="w-5 h-5 text-emerald-600" />
@@ -85,7 +85,7 @@ export default function PrivacyPolicyPage() {
             </p>
             <div className="p-4 bg-[#F8F9FA] rounded-2xl border border-black/5 text-xs text-[#494D4D] space-y-1.5">
               <p>• Evidence files are analyzed automatically via client-side/server-side OCR and QR verification engines.</p>
-              <p>• Matches are calculated exclusively against public job listings ingested from Adzuna, Jooble, and Remotive.</p>
+              <p>• Matches are calculated exclusively against public job listings ingested from LinkedIn and verified career portals.</p>
             </div>
           </section>
 

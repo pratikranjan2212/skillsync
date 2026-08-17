@@ -43,7 +43,7 @@ export default function DocumentationPage() {
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 w-full flex-1">
-        <div className="bg-white rounded-[32px] p-6 sm:p-10 shadow-md border border-black/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-8">
+        <div className="bg-white rounded-4xl p-6 sm:p-10 shadow-md border border-black/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-8">
           <div>
             <div className="flex items-center gap-2">
               <span className="px-3.5 py-1 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-full border border-emerald-200 inline-flex items-center gap-1.5">
@@ -112,7 +112,7 @@ export default function DocumentationPage() {
           </div>
 
           <div className="lg:col-span-9 flex flex-col gap-8">
-            <section id="overview" className="bg-white rounded-[32px] p-6 sm:p-8 shadow-sm border border-black/5 scroll-mt-28">
+            <section id="overview" className="bg-white rounded-4xl p-6 sm:p-8 shadow-sm border border-black/5 scroll-mt-28">
               <span className="px-3 py-1 bg-[#F5F5F3] text-[#494D4D] text-[11px] font-bold uppercase tracking-wider rounded-xl border border-black/5">
                 Core Philosophy
               </span>
@@ -141,7 +141,7 @@ export default function DocumentationPage() {
               </div>
             </section>
 
-            <section id="verification" className="bg-white rounded-[32px] p-6 sm:p-8 shadow-sm border border-black/5 scroll-mt-28">
+            <section id="verification" className="bg-white rounded-4xl p-6 sm:p-8 shadow-sm border border-black/5 scroll-mt-28">
               <span className="px-3 py-1 bg-emerald-50 text-emerald-800 text-[11px] font-bold uppercase tracking-wider rounded-xl border border-emerald-200">
                 Verification Engine
               </span>
@@ -191,7 +191,7 @@ export default function DocumentationPage() {
               </div>
             </section>
 
-            <section id="match-engine" className="bg-white rounded-[32px] p-6 sm:p-8 shadow-sm border border-black/5 scroll-mt-28">
+            <section id="match-engine" className="bg-white rounded-4xl p-6 sm:p-8 shadow-sm border border-black/5 scroll-mt-28">
               <span className="px-3 py-1 bg-emerald-50 text-emerald-800 text-[11px] font-bold uppercase tracking-wider rounded-xl border border-emerald-200">
                 Algorithm & Math
               </span>
@@ -219,7 +219,7 @@ export default function DocumentationPage() {
               </div>
             </section>
 
-            <section id="passport-export" className="bg-white rounded-[32px] p-6 sm:p-8 shadow-sm border border-black/5 scroll-mt-28">
+            <section id="passport-export" className="bg-white rounded-4xl p-6 sm:p-8 shadow-sm border border-black/5 scroll-mt-28">
               <span className="px-3 py-1 bg-amber-50 text-amber-800 text-[11px] font-bold uppercase tracking-wider rounded-xl border border-amber-200">
                 Sharing & Interoperability
               </span>
@@ -249,7 +249,7 @@ export default function DocumentationPage() {
               </div>
             </section>
 
-            <section id="api-reference" className="bg-white rounded-[32px] p-6 sm:p-8 shadow-sm border border-black/5 scroll-mt-28">
+            <section id="api-reference" className="bg-white rounded-4xl p-6 sm:p-8 shadow-sm border border-black/5 scroll-mt-28">
               <span className="px-3 py-1 bg-[#F5F5F3] text-[#494D4D] text-[11px] font-bold uppercase tracking-wider rounded-xl border border-black/5">
                 API Reference
               </span>
@@ -274,7 +274,7 @@ export default function DocumentationPage() {
                     <span className="font-bold text-[#111111]">/api/opportunities</span>
                   </div>
                   <p className="text-xs text-[#494D4D] mt-2">
-                    Retrieves ingested internship listings ranked by explainable match percentage from Adzuna, Jooble, and Remotive feeds.
+                    Retrieves ingested internship listings ranked by explainable match percentage from LinkedIn and verified career portal feeds.
                   </p>
                 </div>
 
@@ -300,7 +300,7 @@ export default function DocumentationPage() {
               </div>
             </section>
 
-            <section id="fairness-audit" className="bg-white rounded-[32px] p-6 sm:p-8 shadow-sm border border-black/5 scroll-mt-28">
+            <section id="fairness-audit" className="bg-white rounded-4xl p-6 sm:p-8 shadow-sm border border-black/5 scroll-mt-28">
               <span className="px-3 py-1 bg-emerald-50 text-emerald-800 text-[11px] font-bold uppercase tracking-wider rounded-xl border border-emerald-200">
                 Governance Standards
               </span>

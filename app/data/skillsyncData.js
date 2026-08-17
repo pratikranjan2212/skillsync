@@ -83,7 +83,7 @@ export const SMART_ASSIST_CARDS = [
     iconShadow: "shadow-[0_10px_25px_rgba(59,130,246,0.55)]",
     hoverBorder: "hover:border-blue-500",
     title: "Public Job Ingestion",
-    description: "Automatically ingests public internship listings from Adzuna, Jooble, and Remotive with zero manual provider posting.",
+    description: "Automatically ingests public internship listings from LinkedIn and verified career portals with zero manual provider posting.",
   },
   {
     id: "c4",
@@ -110,7 +110,7 @@ export const FAQ_ITEMS = [
   {
     id: "faq3",
     question: "Where do internship opportunities come from?",
-    answer: "Job listings are ingested automatically via public job APIs such as Adzuna, Jooble, and Remotive. Employers do not manually post listings; backend automation handles ingestion.",
+    answer: "Job listings are ingested automatically via public job sources including LinkedIn and verified company career portals. Backend automation handles real-time ingestion.",
   },
   {
     id: "faq4",

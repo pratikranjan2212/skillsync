@@ -57,14 +57,14 @@ export const INITIAL_EVIDENCE = [
     verificationStage: "flagged_review",
     verifiedAt: "2026-08-13T11:00:00Z",
     adminOverride: null,
-    claimedSkills: ["React.js", "Tailwind CSS"]
+    claimedSkills: ["React", "Tailwind CSS"]
   }
 ];
 
 export const INITIAL_SKILL_TAXONOMY = [
   { id: "sk-1", name: "Python", category: "Programming Languages", description: "Core syntax, data structures, and standard libraries." },
   { id: "sk-2", name: "SQL", category: "Databases", description: "Relational database querying, joins, and indexing." },
-  { id: "sk-3", name: "React.js", category: "Frontend Web", description: "Modern React with hooks, state management, and component architecture." },
+  { id: "sk-3", name: "React", category: "Frontend Web", description: "Modern React with hooks, state management, and component architecture." },
   { id: "sk-4", name: "TensorFlow", category: "AI & Machine Learning", description: "Deep learning models, tensor manipulation, and training loops." },
   { id: "sk-5", name: "Docker", category: "DevOps & Cloud", description: "Containerization, Dockerfiles, and multi-stage builds." },
   { id: "sk-6", name: "REST API design", category: "Backend Engineering", description: "HTTP endpoints, JSON payloads, and API authentication." },
@@ -90,7 +90,7 @@ export const INITIAL_PASSPORT = {
   skills: [
     {
       skillId: "sk-3",
-      name: "React.js",
+      name: "React",
       category: "Frontend Web",
       icon: "react",
       level: "Advanced",
@@ -102,7 +102,7 @@ export const INITIAL_PASSPORT = {
     },
     {
       skillId: "sk-node",
-      name: "Node.js",
+      name: "Node js",
       category: "Backend Engineering",
       icon: "nodejs",
       level: "Advanced",
@@ -157,7 +157,7 @@ export const INITIAL_PASSPORT = {
       color: "emerald",
       githubUrl: "https://github.com/ananya-sharma/ecotrack",
       liveUrl: "https://ecotrack.skillsync.dev",
-      skills: ["React.js", "Python", "Tailwind CSS"],
+      skills: ["React", "Python", "Tailwind CSS"],
       verified: true
     },
     {
@@ -168,7 +168,7 @@ export const INITIAL_PASSPORT = {
       color: "purple",
       githubUrl: "https://github.com/ananya-sharma/shopnest",
       liveUrl: "https://shopnest.skillsync.dev",
-      skills: ["React.js", "Node.js", "JavaScript"],
+      skills: ["React", "Node js", "JavaScript"],
       verified: true
     },
     {
@@ -179,7 +179,7 @@ export const INITIAL_PASSPORT = {
       color: "blue",
       githubUrl: "https://github.com/ananya-sharma/nexuschat",
       liveUrl: "https://nexuschat.skillsync.dev",
-      skills: ["Node.js", "JavaScript", "Git & GitHub"],
+      skills: ["Node js", "JavaScript", "Git & GitHub"],
       verified: true
     }
   ]
@@ -189,49 +189,48 @@ export const INITIAL_OPPORTUNITIES = [
   {
     id: "opt-1",
     sourceApi: "Adzuna",
-    sourceListingId: "adz-881920",
-    title: "ML Intern - DataCo",
-    company: "DataCo Analytics",
-    location: "Remote / San Francisco, CA",
-    description: "We are looking for a Machine Learning Intern to assist with automated data pipeline development, SQL optimization, and model training.",
-    externalUrl: "https://adzuna.com/jobs/details/adz-881920",
-    requiredSkillIds: ["sk-1", "sk-2", "sk-5", "sk-6"],
-    requiredSkills: ["Python", "SQL", "Docker", "REST API design"],
-    ingestedAt: "2026-08-13T08:00:00Z",
-    matchScore: 0.82,
+    sourceListingId: "adz-881290",
+    title: "Machine Learning Engineering Intern",
+    company: "DataVantage AI",
+    location: "Bangalore, India (Hybrid)",
+    description: "Seeking an ML intern to work on data pipelines, feature engineering, and model validation using Python and SQL.",
+    externalUrl: "https://www.adzuna.in/jobs/details/881290",
+    requiredSkillIds: ["sk-1", "sk-2", "sk-4"],
+    requiredSkills: ["Python", "SQL", "TensorFlow"],
+    ingestedAt: "2026-08-13T09:30:00Z",
+    matchScore: 0.94,
     explanation: {
-      opportunity: "ML Intern - DataCo (via Adzuna)",
-      matchScore: 0.82,
+      opportunity: "Machine Learning Engineering Intern - DataVantage AI",
+      matchScore: 0.94,
       supportingEvidence: [
-        { skill: "Python", evidence: "'Data Pipeline Project' — verified-high" },
-        { skill: "SQL", evidence: "DBMS coursework, 92% — verified-medium" }
+        { skill: "Python", evidence: "ETL Data Pipeline — verified-high" },
+        { skill: "SQL", evidence: "Relational Queries & Views — verified-high" },
+        { skill: "TensorFlow", evidence: "Deep Learning Specialization — verified-high" }
       ],
-      missingSkills: ["Docker", "REST API design"],
+      missingSkills: [],
       excludedFromRanking: ["gender", "college tier", "name", "photo"]
     }
   },
   {
     id: "opt-2",
     sourceApi: "Jooble",
-    sourceListingId: "jbl-554109",
-    title: "Junior Data Engineer",
-    company: "Nexus Insights",
-    location: "New York, NY (Hybrid)",
-    description: "Join Nexus Insights to build robust ETL data streams using Python, SQL, and database management principles.",
-    externalUrl: "https://jooble.org/desc/jbl-554109",
-    requiredSkillIds: ["sk-1", "sk-2", "sk-8"],
-    requiredSkills: ["Python", "SQL", "Data Engineering"],
-    ingestedAt: "2026-08-13T09:30:00Z",
-    matchScore: 0.95,
+    sourceListingId: "jbl-449102",
+    title: "Backend Platform Intern",
+    company: "Nexis Cloud Systems",
+    location: "Remote (India)",
+    description: "Build robust REST APIs and scalable backend microservices using Python, Docker, and SQL.",
+    externalUrl: "https://jooble.org/desc/449102",
+    requiredSkillIds: ["sk-1", "sk-5", "sk-6"],
+    requiredSkills: ["Python", "Docker", "REST API design"],
+    ingestedAt: "2026-08-13T08:45:00Z",
+    matchScore: 0.81,
     explanation: {
-      opportunity: "Junior Data Engineer - Nexus Insights (via Jooble)",
-      matchScore: 0.95,
+      opportunity: "Backend Platform Intern - Nexis Cloud Systems",
+      matchScore: 0.81,
       supportingEvidence: [
-        { skill: "Python", evidence: "'Data Pipeline Project' — verified-high" },
-        { skill: "SQL", evidence: "DBMS coursework, 92% — verified-medium" },
-        { skill: "Data Engineering", evidence: "'Data Pipeline Project' — verified-high" }
+        { skill: "Python", evidence: "ETL Data Pipeline — verified-high" }
       ],
-      missingSkills: [],
+      missingSkills: ["Docker", "REST API design"],
       excludedFromRanking: ["gender", "college tier", "name", "photo"]
     }
   },
@@ -242,10 +241,10 @@ export const INITIAL_OPPORTUNITIES = [
     title: "Frontend Developer Intern",
     company: "CloudCanvas",
     location: "Global Remote",
-    description: "Looking for an energetic intern passionate about modern UI development with React.js, Tailwind CSS, and API integrations.",
+    description: "Looking for an energetic intern passionate about modern UI development with React, Tailwind CSS, and API integrations.",
     externalUrl: "https://remotive.com/remote-jobs/engineering/frontend-dev-intern-900213",
     requiredSkillIds: ["sk-3", "sk-7", "sk-6"],
-    requiredSkills: ["React.js", "Tailwind CSS", "REST API design"],
+    requiredSkills: ["React", "Tailwind CSS", "REST API design"],
     ingestedAt: "2026-08-13T10:15:00Z",
     matchScore: 0.60,
     explanation: {
@@ -254,7 +253,7 @@ export const INITIAL_OPPORTUNITIES = [
       supportingEvidence: [
         { skill: "Tailwind CSS", evidence: "Hackathon 2026 — flagged-low" }
       ],
-      missingSkills: ["React.js", "REST API design"],
+      missingSkills: ["React", "REST API design"],
       excludedFromRanking: ["gender", "college tier", "name", "photo"]
     }
   }
