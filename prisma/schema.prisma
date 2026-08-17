@@ -16,7 +16,7 @@ model User {
   passwordHash  String?   @map("password_hash") // Optional to allow GitHub OAuth sign-ups without password
   role          String    @default("student") // "student" | "admin"
   dob           String?
-  gender        String?   @default("Student")
+  gender        String?   @default("Male")
   college       String?
   degree        String?
   batch         String?

@@ -72,7 +72,7 @@ export default async function PublicPassportPage({ params }) {
         passport = {
           studentId: dbPassport.studentId,
           studentName: user.name || "Student User",
-          gender: user.gender || "Student",
+          gender: user.gender && user.gender !== "Student" ? user.gender : "Male",
           dob: user.dob || "Not Specified",
           college: user.college || "Institution Not Specified",
           degree: user.degree || "Degree Not Specified",

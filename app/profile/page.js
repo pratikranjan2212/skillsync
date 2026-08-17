@@ -39,29 +39,7 @@ import { useAuth } from "@/app/hooks/useAuth";
 import AuthRequiredView from "@/app/components/auth/AuthRequiredView";
 import ImageCropperModal from "@/app/components/profile/ImageCropperModal";
 import { GitHubIcon, LinkedInIcon, PortfolioIcon } from "@/app/components/icons";
-
-const PRELOADED_SKILL_RECOMMENDATIONS = [
-  "Python",
-  "React",
-  "SQL",
-  "Node js",
-  "TypeScript",
-  "Next.js",
-  "SQL",
-  "Tailwind CSS",
-  "Next.js",
-  "Git & GitHub",
-  "REST APIs",
-  "Docker",
-  "PostgreSQL",
-  "MongoDB",
-  "AWS",
-  "Linux",
-  "Java",
-  "C++",
-  "GraphQL",
-  "Figma",
-];
+import { STUDENT_INTERN_SKILLS, PRELOADED_SKILL_RECOMMENDATIONS } from "@/app/data/studentInternSkills";
 
 function GitHubLogo({ className = "w-4 h-4 shrink-0" }) {
   return <GitHubIcon className={className} />;
@@ -181,6 +159,7 @@ export default function ProfilePage() {
   const [formData, setFormData] = useState({
     name: "",
     dob: "",
+    gender: "Male",
     image: "",
     college: "",
     degree: "",
@@ -204,6 +183,7 @@ export default function ProfilePage() {
       setFormData({
         name: profile.name || formatNameClient(profile.name, authUser?.name),
         dob: profile.dob || "",
+        gender: profile.gender && profile.gender !== "Student" ? profile.gender : "Male",
         image: profile.image || authUser?.image || "",
         college: profile.college || "",
         degree: profile.degree || "",
@@ -459,6 +439,12 @@ export default function ProfilePage() {
                     <span className="flex items-center gap-1.5">
                       <Calendar className="w-3.5 h-3.5 text-neutral-400" />
                       <span>DOB: {formData.dob || profile?.dob}</span>
+                    </span>
+                  )}
+                  {(formData.gender || profile?.gender) && (
+                    <span className="flex items-center gap-1.5">
+                      <User className="w-3.5 h-3.5 text-neutral-400" />
+                      <span>{formData.gender || profile?.gender}</span>
                     </span>
                   )}
                   <span className="flex items-center gap-1.5 font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
@@ -776,15 +762,30 @@ export default function ProfilePage() {
                       </div>
                     </div>
 
-                    <div>
-                      <label className="block text-xs font-bold text-[#111111] mb-1.5">Batch / Graduation Year</label>
-                      <input
-                        type="text"
-                        value={formData.batch}
-                        onChange={(e) => setFormData({ ...formData, batch: e.target.value })}
-                        placeholder="e.g. 2023 – 2027"
-                        className="w-full px-4 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                      />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-[#111111] mb-1.5">Batch / Graduation Year</label>
+                        <input
+                          type="text"
+                          value={formData.batch}
+                          onChange={(e) => setFormData({ ...formData, batch: e.target.value })}
+                          placeholder="e.g. 2023 – 2027"
+                          className="w-full px-4 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-[#111111] mb-1.5">Gender</label>
+                        <select
+                          value={formData.gender || "Male"}
+                          onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                          className="w-full px-4 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-semibold text-[#111111] focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+                        >
+                          <option value="Male">Male</option>
+                          <option value="Female">Female</option>
+                          <option value="Transgender">Transgender</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
                     </div>
 
                     <div>
@@ -1002,35 +1003,48 @@ export default function ProfilePage() {
                         <span>Recommended Skills</span>
                         <span className="text-[9px] font-normal text-neutral-400">Click to add</span>
                       </div>
-
                       {(() => {
-                        const matching = PRELOADED_SKILL_RECOMMENDATIONS.filter(
-                          (sk) =>
-                            !formData.skills.includes(sk) &&
-                            (newSkillInput.trim() === "" ||
-                              sk.toLowerCase().includes(newSkillInput.toLowerCase().trim()))
-                        );
+                        const q = newSkillInput.trim().toLowerCase();
+                        const startsWith = [];
+                        const contains = [];
+
+                        for (const s of STUDENT_INTERN_SKILLS) {
+                          if (formData.skills.includes(s.name)) continue;
+                          const sLower = s.name.toLowerCase();
+                          if (sLower.startsWith(q)) {
+                            startsWith.push(s);
+                          } else if (sLower.includes(q)) {
+                            contains.push(s);
+                          }
+                        }
+
+                        const matching = [...startsWith, ...contains].slice(0, 16);
 
                         if (matching.length > 0) {
                           return (
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
-                              {matching.slice(0, 10).map((sk) => (
+                              {matching.map((sk) => (
                                 <button
-                                  key={sk}
+                                  key={sk.name}
                                   type="button"
                                   onClick={() => {
-                                    handleAddSkillByName(sk);
+                                    handleAddSkillByName(sk.name);
                                     setIsSkillFocused(false);
                                   }}
                                   className="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-emerald-50 text-left transition-colors group cursor-pointer"
                                 >
-                                  <div className="flex items-center gap-2">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 group-hover:scale-125 transition-transform" />
-                                    <span className="text-xs font-bold text-neutral-800 group-hover:text-emerald-950">
-                                      {sk}
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 group-hover:scale-125 transition-transform shrink-0" />
+                                    <span className="text-xs font-bold text-neutral-800 group-hover:text-emerald-950 truncate">
+                                      {sk.name}
                                     </span>
+                                    {sk.category && (
+                                      <span className="text-[9px] font-semibold text-neutral-400 bg-neutral-100 group-hover:bg-emerald-100 group-hover:text-emerald-800 px-1.5 py-0.2 rounded-md shrink-0">
+                                        {sk.category}
+                                      </span>
+                                    )}
                                   </div>
-                                  <span className="text-[10px] font-bold text-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity bg-emerald-100/70 px-2 py-0.5 rounded-md">
+                                  <span className="text-[10px] font-bold text-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity bg-emerald-100/70 px-2 py-0.5 rounded-md shrink-0 ml-2">
                                     + Add
                                   </span>
                                 </button>
@@ -1058,8 +1072,8 @@ export default function ProfilePage() {
 
                       {/* Custom skill direct add prompt if user typed something not matching presets */}
                       {newSkillInput.trim() &&
-                        !PRELOADED_SKILL_RECOMMENDATIONS.some(
-                          (sk) => sk.toLowerCase() === newSkillInput.trim().toLowerCase()
+                        !STUDENT_INTERN_SKILLS.some(
+                          (sk) => sk.name.toLowerCase() === newSkillInput.trim().toLowerCase()
                         ) &&
                         !formData.skills.includes(newSkillInput.trim()) && (
                           <button

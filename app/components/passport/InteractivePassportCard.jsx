@@ -94,7 +94,7 @@ export default function InteractivePassportCard({
   const student = {
     id: passportData?.studentId || "SS-2026-STU01",
     name: passportData?.studentName || "Student User",
-    gender: passportData?.gender || "Student",
+    gender: passportData?.gender && passportData.gender !== "Student" ? passportData.gender : "Male",
     dob: passportData?.dob || "Not Specified",
     college: passportData?.college || "Institution Not Specified",
     degree: passportData?.degree || "Degree Not Specified",
@@ -162,17 +162,17 @@ export default function InteractivePassportCard({
 
   // Reusable Passport Front Surface
   const renderPassportFront = (isEnlarged = false) => (
-    <div className={`w-full bg-linear-to-br from-[#0c382b] via-[#09291f] to-[#041711] text-white rounded-3xl ${isEnlarged ? "p-6 sm:p-9" : "p-5 sm:p-6"} border border-emerald-400/30 shadow-[0_24px_60px_-12px_rgba(4,38,28,0.7),_0_0_0_1px_rgba(52,211,153,0.25)] overflow-hidden relative flex flex-col justify-between`}>
+    <div className={`w-full bg-linear-to-br from-[#121212] via-[#080808] to-[#000000] text-white rounded-3xl ${isEnlarged ? "p-6 sm:p-9" : "p-5 sm:p-6"} border border-white/10 shadow-[0_28px_64px_-12px_rgba(0,0,0,0.95),_0_0_0_1px_rgba(255,255,255,0.08)] overflow-hidden relative flex flex-col justify-between`}>
       {/* Ambient Lighting */}
-      <div className="absolute -top-24 -left-24 w-80 h-80 bg-emerald-400/20 rounded-full blur-[80px] pointer-events-none" />
-      <div className="absolute top-1/2 -right-24 w-80 h-80 bg-teal-400/15 rounded-full blur-[80px] pointer-events-none" />
+      <div className="absolute -top-24 -left-24 w-80 h-80 bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none" />
+      <div className="absolute top-1/2 -right-24 w-80 h-80 bg-white/5 rounded-full blur-[80px] pointer-events-none" />
       
       {/* Watermark Waves */}
       <PassportWaves />
 
       <div className={`relative z-10 flex flex-col justify-between h-full ${isEnlarged ? "gap-6 sm:gap-7" : "gap-4 sm:gap-5"}`}>
         {/* Header */}
-        <div className="flex items-center justify-between gap-3 border-b border-emerald-400/20 pb-3">
+        <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-3">
           <div className="flex items-center gap-2">
             <SkillSyncLogo />
             <span className={`${isEnlarged ? "text-xl sm:text-2xl" : "text-lg sm:text-xl"} font-black tracking-tight text-white`}>
@@ -181,7 +181,7 @@ export default function InteractivePassportCard({
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-[10px] sm:text-xs font-extrabold tracking-[0.18em] text-emerald-300 uppercase bg-emerald-400/15 px-3 py-0.5 rounded-full border border-emerald-400/35 shadow-inner">
+            <span className="text-[10px] sm:text-xs font-extrabold tracking-[0.18em] text-emerald-400 uppercase bg-emerald-500/10 px-3 py-0.5 rounded-full border border-emerald-500/30 shadow-inner">
               SKILL PASSPORT
             </span>
           </div>
@@ -194,7 +194,7 @@ export default function InteractivePassportCard({
           <div className={`${isEnlarged ? "md:col-span-5" : "sm:col-span-5"} flex flex-col gap-3.5`}>
             <div className="flex items-center gap-3.5">
               <div className="relative shrink-0">
-                <div className={`${isEnlarged ? "w-20 h-20 sm:w-24 sm:h-24" : "w-16 h-16 sm:w-18 sm:h-18"} rounded-full overflow-hidden border-2 border-emerald-400 shadow-[0_0_24px_rgba(52,211,153,0.4)] bg-[#0c382b] relative flex items-center justify-center`}>
+                <div className={`${isEnlarged ? "w-20 h-20 sm:w-24 sm:h-24" : "w-16 h-16 sm:w-18 sm:h-18"} rounded-full overflow-hidden border-2 border-emerald-400 shadow-[0_0_24px_rgba(52,211,153,0.35)] bg-neutral-900 relative flex items-center justify-center`}>
                   {student.photoUrl ? (
                     <Image
                       src={student.photoUrl}
@@ -206,13 +206,13 @@ export default function InteractivePassportCard({
                       priority
                     />
                   ) : (
-                    <div className="w-full h-full bg-linear-to-br from-emerald-600 to-teal-800 text-white flex items-center justify-center font-black text-xl">
+                    <div className="w-full h-full bg-linear-to-br from-neutral-800 to-neutral-950 text-white flex items-center justify-center font-black text-xl">
                       {student.name ? student.name.split(" ").map((n) => n[0]).join("").toUpperCase().substring(0, 2) : "ST"}
                     </div>
                   )}
                 </div>
                 
-                <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-[#08291f] border-2 border-emerald-400 flex items-center justify-center shadow-md">
+                <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-[#080808] border-2 border-emerald-400 flex items-center justify-center shadow-md">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                 </div>
               </div>
@@ -230,44 +230,44 @@ export default function InteractivePassportCard({
 
                 <div className="flex items-center gap-3 text-[10px] whitespace-nowrap">
                   <div>
-                    <span className="text-emerald-400/90 font-bold block text-[8px] uppercase">GENDER</span>
+                    <span className="text-neutral-400 font-bold block text-[8px] uppercase">GENDER</span>
                     <span className="text-neutral-200 font-semibold">{student.gender}</span>
                   </div>
                   <div>
-                    <span className="text-emerald-400/90 font-bold block text-[8px] uppercase">DOB</span>
+                    <span className="text-neutral-400 font-bold block text-[8px] uppercase">DOB</span>
                     <span className="text-neutral-200 font-semibold">{student.dob}</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-col gap-2 pt-1 border-t border-emerald-400/15">
+            <div className="flex flex-col gap-2 pt-1 border-t border-white/10">
               <div className="flex items-start gap-2.5">
-                <div className="w-6 h-6 rounded-full bg-emerald-400/15 border border-emerald-400/30 flex items-center justify-center shrink-0 mt-0.5 text-emerald-300">
+                <div className="w-6 h-6 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0 mt-0.5 text-emerald-400">
                   <GraduationCap className="w-3.5 h-3.5" />
                 </div>
                 <div className="min-w-0">
-                  <div className="text-[8px] font-bold text-emerald-400/90 uppercase tracking-wider">COLLEGE</div>
+                  <div className="text-[8px] font-bold text-neutral-400 uppercase tracking-wider">COLLEGE</div>
                   <div className="text-xs font-bold text-white leading-snug truncate">{student.college}</div>
                 </div>
               </div>
 
               <div className="flex items-start gap-2.5">
-                <div className="w-6 h-6 rounded-full bg-emerald-400/15 border border-emerald-400/30 flex items-center justify-center shrink-0 mt-0.5 text-emerald-300">
+                <div className="w-6 h-6 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0 mt-0.5 text-emerald-400">
                   <BookOpen className="w-3.5 h-3.5" />
                 </div>
                 <div className="min-w-0">
-                  <div className="text-[8px] font-bold text-emerald-400/90 uppercase tracking-wider">DEGREE</div>
+                  <div className="text-[8px] font-bold text-neutral-400 uppercase tracking-wider">DEGREE</div>
                   <div className="text-xs font-bold text-white leading-snug truncate">{student.degree}</div>
                 </div>
               </div>
 
               <div className="flex items-start gap-2.5">
-                <div className="w-6 h-6 rounded-full bg-emerald-400/15 border border-emerald-400/30 flex items-center justify-center shrink-0 mt-0.5 text-emerald-300">
+                <div className="w-6 h-6 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0 mt-0.5 text-emerald-400">
                   <Calendar className="w-3.5 h-3.5" />
                 </div>
                 <div className="min-w-0">
-                  <div className="text-[8px] font-bold text-emerald-400/90 uppercase tracking-wider">BATCH</div>
+                  <div className="text-[8px] font-bold text-neutral-400 uppercase tracking-wider">BATCH</div>
                   <div className="text-xs font-bold text-white">{student.batch}</div>
                 </div>
               </div>
@@ -278,9 +278,9 @@ export default function InteractivePassportCard({
           <div className={`${isEnlarged ? "md:col-span-7" : "sm:col-span-7"} flex flex-col gap-4 relative`}>
             {/* Skills Section - Clean Text Badges */}
             <div className="flex flex-col gap-2 relative">
-              <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-emerald-300">
+              <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-emerald-400">
                 <Hexagon className="w-3 h-3 text-emerald-400 fill-emerald-400/20" />
-                <span>SKILLS ({student.skills.length})</span>
+                <span>SKILLS</span>
               </div>
 
               <div className="flex flex-wrap gap-1.5 sm:gap-2">
@@ -307,10 +307,9 @@ export default function InteractivePassportCard({
                         e.stopPropagation();
                         setSelectedSkill(isSelected ? null : skill);
                       }}
-                      className="group inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0d3f31]/90 hover:bg-[#125341] border border-emerald-400/30 hover:border-emerald-300 rounded-xl text-xs font-bold text-emerald-100 hover:text-white transition-all shadow-xs hover:scale-105 cursor-pointer"
+                      className="group inline-flex items-center px-3 py-1.5 bg-neutral-900/90 hover:bg-neutral-800 border border-white/10 hover:border-emerald-400/60 rounded-xl text-xs font-bold text-neutral-200 hover:text-white transition-all shadow-xs hover:scale-105 cursor-pointer"
                       title="View verified evidence citations"
                     >
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
                       <span>{skill.name}</span>
                     </button>
                   );
@@ -328,8 +327,8 @@ export default function InteractivePassportCard({
             </div>
 
             {/* Projects Section */}
-            <div className="flex flex-col gap-2 pt-1 border-t border-emerald-400/15">
-              <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-emerald-300">
+            <div className="flex flex-col gap-2 pt-1 border-t border-white/10">
+              <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-emerald-400">
                 <FolderGit2 className="w-3 h-3 text-emerald-400" />
                 <span>PROJECTS</span>
               </div>
@@ -338,13 +337,13 @@ export default function InteractivePassportCard({
                 {student.projects.slice(0, 3).map((proj, idx) => (
                   <div
                     key={proj.id || proj.title || `proj-${idx}`}
-                    className="bg-[#0a3528]/85 border border-emerald-400/25 hover:border-emerald-300/60 rounded-xl p-2.5 sm:p-3 flex items-center justify-between gap-3 transition-all hover:bg-[#0e4435]"
+                    className="bg-neutral-900/90 border border-white/10 hover:border-emerald-500/40 rounded-xl p-2.5 sm:p-3 flex items-center justify-between gap-3 transition-all hover:bg-neutral-800/90"
                   >
                     <div className="flex-1 min-w-0">
                       <h4 className="text-xs font-bold text-white truncate">
                         {proj.title}
                       </h4>
-                      <p className="text-[10px] text-emerald-200/80 line-clamp-1 mt-0.5">
+                      <p className="text-[10px] text-neutral-400 line-clamp-1 mt-0.5">
                         {proj.description}
                       </p>
                     </div>
@@ -354,11 +353,11 @@ export default function InteractivePassportCard({
                         href={proj.githubUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-1.5 rounded-lg text-emerald-400 hover:text-white hover:bg-emerald-400/20 transition-all shrink-0 cursor-pointer"
+                        className="p-1.5 rounded-lg text-neutral-400 hover:text-white hover:bg-white/10 transition-all shrink-0 cursor-pointer"
                         title="View GitHub repository"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <GitHubLogo className="w-4 h-4" />
+                        <GitHubLogo className="w-4 h-4 text-neutral-400 hover:text-white" />
                       </a>
                     )}
                   </div>
@@ -369,12 +368,12 @@ export default function InteractivePassportCard({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between pt-3 border-t border-emerald-400/20 text-xs">
+        <div className="flex items-center justify-between pt-3 border-t border-white/10 text-xs">
           <div className="flex items-center gap-1.5 font-mono text-[11px]">
-            <span className="text-emerald-400/90">ID:</span>
+            <span className="text-emerald-400 font-bold">ID:</span>
             <button
               onClick={handleCopyId}
-              className="text-emerald-300 font-bold hover:underline flex items-center gap-1 cursor-pointer"
+              className="text-neutral-200 font-bold hover:underline flex items-center gap-1 cursor-pointer"
               title="Click to copy student ID"
             >
               <span>{student.id}</span>
@@ -393,37 +392,37 @@ export default function InteractivePassportCard({
 
   // Reusable Cryptographic Proof Back Surface
   const renderPassportBack = (isEnlarged = false) => (
-    <div className={`w-full h-full bg-linear-to-br from-[#0c382b] via-[#09291f] to-[#041711] text-white rounded-3xl ${isEnlarged ? "p-6 sm:p-9" : "p-5 sm:p-6"} border border-emerald-400/30 shadow-[0_24px_60px_-12px_rgba(4,38,28,0.7),_0_0_0_1px_rgba(52,211,153,0.25)] overflow-hidden flex flex-col justify-between`}>
-      <div className="absolute -top-24 -right-24 w-80 h-80 bg-emerald-400/20 rounded-full blur-[80px] pointer-events-none" />
+    <div className={`w-full h-full bg-linear-to-br from-[#121212] via-[#080808] to-[#000000] text-white rounded-3xl ${isEnlarged ? "p-6 sm:p-9" : "p-5 sm:p-6"} border border-white/10 shadow-[0_28px_64px_-12px_rgba(0,0,0,0.95),_0_0_0_1px_rgba(255,255,255,0.08)] overflow-hidden flex flex-col justify-between`}>
+      <div className="absolute -top-24 -right-24 w-80 h-80 bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none" />
       
-      <div className="flex items-center justify-between border-b border-emerald-400/20 pb-3 relative z-10">
+      <div className="flex items-center justify-between border-b border-white/10 pb-3 relative z-10">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-emerald-400/15 border border-emerald-400/30 flex items-center justify-center text-emerald-300 shadow-2xs">
+          <div className="w-8 h-8 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-emerald-400 shadow-2xs">
             <ShieldCheck className="w-4 h-4" />
           </div>
           <div>
             <h3 className="text-sm sm:text-base font-black text-white">Cryptographic Verification Proof</h3>
-            <p className="text-[10px] text-emerald-300/80">SkillSync Trust & Verifiable Credentials Registry</p>
+            <p className="text-[10px] text-neutral-400">SkillSync Trust & Verifiable Credentials Registry</p>
           </div>
         </div>
-        <span className="px-3 py-0.5 rounded-full bg-emerald-400/15 text-emerald-300 border border-emerald-400/30 text-[10px] sm:text-xs font-bold shadow-inner">
+        <span className="px-3 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] sm:text-xs font-bold shadow-inner">
           STATUS: VERIFIED
         </span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 bg-[#0a3528]/95 p-4 sm:p-5 rounded-2xl border border-emerald-400/30 my-auto relative z-10 shadow-lg">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 bg-neutral-900/90 p-4 sm:p-5 rounded-2xl border border-white/10 my-auto relative z-10 shadow-lg">
         <div className="md:col-span-7 space-y-3">
           <div>
-            <span className="text-[9px] text-emerald-400/90 uppercase font-bold tracking-wider">Credential Subject</span>
+            <span className="text-[9px] text-neutral-400 uppercase font-bold tracking-wider">Credential Subject</span>
             <div className="text-xs sm:text-sm font-bold text-white mt-0.5">{student.name} ({student.id})</div>
           </div>
           <div>
-            <span className="text-[9px] text-emerald-400/90 uppercase font-bold tracking-wider">Academic Institution</span>
+            <span className="text-[9px] text-neutral-400 uppercase font-bold tracking-wider">Academic Institution</span>
             <div className="text-xs sm:text-sm font-bold text-white mt-0.5">{student.college}</div>
           </div>
           <div>
             <div className="flex items-center justify-between">
-              <span className="text-[9px] text-emerald-400/90 uppercase font-bold tracking-wider">SHA-256 Merkle Root</span>
+              <span className="text-[9px] text-neutral-400 uppercase font-bold tracking-wider">SHA-256 Merkle Root</span>
               <button
                 onClick={handleCopyHash}
                 className="text-[10px] text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1 cursor-pointer"
@@ -432,19 +431,19 @@ export default function InteractivePassportCard({
                 <span>{copiedHash ? "Copied" : "Copy Hash"}</span>
               </button>
             </div>
-            <div className="text-[10px] sm:text-xs font-mono text-emerald-300 break-all bg-[#051c14] p-2 rounded-xl border border-emerald-400/30 font-semibold mt-0.5">
+            <div className="text-[10px] sm:text-xs font-mono text-emerald-400 break-all bg-black/70 p-2 rounded-xl border border-white/10 font-semibold mt-0.5">
               {student.credentialHash}
             </div>
           </div>
         </div>
 
-        <div className="md:col-span-5 flex flex-col items-center justify-center p-3 bg-[#051c14] rounded-xl border border-emerald-400/30 gap-1.5 text-center">
+        <div className="md:col-span-5 flex flex-col items-center justify-center p-3 bg-black/70 rounded-xl border border-white/10 gap-1.5 text-center">
           <QrCode className="w-20 h-20 sm:w-24 sm:h-24 text-emerald-400" />
-          <span className="text-[9px] font-mono text-emerald-300/80">Scan to verify proof</span>
+          <span className="text-[9px] font-mono text-neutral-400">Scan to verify proof</span>
         </div>
       </div>
 
-      <div className="flex items-center justify-between pt-3 border-t border-emerald-400/20 text-[10px] text-emerald-300/90 gap-3 relative z-10">
+      <div className="flex items-center justify-between pt-3 border-t border-white/10 text-[10px] text-neutral-400 gap-3 relative z-10">
         <span>Fairness Filter: Demographic parameters excluded from ranking models.</span>
       </div>
     </div>
