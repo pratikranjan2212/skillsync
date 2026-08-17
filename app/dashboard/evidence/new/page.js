@@ -23,7 +23,9 @@ import {
   FolderGit2,
   RefreshCw,
   Lock,
-  ExternalLink
+  ExternalLink,
+  Search,
+  Plus,
 } from "lucide-react";
 import Navbar from "@/app/components/layout/Navbar";
 import Badge from "@/app/components/ui/Badge";
@@ -41,7 +43,7 @@ function GitHubLogo({ className = "w-4 h-4 text-emerald-400" }) {
 const SKILL_TAXONOMY_OPTIONS = [
   "Python",
   "SQL",
-  "React.js",
+  "React",
   "TensorFlow",
   "Docker",
   "REST API design",
@@ -49,10 +51,15 @@ const SKILL_TAXONOMY_OPTIONS = [
   "Data Engineering",
   "Machine Learning",
   "Mathematics",
-  "Node.js",
+  "Node js",
   "PostgreSQL",
   "Next.js",
   "TypeScript",
+  "Git & GitHub",
+  "JavaScript",
+  "FastAPI",
+  "MongoDB",
+  "AWS",
 ];
 
 async function fetchUserGitHubRepos() {
@@ -67,6 +74,8 @@ export default function AddEvidencePage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [selectedSkills, setSelectedSkills] = useState([]);
   const [customSkillInput, setCustomSkillInput] = useState("");
+  const [isSkillFocused, setIsSkillFocused] = useState(false);
+  const skillInputRef = React.useRef(null);
   const [isQrDetected, setIsQrDetected] = useState(false);
   const [qrCodeData, setQrCodeData] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -427,57 +436,156 @@ export default function AddEvidencePage() {
                 <span className="text-[10px] text-neutral-400">Match against Skill Taxonomy</span>
               </label>
 
-              {/* Quick Select Dropdown + Custom Skill Input */}
-              <div className="flex flex-col sm:flex-row gap-2 mb-3">
-                <div className="relative flex-1">
-                  <select
-                    onChange={(e) => {
-                      if (e.target.value) {
-                        addCustomSkill(e.target.value);
-                        e.target.value = "";
-                      }
-                    }}
-                    defaultValue=""
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-semibold text-[#111111] focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
-                  >
-                    <option value="" disabled>
-                      -- Select from Taxonomy Preset --
-                    </option>
-                    {SKILL_TAXONOMY_OPTIONS.map((skill) => (
-                      <option key={skill} value={skill} disabled={selectedSkills.includes(skill)}>
-                        {skill} {selectedSkills.includes(skill) ? "✓ (Added)" : ""}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="flex items-center gap-2 flex-1">
+              {/* Unified Add Skill Input with Focus Animation & Recommendations */}
+              <div className="relative mb-3">
+                <div
+                  className={`relative flex items-center bg-[#F8F9FA] rounded-2xl border transition-all duration-300 ease-out ${
+                    isSkillFocused
+                      ? "scale-[1.015] bg-white border-emerald-500 shadow-xl shadow-emerald-500/10 ring-4 ring-emerald-500/15"
+                      : "border-black/5 hover:border-black/10"
+                  }`}
+                >
+                  <Search
+                    className={`w-4 h-4 ml-4 shrink-0 transition-colors duration-300 ${
+                      isSkillFocused ? "text-emerald-600" : "text-neutral-400"
+                    }`}
+                  />
                   <input
+                    ref={skillInputRef}
                     type="text"
                     value={customSkillInput}
+                    onFocus={() => setIsSkillFocused(true)}
+                    onBlur={() => {
+                      setTimeout(() => setIsSkillFocused(false), 200);
+                    }}
                     onChange={(e) => setCustomSkillInput(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         e.preventDefault();
-                        addCustomSkill(customSkillInput);
+                        if (customSkillInput.trim()) {
+                          const matching = SKILL_TAXONOMY_OPTIONS.find(
+                            (sk) =>
+                              !selectedSkills.includes(sk) &&
+                              sk.toLowerCase() === customSkillInput.trim().toLowerCase()
+                          );
+                          addCustomSkill(matching || customSkillInput);
+                          setIsSkillFocused(false);
+                        }
+                      } else if (e.key === "Escape") {
+                        setIsSkillFocused(false);
+                        skillInputRef.current?.blur();
                       }
                     }}
-                    placeholder="Or type any custom skill..."
-                    className="w-full px-3.5 py-2 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    placeholder="Type a skill (e.g. React, Python, SQL, Node js)..."
+                    className="w-full px-3.5 py-3 bg-transparent text-xs sm:text-sm font-semibold text-[#111111] placeholder:text-neutral-400 placeholder:font-normal focus:outline-none"
                   />
                   <button
                     type="button"
-                    onClick={() => addCustomSkill(customSkillInput)}
-                    className="px-3.5 py-2 bg-neutral-900 hover:bg-neutral-800 text-white rounded-xl text-xs font-bold shrink-0 transition-colors cursor-pointer"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      addCustomSkill(customSkillInput);
+                    }}
+                    disabled={!customSkillInput.trim()}
+                    className="mr-2 px-4 py-2 bg-neutral-900 hover:bg-neutral-800 disabled:opacity-40 disabled:hover:bg-neutral-900 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shrink-0 transition-all cursor-pointer"
                   >
-                    + Add
+                    <Plus className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Add</span>
                   </button>
                 </div>
+
+                {/* Recommendations Dropdown (shown only when typing) */}
+                {isSkillFocused && customSkillInput.trim().length > 0 && (
+                  <div
+                    className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-2xl border border-black/10 z-50 p-2 max-h-64 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200"
+                    onMouseDown={(e) => e.preventDefault()}
+                  >
+                    <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-neutral-400 flex items-center justify-between">
+                      <span>Recommended Skills</span>
+                      <span className="text-[9px] font-normal text-neutral-400">Click to add</span>
+                    </div>
+
+                    {(() => {
+                      const matching = SKILL_TAXONOMY_OPTIONS.filter(
+                        (sk) =>
+                          !selectedSkills.includes(sk) &&
+                          (customSkillInput.trim() === "" ||
+                            sk.toLowerCase().includes(customSkillInput.toLowerCase().trim()))
+                      );
+
+                      if (matching.length > 0) {
+                        return (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
+                            {matching.slice(0, 10).map((sk) => (
+                              <button
+                                key={sk}
+                                type="button"
+                                onClick={() => {
+                                  addCustomSkill(sk);
+                                  setIsSkillFocused(false);
+                                }}
+                                className="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-emerald-50 text-left transition-colors group cursor-pointer"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 group-hover:scale-125 transition-transform" />
+                                  <span className="text-xs font-bold text-neutral-800 group-hover:text-emerald-950">
+                                    {sk}
+                                  </span>
+                                </div>
+                                <span className="text-[10px] font-bold text-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity bg-emerald-100/70 px-2 py-0.5 rounded-md">
+                                  + Add
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+                        );
+                      }
+
+                      if (customSkillInput.trim()) {
+                        return (
+                          <div className="p-3 text-center text-xs text-neutral-500">
+                            No matching preset. Press{" "}
+                            <kbd className="px-1.5 py-0.5 bg-neutral-100 rounded text-[10px] font-bold text-neutral-800">
+                              Enter
+                            </kbd>{" "}
+                            or click <strong className="text-neutral-900">+ Add</strong> to save custom skill.
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <div className="p-3 text-center text-xs text-neutral-400">All preset skills added!</div>
+                      );
+                    })()}
+
+                    {/* Custom direct add prompt */}
+                    {customSkillInput.trim() &&
+                      !SKILL_TAXONOMY_OPTIONS.some(
+                        (sk) => sk.toLowerCase() === customSkillInput.trim().toLowerCase()
+                      ) &&
+                      !selectedSkills.includes(customSkillInput.trim()) && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            addCustomSkill(customSkillInput.trim());
+                            setIsSkillFocused(false);
+                          }}
+                          className="w-full mt-1.5 pt-2 border-t border-neutral-100 flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-neutral-50 hover:bg-emerald-50 text-left transition-colors cursor-pointer"
+                        >
+                          <span className="text-xs font-bold text-emerald-800">
+                            Add "{customSkillInput.trim()}" as custom skill
+                          </span>
+                          <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md">
+                            Custom
+                          </span>
+                        </button>
+                      )}
+                  </div>
+                )}
               </div>
 
               {/* Selected Skills Chips with Remove Cross Buttons */}
               {selectedSkills.length > 0 ? (
-                <div className="flex flex-wrap gap-2 p-2 bg-[#F8F9FA] rounded-2xl border border-black/5 min-h-[48px] items-center">
+                <div className="flex flex-wrap gap-2 p-2 bg-[#F8F9FA] rounded-2xl border border-black/5 min-h-12 items-center">
                   {selectedSkills.map((skill) => (
                     <span
                       key={skill}

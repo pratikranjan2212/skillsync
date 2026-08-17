@@ -1,5 +1,5 @@
 import React from "react";
-import { CheckCircle2, XCircle, ExternalLink, Sparkles, AlertCircle } from "lucide-react";
+import { CheckCircle2, XCircle, ExternalLink, AlertCircle } from "lucide-react";
 import Badge from "@/app/components/ui/Badge";
 
 export default function MatchExplanationCard({ explanation, externalUrl }) {
@@ -77,7 +77,7 @@ export default function MatchExplanationCard({ explanation, externalUrl }) {
   const linkedInRoleUrl = `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(`${roleTitle} ${companyName}`.trim())}`;
 
   return (
-    <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-xl border border-black/5 flex flex-col gap-8">
+    <div className="bg-white rounded-4xl p-6 sm:p-8 shadow-xl border border-black/5 flex flex-col gap-8">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 pb-6 border-b border-neutral-100">
         <div>
           <span className="px-3.5 py-1 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-full border border-emerald-200">
@@ -91,17 +91,8 @@ export default function MatchExplanationCard({ explanation, externalUrl }) {
           </p>
         </div>
 
-        <div className="flex items-center gap-3 bg-[#F5F5F3] px-5 py-3.5 rounded-2xl border border-black/5 shrink-0">
-          <div className="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-xl shadow-md">
-            {scorePercentage}%
-          </div>
-          <div>
-            <div className="text-xs font-bold uppercase tracking-wider text-[#494D4D]">Match Rating</div>
-            <div className="text-sm font-bold text-[#111111] flex items-center gap-1">
-              <Sparkles className="w-4 h-4 text-emerald-600" />
-              <span>Compatibility Score</span>
-            </div>
-          </div>
+        <div className="inline-flex items-center px-4 py-2 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-2xl text-xs sm:text-sm font-bold shadow-xs shrink-0">
+          <span>{scorePercentage}% Match</span>
         </div>
       </div>
 

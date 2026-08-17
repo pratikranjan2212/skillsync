@@ -89,7 +89,7 @@ export default function FeatureBento() {
                 <div className="bg-black/50 backdrop-blur-xl rounded-[28px] p-5 sm:p-6 border border-white/10 shadow-2xl flex flex-col gap-4" data-spark-color="#ffffff">
                   <div className="flex items-center justify-between" data-spark-color="#ffffff">
                     <div data-spark-color="#ffffff">
-                      <div className="text-xs font-bold text-white">ML Intern - DataCo (via Adzuna)</div>
+                      <div className="text-xs font-bold text-white">ML Intern - DataCo (via LinkedIn)</div>
                       <div className="text-[11px] text-emerald-300 font-bold mt-0.5">82% Calculated Match</div>
                     </div>
                     <span className="px-3 py-1 bg-emerald-500 text-black text-xs font-black rounded-full">

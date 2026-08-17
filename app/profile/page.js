@@ -32,11 +32,81 @@ import {
   Trash2,
   Crop,
   Image as ImageIcon,
+  Search,
 } from "lucide-react";
 import Navbar from "@/app/components/layout/Navbar";
 import { useAuth } from "@/app/hooks/useAuth";
 import AuthRequiredView from "@/app/components/auth/AuthRequiredView";
 import ImageCropperModal from "@/app/components/profile/ImageCropperModal";
+
+const PRELOADED_SKILL_RECOMMENDATIONS = [
+  "Python",
+  "React",
+  "SQL",
+  "Node js",
+  "TypeScript",
+  "Next.js",
+  "PostgreSQL",
+  "TensorFlow",
+  "Docker",
+  "REST API design",
+  "Tailwind CSS",
+  "Data Engineering",
+  "Machine Learning",
+  "Git & GitHub",
+  "JavaScript",
+  "FastAPI",
+  "MongoDB",
+  "AWS",
+  "Linux",
+  "Java",
+  "C++",
+  "GraphQL",
+  "Figma",
+];
+
+function GitHubLogo({ className = "w-4 h-4 shrink-0" }) {
+  return (
+    <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+      />
+    </svg>
+  );
+}
+
+function LinkedInLogo({ className = "w-4 h-4 shrink-0" }) {
+  return (
+    <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+      <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
+    </svg>
+  );
+}
+
+function PortfolioLogo({ className = "w-4 h-4 shrink-0" }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 66 66" className={className} id="portfolio">
+      <path fill="#4e6575" d="M4.96 37.44V9.85h52.63v39.92c0 .99-.8 1.79-1.79 1.79H6.75c-.99 0-1.79-.8-1.79-1.79v-7.48" />
+      <path fill="#fff" d="M57.59 9.84v33.55h-6.84c-18.53 0-33.55-15.02-33.55-33.55h40.39z" opacity=".4" />
+      <path d="M55.79 52.53H6.75c-1.52 0-2.76-1.24-2.76-2.76v-7.48c0-.54.43-.97.97-.97s.97.43.97.97v7.48c0 .45.37.82.82.82h49.04c.45 0 .82-.37.82-.82V34.6c0-.54.43-.97.97-.97s.97.43.97.97v15.16a2.755 2.755 0 0 1-2.76 2.77zM4.96 38.41c-.54 0-.97-.43-.97-.97V9.85c0-.54.43-.97.97-.97h52.63c.54 0 .97.43.97.97v19.31c0 .54-.43.97-.97.97s-.97-.43-.97-.97V10.82H5.93v26.62c0 .53-.43.97-.97.97z" fill="#000000" />
+      <path fill="#ffab03" d="M42.72 5.67v4.17h-3.7V5.67h-15.8v4.17h-3.7V5.67c0-2.05 1.66-3.7 3.7-3.7h15.8c2.04 0 3.7 1.66 3.7 3.7z" />
+      <path d="M42.72 10.81h-3.7c-.54 0-.97-.43-.97-.97v-3.2H24.19v3.2c0 .54-.43.97-.97.97h-3.7c-.54 0-.97-.43-.97-.97V5.67c0-2.58 2.1-4.67 4.67-4.67h15.8c2.58 0 4.67 2.1 4.67 4.67v4.17c0 .54-.43.97-.97.97zm-2.73-1.94h1.76v-3.2c0-1.51-1.23-2.73-2.73-2.73h-15.8c-1.51 0-2.73 1.23-2.73 2.73v3.2h1.76v-3.2c0-.54.43-.97.97-.97h15.8c.54 0 .97.43.97.97v3.2z" fill="#000000" />
+      <path fill="#e2e2e2" d="M63.7 36.66v25.3c0 1.15-.92 2.07-2.07 2.07H40.69c-1.15 0-2.07-.92-2.07-2.07v-25.3c0-1.14.92-2.06 2.07-2.06h20.95c1.14 0 2.06.92 2.06 2.06z" />
+      <path fill="#fff" d="M63.7 36.67v17.41h-.91c-10.76 0-19.48-8.72-19.48-19.48h18.32c1.14 0 2.07.93 2.07 2.07z" opacity=".4" />
+      <path fill="#ef4a51" d="M60.25 11.69v11.4c0 .85-.57 1.59-1.39 1.8L37.9 30.25l-6.18 1.57c-.3.07-.61.07-.92 0L3.69 24.89c-.81-.2-1.39-.94-1.39-1.8v-11.4c0-1.02.82-1.85 1.85-1.85H58.4c1.02 0 1.85.83 1.85 1.85z" />
+      <path fill="#fff" d="M60.25 11.69v11.4c0 .85-.57 1.59-1.39 1.8L37.9 30.25l-14.11-3.43a16.772 16.772 0 0 1-12.82-16.3c0-.24.05-.46.13-.68h47.3c1.02 0 1.85.83 1.85 1.85z" opacity=".3" />
+      <path d="M31.27 32.85c-.23 0-.46-.03-.69-.08L3.45 25.83a2.808 2.808 0 0 1-2.12-2.74v-11.4c0-1.56 1.27-2.82 2.82-2.82H58.4c1.56 0 2.82 1.27 2.82 2.82v11.4c0 1.3-.87 2.42-2.12 2.74l-27.13 6.93c-.23.06-.46.09-.7.09zM4.15 10.81c-.49 0-.88.4-.88.88v11.4c0 .41.27.76.65.85l27.13 6.94c.14.03.3.03.44 0l27.13-6.93c.39-.1.66-.45.66-.86v-11.4c0-.49-.4-.88-.88-.88H4.15z" fill="#000000" />
+      <path fill="#ffab03" d="M33.89 35.09H28.6v3.16l2.65 2.63 2.64-2.33z" />
+      <path d="M31.25 41.85c-.25 0-.49-.09-.68-.28l-2.65-2.62a.985.985 0 0 1-.29-.69V35.1c0-.54.43-.97.97-.97h5.29c.54 0 .97.43.97.97v3.46c0 .28-.12.54-.33.73l-2.65 2.33c-.18.15-.41.23-.63.23zm-1.68-4 1.72 1.7 1.64-1.44v-2.05h-3.35v1.79z" fill="#000000" />
+      <path fill="#ffab03" d="M34.25 35.09h-6c-.67 0-1.22-.54-1.22-1.22v-3.98c0-.67.54-1.22 1.22-1.22h6c.67 0 1.22.54 1.22 1.22v3.98c-.01.67-.55 1.22-1.22 1.22z" />
+      <path fill="#fff" d="M35.46 29.68v3.18h-1.59c-2.32 0-4.19-1.88-4.19-4.19h4.78c.55 0 1 .45 1 1.01z" opacity=".3" />
+      <path d="M34.28 36.06h-6.07c-1.19 0-2.15-.96-2.15-2.15v-4.05c0-1.19.96-2.15 2.15-2.15h6.07c1.19 0 2.15.96 2.15 2.15v4.05c0 1.18-.96 2.15-2.15 2.15zm-6.07-6.42c-.12 0-.21.09-.21.21v4.05c0 .12.09.21.21.21h6.07c.12 0 .21-.09.21-.21v-4.05c0-.12-.09-.21-.21-.21h-6.07zM61.63 65H40.69c-1.67 0-3.04-1.36-3.04-3.04v-25.3c0-1.67 1.36-3.03 3.04-3.03h20.95c1.68 0 3.04 1.36 3.04 3.03v17.42c0 .54-.43.97-.97.97s-.97-.43-.97-.97V36.66c0-.6-.49-1.09-1.1-1.09H40.69c-.6 0-1.1.49-1.1 1.09v25.3c0 .6.49 1.1 1.1 1.1h20.95c.61 0 1.1-.49 1.1-1.1v-3.14c0-.54.43-.97.97-.97s.97.43.97.97v3.14A3.054 3.054 0 0 1 61.63 65z" fill="#000000" />
+      <path d="M56.73 40.01H45.59c-.54 0-.97-.43-.97-.97s.43-.97.97-.97h11.14c.54 0 .97.43.97.97s-.43.97-.97.97zm3.16 5.14H42.43c-.54 0-.97-.43-.97-.97s.43-.97.97-.97h17.45c.54 0 .97.43.97.97.01.53-.43.97-.96.97zm0 5.14H42.43c-.54 0-.97-.43-.97-.97s.43-.97.97-.97h17.45c.54 0 .97.43.97.97.01.53-.43.97-.96.97zm0 5.13H42.43c-.54 0-.97-.43-.97-.97s.43-.97.97-.97h17.45c.54 0 .97.43.97.97s-.43.97-.96.97zm-7.69 5.14h-9.77c-.54 0-.97-.43-.97-.97s.43-.97.97-.97h9.77c.54 0 .97.43.97.97s-.43.97-.97.97z" fill="#000000" />
+    </svg>
+  );
+}
 
 async function fetchUserProfile() {
   const res = await fetch("/api/profile");
@@ -127,6 +197,8 @@ export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [newSkillInput, setNewSkillInput] = useState("");
+  const [isSkillFocused, setIsSkillFocused] = useState(false);
+  const skillInputRef = useRef(null);
   const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [showCropperModal, setShowCropperModal] = useState(false);
   const [imageToCrop, setImageToCrop] = useState(null);
@@ -290,9 +362,8 @@ export default function ProfilePage() {
     }
   };
 
-  const handleAddSkill = (e) => {
-    if (e) e.preventDefault();
-    const trimmed = newSkillInput.trim();
+  const handleAddSkillByName = (skillName) => {
+    const trimmed = skillName?.trim();
     if (!trimmed) return;
     if (!formData.skills.includes(trimmed)) {
       const updatedSkills = [...formData.skills, trimmed];
@@ -303,6 +374,11 @@ export default function ProfilePage() {
     } else {
       setNewSkillInput("");
     }
+  };
+
+  const handleAddSkill = (e) => {
+    if (e) e.preventDefault();
+    handleAddSkillByName(newSkillInput);
   };
 
   const handleRemoveSkill = (skillToRemove) => {
@@ -358,7 +434,7 @@ export default function ProfilePage() {
         )}
 
         {/* Profile Header Card */}
-        <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-xl border border-black/5 mb-8">
+        <div className="bg-white rounded-4xl p-6 sm:p-8 shadow-xl border border-black/5 mb-8">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-6 border-b border-neutral-100">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
               {/* Profile Avatar with Hover Change Photo Trigger */}
@@ -607,7 +683,7 @@ export default function ProfilePage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 flex flex-col gap-6">
               {/* Personal Profile & Links Card */}
-              <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-xl border border-black/5">
+              <div className="bg-white rounded-4xl p-6 sm:p-8 shadow-xl border border-black/5">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-lg font-extrabold text-[#111111] flex items-center gap-2">
                     <User className="w-5 h-5 text-emerald-600" />
@@ -823,9 +899,9 @@ export default function ProfilePage() {
                           href={formData.github.startsWith("http") ? formData.github : `https://${formData.github}`}
                           target="_blank"
                           rel="noreferrer"
-                          className="flex items-center gap-2 p-3 bg-[#F8F9FA] hover:bg-[#F1F3F5] rounded-2xl border border-black/5 transition-colors text-xs font-bold text-[#111111]"
+                          className="flex items-center gap-2.5 p-3 bg-[#F8F9FA] hover:bg-[#F1F3F5] rounded-2xl border border-black/5 transition-colors text-xs font-bold text-[#111111]"
                         >
-                          <Code2 className="w-4 h-4 text-neutral-800 shrink-0" />
+                          <GitHubLogo className="w-4.5 h-4.5 text-neutral-900 shrink-0" />
                           <span className="truncate">GitHub</span>
                           <ExternalLink className="w-3 h-3 ml-auto text-neutral-400" />
                         </a>
@@ -835,7 +911,7 @@ export default function ProfilePage() {
                           onClick={() => setIsEditing(true)}
                           className="flex items-center gap-2 p-3 bg-neutral-50 hover:bg-neutral-100 border border-dashed border-neutral-300 rounded-2xl text-xs font-medium text-neutral-500 cursor-pointer"
                         >
-                          <Code2 className="w-4 h-4" />
+                          <GitHubLogo className="w-4 h-4 text-neutral-500 shrink-0" />
                           <span>+ Add GitHub Link</span>
                         </button>
                       )}
@@ -845,9 +921,9 @@ export default function ProfilePage() {
                           href={formData.linkedin.startsWith("http") ? formData.linkedin : `https://${formData.linkedin}`}
                           target="_blank"
                           rel="noreferrer"
-                          className="flex items-center gap-2 p-3 bg-[#F8F9FA] hover:bg-[#F1F3F5] rounded-2xl border border-black/5 transition-colors text-xs font-bold text-[#111111]"
+                          className="flex items-center gap-2.5 p-3 bg-[#F8F9FA] hover:bg-[#F1F3F5] rounded-2xl border border-black/5 transition-colors text-xs font-bold text-[#111111]"
                         >
-                          <Globe className="w-4 h-4 text-blue-600 shrink-0" />
+                          <LinkedInLogo className="w-4.5 h-4.5 text-[#0A66C2] shrink-0" />
                           <span className="truncate">LinkedIn</span>
                           <ExternalLink className="w-3 h-3 ml-auto text-neutral-400" />
                         </a>
@@ -857,7 +933,7 @@ export default function ProfilePage() {
                           onClick={() => setIsEditing(true)}
                           className="flex items-center gap-2 p-3 bg-neutral-50 hover:bg-neutral-100 border border-dashed border-neutral-300 rounded-2xl text-xs font-medium text-neutral-500 cursor-pointer"
                         >
-                          <Globe className="w-4 h-4" />
+                          <LinkedInLogo className="w-4 h-4 text-[#0A66C2] shrink-0" />
                           <span>+ Add LinkedIn Link</span>
                         </button>
                       )}
@@ -867,9 +943,9 @@ export default function ProfilePage() {
                           href={formData.portfolio.startsWith("http") ? formData.portfolio : `https://${formData.portfolio}`}
                           target="_blank"
                           rel="noreferrer"
-                          className="flex items-center gap-2 p-3 bg-[#F8F9FA] hover:bg-[#F1F3F5] rounded-2xl border border-black/5 transition-colors text-xs font-bold text-[#111111]"
+                          className="flex items-center gap-2.5 p-3 bg-[#F8F9FA] hover:bg-[#F1F3F5] rounded-2xl border border-black/5 transition-colors text-xs font-bold text-[#111111]"
                         >
-                          <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
+                          <PortfolioLogo className="w-5 h-5 shrink-0" />
                           <span className="truncate">Portfolio</span>
                           <ExternalLink className="w-3 h-3 ml-auto text-neutral-400" />
                         </a>
@@ -879,7 +955,7 @@ export default function ProfilePage() {
                           onClick={() => setIsEditing(true)}
                           className="flex items-center gap-2 p-3 bg-neutral-50 hover:bg-neutral-100 border border-dashed border-neutral-300 rounded-2xl text-xs font-medium text-neutral-500 cursor-pointer"
                         >
-                          <Sparkles className="w-4 h-4" />
+                          <PortfolioLogo className="w-4.5 h-4.5 shrink-0" />
                           <span>+ Add Portfolio Link</span>
                         </button>
                       )}
@@ -889,7 +965,7 @@ export default function ProfilePage() {
               </div>
 
               {/* Skills Card with Add/Delete Feature */}
-              <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-xl border border-black/5">
+              <div className="bg-white rounded-4xl p-6 sm:p-8 shadow-xl border border-black/5">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                   <h2 className="text-lg font-extrabold text-[#111111] flex items-center gap-2">
                     <Award className="w-5 h-5 text-amber-600" />
@@ -904,66 +980,140 @@ export default function ProfilePage() {
                   </Link>
                 </div>
 
-                {/* Add Skill Form with Preset Dropdown and Text Input */}
-                <form onSubmit={handleAddSkill} className="flex flex-col sm:flex-row items-stretch gap-2 mb-4">
-                  <select
-                    onChange={(e) => {
-                      if (e.target.value) {
-                        const skillToAdd = e.target.value;
-                        if (!formData.skills.includes(skillToAdd)) {
-                          const updatedSkills = [...formData.skills, skillToAdd];
-                          const newFormData = { ...formData, skills: updatedSkills };
-                          setFormData(newFormData);
-                          updateMutation.mutate(newFormData);
-                        }
-                        e.target.value = "";
-                      }
-                    }}
-                    defaultValue=""
-                    className="px-3.5 py-2.5 rounded-2xl bg-[#F5F5F3] border border-black/5 text-xs font-semibold text-[#111111] focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer flex-1"
+                {/* Unified Add Skill Input with Focus Animation & Intelligent Recommendations */}
+                <div className="relative mb-5">
+                  <div
+                    className={`relative flex items-center bg-[#F8F9FA] rounded-2xl border transition-all duration-300 ease-out ${
+                      isSkillFocused
+                        ? "scale-[1.015] bg-white border-emerald-500 shadow-xl shadow-emerald-500/10 ring-4 ring-emerald-500/15"
+                        : "border-black/5 hover:border-black/10"
+                    }`}
                   >
-                    <option value="" disabled>
-                      -- Quick Select Skill Preset --
-                    </option>
-                    {[
-                      "Next.js",
-                      "Python",
-                      "SQL",
-                      "React.js",
-                      "TypeScript",
-                      "Node.js",
-                      "PostgreSQL",
-                      "TensorFlow",
-                      "Docker",
-                      "REST API design",
-                      "Tailwind CSS",
-                      "Data Engineering",
-                      "Machine Learning",
-                    ].map((sk) => (
-                      <option key={sk} value={sk} disabled={formData.skills.includes(sk)}>
-                        {sk} {formData.skills.includes(sk) ? "✓ (Added)" : ""}
-                      </option>
-                    ))}
-                  </select>
-
-                  <div className="flex items-center gap-2 flex-1">
+                    <Search
+                      className={`w-4 h-4 ml-4 shrink-0 transition-colors duration-300 ${
+                        isSkillFocused ? "text-emerald-600" : "text-neutral-400"
+                      }`}
+                    />
                     <input
+                      ref={skillInputRef}
                       type="text"
                       value={newSkillInput}
+                      onFocus={() => setIsSkillFocused(true)}
+                      onBlur={() => {
+                        setTimeout(() => setIsSkillFocused(false), 200);
+                      }}
                       onChange={(e) => setNewSkillInput(e.target.value)}
-                      placeholder="Or type custom skill..."
-                      className="w-full px-4 py-2.5 rounded-2xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          if (newSkillInput.trim()) {
+                            const matchingSkill = PRELOADED_SKILL_RECOMMENDATIONS.find(
+                              (sk) =>
+                                !formData.skills.includes(sk) &&
+                                sk.toLowerCase() === newSkillInput.trim().toLowerCase()
+                            );
+                            handleAddSkillByName(matchingSkill || newSkillInput);
+                            setIsSkillFocused(false);
+                          }
+                        } else if (e.key === "Escape") {
+                          setIsSkillFocused(false);
+                          skillInputRef.current?.blur();
+                        }
+                      }}
+                      placeholder="Type a skill (e.g. React, Python, SQL, Node js)..."
+                      className="w-full pl-3.5 pr-4 py-3.5 bg-transparent text-xs sm:text-sm font-semibold text-[#111111] placeholder:text-neutral-400 placeholder:font-normal focus:outline-none"
                     />
-                    <button
-                      type="submit"
-                      disabled={updateMutation.isPending}
-                      className="px-4 py-2.5 bg-neutral-900 hover:bg-neutral-800 text-white rounded-2xl text-xs font-bold flex items-center gap-1.5 shrink-0 transition-colors cursor-pointer disabled:opacity-50"
-                    >
-                      <Plus className="w-4 h-4 text-emerald-400" />
-                      <span>{updateMutation.isPending ? "Adding..." : "Add"}</span>
-                    </button>
                   </div>
-                </form>
+
+                  {/* Autocomplete / Preloaded Recommendations Dropdown (shown only when typing) */}
+                  {isSkillFocused && newSkillInput.trim().length > 0 && (
+                    <div
+                      className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-2xl border border-black/10 z-50 p-2 max-h-64 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200"
+                      onMouseDown={(e) => e.preventDefault()}
+                    >
+                      <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-neutral-400 flex items-center justify-between">
+                        <span>Recommended Skills</span>
+                        <span className="text-[9px] font-normal text-neutral-400">Click to add</span>
+                      </div>
+
+                      {(() => {
+                        const matching = PRELOADED_SKILL_RECOMMENDATIONS.filter(
+                          (sk) =>
+                            !formData.skills.includes(sk) &&
+                            (newSkillInput.trim() === "" ||
+                              sk.toLowerCase().includes(newSkillInput.toLowerCase().trim()))
+                        );
+
+                        if (matching.length > 0) {
+                          return (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
+                              {matching.slice(0, 10).map((sk) => (
+                                <button
+                                  key={sk}
+                                  type="button"
+                                  onClick={() => {
+                                    handleAddSkillByName(sk);
+                                    setIsSkillFocused(false);
+                                  }}
+                                  className="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-emerald-50 text-left transition-colors group cursor-pointer"
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 group-hover:scale-125 transition-transform" />
+                                    <span className="text-xs font-bold text-neutral-800 group-hover:text-emerald-950">
+                                      {sk}
+                                    </span>
+                                  </div>
+                                  <span className="text-[10px] font-bold text-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity bg-emerald-100/70 px-2 py-0.5 rounded-md">
+                                    + Add
+                                  </span>
+                                </button>
+                              ))}
+                            </div>
+                          );
+                        }
+
+                        if (newSkillInput.trim()) {
+                          return (
+                            <div className="p-3 text-center text-xs text-neutral-500">
+                              No matching preloaded preset. Press{" "}
+                              <kbd className="px-1.5 py-0.5 bg-neutral-100 rounded text-[10px] font-bold text-neutral-800">
+                                Enter
+                              </kbd>{" "}
+                              to save as custom skill.
+                            </div>
+                          );
+                        }
+
+                        return (
+                          <div className="p-3 text-center text-xs text-neutral-400">All preset skills added!</div>
+                        );
+                      })()}
+
+                      {/* Custom skill direct add prompt if user typed something not matching presets */}
+                      {newSkillInput.trim() &&
+                        !PRELOADED_SKILL_RECOMMENDATIONS.some(
+                          (sk) => sk.toLowerCase() === newSkillInput.trim().toLowerCase()
+                        ) &&
+                        !formData.skills.includes(newSkillInput.trim()) && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              handleAddSkillByName(newSkillInput.trim());
+                              setIsSkillFocused(false);
+                            }}
+                            className="w-full mt-1.5 pt-2 border-t border-neutral-100 flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-neutral-50 hover:bg-emerald-50 text-left transition-colors cursor-pointer"
+                          >
+                            <span className="text-xs font-bold text-emerald-800">
+                              Add "{newSkillInput.trim()}" as custom skill
+                            </span>
+                            <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md">
+                              Custom
+                            </span>
+                          </button>
+                        )}
+                    </div>
+                  )}
+                </div>
 
                 {formData.skills.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -976,19 +1126,14 @@ export default function ProfilePage() {
                           <div className="w-2 h-2 rounded-full bg-emerald-500" />
                           <span className="text-xs font-extrabold text-[#111111]">{skillName}</span>
                         </div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 text-[10px] font-bold rounded-md border border-emerald-200">
-                            Competency
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveSkill(skillName)}
-                            title="Remove Skill"
-                            className="p-1 text-neutral-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer opacity-80 group-hover:opacity-100"
-                          >
-                            <X className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveSkill(skillName)}
+                          title="Remove Skill"
+                          className="p-1.5 text-neutral-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer opacity-80 group-hover:opacity-100"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                     ))}
                   </div>
@@ -1007,7 +1152,7 @@ export default function ProfilePage() {
             {/* Sidebar Column */}
             <div className="flex flex-col gap-6">
               {/* Credential Trust Score Card */}
-              <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-xl border border-black/5">
+              <div className="bg-white rounded-4xl p-6 sm:p-8 shadow-xl border border-black/5">
                 <h3 className="text-sm font-bold text-[#111111] mb-3 flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-emerald-600" />
                   <span>Credential Trust Score</span>
@@ -1080,7 +1225,7 @@ export default function ProfilePage() {
               </div>
 
               {/* Public Passport Link Card */}
-              <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-xl border border-black/5">
+              <div className="bg-white rounded-4xl p-6 sm:p-8 shadow-xl border border-black/5">
                 <h3 className="text-sm font-bold text-[#111111] mb-2 flex items-center gap-2">
                   <Share2 className="w-4 h-4 text-blue-600" />
                   <span>Public Passport Link</span>
@@ -1107,7 +1252,7 @@ export default function ProfilePage() {
         )}
 
         {activeTab === "academic" && (
-          <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-xl border border-black/5">
+          <div className="bg-white rounded-4xl p-6 sm:p-8 shadow-xl border border-black/5">
             <h2 className="text-lg font-extrabold text-[#111111] mb-6 flex items-center gap-2">
               <GraduationCap className="w-5 h-5 text-emerald-600" />
               <span>Academic Background & Degree Credentials</span>
@@ -1159,7 +1304,7 @@ export default function ProfilePage() {
         )}
 
         {activeTab === "settings" && (
-          <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-xl border border-black/5 flex flex-col gap-6">
+          <div className="bg-white rounded-4xl p-6 sm:p-8 shadow-xl border border-black/5 flex flex-col gap-6">
             <div>
               <h2 className="text-lg font-extrabold text-[#111111] flex items-center gap-2">
                 <SlidersHorizontal className="w-5 h-5 text-neutral-700" />

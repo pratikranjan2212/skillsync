@@ -72,7 +72,7 @@ export default function TermsAndConditionsPage() {
               <span>3. Job Matching & Ingested Opportunities</span>
             </h2>
             <p className="text-sm text-[#494D4D] leading-relaxed">
-              Job and internship listings are ingested from public aggregators including Adzuna, Jooble, and Remotive:
+              Job and internship listings are ingested from public aggregators including LinkedIn and verified career portals:
             </p>
             <ul className="space-y-2 text-sm text-[#494D4D] list-disc list-inside pl-2">
               <li>SkillSync calculated match percentages are recommendations based strictly on taxonomy skill overlap.</li>

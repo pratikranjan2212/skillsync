@@ -2,7 +2,7 @@ import { generateTailoredOpportunities } from "./lib/opportunities/opportunitySe
 import { getMatchingFeatures } from "./lib/matching/getMatchingFeatures.js";
 import { calculateMatchScore } from "./lib/matching/scoring.js";
 
-const testSkills = ["React.js", "Tailwind CSS", "TypeScript", "Next.js"];
+const testSkills = ["React", "Tailwind CSS", "TypeScript", "Next.js"];
 const matchingFeatures = getMatchingFeatures({ skills: testSkills }, []);
 const opps = generateTailoredOpportunities(testSkills);
 

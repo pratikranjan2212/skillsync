@@ -1,3 +1,92 @@
+# SkillSync Frontend — Build Log
+Running log of every change made to the frontend, in chronological order (newest entry at the top).
+Each entry explains *what* changed and *why*, plus a section-by-section explanation of any new or modified code.
+
+---
+## [2026-08-17 13:56] Replaced Portfolio, GitHub & LinkedIn Icons with Official Logos in Personal Profile
+
+**Files changed:**
+- `app/profile/page.js` (modified)
+
+**What changed and why:**
+1. **Portfolio Icon**: Replaced generic Sparkles icon with custom multi-colored portfolio SVG illustration provided by the user.
+2. **GitHub Logo**: Replaced generic `Code2` icon with GitHub's official octocat brand logo.
+3. **LinkedIn Logo**: Replaced generic `Globe` icon with LinkedIn's official blue icon mark.
+
+**Code explanation (section by section):**
+`app/profile/page.js`
+- **Branded Link Icons** — Defined `GitHubLogo`, `LinkedInLogo`, and `PortfolioLogo` SVG helper components and wired them into both active external link pills and empty `+ Add Link` placeholders in Personal Profile.
+
+**Open items / follow-ups:**
+Production build verified with exit code 0.
+
+## [2026-08-17 13:53] Removed Icon Near Custom Add Skill Option
+
+**Files changed:**
+- `app/profile/page.js` (modified)
+- `app/dashboard/evidence/new/page.js` (modified)
+
+**What changed and why:**
+Removed the sparkle icon from the custom skill creation button inside the recommendation dropdown, leaving a clean text label (*"Add \"[typed text]\" as custom skill"*).
+
+**Code explanation (section by section):**
+`app/profile/page.js` & `app/dashboard/evidence/new/page.js`
+- **Clean Custom Prompt** — Simplified the custom add row to display only the text label and the "Custom" pill badge.
+
+**Open items / follow-ups:**
+Production build verified with exit code 0.
+
+## [2026-08-17 13:51] Display Recommendation Dropdown Exclusively Upon Typing
+
+**Files changed:**
+- `app/profile/page.js` (modified)
+- `app/dashboard/evidence/new/page.js` (modified)
+
+**What changed and why:**
+Updated the autocomplete recommendation dropdown visibility so that it remains hidden when the input is empty or just focused, and dynamically displays the "Recommended Skills" menu only after the user types one or more letters matching available skills.
+
+**Code explanation (section by section):**
+`app/profile/page.js` & `app/dashboard/evidence/new/page.js`
+- **Typing-Gated Visibility** — Configured `{isSkillFocused && newSkillInput.trim().length > 0 && (...)}` to keep the input interface clean and uncluttered upon initial click until search text is entered.
+
+**Open items / follow-ups:**
+Production build verified with exit code 0.
+
+## [2026-08-17 13:47] Removed Right Add Button & Competency Badges from Skills Section
+
+**Files changed:**
+- `app/profile/page.js` (modified)
+
+**What changed and why:**
+1. **Removed Add Button**: Removed the right-hand `+ Add` button from the unified skill search input bar, allowing the input to span full-width cleanly (skills are selected directly from autocomplete recommendations or by pressing Enter).
+2. **Removed Competency Badges**: Removed the green "Competency" badges from active verifiable skill chips, giving each skill item a minimal, clean layout with the active emerald dot, bold skill name, and quick-remove `X` action.
+
+**Open items / follow-ups:**
+Production build verified with exit code 0.
+
+## [2026-08-17 13:30] Unified Skill Search Input with Focus Enlargement & Autocomplete Recommendations; Renamed React & Node js
+
+**Files changed:**
+- `app/profile/page.js` (modified)
+- `app/dashboard/evidence/new/page.js` (modified)
+- `app/data/mockData.js` (modified)
+- `prisma/seed.js` (modified)
+- `lib/ingestion/normalize.js` (modified)
+- `lib/matching/scoring.js` (modified)
+- `lib/opportunities/opportunityService.js` (modified)
+- `lib/verification/ocrParser.js` (modified)
+
+**What changed and why:**
+1. **Unified Skill Section**: Replaced the dual-section layout (preset dropdown + separate custom text input) in the profile skills card with a single unified search & input field.
+2. **Focus State Enlargement Animation**: When clicked or focused, the input field smoothly enlarges (`scale-[1.015]`, `shadow-xl shadow-emerald-500/10`, `ring-4 ring-emerald-500/15`, `border-emerald-500`) with subtle hardware-accelerated transitions.
+3. **Dynamic Autocomplete Recommendations**: As the user types letters, matching preloaded skills are suggested in real time in a floating recommendation dropdown. Clicking any recommendation or pressing Enter immediately adds the skill to active verifiable skills. Also supports adding arbitrary custom skills.
+4. **Renamed Skills**: Changed all occurrences of `"React.js"` to `"React"` and `"Node.js"` to `"Node js"` across the entire taxonomy, mock data, normalization heuristics, matching engine synonyms, and opportunities generator.
+
+**Open items / follow-ups:**
+Production build verified with exit code 0.
+
+---
+
 # SkillSync — Codebase Architecture & Component Reference Manual
 
 > **SkillSync**: An automated, explainable, and bias-free talent verification and internship matching engine. Verifies coursework, projects, and credentials into a portable, cryptographically signed **Skill Passport**, and matches students with relevant opportunities without demographic bias.

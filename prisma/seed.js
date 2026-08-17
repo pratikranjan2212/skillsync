@@ -55,13 +55,13 @@ async function main() {
   const taxonomy = [
     { name: "Python", category: "Programming Languages", description: "Core syntax, data structures, and standard libraries." },
     { name: "SQL", category: "Databases", description: "Relational database querying, joins, and indexing." },
-    { name: "React.js", category: "Frontend Web", description: "Modern React with hooks, state management, and component architecture." },
+    { name: "React", category: "Frontend Web", description: "Modern React with hooks, state management, and component architecture." },
     { name: "TensorFlow", category: "AI & Machine Learning", description: "Deep learning models, tensor manipulation, and training loops." },
     { name: "Docker", category: "DevOps & Cloud", description: "Containerization, Dockerfiles, and multi-stage builds." },
     { name: "REST API design", category: "Backend Engineering", description: "HTTP endpoints, JSON payloads, and API authentication." },
     { name: "Tailwind CSS", category: "Frontend Web", description: "Utility-first CSS styling and responsive layout design." },
     { name: "Data Engineering", category: "Data Science", description: "ETL pipelines, data cleaning, and processing." },
-    { name: "Node.js", category: "Backend Engineering", description: "Server-side JavaScript runtime, event loop, and asynchronous I/O." },
+    { name: "Node js", category: "Backend Engineering", description: "Server-side JavaScript runtime, event loop, and asynchronous I/O." },
     { name: "PostgreSQL", category: "Databases", description: "Advanced relational database with ACID compliance and indexing." },
     { name: "Git", category: "Developer Tools", description: "Version control, branching strategies, and commit hygiene." },
     { name: "Next.js", category: "Full-Stack Web", description: "React framework with App Router, SSR, and API routes." },
@@ -131,7 +131,7 @@ async function main() {
       verificationStage: "flagged_review",
       verifiedAt: new Date("2026-08-13T11:00:00Z"),
       adminOverride: false,
-      claimedSkills: ["React.js", "Tailwind CSS"],
+      claimedSkills: ["React", "Tailwind CSS"],
     },
   ];
 
@@ -173,7 +173,7 @@ async function main() {
       stipend: "₹40,000 / month",
       type: "Internship",
       description: "Build user-facing web applications, responsive dashboards, and interactive UI systems using Next.js, React, and Tailwind CSS.",
-      requiredSkills: ["React.js", "Tailwind CSS", "REST API design", "Docker"],
+      requiredSkills: ["React", "Tailwind CSS", "REST API design", "Docker"],
       source: "Direct",
       url: "https://venturecraft.dev/apply",
     },

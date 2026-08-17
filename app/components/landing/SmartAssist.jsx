@@ -25,7 +25,7 @@ export default function SmartAssist() {
       <FadeIn distance={24} duration={0.55}>
         <div
           id="smart-assist"
-          className="bg-white rounded-[32px] sm:rounded-4xl p-8 sm:p-12 shadow-sm hover:shadow-md transition-shadow duration-300 border border-black/8 flex flex-col gap-10 scroll-mt-24"
+          className="bg-white rounded-4xl p-8 sm:p-12 shadow-sm hover:shadow-md transition-shadow duration-300 border border-black/8 flex flex-col gap-10 scroll-mt-24"
         >
           <FadeIn delay={0.02} distance={16} duration={0.4}>
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -75,7 +75,7 @@ export default function SmartAssist() {
           <FadeIn delay={0.06} distance={18} duration={0.45}>
             <div className="pt-6 border-t border-neutral-100 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="text-xs sm:text-sm font-semibold text-[#494D4D]">
-                Explore opportunities ingested live from Adzuna, Jooble, and Remotive
+                Explore opportunities ingested live from LinkedIn and verified career portals
               </div>
               <Link
                 href="/opportunities"

@@ -75,9 +75,18 @@ export async function GET(request, { params }) {
     return NextResponse.json({ error: "Opportunity not found" }, { status: 404 });
   }
 
+  const directLinkedInUrl =
+    opportunity.linkedinUrl ||
+    opportunity.url ||
+    opportunity.externalUrl ||
+    `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(`${opportunity.title} ${opportunity.company}`.trim())}`;
+
   const normalizedOpp = {
     ...opportunity,
     workMode: opportunity.workMode || normalizeWorkMode(null, opportunity.location),
+    linkedinUrl: directLinkedInUrl,
+    url: directLinkedInUrl,
+    externalUrl: directLinkedInUrl,
   };
 
   const explanation = buildExplainableMatch(

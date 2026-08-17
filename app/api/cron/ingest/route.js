@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
 import { env } from "@/lib/config/env";
 import prisma from "@/lib/prisma";
+import { fetchLinkedInJobs } from "@/lib/ingestion/linkedin";
 import { fetchRemotiveJobs } from "@/lib/ingestion/remotive";
 import { fetchArbeitnowJobs } from "@/lib/ingestion/arbeitnow";
 import { fetchJobicyJobs } from "@/lib/ingestion/jobicy";
-import { fetchAdzunaJobs } from "@/lib/ingestion/adzuna";
-import { fetchJoobleJobs } from "@/lib/ingestion/jooble";
 
 export async function GET(request) {
   // Check authorization via CRON_SECRET header if provided
@@ -19,20 +18,18 @@ export async function GET(request) {
   }
 
   try {
-    const [remotiveRes, arbeitnowRes, jobicyRes, adzunaRes, joobleRes] = await Promise.allSettled([
+    const [linkedInRes, remotiveRes, arbeitnowRes, jobicyRes] = await Promise.allSettled([
+      fetchLinkedInJobs("software developer intern", "India"),
       fetchRemotiveJobs(),
       fetchArbeitnowJobs(),
       fetchJobicyJobs(),
-      fetchAdzunaJobs(),
-      fetchJoobleJobs(),
     ]);
 
     const allJobs = [
+      ...(linkedInRes.status === "fulfilled" ? linkedInRes.value : []),
       ...(remotiveRes.status === "fulfilled" ? remotiveRes.value : []),
       ...(arbeitnowRes.status === "fulfilled" ? arbeitnowRes.value : []),
       ...(jobicyRes.status === "fulfilled" ? jobicyRes.value : []),
-      ...(adzunaRes.status === "fulfilled" ? adzunaRes.value : []),
-      ...(joobleRes.status === "fulfilled" ? joobleRes.value : []),
     ];
 
     let persistedCount = 0;
@@ -50,7 +47,7 @@ export async function GET(request) {
             description: job.description,
             requiredSkills: job.requiredSkills,
             source: job.source,
-            url: job.url,
+            url: job.linkedinUrl || job.url,
           },
           create: job,
         });
