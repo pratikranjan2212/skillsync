@@ -1,6 +1,6 @@
-import { generateTailoredOpportunities } from "./lib/opportunities/opportunityService.js";
-import { getMatchingFeatures } from "./lib/matching/getMatchingFeatures.js";
-import { calculateMatchScore } from "./lib/matching/scoring.js";
+import { generateTailoredOpportunities } from "../lib/opportunities/opportunityService.js";
+import { getMatchingFeatures } from "../lib/matching/getMatchingFeatures.js";
+import { calculateMatchScore } from "../lib/matching/scoring.js";
 
 const testSkills = ["React", "Tailwind CSS", "TypeScript", "Next.js"];
 const matchingFeatures = getMatchingFeatures({ skills: testSkills }, []);
