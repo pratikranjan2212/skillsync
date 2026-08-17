@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Zap,
@@ -21,9 +21,6 @@ export default function Metrics() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [activeModal, setActiveModal] = useState(null);
-  
-  const containerRef = useRef(null);
-  const wheelLockRef = useRef(false);
 
   const metricsData = [
     {
@@ -77,35 +74,6 @@ export default function Metrics() {
     return () => clearInterval(timer);
   }, [isAutoPlaying, activeModal, metricsData.length]);
 
-  // Non-passive native wheel listener to PREVENT page vertical scroll when wheeling over carousel
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-
-    const handleWheelNative = (e) => {
-      // Prevent browser default window scrolling (page going up/down)
-      e.preventDefault();
-
-      if (wheelLockRef.current || activeModal) return;
-
-      const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-      if (Math.abs(delta) > 10) {
-        if (delta > 0) {
-          setCurrentIndex((prev) => (prev + 1) % metricsData.length);
-        } else {
-          setCurrentIndex((prev) => (prev - 1 + metricsData.length) % metricsData.length);
-        }
-        wheelLockRef.current = true;
-        setTimeout(() => {
-          wheelLockRef.current = false;
-        }, 450);
-      }
-    };
-
-    el.addEventListener("wheel", handleWheelNative, { passive: false });
-    return () => el.removeEventListener("wheel", handleWheelNative);
-  }, [activeModal, metricsData.length]);
-
   const activeMetric = metricsData[currentIndex];
   const Icon = activeMetric.icon;
 
@@ -120,7 +88,6 @@ export default function Metrics() {
     >
       {/* Outer Card Wrapper */}
       <div
-        ref={containerRef}
         onMouseEnter={() => setIsAutoPlaying(false)}
         onMouseLeave={() => setIsAutoPlaying(true)}
         className="relative bg-white rounded-[36px] sm:rounded-[44px] border border-black/10 p-6 sm:p-10 md:p-12 shadow-2xl overflow-hidden group/card"

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -59,47 +59,52 @@ export default function OpportunityFeedPage() {
   } = useQuery({
     queryKey: ["opportunities-feed"],
     queryFn: fetchOpportunitiesFeed,
-    staleTime: 30000,
+    staleTime: 5 * 60 * 1000, // 5 minutes fresh in client cache
+    gcTime: 15 * 60 * 1000,
+    refetchOnWindowFocus: false, // Prevents laggy refetches on tab switching
     enabled: isAuthenticated,
   });
 
   const opportunities = feedData?.opportunities || [];
   const hasPassport = feedData?.hasPassport ?? false;
 
-  const filteredList = opportunities.filter((op) => {
+  const filteredList = useMemo(() => {
     const term = searchTerm.toLowerCase().trim();
-    const matchesKeyword =
-      !term ||
-      op.title?.toLowerCase().includes(term) ||
-      op.company?.toLowerCase().includes(term) ||
-      op.location?.toLowerCase().includes(term) ||
-      (op.requiredSkills && op.requiredSkills.some((s) => s.toLowerCase().includes(term)));
 
-    const opMode = (op.workMode || "").toLowerCase();
-    const opLoc = (op.location || "").toLowerCase();
+    return opportunities.filter((op) => {
+      const matchesKeyword =
+        !term ||
+        op.title?.toLowerCase().includes(term) ||
+        op.company?.toLowerCase().includes(term) ||
+        op.location?.toLowerCase().includes(term) ||
+        (op.requiredSkills && op.requiredSkills.some((s) => s.toLowerCase().includes(term)));
 
-    let matchesWorkMode = true;
-    if (selectedWorkMode === "remote") {
-      matchesWorkMode =
-        opMode === "remote" ||
-        opLoc.includes("remote") ||
-        opLoc.includes("worldwide") ||
-        opLoc.includes("wfh");
-    } else if (selectedWorkMode === "hybrid") {
-      matchesWorkMode = opMode === "hybrid" || opLoc.includes("hybrid");
-    } else if (selectedWorkMode === "onsite" || selectedWorkMode === "offline") {
-      matchesWorkMode =
-        opMode === "on-site" ||
-        opMode === "onsite" ||
-        opMode === "offline" ||
-        opLoc.includes("on-site") ||
-        opLoc.includes("onsite") ||
-        opLoc.includes("in-office") ||
-        (!opLoc.includes("remote") && !opLoc.includes("hybrid") && !opLoc.includes("worldwide"));
-    }
+      const opMode = (op.workMode || "").toLowerCase();
+      const opLoc = (op.location || "").toLowerCase();
 
-    return matchesKeyword && matchesWorkMode;
-  });
+      let matchesWorkMode = true;
+      if (selectedWorkMode === "remote") {
+        matchesWorkMode =
+          opMode === "remote" ||
+          opLoc.includes("remote") ||
+          opLoc.includes("worldwide") ||
+          opLoc.includes("wfh");
+      } else if (selectedWorkMode === "hybrid") {
+        matchesWorkMode = opMode === "hybrid" || opLoc.includes("hybrid");
+      } else if (selectedWorkMode === "onsite" || selectedWorkMode === "offline") {
+        matchesWorkMode =
+          opMode === "on-site" ||
+          opMode === "onsite" ||
+          opMode === "offline" ||
+          opLoc.includes("on-site") ||
+          opLoc.includes("onsite") ||
+          opLoc.includes("in-office") ||
+          (!opLoc.includes("remote") && !opLoc.includes("hybrid") && !opLoc.includes("worldwide"));
+      }
+
+      return matchesKeyword && matchesWorkMode;
+    });
+  }, [opportunities, searchTerm, selectedWorkMode]);
 
   if (!authLoading && !isAuthenticated) {
     return (
