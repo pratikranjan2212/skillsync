@@ -46,9 +46,9 @@ export default function MatchDetailPage({ params: paramsPromise }) {
 
   if (!authLoading && !isAuthenticated) {
     return (
-      <div className="h-screen overflow-hidden bg-[#F5F5F3] text-[#111111] flex flex-col justify-start">
+      <div className="min-h-screen pb-12 bg-[#F5F5F3] text-[#111111] flex flex-col justify-start">
         <Navbar />
-        <main className="max-w-5xl mx-auto px-4 sm:px-6 w-full">
+        <main className="max-w-5xl 2xl:max-w-6xl mx-auto px-3.5 sm:px-6 w-full">
           <AuthRequiredView
             badgeText="Explainable Match Verification"
             badgeIcon={Sparkles}
@@ -121,7 +121,7 @@ export default function MatchDetailPage({ params: paramsPromise }) {
     <div className="min-h-screen bg-[#F5F5F3] text-[#111111] pb-16">
       <Navbar />
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col gap-6 pt-4 sm:pt-6">
+      <main className="max-w-5xl 2xl:max-w-6xl mx-auto px-3.5 sm:px-6 flex flex-col gap-6 pt-4 sm:pt-6">
         <div>
           <Link
             href="/opportunities"
@@ -133,7 +133,7 @@ export default function MatchDetailPage({ params: paramsPromise }) {
         </div>
 
         {opportunity && (
-          <div className="bg-white rounded-[28px] p-6 shadow-md border border-black/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="bg-white rounded-2xl sm:rounded-[28px] p-5 sm:p-6 shadow-md border border-black/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
                 <span className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-xl border ${modeBadge.style}`}>
@@ -141,7 +141,7 @@ export default function MatchDetailPage({ params: paramsPromise }) {
                   <span>{modeBadge.label}</span>
                 </span>
               </div>
-              <h1 className="text-2xl font-black text-[#111111] mt-2">{opportunity.title}</h1>
+              <h1 className="text-xl sm:text-2xl font-black text-[#111111] mt-2">{opportunity.title}</h1>
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs font-semibold text-[#494D4D] mt-1.5">
                 <span className="flex items-center gap-1">
                   <Building2 className="w-3.5 h-3.5 text-neutral-400" />

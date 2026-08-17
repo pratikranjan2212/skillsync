@@ -111,9 +111,9 @@ export default function UnifiedDashboardPage() {
 
   if (!authLoading && !isAuthenticated) {
     return (
-      <div className="h-screen overflow-hidden bg-[#F5F5F3] text-[#111111] flex flex-col justify-start">
+      <div className="min-h-screen pb-12 bg-[#F5F5F3] text-[#111111] flex flex-col justify-start">
         <Navbar />
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 w-full">
+        <main className="max-w-7xl 2xl:max-w-384 mx-auto px-4 sm:px-6 2xl:px-8 w-full">
           <AuthRequiredView
             badgeText="Unified Student & Admin Dashboard"
             badgeIcon={LayoutDashboard}
@@ -143,8 +143,6 @@ export default function UnifiedDashboardPage() {
       </div>
     );
   }
-
-
 
   const handleApplyOverride = async () => {
     if (!overrideModalItem) return;
@@ -182,8 +180,8 @@ export default function UnifiedDashboardPage() {
     <div className="min-h-screen bg-[#F5F5F3] text-[#111111] pb-16">
       <Navbar />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col gap-8">
-        <div className="bg-white rounded-4xl p-6 sm:p-8 shadow-md border border-black/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <main className="max-w-7xl 2xl:max-w-384 mx-auto px-3.5 sm:px-6 2xl:px-8 flex flex-col gap-6 sm:gap-8">
+        <div className="bg-white rounded-3xl sm:rounded-4xl p-5 sm:p-8 shadow-md border border-black/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div>
             <div className="flex items-center gap-2">
               <span className="px-3.5 py-1 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-full border border-emerald-200">
@@ -194,7 +192,7 @@ export default function UnifiedDashboardPage() {
             <h1 className="text-2xl sm:text-3xl font-black text-[#111111] mt-2">
               Integrated Verification & Match Console
             </h1>
-            <p className="text-sm text-[#494D4D] mt-1 max-w-2xl">
+            <p className="text-xs sm:text-sm text-[#494D4D] mt-1 max-w-2xl">
               Access your verified evidence records and automated audit pipeline in one place.
             </p>
           </div>
@@ -210,7 +208,7 @@ export default function UnifiedDashboardPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-3xl p-2 shadow-md border border-black/5 flex items-center justify-between gap-2 overflow-x-auto">
+        <div className="bg-white rounded-2xl sm:rounded-3xl p-1.5 sm:p-2 shadow-md border border-black/5 flex items-center justify-between gap-2 overflow-x-auto">
           <div className="flex items-center gap-1 min-w-max">
             {[
               { id: "evidence", label: "Evidence Records", icon: FileCheck, count: evidenceList.length },
@@ -222,7 +220,7 @@ export default function UnifiedDashboardPage() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`inline-flex items-center gap-2 px-5 py-3 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
+                  className={`inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl text-xs font-bold transition-all cursor-pointer ${
                     isActive
                       ? "bg-neutral-900 text-white shadow-sm"
                       : "text-[#494D4D] hover:text-[#111111] hover:bg-[#F5F5F3]"
@@ -248,45 +246,45 @@ export default function UnifiedDashboardPage() {
 
         {activeTab === "evidence" && (
           <div className="flex flex-col gap-6">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="bg-white rounded-3xl p-5 shadow-xs border border-black/5 flex items-center justify-between">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+              <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-xs border border-black/5 flex items-center justify-between">
                 <div>
-                  <div className="text-xs font-bold uppercase tracking-wider text-[#494D4D]">Verified High Tier</div>
-                  <div className="text-2xl font-extrabold text-emerald-700 mt-1">{highCount} Items</div>
+                  <div className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#494D4D]">Verified High Tier</div>
+                  <div className="text-xl sm:text-2xl font-extrabold text-emerald-700 mt-1">{highCount} Items</div>
                 </div>
-                <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold text-xs border border-emerald-200">
-                  <ShieldCheck className="w-5 h-5" />
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold text-xs border border-emerald-200">
+                  <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
               </div>
 
-              <div className="bg-white rounded-3xl p-5 shadow-xs border border-black/5 flex items-center justify-between">
+              <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-xs border border-black/5 flex items-center justify-between">
                 <div>
-                  <div className="text-xs font-bold uppercase tracking-wider text-[#494D4D]">Verified Medium Tier</div>
-                  <div className="text-2xl font-extrabold text-amber-700 mt-1">{medCount} Items</div>
+                  <div className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#494D4D]">Verified Medium Tier</div>
+                  <div className="text-xl sm:text-2xl font-extrabold text-amber-700 mt-1">{medCount} Items</div>
                 </div>
-                <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center font-bold text-xs border border-amber-200">
-                  <Sparkles className="w-5 h-5" />
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center font-bold text-xs border border-amber-200">
+                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
               </div>
 
-              <div className="bg-white rounded-3xl p-5 shadow-xs border border-black/5 flex items-center justify-between">
+              <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-xs border border-black/5 flex items-center justify-between">
                 <div>
-                  <div className="text-xs font-bold uppercase tracking-wider text-[#494D4D]">Flagged Low Tier</div>
-                  <div className="text-2xl font-extrabold text-rose-700 mt-1">{lowCount} Items</div>
+                  <div className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#494D4D]">Flagged Low Tier</div>
+                  <div className="text-xl sm:text-2xl font-extrabold text-rose-700 mt-1">{lowCount} Items</div>
                 </div>
-                <div className="w-10 h-10 rounded-2xl bg-rose-50 text-rose-700 flex items-center justify-center font-bold text-xs border border-rose-200">
-                  <AlertCircle className="w-5 h-5" />
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-rose-50 text-rose-700 flex items-center justify-center font-bold text-xs border border-rose-200">
+                  <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
               </div>
             </div>
 
             <div className="flex items-center justify-between gap-4">
-              <h2 className="text-xl font-bold text-[#111111]">
+              <h2 className="text-lg sm:text-xl font-bold text-[#111111]">
                 Coursework & Evidence Items ({evidenceList.length})
               </h2>
               <button
                 onClick={() => refetchEv()}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white text-xs font-bold text-[#494D4D] hover:text-[#111111] rounded-xl border border-black/5 transition-all shadow-xs"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white text-xs font-bold text-[#494D4D] hover:text-[#111111] rounded-xl border border-black/5 transition-all shadow-xs cursor-pointer"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
                 <span>Refresh</span>
@@ -294,9 +292,9 @@ export default function UnifiedDashboardPage() {
             </div>
 
             {evidenceList.length === 0 ? (
-              <div className="bg-white rounded-4xl p-12 text-center border border-black/5 shadow-sm flex flex-col items-center gap-4">
+              <div className="bg-white rounded-3xl sm:rounded-4xl p-8 sm:p-12 text-center border border-black/5 shadow-sm flex flex-col items-center gap-4">
                 <FilePlus2 className="w-10 h-10 text-neutral-300" />
-                <h3 className="text-xl font-bold text-[#111111]">No Evidence Uploaded Yet</h3>
+                <h3 className="text-lg sm:text-xl font-bold text-[#111111]">No Evidence Uploaded Yet</h3>
                 <Link
                   href="/dashboard/evidence/new"
                   className="px-5 py-3 bg-neutral-900 text-white rounded-2xl font-bold text-xs shadow-md"
@@ -305,7 +303,7 @@ export default function UnifiedDashboardPage() {
                 </Link>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4 sm:gap-6">
                 {evidenceList.map((item) => (
                   <EvidenceCard key={item.id} evidence={item} />
                 ))}

@@ -122,12 +122,12 @@ export default async function PublicPassportPage({ params }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F5F3] text-[#111111] py-8 sm:py-12 flex flex-col items-center">
-      <main className="max-w-5xl w-full mx-auto px-6 sm:px-12 md:px-16 lg:px-20 flex flex-col gap-6">
+    <div className="min-h-screen bg-[#F5F5F3] text-[#111111] py-6 sm:py-12 flex flex-col items-center">
+      <main className="max-w-5xl 2xl:max-w-6xl w-full mx-auto px-3.5 sm:px-8 md:px-12 flex flex-col gap-6">
         <div className="w-full flex items-center justify-between">
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 px-4 py-2 bg-white text-neutral-700 hover:text-black rounded-xl text-xs font-bold border border-black/5 shadow-2xs transition-colors"
+            className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 bg-white text-neutral-700 hover:text-black rounded-xl text-xs font-bold border border-black/5 shadow-2xs transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>SkillSync Home</span>
@@ -135,7 +135,7 @@ export default async function PublicPassportPage({ params }) {
 
           <Link
             href="/signup"
-            className="inline-flex items-center gap-1.5 px-4 py-2 bg-neutral-900 text-white rounded-xl text-xs font-bold hover:bg-neutral-800 transition-colors shadow-xs"
+            className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 bg-neutral-900 text-white rounded-xl text-xs font-bold hover:bg-neutral-800 transition-colors shadow-xs"
           >
             <span>Create Your Passport</span>
             <ExternalLink className="w-3.5 h-3.5 text-emerald-400" />

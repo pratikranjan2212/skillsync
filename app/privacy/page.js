@@ -11,8 +11,8 @@ export default function PrivacyPolicyPage() {
     <div className="min-h-screen bg-[#F5F5F3] text-[#111111] flex flex-col justify-between">
       <Navbar />
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 w-full flex-1">
-        <div className="bg-white rounded-4xl p-6 sm:p-10 shadow-md border border-black/5 flex flex-col gap-4 mb-8">
+      <main className="max-w-4xl 2xl:max-w-5xl mx-auto px-3.5 sm:px-6 2xl:px-8 py-6 sm:py-8 w-full flex-1">
+        <div className="bg-white rounded-3xl sm:rounded-4xl p-5 sm:p-10 shadow-md border border-black/5 flex flex-col gap-4 mb-8">
           <div className="flex items-center gap-2">
             <span className="px-3.5 py-1 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-full border border-emerald-200 inline-flex items-center gap-1.5">
               <Shield className="w-3.5 h-3.5 text-emerald-600" />

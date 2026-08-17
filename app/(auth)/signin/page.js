@@ -81,8 +81,8 @@ function SignInContent() {
     <div className="min-h-screen bg-[#F5F5F3] text-[#111111] flex flex-col justify-start pb-12">
       <Navbar />
 
-      <main className="max-w-lg mx-auto px-6 sm:px-8 pt-4 sm:pt-6 w-full">
-        <div className="bg-white rounded-4xl px-8 sm:px-10 py-8 shadow-xl border border-black/5 flex flex-col gap-6">
+      <main className="max-w-lg mx-auto px-4 sm:px-8 pt-4 sm:pt-6 w-full">
+        <div className="bg-white rounded-3xl sm:rounded-4xl px-5 sm:px-10 py-6 sm:py-8 shadow-xl border border-black/5 flex flex-col gap-5 sm:gap-6">
           {/* Role Switcher Tabs */}
           <div className="flex bg-[#F5F5F3] p-1.5 rounded-2xl border border-black/5">
             <button

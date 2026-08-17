@@ -102,11 +102,11 @@ export default function AdminTaxonomyPage() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 gap-4">
         {filteredTaxonomy.map((skill) => (
           <div
             key={skill.id}
-            className="bg-white rounded-[24px] p-5 border border-black/5 shadow-xs flex flex-col justify-between gap-3 hover:shadow-md transition-all"
+            className="bg-white rounded-2xl sm:rounded-[24px] p-4 sm:p-5 border border-black/5 shadow-xs flex flex-col justify-between gap-3 hover:shadow-md transition-all"
           >
             <div>
               <div className="flex items-center justify-between gap-2">

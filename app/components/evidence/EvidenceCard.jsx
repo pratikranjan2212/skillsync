@@ -28,21 +28,21 @@ export default function EvidenceCard({ evidence, onOverride }) {
     : "Pending";
 
   return (
-    <div className="bg-white rounded-[24px] p-6 shadow-md hover:shadow-lg transition-all border border-black/5 flex flex-col justify-between gap-4">
+    <div className="bg-white rounded-2xl sm:rounded-[24px] p-4 sm:p-6 shadow-md hover:shadow-lg transition-all border border-black/5 flex flex-col justify-between gap-4">
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between gap-2 flex-wrap">
-          <span className="px-3 py-1 bg-[#F5F5F3] text-[#494D4D] text-xs font-bold uppercase tracking-wider rounded-xl">
+          <span className="px-2.5 sm:px-3 py-1 bg-[#F5F5F3] text-[#494D4D] text-[11px] sm:text-xs font-bold uppercase tracking-wider rounded-xl">
             {type}
           </span>
           <Badge tier={verificationTier} />
         </div>
 
         <div>
-          <h3 className="text-lg font-bold text-[#111111] flex items-center gap-2">
-            <FileCheck className="w-5 h-5 text-emerald-600 shrink-0" />
-            {title}
+          <h3 className="text-base sm:text-lg font-bold text-[#111111] flex items-center gap-2">
+            <FileCheck className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-emerald-600 shrink-0" />
+            <span>{title}</span>
           </h3>
-          <p className="text-sm text-[#494D4D] mt-1 line-clamp-3 leading-relaxed">
+          <p className="text-xs sm:text-sm text-[#494D4D] mt-1 line-clamp-3 leading-relaxed">
             {description}
           </p>
         </div>

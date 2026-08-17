@@ -35,13 +35,13 @@ export default function AdminFairnessPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="bg-white rounded-[32px] p-6 sm:p-8 shadow-md border border-black/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="bg-white rounded-3xl sm:rounded-[32px] p-5 sm:p-8 shadow-md border border-black/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <span className="px-3.5 py-1 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-full border border-emerald-200 inline-flex items-center gap-1.5">
             <Scale className="w-3.5 h-3.5 text-emerald-600" />
             <span>Verified Algorithmic Bias Audit Suite</span>
           </span>
-          <h1 className="text-2xl font-black text-[#111111] mt-2">Fairness & Bias Exclusion Audit</h1>
+          <h1 className="text-xl sm:text-2xl font-black text-[#111111] mt-2">Fairness & Bias Exclusion Audit</h1>
           <p className="text-xs text-[#494D4D] mt-1 max-w-2xl">
             Quantitative verification confirming candidate ranking calculations depend exclusively on verified skill evidence.
           </p>
@@ -49,14 +49,14 @@ export default function AdminFairnessPage() {
 
         <button
           onClick={() => refetch()}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-[#111111] hover:bg-neutral-50 rounded-2xl text-xs font-bold border border-black/10 transition-all shadow-xs"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-[#111111] hover:bg-neutral-50 rounded-2xl text-xs font-bold border border-black/10 transition-all shadow-xs w-full sm:w-auto cursor-pointer"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? "animate-spin text-emerald-600" : ""}`} />
           <span>Refresh Audit Logs</span>
         </button>
       </div>
 
-      <div className="bg-gradient-to-r from-neutral-900 via-slate-900 to-neutral-900 text-white rounded-[32px] p-6 sm:p-8 shadow-xl border border-slate-800 flex flex-col gap-4">
+      <div className="bg-gradient-to-r from-neutral-900 via-slate-900 to-neutral-900 text-white rounded-3xl sm:rounded-[32px] p-5 sm:p-8 shadow-xl border border-slate-800 flex flex-col gap-4">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">

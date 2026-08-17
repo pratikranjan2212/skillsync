@@ -49,7 +49,7 @@ export default function SkillEvidenceModal({
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
         onClick={(e) => e.stopPropagation()}
-        className="absolute top-full right-0 mt-1.5 z-50 w-full sm:w-[350px] bg-[#121212]/98 backdrop-blur-xl border border-white/15 rounded-2xl p-3.5 sm:p-4 shadow-[0_20px_45px_rgba(0,0,0,0.85),_0_0_0_1px_rgba(255,255,255,0.08)] text-white overflow-hidden"
+        className="absolute top-full right-0 mt-1.5 z-50 w-full sm:w-[350px] max-w-[calc(100vw-32px)] bg-[#121212]/98 backdrop-blur-xl border border-white/15 rounded-2xl p-3.5 sm:p-4 shadow-[0_20px_45px_rgba(0,0,0,0.85),_0_0_0_1px_rgba(255,255,255,0.08)] text-white overflow-hidden"
       >
         <div className="absolute -top-12 -right-12 w-28 h-28 bg-emerald-500/10 rounded-full blur-xl pointer-events-none" />
 
