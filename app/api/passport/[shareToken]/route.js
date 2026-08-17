@@ -81,13 +81,23 @@ export async function GET(request, { params }) {
         }
       }
 
+      let resolvedDob = passport.user.dob || "Not Specified";
+      let resolvedGender = passport.user.gender && passport.user.gender !== "Student" ? passport.user.gender : "Male";
+      try {
+        const rawRow = await prisma.$queryRaw`SELECT dob, gender FROM users WHERE id = ${passport.user.id}`;
+        if (rawRow && rawRow[0]) {
+          if (rawRow[0].dob) resolvedDob = rawRow[0].dob;
+          if (rawRow[0].gender && rawRow[0].gender !== "Student") resolvedGender = rawRow[0].gender;
+        }
+      } catch (rawErr) {}
+
       return NextResponse.json({
         success: true,
         passport: {
           studentId: passport.studentId,
           studentName: passport.user.name || "Student User",
-          gender: passport.user.gender || "Student",
-          dob: passport.user.dob || "Not Specified",
+          gender: resolvedGender,
+          dob: resolvedDob,
           college: passport.user.college || "Institution Not Specified",
           degree: passport.user.degree || "Degree Not Specified",
           batch: passport.user.batch || "Batch Not Specified",

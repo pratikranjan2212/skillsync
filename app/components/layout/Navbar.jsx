@@ -138,7 +138,13 @@ export default function Navbar() {
                   : "text-[#494D4D] hover:text-[#111111] hover:bg-[#E2E2E0]"
               }`}
             >
-              <LayoutDashboard className={`w-4 h-4 shrink-0 transition-colors duration-500 ${pathname === "/dashboard" ? "text-emerald-600" : "text-neutral-500"}`} />
+              <LayoutDashboard
+                className={`w-4 h-4 shrink-0 transition-all duration-300 ${
+                  pathname === "/dashboard"
+                    ? "text-emerald-600 fill-emerald-600"
+                    : "text-neutral-500"
+                }`}
+              />
               <span className="whitespace-nowrap">Dashboard</span>
             </Link>
 
@@ -150,7 +156,13 @@ export default function Navbar() {
                   : "text-[#494D4D] hover:text-[#111111] hover:bg-[#E2E2E0]"
               }`}
             >
-              <Award className={`w-4 h-4 shrink-0 transition-colors duration-500 ${pathname.startsWith("/passport") ? "text-amber-600" : "text-neutral-500"}`} />
+              <Award
+                className={`w-4 h-4 shrink-0 transition-all duration-300 ${
+                  pathname.startsWith("/passport")
+                    ? "text-amber-600 fill-amber-600"
+                    : "text-neutral-500"
+                }`}
+              />
               <span className="whitespace-nowrap">Skill Passport</span>
             </Link>
 
@@ -162,7 +174,13 @@ export default function Navbar() {
                   : "text-[#494D4D] hover:text-[#111111] hover:bg-[#E2E2E0]"
               }`}
             >
-              <Briefcase className={`w-4 h-4 shrink-0 transition-colors duration-500 ${pathname.startsWith("/opportunities") ? "text-emerald-600" : "text-neutral-500"}`} />
+              <Briefcase
+                className={`w-4 h-4 shrink-0 transition-all duration-300 ${
+                  pathname.startsWith("/opportunities")
+                    ? "text-emerald-600 fill-emerald-600"
+                    : "text-neutral-500"
+                }`}
+              />
               <span className="whitespace-nowrap">Opportunities</span>
             </Link>
 
@@ -197,7 +215,13 @@ export default function Navbar() {
                         : "bg-[#F5F5F3] hover:bg-[#EAEAEA] text-[#111111]"
                     }`}
                   >
-                    <User className={`w-4 h-4 shrink-0 ${pathname === "/profile" ? "text-emerald-600" : "text-neutral-600"}`} />
+                    <User
+                      className={`w-4 h-4 shrink-0 transition-all duration-300 ${
+                        pathname === "/profile"
+                          ? "text-emerald-600 fill-emerald-600"
+                          : "text-neutral-600"
+                      }`}
+                    />
                     <span className="whitespace-nowrap">My Profile</span>
                   </Link>
 

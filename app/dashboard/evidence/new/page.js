@@ -37,27 +37,7 @@ function GitHubLogo({ className = "w-4 h-4 text-emerald-400" }) {
   return <GitHubIcon className={className} />;
 }
 
-const SKILL_TAXONOMY_OPTIONS = [
-  "Python",
-  "SQL",
-  "React",
-  "TensorFlow",
-  "Docker",
-  "REST API design",
-  "Tailwind CSS",
-  "Data Engineering",
-  "Machine Learning",
-  "Mathematics",
-  "Node js",
-  "PostgreSQL",
-  "Next.js",
-  "TypeScript",
-  "Git & GitHub",
-  "JavaScript",
-  "FastAPI",
-  "MongoDB",
-  "AWS",
-];
+import { STUDENT_INTERN_SKILLS, PRELOADED_SKILL_RECOMMENDATIONS as SKILL_TAXONOMY_OPTIONS } from "@/app/data/studentInternSkills";
 
 async function fetchUserGitHubRepos() {
   const res = await fetch("/api/github/repos");
@@ -502,33 +482,47 @@ export default function AddEvidencePage() {
                     </div>
 
                     {(() => {
-                      const matching = SKILL_TAXONOMY_OPTIONS.filter(
-                        (sk) =>
-                          !selectedSkills.includes(sk) &&
-                          (customSkillInput.trim() === "" ||
-                            sk.toLowerCase().includes(customSkillInput.toLowerCase().trim()))
-                      );
+                      const q = customSkillInput.trim().toLowerCase();
+                      const startsWith = [];
+                      const contains = [];
+
+                      for (const s of STUDENT_INTERN_SKILLS) {
+                        if (selectedSkills.includes(s.name)) continue;
+                        const sLower = s.name.toLowerCase();
+                        if (sLower.startsWith(q)) {
+                          startsWith.push(s);
+                        } else if (sLower.includes(q)) {
+                          contains.push(s);
+                        }
+                      }
+
+                      const matching = [...startsWith, ...contains].slice(0, 16);
 
                       if (matching.length > 0) {
                         return (
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
-                            {matching.slice(0, 10).map((sk) => (
+                            {matching.map((sk) => (
                               <button
-                                key={sk}
+                                key={sk.name}
                                 type="button"
                                 onClick={() => {
-                                  addCustomSkill(sk);
+                                  addCustomSkill(sk.name);
                                   setIsSkillFocused(false);
                                 }}
                                 className="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-emerald-50 text-left transition-colors group cursor-pointer"
                               >
-                                <div className="flex items-center gap-2">
-                                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 group-hover:scale-125 transition-transform" />
-                                  <span className="text-xs font-bold text-neutral-800 group-hover:text-emerald-950">
-                                    {sk}
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 group-hover:scale-125 transition-transform shrink-0" />
+                                  <span className="text-xs font-bold text-neutral-800 group-hover:text-emerald-950 truncate">
+                                    {sk.name}
                                   </span>
+                                  {sk.category && (
+                                    <span className="text-[9px] font-semibold text-neutral-400 bg-neutral-100 group-hover:bg-emerald-100 group-hover:text-emerald-800 px-1.5 py-0.2 rounded-md shrink-0">
+                                      {sk.category}
+                                    </span>
+                                  )}
                                 </div>
-                                <span className="text-[10px] font-bold text-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity bg-emerald-100/70 px-2 py-0.5 rounded-md">
+                                <span className="text-[10px] font-bold text-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity bg-emerald-100/70 px-2 py-0.5 rounded-md shrink-0 ml-2">
                                   + Add
                                 </span>
                               </button>

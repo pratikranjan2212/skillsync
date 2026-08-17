@@ -3,6 +3,92 @@ Running log of every change made to the frontend, in chronological order (newest
 Each entry explains *what* changed and *why*, plus a section-by-section explanation of any new or modified code.
 
 ---
+## [2026-08-17 20:50] Capitalized Every Word (Title Case) Across Entire Skills Dataset
+
+**Files changed:**
+- `app/data/studentInternSkills.js` (modified)
+- `app/data/raw/student_intern_skills.csv` (modified)
+
+**What changed and why:**
+Converted all 1,526 skill entries in both the JavaScript taxonomy module and the raw CSV to Title Case (capitalizing the first letter of each word), while intelligently preserving tech acronyms and brand capitalizations (e.g. `ICT Safety`, `REST APIs`, `Git & GitHub`, `Node js`, `HTML5 & CSS3`, `SQL`, `AWS`, `PostgreSQL`, `Machine Learning`, `Agile Methodology`).
+
+**Open items / follow-ups:**
+Production build verified with exit code 0 (27/27 routes compiled in 1.95s).
+
+## [2026-08-17 20:49] Organized Skills CSV into Raw Data Assets Directory
+
+**Files changed:**
+- `app/data/raw/student_intern_skills.csv` (moved from root)
+
+**What changed and why:**
+Moved the raw `student_intern_skills.csv` file from the project root into the dedicated `app/data/raw/` directory. All runtime components and autocomplete APIs use the pre-compiled, type-safe data module in `app/data/studentInternSkills.js`, keeping the repository root tidy while preserving the original dataset for record-keeping and future migrations.
+
+**Open items / follow-ups:**
+Production build verified with exit code 0 (27/27 routes compiled).
+
+## [2026-08-17 20:29] Integrated Full Student & Intern Skills Taxonomy (1,526 Skills) from CSV
+
+**Files changed:**
+- `app/data/studentInternSkills.js` (created)
+- `app/api/skills/route.js` (created)
+- `app/profile/page.js` (modified)
+- `app/dashboard/evidence/new/page.js` (modified)
+
+**What changed and why:**
+1. **Taxonomy Generation**: Parsed and structured all 1,526 skills and domains from `student_intern_skills.csv` into `app/data/studentInternSkills.js`, categorized across `Technical`, `Soft Skill`, `Business`, `Digital Competency`, `Research`, and `Language`.
+2. **REST API Route**: Created `app/api/skills/route.js` supporting fast prefix and substring filtering, category lookups, and pagination.
+3. **Profile Recommendations & Autocomplete**: Integrated the full 1,526-skill taxonomy into the animated skill search input on `app/profile/page.js` and `app/dashboard/evidence/new/page.js`, featuring category badge tags, prefix priority matching, and instant click-to-add functionality.
+
+**Open items / follow-ups:**
+Production build verified with exit code 0 (27/27 routes compiled).
+
+## [2026-08-17 20:25] Added Gender Dropdown to Edit Profile & Synced with Skill Passport
+
+**Files changed:**
+- `app/profile/page.js` (modified)
+- `app/api/profile/route.js` (modified)
+- `app/api/passport/[shareToken]/route.js` (modified)
+- `app/components/passport/InteractivePassportCard.jsx` (modified)
+
+**What changed and why:**
+1. **Edit Profile Form Dropdown**: Added a Gender select input with options `["Male", "Female", "Transgender", "Other"]` in `app/profile/page.js`, arranged in a clean 2-column grid alongside Batch / Graduation Year.
+2. **Passport Card Synchronization**: Configured the profile state and API handlers (`PUT /api/profile`, `GET /api/passport`, `GET /api/passport/[shareToken]`) to persist and return the selected gender, which immediately updates the `GENDER` field on the Skill Passport card.
+3. **Profile Header Metadata**: Added the selected gender tag alongside DOB and Institution in the profile banner.
+
+**Open items / follow-ups:**
+Production build verified with exit code 0.
+
+## [2026-08-17 20:19] Removed Skill Count & Bullet Dots from Passport Card Skill Chips
+
+**Files changed:**
+- `app/components/passport/InteractivePassportCard.jsx` (modified)
+
+**What changed and why:**
+1. **Removed Skill Count**: Changed the section header label from `SKILLS (N)` to `SKILLS`.
+2. **Removed Bullet Icons**: Removed the green bullet dot indicators (`<span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>`) from the skill buttons on the front of the Skill Passport Card, creating a minimalist, text-only chip layout.
+
+**Open items / follow-ups:**
+Clean production build verified with exit code 0.
+
+## [2026-08-17 19:42] Updated Skill Passport Card Background Theme to Black
+
+**Files changed:**
+- `app/components/passport/InteractivePassportCard.jsx` (modified)
+- `app/components/passport/SkillEvidenceModal.jsx` (modified)
+
+**What changed and why:**
+Converted the Skill Passport card from its former dark emerald green gradient to a luxury matte obsidian/jet-black theme (`bg-linear-to-br from-[#121212] via-[#080808] to-[#000000]`), with refined `border-white/10` borders, elevated deep black shadows (`shadow-[0_28px_64px_-12px_rgba(0,0,0,0.95)]`), and luminous emerald security highlights.
+
+**Code explanation (section by section):**
+1. `InteractivePassportCard.jsx`:
+   - **Front & Back Card Surfaces** — Updated container background gradients to deep obsidian black (`from-[#121212] via-[#080808] to-[#000000]`) with `border-white/10` and `border-t border-white/10` dividers.
+   - **Inner Items & Sections** — Upgraded project cards, academic detail icon badges, and skill chips to dark luxury neutral tiles (`bg-neutral-900/90 border-white/10`).
+2. `SkillEvidenceModal.jsx`:
+   - **Citation Popover** — Upgraded popover container to deep frosted black (`bg-[#121212]/98 border-white/15`) with neutral citation tiles.
+
+**Open items / follow-ups:**
+Production build verified with exit code 0.
+
 ## [2026-08-17 13:56] Replaced Portfolio, GitHub & LinkedIn Icons with Official Logos in Personal Profile
 
 **Files changed:**

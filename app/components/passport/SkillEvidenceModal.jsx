@@ -49,28 +49,28 @@ export default function SkillEvidenceModal({
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
         onClick={(e) => e.stopPropagation()}
-        className="absolute top-full right-0 mt-1.5 z-50 w-full sm:w-[350px] bg-[#092e23]/98 backdrop-blur-xl border border-emerald-400/35 rounded-2xl p-3.5 sm:p-4 shadow-[0_16px_40px_rgba(0,0,0,0.6),_0_0_0_1px_rgba(52,211,153,0.25)] text-white overflow-hidden"
+        className="absolute top-full right-0 mt-1.5 z-50 w-full sm:w-[350px] bg-[#121212]/98 backdrop-blur-xl border border-white/15 rounded-2xl p-3.5 sm:p-4 shadow-[0_20px_45px_rgba(0,0,0,0.85),_0_0_0_1px_rgba(255,255,255,0.08)] text-white overflow-hidden"
       >
-        <div className="absolute -top-12 -right-12 w-28 h-28 bg-emerald-400/20 rounded-full blur-xl pointer-events-none" />
+        <div className="absolute -top-12 -right-12 w-28 h-28 bg-emerald-500/10 rounded-full blur-xl pointer-events-none" />
 
         <button
           onClick={(e) => {
             e.stopPropagation();
             onClose();
           }}
-          className="absolute top-3 right-3 p-1 rounded-full bg-emerald-400/15 hover:bg-emerald-400/25 text-emerald-300 hover:text-white border border-emerald-400/30 transition-colors cursor-pointer"
+          className="absolute top-3 right-3 p-1 rounded-full bg-white/5 hover:bg-white/15 text-neutral-400 hover:text-white border border-white/10 transition-colors cursor-pointer"
           title="Close"
         >
           <X className="w-3 h-3" />
         </button>
 
         <div className="flex items-start gap-2.5 mb-2.5 pr-6">
-          <div className="w-8 h-8 rounded-xl bg-emerald-400/15 border border-emerald-400/30 flex items-center justify-center text-emerald-300 shadow-2xs shrink-0">
+          <div className="w-8 h-8 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-emerald-400 shadow-2xs shrink-0">
             <Sparkles className="w-4 h-4" />
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="px-1.5 py-0.2 rounded-full text-[9px] font-bold uppercase tracking-wider bg-emerald-400/15 text-emerald-300 border border-emerald-400/30">
+              <span className="px-1.5 py-0.2 rounded-full text-[9px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
                 {skill.category || "Verified Domain"}
               </span>
               <span className="flex items-center gap-1 text-[9px] font-semibold text-emerald-400">
@@ -81,9 +81,9 @@ export default function SkillEvidenceModal({
             <h3 className="text-sm sm:text-base font-black text-white mt-0.5 truncate">
               {skill.name}
             </h3>
-            <p className="text-[9px] text-emerald-200/80">
+            <p className="text-[9px] text-neutral-400">
               Level: <span className="text-white font-semibold">{skill.level || "Expert"}</span> • Endorsements:{" "}
-              <span className="text-emerald-300 font-mono font-bold">{skill.endorsements || 18}</span> citations
+              <span className="text-emerald-400 font-mono font-bold">{skill.endorsements || 18}</span> citations
             </p>
           </div>
         </div>
@@ -99,7 +99,7 @@ export default function SkillEvidenceModal({
                 skill.evidence.map((ev, idx) => (
                   <div
                     key={ev.id || ev.hash || ev.title || `ev-${idx}`}
-                    className="bg-[#06221a] border border-emerald-400/20 rounded-lg p-1.5 flex items-center justify-between gap-1.5 shadow-2xs"
+                    className="bg-neutral-900 border border-white/10 rounded-lg p-1.5 flex items-center justify-between gap-1.5 shadow-2xs"
                   >
                     <div className="min-w-0 flex-1">
                       <div className="text-[10px] font-bold text-white flex items-center gap-1 truncate">
@@ -107,12 +107,12 @@ export default function SkillEvidenceModal({
                         <span className="truncate">{ev.title}</span>
                       </div>
                       {ev.hash && (
-                        <div className="flex items-center gap-1 text-[8px] font-mono text-emerald-300/80 mt-0.5">
+                        <div className="flex items-center gap-1 text-[8px] font-mono text-neutral-400 mt-0.5">
                           <span>Hash:</span>
-                          <code className="bg-[#03140f] px-1 rounded text-emerald-300 border border-emerald-400/30 font-semibold">{ev.hash}</code>
+                          <code className="bg-black/60 px-1 rounded text-emerald-400 border border-white/10 font-semibold">{ev.hash}</code>
                           <button
                             onClick={(e) => handleCopy(ev.hash, e)}
-                            className="text-emerald-400 hover:text-emerald-200 transition-colors p-0.2 cursor-pointer"
+                            className="text-emerald-400 hover:text-emerald-300 transition-colors p-0.2 cursor-pointer"
                             title="Copy hash"
                           >
                             {copiedHash === ev.hash ? <Check className="w-2 h-2 text-emerald-400" /> : <Copy className="w-2 h-2" />}
@@ -124,7 +124,7 @@ export default function SkillEvidenceModal({
                   </div>
                 ))
               ) : (
-                <p className="text-[9px] text-emerald-300/70 italic">No direct citations recorded.</p>
+                <p className="text-[9px] text-neutral-400 italic">No direct citations recorded.</p>
               )}
             </div>
           </div>
@@ -139,7 +139,7 @@ export default function SkillEvidenceModal({
                 {linkedProjects.map((proj, idx) => (
                   <div
                     key={proj.id || proj.title || `proj-${idx}`}
-                    className="bg-[#06221a] border border-emerald-400/20 rounded-lg p-1.5 flex items-center justify-between gap-1.5 shadow-2xs"
+                    className="bg-neutral-900 border border-white/10 rounded-lg p-1.5 flex items-center justify-between gap-1.5 shadow-2xs"
                   >
                     <div className="min-w-0 flex-1">
                       <div className="text-[10px] font-bold text-white truncate">{proj.title}</div>
@@ -149,7 +149,7 @@ export default function SkillEvidenceModal({
                         href={proj.githubUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-[9px] font-bold text-emerald-300 hover:text-white shrink-0 px-1 py-0.5 hover:bg-emerald-400/20 rounded"
+                        className="inline-flex items-center gap-1 text-[9px] font-bold text-neutral-300 hover:text-white shrink-0 px-1 py-0.5 hover:bg-white/10 rounded"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <GitBranch className="w-2.5 h-2.5 text-emerald-400" />

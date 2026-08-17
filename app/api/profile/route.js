@@ -119,12 +119,14 @@ export async function GET(request) {
       }
 
       let resolvedDob = user.dob || "";
-      let resolvedGender = user.gender || "Student";
+      let resolvedGender = user.gender && user.gender !== "Student" ? user.gender : "Male";
       try {
         const rawRow = await prisma.$queryRaw`SELECT dob, gender FROM users WHERE id = ${user.id}`;
         if (rawRow && rawRow[0]) {
           if (rawRow[0].dob !== undefined && rawRow[0].dob !== null) resolvedDob = rawRow[0].dob;
-          if (rawRow[0].gender !== undefined && rawRow[0].gender !== null) resolvedGender = rawRow[0].gender;
+          if (rawRow[0].gender !== undefined && rawRow[0].gender !== null && rawRow[0].gender !== "Student") {
+            resolvedGender = rawRow[0].gender;
+          }
         }
       } catch (rawErr) {}
 
@@ -164,7 +166,7 @@ export async function GET(request) {
         email: session?.user?.email || "student@skillsync.edu",
         role: session?.user?.role || "student",
         dob: "",
-        gender: "Student",
+        gender: "Male",
         image: session?.user?.image || null,
         studentId: `SS-${new Date().getFullYear()}-USER01`,
         college: "",
@@ -246,6 +248,8 @@ export async function PUT(request) {
         college: college !== undefined ? college : user.college,
         degree: degree !== undefined ? degree : user.degree,
         batch: batch !== undefined ? batch : user.batch,
+        dob: dob !== undefined ? dob : user.dob,
+        gender: gender !== undefined ? gender : user.gender,
         bio: bio !== undefined ? bio : user.bio,
         githubUrl: github !== undefined ? github : user.githubUrl,
         linkedinUrl: linkedin !== undefined ? linkedin : user.linkedinUrl,
@@ -261,7 +265,12 @@ export async function PUT(request) {
     });
 
     let savedDob = dob !== undefined ? dob : user.dob || "";
-    let savedGender = gender !== undefined ? gender : user.gender || "Student";
+    let savedGender =
+      gender !== undefined && gender !== "Student"
+        ? gender
+        : user.gender && user.gender !== "Student"
+        ? user.gender
+        : "Male";
 
     try {
       if (dob !== undefined || gender !== undefined) {

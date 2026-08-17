@@ -119,12 +119,12 @@ export async function GET(request) {
       }
 
       let resolvedDob = user.dob || "Not Specified";
-      let resolvedGender = user.gender || "Student";
+      let resolvedGender = user.gender && user.gender !== "Student" ? user.gender : "Male";
       try {
         const rawRow = await prisma.$queryRaw`SELECT dob, gender FROM users WHERE id = ${user.id}`;
         if (rawRow && rawRow[0]) {
           if (rawRow[0].dob) resolvedDob = rawRow[0].dob;
-          if (rawRow[0].gender) resolvedGender = rawRow[0].gender;
+          if (rawRow[0].gender && rawRow[0].gender !== "Student") resolvedGender = rawRow[0].gender;
         }
       } catch (rawErr) {}
 
