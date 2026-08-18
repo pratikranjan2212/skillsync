@@ -52,7 +52,7 @@ export const USE_CASE_TABS = [
     title: "Review automated evidence pipelines, override tiers, and monitor real-time fairness audits.",
     metric: "Real-time",
     metricLabel: "Fairness audit logging",
-    imageUrl: "/admin-auditor.jpg",
+    imageUrl: "/admin-auditor.png",
     quote: "The admin audit suite lets us inspect score distribution charts and enforce policy compliance effortless.",
   },
 ];
