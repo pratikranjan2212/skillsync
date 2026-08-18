@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Award, AlertCircle, Layers, FileCheck, FileText } from "lucide-react";
 import Navbar from "@/app/components/layout/Navbar";
 import InteractivePassportCard from "@/app/components/passport/InteractivePassportCard";
+import SkillPassportFolder from "@/app/components/passport/SkillPassportFolder";
 import AuthRequiredView from "@/app/components/auth/AuthRequiredView";
 import { useAuth } from "@/app/hooks/useAuth";
 
@@ -108,9 +109,9 @@ export default function SkillPassportPage() {
         )}
 
         {passport && (
-          <div className="w-full flex justify-center">
-            <InteractivePassportCard 
-              passportData={passport} 
+          <div className="w-full flex justify-center py-6">
+            <SkillPassportFolder
+              passportData={passport}
               onTogglePublic={handleTogglePublic}
             />
           </div>
