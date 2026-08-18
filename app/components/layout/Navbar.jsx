@@ -8,7 +8,7 @@ import { useSession, signOut } from "next-auth/react";
 
 export default function Navbar() {
   const pathname = usePathname();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isScrollingUp, setIsScrollingUp] = useState(false);
@@ -42,59 +42,14 @@ export default function Navbar() {
   }, []);
 
   const isDocked = !isHomePage || (isScrolled && !isScrollingUp);
-
-  const [hasAuthCookie, setHasAuthCookie] = useState(false);
-  const [userRole, setUserRole] = useState(null);
-
-  useEffect(() => {
-    const checkAuth = () => {
-      const cookies = typeof document !== "undefined" ? document.cookie : "";
-      const hasCookie =
-        cookies.includes("skillsync_session=") ||
-        cookies.includes("authjs.session-token=") ||
-        cookies.includes("__Secure-authjs.session-token=") ||
-        cookies.includes("next-auth.session-token=");
-      setHasAuthCookie(hasCookie);
-
-      const roleMatch = cookies.match(/skillsync_role=([^;]+)/);
-      if (roleMatch && roleMatch[1]) {
-        setUserRole(roleMatch[1]);
-      } else if (session?.user?.role) {
-        setUserRole(session.user.role);
-      } else {
-        setUserRole(null);
-      }
-    };
-
-    checkAuth();
-  }, [pathname, session]);
-
-  const isAuthenticated = Boolean(session?.user || hasAuthCookie);
+  const isAuthenticated = status === "authenticated" && Boolean(session?.user);
 
   const handleSignOut = async (e) => {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
     }
-    try {
-      document.cookie = "skillsync_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
-      document.cookie = "authjs.session-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
-      document.cookie = "__Secure-authjs.session-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
-      document.cookie = "next-auth.session-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
-      document.cookie = "skillsync_role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
-      document.cookie = "__Secure-next-auth.session-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
-
-      await fetch("/api/auth/signout", { method: "POST" }).catch(() => {});
-
-      try {
-        await signOut({ redirect: false });
-      } catch {
-      }
-
-      window.location.href = "/";
-    } catch {
-      window.location.href = "/";
-    }
+    await signOut({ callbackUrl: "/" });
   };
 
   return (
@@ -183,20 +138,6 @@ export default function Navbar() {
               />
               <span className="whitespace-nowrap">Opportunities</span>
             </Link>
-
-            {userRole === "admin" && (
-              <Link
-                href="/admin"
-                className={`text-sm font-bold transition-all duration-500 ease-out px-4 xl:px-5 py-3 rounded-full flex items-center gap-2 whitespace-nowrap shrink-0 ${
-                  pathname.startsWith("/admin")
-                    ? "bg-slate-900 text-white"
-                    : "text-slate-900 hover:bg-slate-100"
-                }`}
-              >
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="whitespace-nowrap">Admin Console</span>
-              </Link>
-            )}
           </div>
 
           {/* Right Pill: Auth Buttons */}
@@ -300,16 +241,6 @@ export default function Navbar() {
               <Briefcase className="w-5 h-5 text-emerald-600" />
               <span>Opportunities Feed</span>
             </Link>
-            {userRole === "admin" && (
-              <Link
-                href="/admin"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="px-5 py-3 rounded-2xl text-base font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 flex items-center gap-3"
-              >
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span>Admin Console</span>
-              </Link>
-            )}
             <div className="pt-2 mt-1 border-t border-neutral-100 flex flex-col gap-2">
               {isAuthenticated ? (
                 <>
@@ -358,4 +289,3 @@ export default function Navbar() {
     </>
   );
 }
-

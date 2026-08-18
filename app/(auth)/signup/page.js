@@ -26,6 +26,7 @@ export default function SignUpPage() {
       fullName: "",
       email: "",
       password: "",
+      website_hp: "",
     },
     mode: "onChange",
   });
@@ -60,33 +61,23 @@ export default function SignUpPage() {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...data, role: "student" }),
+        body: JSON.stringify({
+          fullName: data.fullName,
+          email: data.email,
+          password: data.password,
+          website_hp: data.website_hp,
+        }),
       });
 
+      const result = await res.json();
       if (res.ok) {
-        document.cookie = "skillsync_session=active-token; path=/;";
-        document.cookie = "authjs.session-token=active-token; path=/;";
-        document.cookie = "next-auth.session-token=active-token; path=/;";
-        document.cookie = "skillsync_role=student; path=/;";
-
-        try {
-          await signIn("credentials", {
-            email: data.email.toLowerCase().trim(),
-            password: data.password,
-            callbackUrl: "/dashboard",
-            redirect: false,
-          });
-        } catch (e) {
-          // fallback
-        }
-
-        window.location.replace("/dashboard");
+        // Redirect to email verification page with email prefilled
+        router.push(`/verify-email?registered=true&email=${encodeURIComponent(data.email.toLowerCase().trim())}`);
       } else {
-        const result = await res.json().catch(() => ({}));
         setErrorMsg(result.error || "Registration failed. Please try again.");
       }
-    } catch (err) {
-      setErrorMsg("An unexpected error occurred.");
+    } catch {
+      setErrorMsg("An unexpected error occurred during registration.");
     } finally {
       setIsSubmitting(false);
     }
@@ -103,7 +94,9 @@ export default function SignUpPage() {
               <Sparkles className="w-4 h-4" />
               Student Registration
             </span>
-            <h1 className="text-2xl sm:text-3xl font-black text-[#111111] tracking-tight mt-2.5">Create Student Account</h1>
+            <h1 className="text-2xl sm:text-3xl font-black text-[#111111] tracking-tight mt-2.5">
+              Create Student Account
+            </h1>
             <p className="text-sm text-[#494D4D] mt-1">
               Build your automated Skill Passport and match with top internship listings.
             </p>
@@ -133,6 +126,15 @@ export default function SignUpPage() {
           )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+            {/* Invisible honeypot field to trap automated spam bots */}
+            <input
+              type="text"
+              tabIndex={-1}
+              autoComplete="off"
+              style={{ display: "none", opacity: 0, position: "absolute", left: "-9999px" }}
+              {...register("website_hp")}
+            />
+
             <div>
               <label className="block text-sm font-bold text-[#111111] mb-1.5">
                 Full Name <span className="text-red-500">*</span>
@@ -204,7 +206,7 @@ export default function SignUpPage() {
               {errors.password && <p className="text-xs text-rose-600 mt-1 font-medium">{errors.password.message}</p>}
 
               {isPasswordFocused && (
-                <div className="mt-2.5 p-3.5 bg-[#F8F9FA] rounded-2xl border border-black/5 flex flex-col gap-1.5 animate-in fade-in slide-in-from-top-1 duration-200">
+                <div className="mt-2.5 p-3.5 bg-[#F8F9FA] rounded-2xl border border-black/5 flex flex-col gap-1.5 animate-in fade-in duration-200">
                   <span className="text-xs font-bold uppercase tracking-wider text-[#494D4D]">
                     Password Requirements:
                   </span>
@@ -217,7 +219,7 @@ export default function SignUpPage() {
                         }`}
                       >
                         <div
-                          className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 transition-colors ${
+                          className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${
                             item.valid ? "bg-emerald-600 text-white" : "bg-neutral-200 text-neutral-400"
                           }`}
                         >
@@ -252,4 +254,3 @@ export default function SignUpPage() {
     </div>
   );
 }
-

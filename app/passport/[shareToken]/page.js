@@ -4,6 +4,7 @@ import { Lock, ExternalLink, ArrowLeft } from "lucide-react";
 import InteractivePassportCard from "@/app/components/passport/InteractivePassportCard";
 import SkillPassportFolder from "@/app/components/passport/SkillPassportFolder";
 import prisma from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 import { INITIAL_PASSPORT } from "@/app/data/mockData";
 
 export default async function PublicPassportPage({ params }) {
@@ -13,6 +14,10 @@ export default async function PublicPassportPage({ params }) {
   let errorState = null;
 
   try {
+    const session = await auth();
+    const sessionUserId = session?.user?.id;
+    const sessionUserEmail = session?.user?.email;
+
     const dbPassport = await prisma.passport.findUnique({
       where: { shareToken },
       include: {
@@ -25,7 +30,11 @@ export default async function PublicPassportPage({ params }) {
     });
 
     if (dbPassport) {
-      if (!dbPassport.isPublic) {
+      const isOwner =
+        (sessionUserId && dbPassport.userId === sessionUserId) ||
+        (sessionUserEmail && dbPassport.user.email === sessionUserEmail);
+
+      if (!dbPassport.isPublic && !isOwner) {
         errorState = "This Skill Passport is private and cannot be viewed publicly.";
       } else {
         const user = dbPassport.user;
@@ -88,14 +97,14 @@ export default async function PublicPassportPage({ params }) {
           skills: skillsMap,
         };
       }
-    } else if (shareToken === "sp-token-9942a" || shareToken.startsWith("sp-token-")) {
+    } else if (shareToken === INITIAL_PASSPORT.shareToken) {
       passport = INITIAL_PASSPORT;
     } else {
       errorState = "Invalid or expired share link token.";
     }
   } catch (err) {
     console.warn("Error fetching public passport:", err);
-    if (shareToken === "sp-token-9942a") {
+    if (shareToken === INITIAL_PASSPORT.shareToken) {
       passport = INITIAL_PASSPORT;
     } else {
       errorState = "Could not fetch public passport.";
@@ -150,4 +159,3 @@ export default async function PublicPassportPage({ params }) {
     </div>
   );
 }
-

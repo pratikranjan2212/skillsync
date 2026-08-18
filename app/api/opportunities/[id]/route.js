@@ -6,10 +6,21 @@ import {
   generateTailoredOpportunities,
   normalizeWorkMode,
 } from "@/lib/opportunities/opportunityService";
+import { checkRateLimit, createRateLimitResponse, RATE_LIMIT_PRESETS, getClientIp } from "@/lib/security/rateLimit";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request, { params }) {
+  const clientIp = getClientIp(request);
+  const rateLimit = checkRateLimit(
+    `opp-detail:${clientIp}`,
+    RATE_LIMIT_PRESETS.GENERAL_API.maxRequests,
+    RATE_LIMIT_PRESETS.GENERAL_API.windowMs
+  );
+  if (!rateLimit.success) {
+    return createRateLimitResponse(rateLimit.resetTime);
+  }
+
   const { id } = await params;
 
   let user = null;
@@ -17,22 +28,17 @@ export async function GET(request, { params }) {
 
   try {
     const session = await auth();
+    const userId = session?.user?.id;
     const userEmail = session?.user?.email;
 
-    if (userEmail) {
-      user = await prisma.user.findUnique({
-        where: { email: userEmail },
-        include: {
-          evidences: {
-            orderBy: { createdAt: "desc" },
-          },
-        },
-      });
-    }
-
-    if (!user) {
+    if (userId || userEmail) {
       user = await prisma.user.findFirst({
-        where: { role: "student" },
+        where: {
+          OR: [
+            ...(userId ? [{ id: userId }] : []),
+            ...(userEmail ? [{ email: userEmail }] : []),
+          ],
+        },
         include: {
           evidences: {
             orderBy: { createdAt: "desc" },

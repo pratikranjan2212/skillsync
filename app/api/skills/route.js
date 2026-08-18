@@ -1,8 +1,19 @@
 import { NextResponse } from "next/server";
 import { STUDENT_INTERN_SKILLS, searchSkills, SKILL_CATEGORIES, SKILLS_BY_CATEGORY } from "@/app/data/studentInternSkills";
+import { checkRateLimit, createRateLimitResponse, RATE_LIMIT_PRESETS, getClientIp } from "@/lib/security/rateLimit";
 
 export async function GET(request) {
   try {
+    const clientIp = getClientIp(request);
+    const rateLimit = checkRateLimit(
+      `skills-api:${clientIp}`,
+      RATE_LIMIT_PRESETS.GENERAL_API.maxRequests,
+      RATE_LIMIT_PRESETS.GENERAL_API.windowMs
+    );
+    if (!rateLimit.success) {
+      return createRateLimitResponse(rateLimit.resetTime);
+    }
+
     const { searchParams } = new URL(request.url);
     const query = searchParams.get("q") || "";
     const category = searchParams.get("category");

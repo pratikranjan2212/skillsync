@@ -1,75 +1,151 @@
 import { NextResponse } from "next/server";
-import { INITIAL_PASSPORT } from "@/app/data/mockData";
 import prisma from "@/lib/prisma";
+import { auth, formatDisplayName } from "@/lib/auth";
+import { checkRateLimit, createRateLimitResponse, RATE_LIMIT_PRESETS, getClientIp } from "@/lib/security/rateLimit";
+import { logSecurityEvent, SecurityEvent, LogLevel } from "@/lib/security/logger";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(request) {
-  let passport = INITIAL_PASSPORT;
-
   try {
-    const dbPassport = await prisma.passport.findFirst({
+    const session = await auth();
+    const userId = session?.user?.id;
+    const userEmail = session?.user?.email;
+
+    if (!userId && !userEmail) {
+      return NextResponse.json({ error: "Unauthorized. Please sign in to export your Skill Passport." }, { status: 401 });
+    }
+
+    const clientIp = getClientIp(request);
+    const rateLimitKey = `pdf-export:${userId || userEmail}:${clientIp}`;
+    const rateLimit = checkRateLimit(
+      rateLimitKey,
+      RATE_LIMIT_PRESETS.PDF_EXPORT.maxRequests,
+      RATE_LIMIT_PRESETS.PDF_EXPORT.windowMs
+    );
+
+    if (!rateLimit.success) {
+      logSecurityEvent(SecurityEvent.AUTH_RATE_LIMIT_EXCEEDED, LogLevel.ALERT, {
+        ip: clientIp,
+        user: { id: userId, email: userEmail },
+        route: "/api/passport/pdf",
+        method: "GET",
+        details: { reason: "PDF export rate limit exceeded" },
+      });
+      return createRateLimitResponse(rateLimit.resetTime, "PDF export limit reached. Please wait a few minutes before generating a new PDF transcript.");
+    }
+
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          ...(userId ? [{ id: userId }] : []),
+          ...(userEmail ? [{ email: userEmail }] : []),
+        ],
+      },
       include: {
-        user: {
-          include: {
-            evidences: true,
-          },
+        passport: true,
+        evidences: {
+          orderBy: { createdAt: "desc" },
         },
       },
     });
 
-    if (dbPassport) {
-      passport = {
-        studentId: dbPassport.studentId,
-        studentName: dbPassport.user.name || "Alex Chen",
-        college: dbPassport.user.college || "Ramaiah Institute of Technology",
-        degree: dbPassport.user.degree || "B.Tech in Computer Science & Engineering",
-        batch: dbPassport.user.batch || "2022 – 2026",
-        dob: dbPassport.user.dob || "Not Specified",
-        shareToken: dbPassport.shareToken,
-        updatedAt: dbPassport.updatedAt.toISOString(),
-        skills: INITIAL_PASSPORT.skills,
-      };
+    if (!user) {
+      return NextResponse.json({ error: "User account not found." }, { status: 404 });
     }
-  } catch (err) {
-    console.warn("PDF passport export fallback:", err.message);
-  }
 
-  const passportText = `
+    const passport = user.passport || {
+      studentId: `SS-${new Date().getFullYear()}-${user.id.substring(0, 6).toUpperCase()}`,
+      shareToken: `sp-token-${user.id.substring(0, 7)}`,
+      updatedAt: new Date(),
+      issuer: "SkillSync Verifiable Credential Engine",
+      credentialHash: `0x${Math.random().toString(16).substring(2, 42).toUpperCase()}`,
+    };
+
+    // Aggregate verified skills from user's own evidence records
+    const skills = [];
+    for (const ev of user.evidences || []) {
+      for (const rawSkill of ev.claimedSkills || []) {
+        const skillName = rawSkill.trim();
+        if (!skillName) continue;
+
+        let existing = skills.find((s) => s.name.toLowerCase() === skillName.toLowerCase());
+        if (!existing) {
+          existing = {
+            name: skillName,
+            category: "Core Competency",
+            level: ev.verificationTier === "verified-high" ? "Advanced" : "Intermediate",
+            evidence: [],
+          };
+          skills.push(existing);
+        }
+
+        if (!existing.evidence.some((e) => e.title === ev.title)) {
+          existing.evidence.push({
+            title: ev.title,
+            tier: ev.verificationTier || "verified-medium",
+          });
+        }
+      }
+    }
+
+    // Merge user self-reported skills
+    for (const userSkill of user.skills || []) {
+      const skillName = userSkill.trim();
+      if (!skillName) continue;
+      if (!skills.some((s) => s.name.toLowerCase() === skillName.toLowerCase())) {
+        skills.push({
+          name: skillName,
+          category: "Self-Reported Competency",
+          level: "Intermediate",
+          evidence: [],
+        });
+      }
+    }
+
+    const studentName = formatDisplayName(user.name, user.name || (user.email ? user.email.split("@")[0] : "Student User"));
+
+    const passportText = `
 =====================================================
             SKILLSYNC VERIFIED SKILL PASSPORT
 =====================================================
 Student ID: ${passport.studentId}
-Student Name: ${passport.studentName || "Alex Chen"}
-Date of Birth (DOB): ${passport.dob || "Not Specified"}
-Institution: ${passport.college || "Ramaiah Institute of Technology"}
-Degree: ${passport.degree || "B.Tech in Computer Science & Engineering"}
-Batch: ${passport.batch || "2022 – 2026"}
+Student Name: ${studentName}
+Date of Birth (DOB): ${user.dob || "Not Specified"}
+Institution: ${user.college || "Institution Not Specified"}
+Degree: ${user.degree || "Degree Not Specified"}
+Batch: ${user.batch || "Batch Not Specified"}
 Share Token: ${passport.shareToken}
-Updated: ${passport.updatedAt}
+Updated: ${passport.updatedAt ? new Date(passport.updatedAt).toISOString() : new Date().toISOString()}
 -----------------------------------------------------
-VERIFIED SKILLS & EVIDENCE:
+VERIFIED SKILLS & EVIDENCE (${skills.length} skills):
 
-${(passport.skills || [])
+${skills.length === 0 ? "No verified skills recorded yet." : skills
   .map(
     (s) => `
-* Skill: ${s.name} (${s.category || "Core Competency"})
-  Level: ${s.level || "Advanced"}
+* Skill: ${s.name} (${s.category})
+  Level: ${s.level}
   Supporting Evidence:
-  ${(s.evidence || []).map((e) => `  - ${e.title} [${e.tier || "verified-high"}]`).join("\n")}
+  ${s.evidence.length > 0 ? s.evidence.map((e) => `  - ${e.title} [${e.tier}]`).join("\n") : "  - Self-reported profile competency"}
 `
   )
   .join("\n")}
 
 =====================================================
-Cryptographic Proof: 0x7F8A2B9942ACD081884C7D659A2FEAA015A3BF4F
-Verified by SkillSync Automated Multi-Stage Verification Engine
+Cryptographic Proof: ${passport.credentialHash || "0x7F8A2B9942ACD081884C7D659A2FEAA015A3BF4F"}
+Verified by: ${passport.issuer || "SkillSync Verifiable Credential Engine"}
 Fairness Exclusion List Applied: ["gender", "college tier", "name", "photo"]
 =====================================================
-  `;
+`;
 
-  return new NextResponse(passportText, {
-    headers: {
-      "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename="SkillSync_Passport_${passport.studentId}.pdf"`,
-    },
-  });
+    return new NextResponse(passportText, {
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename="SkillSync_Passport_${passport.studentId}.pdf"`,
+      },
+    });
+  } catch (err) {
+    console.error("PDF passport export error:", err);
+    return NextResponse.json({ error: "Failed to generate passport PDF." }, { status: 500 });
+  }
 }

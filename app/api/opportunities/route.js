@@ -10,6 +10,8 @@ import {
 } from "@/lib/opportunities/opportunityService";
 import { fetchLinkedInJobs, decodeHtml } from "@/lib/ingestion/linkedin";
 import { fetchIndeedJobs } from "@/lib/ingestion/indeed";
+import { checkRateLimit, createRateLimitResponse, RATE_LIMIT_PRESETS, getClientIp } from "@/lib/security/rateLimit";
+import { logSecurityEvent, SecurityEvent, LogLevel } from "@/lib/security/logger";
 
 export const dynamic = "force-dynamic";
 
@@ -56,27 +58,39 @@ function deduplicateOpportunities(list = []) {
 }
 
 export async function GET(request) {
+  const clientIp = getClientIp(request);
+  const rateLimit = checkRateLimit(
+    `feed-scraping:${clientIp}`,
+    RATE_LIMIT_PRESETS.FEED_SCRAPING.maxRequests,
+    RATE_LIMIT_PRESETS.FEED_SCRAPING.windowMs
+  );
+
+  if (!rateLimit.success) {
+    logSecurityEvent(SecurityEvent.AUTH_RATE_LIMIT_EXCEEDED, LogLevel.ALERT, {
+      ip: clientIp,
+      route: "/api/opportunities",
+      method: "GET",
+      details: { reason: "Rapid job feed scraping rate limit exceeded" },
+    });
+    return createRateLimitResponse(rateLimit.resetTime, "Too many requests to opportunity feed. Please slow down.");
+  }
+
   let user = null;
   let dbOpps = [];
 
   try {
     const session = await auth();
+    const userId = session?.user?.id;
     const userEmail = session?.user?.email;
 
-    if (userEmail) {
-      user = await prisma.user.findUnique({
-        where: { email: userEmail },
-        include: {
-          evidences: {
-            orderBy: { createdAt: "desc" },
-          },
-        },
-      });
-    }
-
-    if (!user) {
+    if (userId || userEmail) {
       user = await prisma.user.findFirst({
-        where: { role: "student" },
+        where: {
+          OR: [
+            ...(userId ? [{ id: userId }] : []),
+            ...(userEmail ? [{ email: userEmail }] : []),
+          ],
+        },
         include: {
           evidences: {
             orderBy: { createdAt: "desc" },

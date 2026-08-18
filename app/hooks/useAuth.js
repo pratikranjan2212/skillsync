@@ -1,36 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 
 export function useAuth() {
   const { data: session, status } = useSession();
-  const [hasCookie, setHasCookie] = useState(false);
-  const [isClient, setIsClient] = useState(false);
 
-  useEffect(() => {
-    setIsClient(true);
-    const checkCookies = () => {
-      const cookies = typeof document !== "undefined" ? document.cookie : "";
-      const authenticated =
-        cookies.includes("skillsync_session=") ||
-        cookies.includes("authjs.session-token=") ||
-        cookies.includes("__Secure-authjs.session-token=") ||
-        cookies.includes("next-auth.session-token=") ||
-        cookies.includes("__Secure-next-auth.session-token=");
-      setHasCookie(authenticated);
-    };
-
-    checkCookies();
-  }, [session]);
-
-  const isAuthenticated = Boolean(session?.user || hasCookie);
-  const isLoading = status === "loading" || !isClient;
+  const isLoading = status === "loading";
+  const isAuthenticated = status === "authenticated" && Boolean(session?.user);
 
   return {
     isAuthenticated,
     isLoading,
-    user: session?.user || (hasCookie ? { name: "Alex Chen", email: "alex.chen@skillsync.edu", role: "student" } : null),
+    user: session?.user || null,
   };
 }
-

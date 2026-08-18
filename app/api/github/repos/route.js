@@ -5,22 +5,29 @@ import prisma from "@/lib/prisma";
 export async function GET(request) {
   try {
     const session = await auth();
-    let userEmail = session?.user?.email;
+    const userId = session?.user?.id;
+    const userEmail = session?.user?.email;
 
-    let user = null;
-    if (userEmail) {
-      try {
-        user = await prisma.user.findUnique({
-          where: { email: userEmail },
-          include: { accounts: true },
-        });
-      } catch (dbErr) {
-        console.warn("DB find user error in github repos:", dbErr.message);
-      }
+    if (!userId && !userEmail) {
+      return NextResponse.json({ error: "Unauthorized. Please sign in." }, { status: 401 });
+    }
+
+    let user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          ...(userId ? [{ id: userId }] : []),
+          ...(userEmail ? [{ email: userEmail }] : []),
+        ],
+      },
+      include: { accounts: true },
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: "User account not found." }, { status: 404 });
     }
 
     // Check if user has a linked GitHub account
-    const githubAccount = user?.accounts?.find((a) => a.provider === "github");
+    const githubAccount = user.accounts?.find((a) => a.provider === "github");
     const accessToken = githubAccount?.access_token;
 
     // If we have an access token with GitHub permissions
