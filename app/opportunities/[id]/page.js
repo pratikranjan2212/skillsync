@@ -15,16 +15,17 @@ import {
   Globe,
   Home,
   Briefcase,
+  LogIn,
+  UserPlus,
 } from "lucide-react";
 import Navbar from "@/app/components/layout/Navbar";
 import MatchExplanationCard from "@/app/components/opportunities/MatchExplanationCard";
-import AuthRequiredView from "@/app/components/auth/AuthRequiredView";
 import { useAuth } from "@/app/hooks/useAuth";
 import { LinkedInIcon } from "@/app/components/icons";
 
 async function fetchMatchDetail(id) {
   const res = await fetch(`/api/opportunities/${id}`);
-  if (!res.ok) throw new Error("Failed to fetch match explanation detail");
+  if (!res.ok) throw new Error("Failed to fetch opportunity detail");
   return res.json();
 }
 
@@ -41,45 +42,7 @@ export default function MatchDetailPage({ params: paramsPromise }) {
   } = useQuery({
     queryKey: ["match-detail", id],
     queryFn: () => fetchMatchDetail(id),
-    enabled: isAuthenticated,
   });
-
-  if (!authLoading && !isAuthenticated) {
-    return (
-      <div className="min-h-screen pb-12 bg-[#F5F5F3] text-[#111111] flex flex-col justify-start">
-        <Navbar />
-        <main className="max-w-5xl 2xl:max-w-6xl mx-auto px-3.5 sm:px-6 w-full">
-          <AuthRequiredView
-            badgeText="Explainable Match Verification"
-            badgeIcon={Sparkles}
-            badgeColor="emerald"
-            title="Opportunity Match Detail Access"
-            subtitle="Sign in to inspect full skill match breakdown, verified citations, and demographic audit details for this opportunity."
-            sectionName="Match Explanation"
-            backLink="/opportunities"
-            backText="Back to Opportunities Feed"
-            features={[
-              {
-                icon: ShieldCheck,
-                title: "Transparent Evidence Mapping",
-                desc: "Inspect precisely which verified coursework and projects satisfy each individual job requirement.",
-              },
-              {
-                icon: Layers,
-                title: "Missing Skill Gap Analysis",
-                desc: "Actionable recommendations on skills to acquire to maximize your application match rate.",
-              },
-              {
-                icon: FileCheck,
-                title: "Bias-Free Audit Checklist",
-                desc: "Verified exclusion of sensitive demographic markers from ranking computations.",
-              },
-            ]}
-          />
-        </main>
-      </div>
-    );
-  }
 
   const opportunity = data?.opportunity;
   const explanation = data?.explanation;
@@ -132,6 +95,42 @@ export default function MatchDetailPage({ params: paramsPromise }) {
           </Link>
         </div>
 
+        {/* Guest Banner */}
+        {!authLoading && !isAuthenticated && (
+          <div className="bg-linear-to-r from-neutral-900 to-neutral-800 text-white rounded-3xl p-5 sm:p-6 shadow-md border border-black/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0 mt-0.5">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-sm font-bold text-white">
+                  Unlock Personalized Match Explanation
+                </span>
+                <p className="text-xs text-neutral-300 mt-1 leading-relaxed max-w-2xl">
+                  Sign in with your student account to inspect your full skill match breakdown, verified citations, and demographic audit details for this opportunity.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5 shrink-0 w-full md:w-auto">
+              <Link
+                href="/signin"
+                className="flex-1 md:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-sm transition-all active:scale-95"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                <span>Sign In</span>
+              </Link>
+              <Link
+                href="/signup"
+                className="flex-1 md:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-white/10 hover:bg-white/15 text-white rounded-xl text-xs font-bold border border-white/10 transition-all"
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                <span>Register</span>
+              </Link>
+            </div>
+          </div>
+        )}
+
         {opportunity && (
           <div className="bg-white rounded-2xl sm:rounded-[28px] p-5 sm:p-6 shadow-md border border-black/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
@@ -167,16 +166,16 @@ export default function MatchDetailPage({ params: paramsPromise }) {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-[#0A66C2]/10 hover:bg-[#0A66C2]/20 text-[#0A66C2] rounded-2xl text-xs font-bold transition-all border border-[#0A66C2]/20 hover:border-[#0A66C2]/40 active:scale-95 group/linkedin cursor-pointer"
-                  title="View job directly on LinkedIn"
+                  title="View job directly on external platform"
                 >
                   <LinkedInIcon className="w-3.5 h-3.5 fill-[#0A66C2]" />
-                  <span>LinkedIn Listing</span>
+                  <span>External Listing</span>
                 </a>
               )}
 
               <div className="flex items-center gap-2 bg-emerald-50 text-emerald-800 px-4 py-2.5 rounded-2xl border border-emerald-200 text-xs font-bold">
                 <Sparkles className="w-4 h-4 text-emerald-600" />
-                <span>Verified Match</span>
+                <span>Verified Role</span>
               </div>
             </div>
           </div>
@@ -185,7 +184,7 @@ export default function MatchDetailPage({ params: paramsPromise }) {
         {isLoading && (
           <div className="bg-white rounded-4xl p-12 text-center border border-black/5 flex flex-col items-center gap-3 animate-pulse">
             <div className="w-8 h-8 rounded-full bg-emerald-200 animate-spin"></div>
-            <p className="text-xs font-bold text-neutral-500">Computing Explainable Match Detail...</p>
+            <p className="text-xs font-bold text-neutral-500">Loading Opportunity Detail...</p>
           </div>
         )}
 
