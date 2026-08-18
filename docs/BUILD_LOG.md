@@ -1,178 +1,3 @@
-# SkillSync Frontend — Build Log
-Running log of every change made to the frontend, in chronological order (newest entry at the top).
-Each entry explains *what* changed and *why*, plus a section-by-section explanation of any new or modified code.
-
----
-## [2026-08-17 20:50] Capitalized Every Word (Title Case) Across Entire Skills Dataset
-
-**Files changed:**
-- `app/data/studentInternSkills.js` (modified)
-- `app/data/raw/student_intern_skills.csv` (modified)
-
-**What changed and why:**
-Converted all 1,526 skill entries in both the JavaScript taxonomy module and the raw CSV to Title Case (capitalizing the first letter of each word), while intelligently preserving tech acronyms and brand capitalizations (e.g. `ICT Safety`, `REST APIs`, `Git & GitHub`, `Node js`, `HTML5 & CSS3`, `SQL`, `AWS`, `PostgreSQL`, `Machine Learning`, `Agile Methodology`).
-
-**Open items / follow-ups:**
-Production build verified with exit code 0 (27/27 routes compiled in 1.95s).
-
-## [2026-08-17 20:49] Organized Skills CSV into Raw Data Assets Directory
-
-**Files changed:**
-- `app/data/raw/student_intern_skills.csv` (moved from root)
-
-**What changed and why:**
-Moved the raw `student_intern_skills.csv` file from the project root into the dedicated `app/data/raw/` directory. All runtime components and autocomplete APIs use the pre-compiled, type-safe data module in `app/data/studentInternSkills.js`, keeping the repository root tidy while preserving the original dataset for record-keeping and future migrations.
-
-**Open items / follow-ups:**
-Production build verified with exit code 0 (27/27 routes compiled).
-
-## [2026-08-17 20:29] Integrated Full Student & Intern Skills Taxonomy (1,526 Skills) from CSV
-
-**Files changed:**
-- `app/data/studentInternSkills.js` (created)
-- `app/api/skills/route.js` (created)
-- `app/profile/page.js` (modified)
-- `app/dashboard/evidence/new/page.js` (modified)
-
-**What changed and why:**
-1. **Taxonomy Generation**: Parsed and structured all 1,526 skills and domains from `student_intern_skills.csv` into `app/data/studentInternSkills.js`, categorized across `Technical`, `Soft Skill`, `Business`, `Digital Competency`, `Research`, and `Language`.
-2. **REST API Route**: Created `app/api/skills/route.js` supporting fast prefix and substring filtering, category lookups, and pagination.
-3. **Profile Recommendations & Autocomplete**: Integrated the full 1,526-skill taxonomy into the animated skill search input on `app/profile/page.js` and `app/dashboard/evidence/new/page.js`, featuring category badge tags, prefix priority matching, and instant click-to-add functionality.
-
-**Open items / follow-ups:**
-Production build verified with exit code 0 (27/27 routes compiled).
-
-## [2026-08-17 20:25] Added Gender Dropdown to Edit Profile & Synced with Skill Passport
-
-**Files changed:**
-- `app/profile/page.js` (modified)
-- `app/api/profile/route.js` (modified)
-- `app/api/passport/[shareToken]/route.js` (modified)
-- `app/components/passport/InteractivePassportCard.jsx` (modified)
-
-**What changed and why:**
-1. **Edit Profile Form Dropdown**: Added a Gender select input with options `["Male", "Female", "Transgender", "Other"]` in `app/profile/page.js`, arranged in a clean 2-column grid alongside Batch / Graduation Year.
-2. **Passport Card Synchronization**: Configured the profile state and API handlers (`PUT /api/profile`, `GET /api/passport`, `GET /api/passport/[shareToken]`) to persist and return the selected gender, which immediately updates the `GENDER` field on the Skill Passport card.
-3. **Profile Header Metadata**: Added the selected gender tag alongside DOB and Institution in the profile banner.
-
-**Open items / follow-ups:**
-Production build verified with exit code 0.
-
-## [2026-08-17 20:19] Removed Skill Count & Bullet Dots from Passport Card Skill Chips
-
-**Files changed:**
-- `app/components/passport/InteractivePassportCard.jsx` (modified)
-
-**What changed and why:**
-1. **Removed Skill Count**: Changed the section header label from `SKILLS (N)` to `SKILLS`.
-2. **Removed Bullet Icons**: Removed the green bullet dot indicators (`<span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>`) from the skill buttons on the front of the Skill Passport Card, creating a minimalist, text-only chip layout.
-
-**Open items / follow-ups:**
-Clean production build verified with exit code 0.
-
-## [2026-08-17 19:42] Updated Skill Passport Card Background Theme to Black
-
-**Files changed:**
-- `app/components/passport/InteractivePassportCard.jsx` (modified)
-- `app/components/passport/SkillEvidenceModal.jsx` (modified)
-
-**What changed and why:**
-Converted the Skill Passport card from its former dark emerald green gradient to a luxury matte obsidian/jet-black theme (`bg-linear-to-br from-[#121212] via-[#080808] to-[#000000]`), with refined `border-white/10` borders, elevated deep black shadows (`shadow-[0_28px_64px_-12px_rgba(0,0,0,0.95)]`), and luminous emerald security highlights.
-
-**Code explanation (section by section):**
-1. `InteractivePassportCard.jsx`:
-   - **Front & Back Card Surfaces** — Updated container background gradients to deep obsidian black (`from-[#121212] via-[#080808] to-[#000000]`) with `border-white/10` and `border-t border-white/10` dividers.
-   - **Inner Items & Sections** — Upgraded project cards, academic detail icon badges, and skill chips to dark luxury neutral tiles (`bg-neutral-900/90 border-white/10`).
-2. `SkillEvidenceModal.jsx`:
-   - **Citation Popover** — Upgraded popover container to deep frosted black (`bg-[#121212]/98 border-white/15`) with neutral citation tiles.
-
-**Open items / follow-ups:**
-Production build verified with exit code 0.
-
-## [2026-08-17 13:56] Replaced Portfolio, GitHub & LinkedIn Icons with Official Logos in Personal Profile
-
-**Files changed:**
-- `app/profile/page.js` (modified)
-
-**What changed and why:**
-1. **Portfolio Icon**: Replaced generic Sparkles icon with custom multi-colored portfolio SVG illustration provided by the user.
-2. **GitHub Logo**: Replaced generic `Code2` icon with GitHub's official octocat brand logo.
-3. **LinkedIn Logo**: Replaced generic `Globe` icon with LinkedIn's official blue icon mark.
-
-**Code explanation (section by section):**
-`app/profile/page.js`
-- **Branded Link Icons** — Defined `GitHubLogo`, `LinkedInLogo`, and `PortfolioLogo` SVG helper components and wired them into both active external link pills and empty `+ Add Link` placeholders in Personal Profile.
-
-**Open items / follow-ups:**
-Production build verified with exit code 0.
-
-## [2026-08-17 13:53] Removed Icon Near Custom Add Skill Option
-
-**Files changed:**
-- `app/profile/page.js` (modified)
-- `app/dashboard/evidence/new/page.js` (modified)
-
-**What changed and why:**
-Removed the sparkle icon from the custom skill creation button inside the recommendation dropdown, leaving a clean text label (*"Add \"[typed text]\" as custom skill"*).
-
-**Code explanation (section by section):**
-`app/profile/page.js` & `app/dashboard/evidence/new/page.js`
-- **Clean Custom Prompt** — Simplified the custom add row to display only the text label and the "Custom" pill badge.
-
-**Open items / follow-ups:**
-Production build verified with exit code 0.
-
-## [2026-08-17 13:51] Display Recommendation Dropdown Exclusively Upon Typing
-
-**Files changed:**
-- `app/profile/page.js` (modified)
-- `app/dashboard/evidence/new/page.js` (modified)
-
-**What changed and why:**
-Updated the autocomplete recommendation dropdown visibility so that it remains hidden when the input is empty or just focused, and dynamically displays the "Recommended Skills" menu only after the user types one or more letters matching available skills.
-
-**Code explanation (section by section):**
-`app/profile/page.js` & `app/dashboard/evidence/new/page.js`
-- **Typing-Gated Visibility** — Configured `{isSkillFocused && newSkillInput.trim().length > 0 && (...)}` to keep the input interface clean and uncluttered upon initial click until search text is entered.
-
-**Open items / follow-ups:**
-Production build verified with exit code 0.
-
-## [2026-08-17 13:47] Removed Right Add Button & Competency Badges from Skills Section
-
-**Files changed:**
-- `app/profile/page.js` (modified)
-
-**What changed and why:**
-1. **Removed Add Button**: Removed the right-hand `+ Add` button from the unified skill search input bar, allowing the input to span full-width cleanly (skills are selected directly from autocomplete recommendations or by pressing Enter).
-2. **Removed Competency Badges**: Removed the green "Competency" badges from active verifiable skill chips, giving each skill item a minimal, clean layout with the active emerald dot, bold skill name, and quick-remove `X` action.
-
-**Open items / follow-ups:**
-Production build verified with exit code 0.
-
-## [2026-08-17 13:30] Unified Skill Search Input with Focus Enlargement & Autocomplete Recommendations; Renamed React & Node js
-
-**Files changed:**
-- `app/profile/page.js` (modified)
-- `app/dashboard/evidence/new/page.js` (modified)
-- `app/data/mockData.js` (modified)
-- `prisma/seed.js` (modified)
-- `lib/ingestion/normalize.js` (modified)
-- `lib/matching/scoring.js` (modified)
-- `lib/opportunities/opportunityService.js` (modified)
-- `lib/verification/ocrParser.js` (modified)
-
-**What changed and why:**
-1. **Unified Skill Section**: Replaced the dual-section layout (preset dropdown + separate custom text input) in the profile skills card with a single unified search & input field.
-2. **Focus State Enlargement Animation**: When clicked or focused, the input field smoothly enlarges (`scale-[1.015]`, `shadow-xl shadow-emerald-500/10`, `ring-4 ring-emerald-500/15`, `border-emerald-500`) with subtle hardware-accelerated transitions.
-3. **Dynamic Autocomplete Recommendations**: As the user types letters, matching preloaded skills are suggested in real time in a floating recommendation dropdown. Clicking any recommendation or pressing Enter immediately adds the skill to active verifiable skills. Also supports adding arbitrary custom skills.
-4. **Renamed Skills**: Changed all occurrences of `"React.js"` to `"React"` and `"Node.js"` to `"Node js"` across the entire taxonomy, mock data, normalization heuristics, matching engine synonyms, and opportunities generator.
-
-**Open items / follow-ups:**
-Production build verified with exit code 0.
-
----
-
 # SkillSync — Codebase Architecture & Component Reference Manual
 
 > **SkillSync**: An automated, explainable, and bias-free talent verification and internship matching engine. Verifies coursework, projects, and credentials into a portable, cryptographically signed **Skill Passport**, and matches students with relevant opportunities without demographic bias.
@@ -181,17 +6,18 @@ Production build verified with exit code 0.
 
 ## 1. System Overview & Technology Stack
 
-SkillSync is built on a modern full-stack Next.js architecture with high-contrast UI design, hardware-accelerated animations, multi-factor credential verification, and deterministic algorithmic matching.
+SkillSync is built on a modern full-stack Next.js architecture with high-contrast UI design, hardware-accelerated animations, multi-factor credential verification, sliding-window security rate limiting, and deterministic algorithmic matching.
 
 ### Core Technology Stack
 
 * **Framework**: [Next.js 16 (App Router)](https://nextjs.org/) with React 19 (`react`, `react-dom`)
 * **Styling & Design System**: [Tailwind CSS v4](https://tailwindcss.com/) with PostCSS (`@tailwindcss/postcss`) and `clsx` / `tailwind-merge`
 * **Database & ORM**: PostgreSQL managed via [Prisma ORM](https://www.prisma.io/) (`@prisma/client`, `prisma`)
-* **Authentication**: [NextAuth.js v5 Beta](https://authjs.dev/) (`next-auth`, `@auth/prisma-adapter`, `bcryptjs`) supporting Credentials and GitHub OAuth
+* **Authentication & Identity**: [NextAuth.js v5 Beta](https://authjs.dev/) (`next-auth`, `@auth/prisma-adapter`, `bcryptjs`) supporting Credentials and GitHub OAuth with 12-round bcrypt password hashing
 * **State & Server Cache**: [TanStack React Query v5](https://tanstack.com/query/v5) (`@tanstack/react-query`)
 * **Motion & Physics**: [Framer Motion 13](https://www.framer.com/motion/) (`framer-motion`)
-* **Icons & Visuals**: [Lucide React](https://lucide.dev/) (`lucide-react`)
+* **Security & Bot Protection**: Native sliding-window rate limiters, honeypot traps, path traversal defense, and XSS sanitizers
+* **Icons & Visuals**: [Lucide React](https://lucide.dev/) (`lucide-react`) and custom SVG vector icons
 * **Data Visualization**: [Recharts](https://recharts.org/) (`recharts`)
 * **Document Generation**: [@react-pdf/renderer](https://react-pdf.org/) for cryptographic PDF Skill Passport certificates
 * **Verification Utilities**: [jsQR](https://github.com/cozmo/jsQR) for QR payload decoding and native Node.js `crypto` for SHA-256 Merkle root hashing
@@ -203,11 +29,17 @@ SkillSync is built on a modern full-stack Next.js architecture with high-contras
 ```text
 skillsync/
 ├── app/                                # Next.js 16 App Router Directory
-│   ├── (auth)/                         # Unauthenticated Authentication Route Group
+│   ├── (auth)/                         # Authentication Route Group
+│   │   ├── forgot-password/
+│   │   │   └── page.js                 # Password Reset Request Page
+│   │   ├── reset-password/
+│   │   │   └── page.js                 # Password Reset Form with Token Validation
 │   │   ├── signin/
 │   │   │   └── page.js                 # Sign In (Credentials & GitHub OAuth)
-│   │   └── signup/
-│   │       └── page.js                 # Student Registration Page
+│   │   ├── signup/
+│   │   │   └── page.js                 # Student Registration Page
+│   │   └── verify-email/
+│   │       └── page.js                 # Email Verification Status & Resend Page
 │   ├── admin/                          # Administrative Portal & Review Console
 │   │   ├── fairness/
 │   │   │   └── page.js                 # Algorithmic Fairness & Demographic Parity Audits
@@ -224,7 +56,11 @@ skillsync/
 │   │   │   └── taxonomy/route.js       # Skill taxonomy list, create, and delete
 │   │   ├── auth/
 │   │   │   ├── [...nextauth]/route.js  # NextAuth v5 authentication handlers
-│   │   │   └── register/route.js       # Student account registration endpoint
+│   │   │   ├── forgot-password/route.js# Password reset token generation endpoint
+│   │   │   ├── register/route.js       # Student account registration endpoint
+│   │   │   ├── resend-verification/route.js # Email verification link dispatcher
+│   │   │   ├── reset-password/route.js # Password reset execution endpoint
+│   │   │   └── verify-email/route.js   # Email verification token validator
 │   │   ├── cron/
 │   │   │   └── ingest/route.js         # Multi-source opportunity scraper cron job
 │   │   ├── evidence/
@@ -238,8 +74,10 @@ skillsync/
 │   │   │   ├── [shareToken]/route.js   # Public verifiable passport lookup
 │   │   │   ├── pdf/route.js            # Cryptographic PDF certificate stream
 │   │   │   └── route.js                # Authenticated user passport & visibility toggle
-│   │   └── profile/
-│   │       └── route.js                # Student profile data GET & update PUT
+│   │   ├── profile/
+│   │   │   └── route.js                # Student profile data GET & update PUT
+│   │   └── skills/
+│   │       └── route.js                # Canonical 1,526-skill taxonomy autocomplete API
 │   ├── components/                     # Reusable React UI & Feature Components
 │   │   ├── admin/
 │   │   │   └── AdminNav.jsx            # Admin console sub-navigation bar
@@ -247,6 +85,17 @@ skillsync/
 │   │   │   └── AuthRequiredView.jsx    # Authentication required gatekeeper card
 │   │   ├── evidence/
 │   │   │   └── EvidenceCard.jsx        # Evidence item card with tier badge & hash
+│   │   ├── icons/                      # Custom Vector Icons & Wordmarks
+│   │   │   ├── DocumentIcon.jsx        # Verified credential document icon
+│   │   │   ├── GenderIcon.jsx          # Demographic neutral gender icon
+│   │   │   ├── GitHubIcon.jsx          # GitHub brand logo
+│   │   │   ├── IndeedWordmark.jsx      # Indeed job portal wordmark
+│   │   │   ├── LinkedInIcon.jsx        # LinkedIn brand icon
+│   │   │   ├── LinkedInWordmark.jsx    # LinkedIn job portal wordmark
+│   │   │   ├── MagnifyingGlassIcon.jsx # Magnifying glass lens SVG
+│   │   │   ├── PassportWaves.jsx       # Luminous emerald vector watermark curves
+│   │   │   ├── PortfolioIcon.jsx       # Personal portfolio link icon
+│   │   │   └── index.js                # Centralized icon re-exports
 │   │   ├── landing/
 │   │   │   ├── FAQSection.jsx          # Interactive accordion FAQ with motion reveals
 │   │   │   ├── FeatureBento.jsx        # Bento grid showcasing core features
@@ -265,13 +114,15 @@ skillsync/
 │   │   ├── passport/
 │   │   │   ├── InteractivePassportCard.jsx # 3D flippable emerald passport card & focus lightbox
 │   │   │   ├── ShareExportButtons.jsx  # Export triggers (PDF, JSON, Public Link toggle)
-│   │   │   └── SkillEvidenceModal.jsx  # Skill evidence citation popover modal
+│   │   │   ├── SkillEvidenceModal.jsx  # Skill evidence citation popover modal
+│   │   │   └── SkillPassportFolder.jsx # 3D Confidential Folder envelope reveal interaction
 │   │   ├── profile/
 │   │   │   └── ImageCropperModal.jsx   # Interactive canvas-based avatar photo cropper
 │   │   └── ui/
 │   │       ├── AnimatedButton.jsx      # Rolling text interactive action button
 │   │       ├── Badge.jsx               # 3-tier verification badge & status pills
 │   │       ├── ClickSpark.jsx          # Particle spark effect on user clicks
+│   │       ├── DatePickerFlyout.jsx    # Interactive calendar date picker flyout
 │   │       ├── FadeIn.jsx              # Framer Motion scroll entrance wrappers
 │   │       ├── MagnifyingEvidence.jsx  # Animated magnifying glass micro-interaction
 │   │       └── RollingText.jsx         # Kinetic letter-flipping text effect
@@ -279,9 +130,12 @@ skillsync/
 │   │   ├── evidence/
 │   │   │   └── new/page.js             # Evidence submission form & GitHub selector
 │   │   └── page.js                     # Student credential summary & evidence list
-│   ├── data/                           # Mock & Static System Data
+│   ├── data/                           # Canonical Datasets & Static Content
+│   │   ├── raw/
+│   │   │   └── student_intern_skills.csv # Raw canonical skill taxonomy dataset
 │   │   ├── mockData.js                 # Fallback mock records for demo & offline modes
-│   │   └── skillsyncData.js            # Platform metadata, FAQ, and feature lists
+│   │   ├── skillsyncData.js            # Platform metadata, FAQ, and feature lists
+│   │   └── studentInternSkills.js      # Structured 1,526 student skills taxonomy
 │   ├── docs/                           # Documentation Portal
 │   │   ├── BUILD_LOG.md                # Codebase architecture & component reference manual
 │   │   ├── DESIGN_DOC.md               # Design token & aesthetic specification
@@ -322,11 +176,21 @@ skillsync/
 │   │   ├── normalize.js                # Unified opportunity schema normalizer
 │   │   └── remotive.js                 # Remotive software engineering jobs adapter
 │   ├── matching/                       # Algorithmic Match Engine & Fairness
+│   │   ├── config.js                   # Match weights, thresholds, and tier coefficients
 │   │   ├── explainability.js           # Explainable match reason generation
 │   │   ├── getMatchingFeatures.js      # Student competency feature extraction
-│   │   └── scoring.js                  # Bias-free deterministic match scoring
+│   │   ├── jobParser.js                # Job requirements extraction & confidence scoring
+│   │   ├── scoring.js                  # Bias-free deterministic match scoring
+│   │   └── taxonomy.js                 # Skill alias normalization & strict incompatibilities
 │   ├── opportunities/
 │   │   └── opportunityService.js       # Database opportunity queries and caching
+│   ├── security/                       # Application Security & Threat Mitigation
+│   │   ├── botProtection.js            # User agent scanner detection & honeypot traps
+│   │   ├── logger.js                   # Structured security audit logger with data redaction
+│   │   ├── password.js                 # NIST-compliant password validation & 12-round bcrypt
+│   │   ├── rateLimit.js                # Memory-efficient sliding-window rate limiters
+│   │   ├── tokens.js                   # Cryptographically secure token generator
+│   │   └── validator.js                # XSS sanitizers, path traversal defense, file validators
 │   ├── verification/                   # Automated Multi-Stage Verification Pipeline
 │   │   ├── cryptoHash.js               # SHA-256 cryptographic Merkle root hasher
 │   │   ├── githubCheck.js              # GitHub repository & commit verification
@@ -337,7 +201,11 @@ skillsync/
 │   ├── prisma.js                       # Prisma Client singleton connection
 │   └── utils.js                        # Tailwind class merge (`cn`) utility
 ├── prisma/
-│   └── schema.prisma                   # PostgreSQL database schema & relational models
+│   ├── schema.prisma                   # PostgreSQL database schema & relational models
+│   └── seed.js                         # Database seeder for demo accounts & skill taxonomy
+├── tests/                              # Automated Test Suite (38 Unit Tests)
+│   ├── matching.test.mjs               # Match engine & fairness unit tests (12 cases)
+│   └── security.test.mjs               # Auth, security, IDOR, & rate limiting tests (26 cases)
 ├── public/                             # Static Assets (Logos, SVGs, Images)
 ├── .env.example                        # Environment variable documentation template
 ├── next.config.mjs                     # Next.js build configuration & external image hosts
@@ -373,7 +241,7 @@ Every component in SkillSync is built for modularity, accessibility, and high vi
 |  [Student Dashboard] (app/dashboard/page.js, app/dashboard/evidence/new/page.js)  |
 |  ├── AuthRequiredView.jsx                                                         |
 |  ├── EvidenceCard.jsx (Badge, RollingText)                                        |
-|  └── GitHub Repo Selector & Evidence Upload Form (Badge)                          |
+|  └── GitHub Repo Selector & Evidence Upload Form (Badge, studentInternSkills)     |
 |                                                                                   |
 |  [Opportunities Engine] (app/opportunities/page.js, app/opportunities/[id]/page) |
 |  ├── AuthRequiredView.jsx                                                         |
@@ -382,14 +250,16 @@ Every component in SkillSync is built for modularity, accessibility, and high vi
 |                                                                                   |
 |  [Skill Passport] (app/passport/page.js, app/passport/[shareToken]/page.js)       |
 |  ├── AuthRequiredView.jsx                                                         |
-|  ├── InteractivePassportCard.jsx (Luminous 3D Flip, Lightbox, Merkle Hash Proof)  |
-|  │   └── SkillEvidenceModal.jsx (Badge, Evidence Citations)                       |
+|  ├── SkillPassportFolder.jsx (3D Confidential Folder reveal envelope)            |
+|  │   └── InteractivePassportCard.jsx (Luminous 3D Flip, Lightbox, Merkle Hash)    |
+|  │       └── SkillEvidenceModal.jsx (Badge, Evidence Citations)                   |
 |  └── ShareExportButtons.jsx (RollingText, PDF Stream, Public Toggle)              |
 |                                                                                   |
 |  [Profile Editor] (app/profile/page.js)                                           |
 |  ├── AuthRequiredView.jsx                                                         |
 |  ├── ImageCropperModal.jsx (HTML5 Canvas Zoom/Pan/Rotate)                         |
-|  └── Interactive Calendar DOB Picker                                              |
+|  ├── DatePickerFlyout.jsx (Interactive Calendar Date Picker)                      |
+|  └── Skill Autocomplete Input (1,526 Skills Taxonomy)                             |
 |                                                                                   |
 |  [Admin Console] (app/admin/pipeline, /taxonomy, /fairness)                       |
 |  ├── AdminNav.jsx (Pipeline Log, Taxonomy Manager, Fairness Audit tabs)           |
@@ -416,18 +286,12 @@ Every component in SkillSync is built for modularity, accessibility, and high vi
   * Dynamic auth state: renders Sign In / Register buttons for guests, or student avatar with role badge for authenticated sessions.
 * **Where It Is Used**:
   * `app/page.js` (Landing Page)
-  * `app/(auth)/signin/page.js` (Sign In Page)
-  * `app/(auth)/signup/page.js` (Sign Up Page)
-  * `app/dashboard/page.js` (Student Dashboard)
-  * `app/dashboard/evidence/new/page.js` (New Evidence Upload)
-  * `app/opportunities/page.js` (Opportunities Feed)
-  * `app/opportunities/[id]/page.js` (Opportunity Detail)
-  * `app/passport/page.js` (Skill Passport Manager)
-  * `app/profile/page.js` (Profile Editor)
-  * `app/docs/page.js` (Docs Center)
-  * `app/privacy/page.js` (Privacy Policy)
-  * `app/terms/page.js` (Terms of Service)
-  * `app/support/page.js` (Support Page)
+  * `app/(auth)/signin/page.js`, `signup/page.js`, `forgot-password/page.js`, `reset-password/page.js`, `verify-email/page.js`
+  * `app/dashboard/page.js`, `dashboard/evidence/new/page.js`
+  * `app/opportunities/page.js`, `opportunities/[id]/page.js`
+  * `app/passport/page.js`
+  * `app/profile/page.js`
+  * `app/docs/page.js`, `privacy/page.js`, `terms/page.js`, `support/page.js`
   * `app/components/layout/HeaderNav.jsx` (Re-exported as default)
 
 #### 2. `HeaderNav.jsx`
@@ -481,7 +345,23 @@ Every component in SkillSync is built for modularity, accessibility, and high vi
 
 ### 3.3. Interactive Skill Passport & Verifiable Credential Components
 
-#### 5. `InteractivePassportCard.jsx`
+#### 5. `SkillPassportFolder.jsx`
+* **File Path**: `app/components/passport/SkillPassportFolder.jsx`
+* **Purpose**: 3D "Confidential Folder" envelope interaction that houses the landscape Skill Passport card.
+* **Props**:
+  * `passportData` (`object`): Complete passport credential record.
+  * `onTogglePublic` (`function`): Callback when public visibility is toggled.
+  * `isOpen` / `onOpen` / `onClose` (`controlled state`): Optional controlled modal expansion props.
+  * `logoSrc`, `heading`, `subtext`, `folderColor`, `className`.
+* **Key Features**:
+  * **Idle State**: Rich textured emerald folder on the left with circular action buttons (Flip, Expand, Share, PDF Download) on the right.
+  * **Hover Lift**: The folder cover opens slightly with a peeking card animation.
+  * **Click Expansion**: The card smoothly slides out, rotates in 3D from the backside cryptographic proof to the frontside credentials, and expands into a focused landscape lightbox.
+* **Where It Is Used**:
+  * `app/passport/page.js` (Student Passport Portal)
+  * `app/passport/[shareToken]/page.js` (Public Verifiable Passport View)
+
+#### 6. `InteractivePassportCard.jsx`
 * **File Path**: `app/components/passport/InteractivePassportCard.jsx`
 * **Purpose**: The flagship visual component of the platform. A 3D flippable, emerald-themed verifiable credential card representing the student's verified skills, projects, institutional credentials, and cryptographic Merkle root hash.
 * **Props**:
@@ -502,10 +382,11 @@ Every component in SkillSync is built for modularity, accessibility, and high vi
   * **Focus Lightbox Modal**: Clicking the compact card launches a full-screen focus view wrapped in Framer Motion `<AnimatePresence>` with smooth exit zoom-out transitions and Escape key dismissal.
   * **Hover Evidence Citations**: Hovering any skill badge triggers `SkillEvidenceModal`.
 * **Where It Is Used**:
-  * `app/passport/page.js` (Student's private Passport Management portal)
-  * `app/passport/[shareToken]/page.js` (Public Verifiable Passport verification page)
+  * `app/components/passport/SkillPassportFolder.jsx`
+  * `app/passport/page.js`
+  * `app/passport/[shareToken]/page.js`
 
-#### 6. `SkillEvidenceModal.jsx`
+#### 7. `SkillEvidenceModal.jsx`
 * **File Path**: `app/components/passport/SkillEvidenceModal.jsx`
 * **Purpose**: Rich glassmorphic popover modal rendered when a user hovers over a skill badge on the Skill Passport card. Citations show the exact coursework, projects, or certificates that verified the competency.
 * **Props**:
@@ -518,7 +399,7 @@ Every component in SkillSync is built for modularity, accessibility, and high vi
 * **Where It Is Used**:
   * `app/components/passport/InteractivePassportCard.jsx` (Sub-component for skill badge citations)
 
-#### 7. `ShareExportButtons.jsx`
+#### 8. `ShareExportButtons.jsx`
 * **File Path**: `app/components/passport/ShareExportButtons.jsx`
 * **Purpose**: Passport export and sharing toolbar. Handles PDF certificate downloading, JSON-LD export, public sharing URL generation, and privacy toggles.
 * **Props**:
@@ -537,7 +418,7 @@ Every component in SkillSync is built for modularity, accessibility, and high vi
 
 ### 3.4. Opportunities & Matching Components
 
-#### 8. `OpportunityCard.jsx`
+#### 9. `OpportunityCard.jsx`
 * **File Path**: `app/components/opportunities/OpportunityCard.jsx`
 * **Purpose**: Card component for internship and job opportunities in the opportunities feed.
 * **Props**:
@@ -554,7 +435,7 @@ Every component in SkillSync is built for modularity, accessibility, and high vi
 * **Where It Is Used**:
   * `app/opportunities/page.js` (Live Opportunities Explorer Feed)
 
-#### 9. `MatchExplanationCard.jsx`
+#### 10. `MatchExplanationCard.jsx`
 * **File Path**: `app/components/opportunities/MatchExplanationCard.jsx`
 * **Purpose**: Explainable Match Engine centerpiece displayed on opportunity detail pages. Explains *why* the student received their match score by citing verified evidence and highlighting missing skills.
 * **Props**:
@@ -572,7 +453,7 @@ Every component in SkillSync is built for modularity, accessibility, and high vi
 
 ### 3.5. Evidence & Verification Components
 
-#### 10. `EvidenceCard.jsx`
+#### 11. `EvidenceCard.jsx`
 * **File Path**: `app/components/evidence/EvidenceCard.jsx`
 * **Purpose**: Renders an individual verified evidence item (project, coursework, credential, competition) in student and administrative repository views.
 * **Props**:
@@ -590,7 +471,7 @@ Every component in SkillSync is built for modularity, accessibility, and high vi
 
 ### 3.6. Administrative Portal Components
 
-#### 11. `AdminNav.jsx`
+#### 12. `AdminNav.jsx`
 * **File Path**: `app/components/admin/AdminNav.jsx`
 * **Purpose**: Sub-navigation bar for the administrative portal. Provides quick switching between the verification pipeline queue, skill taxonomy manager, and algorithmic fairness audits.
 * **Key Features**:
@@ -607,7 +488,7 @@ Every component in SkillSync is built for modularity, accessibility, and high vi
 
 ### 3.7. Student Profile Components
 
-#### 12. `ImageCropperModal.jsx`
+#### 13. `ImageCropperModal.jsx`
 * **File Path**: `app/components/profile/ImageCropperModal.jsx`
 * **Purpose**: Canvas-based interactive image cropping modal for student profile avatars.
 * **Props**:
@@ -622,17 +503,31 @@ Every component in SkillSync is built for modularity, accessibility, and high vi
 * **Where It Is Used**:
   * `app/profile/page.js` (Profile Photo Editor)
 
+#### 14. `DatePickerFlyout.jsx`
+* **File Path**: `app/components/ui/DatePickerFlyout.jsx`
+* **Purpose**: Interactive calendar date picker flyout with dropdown jump selectors for fast Date of Birth (DOB) and date field entry.
+* **Props**:
+  * `value` (`string`): Current date string (e.g. `"21 January 2004"` or `"2004-01-21"`).
+  * `onChange` (`function(formattedString, isoString)`): Callback returning formatted readable date and ISO value.
+  * `isOpen` (`boolean`), `onClose` (`function`).
+* **Key Features**:
+  * Year and month dropdown jump selectors spanning 1950 through current year.
+  * Decade fast-pagination triggers and weekday header.
+  * Bi-directional date parsing supporting human strings and standard ISO formats.
+* **Where It Is Used**:
+  * `app/profile/page.js` (Date of Birth Field)
+
 ---
 
 ### 3.8. Landing Page Presentation Components
 
-#### 13. `Hero.jsx`
+#### 15. `Hero.jsx`
 * **File Path**: `app/components/landing/Hero.jsx`
 * **Purpose**: Landing page hero section. Delivers the core value proposition with dynamic floating cards, search previews, rolling text CTAs, and trust metrics.
 * **Where It Is Used**:
   * `app/page.js` (Landing Page)
 
-#### 14. `FeatureBento.jsx`
+#### 16. `FeatureBento.jsx`
 * **File Path**: `app/components/landing/FeatureBento.jsx`
 * **Purpose**: Bento grid showcase highlighting SkillSync's four core pillars:
   1. Multi-Tier Verification (High, Medium, Flagged).
@@ -642,31 +537,31 @@ Every component in SkillSync is built for modularity, accessibility, and high vi
 * **Where It Is Used**:
   * `app/page.js` (Landing Page)
 
-#### 15. `UseCaseTabs.jsx`
+#### 17. `UseCaseTabs.jsx`
 * **File Path**: `app/components/landing/UseCaseTabs.jsx`
 * **Purpose**: Interactive tabbed section comparing value propositions for **Students** (verifiable proof, fair opportunities) and **Employers / Recruiters** (pre-vetted talent, 0% bias screening).
 * **Where It Is Used**:
   * `app/page.js` (Landing Page)
 
-#### 16. `Metrics.jsx`
+#### 18. `Metrics.jsx`
 * **File Path**: `app/components/landing/Metrics.jsx`
 * **Purpose**: Live platform statistics and analytics display featuring Recharts charts, verification volume counters, demographic parity scores ($1.00$), and credential issuance numbers.
 * **Where It Is Used**:
   * `app/page.js` (Landing Page)
 
-#### 17. `SmartAssist.jsx`
+#### 19. `SmartAssist.jsx`
 * **File Path**: `app/components/landing/SmartAssist.jsx`
 * **Purpose**: AI Skill Recommendation feature section showing how SkillSync analyzes uploaded evidence to suggest missing high-demand skills for target internships.
 * **Where It Is Used**:
   * `app/page.js` (Landing Page)
 
-#### 18. `FAQSection.jsx`
+#### 20. `FAQSection.jsx`
 * **File Path**: `app/components/landing/FAQSection.jsx`
 * **Purpose**: Interactive accordion FAQ answering technical, security, and verification questions with smooth Framer Motion height expansions.
 * **Where It Is Used**:
   * `app/page.js` (Landing Page)
 
-#### 19. `FinalCTA.jsx`
+#### 21. `FinalCTA.jsx`
 * **File Path**: `app/components/landing/FinalCTA.jsx`
 * **Purpose**: High-conversion footer banner encouraging students to generate their Skill Passport and employers to access bias-free candidate pools.
 * **Where It Is Used**:
@@ -676,7 +571,7 @@ Every component in SkillSync is built for modularity, accessibility, and high vi
 
 ### 3.9. Primitive UI & Animation Components
 
-#### 20. `Badge.jsx`
+#### 22. `Badge.jsx`
 * **File Path**: `app/components/ui/Badge.jsx`
 * **Purpose**: Standardized verification tier badge and status pill component.
 * **Props**:
@@ -694,60 +589,41 @@ Every component in SkillSync is built for modularity, accessibility, and high vi
   * `app/components/opportunities/MatchExplanationCard.jsx`
   * `app/components/passport/SkillEvidenceModal.jsx`
   * `app/components/landing/FeatureBento.jsx`
-  * `app/dashboard/page.js`
-  * `app/dashboard/evidence/new/page.js`
+  * `app/dashboard/page.js`, `dashboard/evidence/new/page.js`
   * `app/admin/pipeline/page.js`
   * `app/docs/page.js`
 
-#### 21. `AnimatedButton.jsx`
+#### 23. `AnimatedButton.jsx`
 * **File Path**: `app/components/ui/AnimatedButton.jsx`
 * **Purpose**: Pill-shaped action button that automatically triggers kinetic `RollingText` letter flips upon hover and click.
-* **Props**: `children`, `text`, `href`, `onClick`, `variant`, `size`, `className`, `icon: Icon`.
 * **Where It Is Used**: Interactive CTA triggers across the application.
 
-#### 22. `ClickSpark.jsx`
+#### 24. `ClickSpark.jsx`
 * **File Path**: `app/components/ui/ClickSpark.jsx`
 * **Purpose**: Interactive canvas overlay that spawns radial particle sparks at the exact coordinates of user mouse clicks.
-* **Props**: `sparkColor`, `sparkRadius`, `sparkSize`, `extraScale`, `children`.
 * **Where It Is Used**:
   * `app/providers.js` (Wrapped around entire application tree)
 
-#### 23. `FadeIn.jsx`
+#### 25. `FadeIn.jsx`
 * **File Path**: `app/components/ui/FadeIn.jsx`
 * **Exports**:
   * `<FadeIn>`: Single-element scroll reveal with customizable distance, duration, and delay.
   * `<FadeInStagger>`: Parent orchestration container that staggers reveal timing for child items.
   * `<FadeInItem>`: Child item inside a staggered container.
 * **Where It Is Used**:
-  * `app/components/landing/Hero.jsx`
-  * `app/components/landing/FeatureBento.jsx`
-  * `app/components/landing/UseCaseTabs.jsx`
-  * `app/components/landing/Metrics.jsx`
-  * `app/components/landing/SmartAssist.jsx`
-  * `app/components/landing/FAQSection.jsx`
-  * `app/components/landing/FinalCTA.jsx`
+  * All Landing components (`Hero`, `FeatureBento`, `UseCaseTabs`, `Metrics`, `SmartAssist`, `FAQSection`, `FinalCTA`)
 
-#### 24. `MagnifyingEvidence.jsx`
+#### 26. `MagnifyingEvidence.jsx`
 * **File Path**: `app/components/ui/MagnifyingEvidence.jsx`
 * **Purpose**: Animated micro-interaction rendered over the word "evidence" in the Hero section, showing a magnifying lens scanning over verified badges.
 * **Where It Is Used**:
   * `app/components/landing/Hero.jsx`
 
-#### 25. `RollingText.jsx`
+#### 27. `RollingText.jsx`
 * **File Path**: `app/components/ui/RollingText.jsx`
 * **Purpose**: High-performance kinetic typography component. Splits text into individual letters and flips them upwards with staggered timing on hover or mount.
-* **Props**: `text`, `autoPlay`, `rollDuration`, `staggerDelay`, `textColor`, `font`, `animationTrigger`.
 * **Where It Is Used**:
-  * `app/components/landing/Hero.jsx`
-  * `app/components/landing/FeatureBento.jsx`
-  * `app/components/landing/UseCaseTabs.jsx`
-  * `app/components/landing/SmartAssist.jsx`
-  * `app/components/landing/FAQSection.jsx`
-  * `app/components/landing/FinalCTA.jsx`
-  * `app/components/passport/ShareExportButtons.jsx`
-  * `app/components/evidence/EvidenceCard.jsx`
-  * `app/components/ui/AnimatedButton.jsx`
-  * `app/support/page.js`
+  * `Hero`, `FinalCTA`, `SmartAssist`, `UseCaseTabs`, `FAQSection`, `ShareExportButtons`, `EvidenceCard`, `AnimatedButton`, `support`
 
 ---
 
@@ -756,15 +632,18 @@ Every component in SkillSync is built for modularity, accessibility, and high vi
 | Route Path | File Location | Access Level | Description & Core Components Used |
 | :--- | :--- | :--- | :--- |
 | `/` | `app/page.js` | Public | **Platform Landing Page**: Assembles `Navbar`, `Hero`, `FeatureBento`, `UseCaseTabs`, `Metrics`, `SmartAssist`, `FAQSection`, `FinalCTA`, `Footer`. |
-| `/signin` | `app/(auth)/signin/page.js` | Public (Guest) | **Sign In Page**: Email/Password login and GitHub OAuth button. |
+| `/signin` | `app/(auth)/signin/page.js` | Public (Guest) | **Sign In Page**: Email/Password login, GitHub OAuth button, and forgot-password link. |
 | `/signup` | `app/(auth)/signup/page.js` | Public (Guest) | **Student Registration**: Creates student account and initializes empty Skill Passport. |
+| `/forgot-password` | `app/(auth)/forgot-password/page.js` | Public (Guest) | **Password Recovery**: Dispatches secure time-limited password reset tokens. |
+| `/reset-password` | `app/(auth)/reset-password/page.js` | Public (Guest) | **Password Reset Form**: Validates reset token and enforces NIST password complexity. |
+| `/verify-email` | `app/(auth)/verify-email/page.js` | Public | **Email Verification**: Handles account activation links and resend actions. |
 | `/dashboard` | `app/dashboard/page.js` | Protected | **Student Dashboard**: Displays verified skill counts, evidence repository (`EvidenceCard`), and passport preview. Gated by `AuthRequiredView`. |
 | `/dashboard/evidence/new` | `app/dashboard/evidence/new/page.js` | Protected | **Evidence Upload**: Form for uploading coursework, certificates, or selecting connected GitHub repositories from a live dropdown. |
 | `/opportunities` | `app/opportunities/page.js` | Public / Auth | **Opportunities Feed**: Filterable directory of internships with live match percentage pills (`OpportunityCard`). |
 | `/opportunities/[id]` | `app/opportunities/[id]/page.js` | Public / Auth | **Opportunity Detail & Match Breakdown**: Displays role details and the centerpiece `MatchExplanationCard`. |
-| `/passport` | `app/passport/page.js` | Protected | **Skill Passport Portal**: Student's interactive management view (`InteractivePassportCard`, `ShareExportButtons`). |
+| `/passport` | `app/passport/page.js` | Protected | **Skill Passport Portal**: Student's interactive management view (`SkillPassportFolder`, `InteractivePassportCard`, `ShareExportButtons`). |
 | `/passport/[shareToken]` | `app/passport/[shareToken]/page.js` | Public | **Public Verifiable Passport**: External URL for recruiters to inspect verified proof and cryptographic SHA-256 Merkle root. |
-| `/profile` | `app/profile/page.js` | Protected | **Student Profile Editor**: Editable student bio, links, DOB calendar date picker, and `ImageCropperModal`. |
+| `/profile` | `app/profile/page.js` | Protected | **Student Profile Editor**: Editable bio, gender select, DOB `DatePickerFlyout`, 1,526-skill search, and `ImageCropperModal`. |
 | `/admin` | `app/admin/page.js` | Admin Only | **Admin Portal Hub**: Overview of verification queues, active taxonomy, and system health. |
 | `/admin/pipeline` | `app/admin/pipeline/page.js` | Admin Only | **Evidence Verification Queue**: List of submitted evidence with administrative tier override actions. |
 | `/admin/taxonomy` | `app/admin/taxonomy/page.js` | Admin Only | **Skill Taxonomy Manager**: Create, view, and delete canonical skills and categories. |
@@ -778,65 +657,47 @@ Every component in SkillSync is built for modularity, accessibility, and high vi
 
 ## 5. API Routes & Serverless Backend Endpoints
 
-SkillSync implements RESTful Next.js Route Handlers with session validation, error boundaries, and Prisma database transactions:
+SkillSync implements RESTful Next.js Route Handlers with session validation, error boundaries, rate limiting, and Prisma transactions:
 
-### 5.1. Authentication
-* **`POST /api/auth/register`** (`app/api/auth/register/route.js`)
-  * Validates email uniqueness and hashes password with `bcryptjs`.
-  * Creates `User` record and automatically provisions a unique `Passport` record with a secure `shareToken` and student ID.
-* **`GET/POST /api/auth/[...nextauth]`** (`app/api/auth/[...nextauth]/route.js`)
-  * NextAuth v5 handler supporting Credentials authentication and GitHub OAuth.
+### 5.1. Authentication & Account Security
+* **`POST /api/auth/register`** (`app/api/auth/register/route.js`): Validates email, enforces strong password complexity, hashes password via 12-round bcrypt, and auto-provisions a `Passport` record.
+* **`POST /api/auth/forgot-password`** (`app/api/auth/forgot-password/route.js`): Generates a secure 64-character token with 1-hour expiry.
+* **`POST /api/auth/reset-password`** (`app/api/auth/reset-password/route.js`): Validates token and updates user password hash.
+* **`GET /api/auth/verify-email`** (`app/api/auth/verify-email/route.js`): Confirms student email address and sets `emailVerified`.
+* **`POST /api/auth/resend-verification`** (`app/api/auth/resend-verification/route.js`): Dispatches a new email verification link with rate limit protection.
+* **`GET/POST /api/auth/[...nextauth]`** (`app/api/auth/[...nextauth]/route.js`): NextAuth v5 session handler for Credentials and GitHub OAuth.
 
 ### 5.2. Profile & Student Evidence
-* **`GET /api/profile`** (`app/api/profile/route.js`)
-  * Returns authenticated student profile, skills array, and social URLs.
-* **`PUT /api/profile`** (`app/api/profile/route.js`)
-  * Updates profile details (bio, college, degree, batch, DOB, gender, avatar image URL, skills).
-* **`GET /api/evidence`** (`app/api/evidence/route.js`)
-  * Retrieves all evidence records submitted by the authenticated student.
-* **`POST /api/evidence`** (`app/api/evidence/route.js`)
-  * Processes evidence submission through `runVerificationPipeline`.
-  * Computes SHA-256 hash, runs QR/GitHub/OCR verification, assigns tier (`verified-high`, `verified-medium`, `flagged-low`), and instantly syncs claimed skills into the user's Passport.
-* **`GET /api/github/repos`** (`app/api/github/repos/route.js`)
-  * Retrieves student's GitHub repositories via Octokit to populate the evidence repository dropdown.
+* **`GET /api/profile`** (`app/api/profile/route.js`): Returns student profile data, skills array, gender, DOB, and social URLs.
+* **`PUT /api/profile`** (`app/api/profile/route.js`): Updates profile details and sanitizes input data.
+* **`GET /api/evidence`** (`app/api/evidence/route.js`): Retrieves all evidence records submitted by the authenticated student.
+* **`POST /api/evidence`** (`app/api/evidence/route.js`): Runs evidence through `runVerificationPipeline`, computes SHA-256 hash, and syncs claimed skills into the user's Passport.
+* **`GET /api/github/repos`** (`app/api/github/repos/route.js`): Retrieves user's linked GitHub repositories via Octokit.
+* **`GET /api/skills`** (`app/api/skills/route.js`): Fast autocomplete API searching across all 1,526 curated student skills with category filtering.
 
 ### 5.3. Skill Passport & Verifiable Credentials
-* **`GET /api/passport`** (`app/api/passport/route.js`)
-  * Fetches authenticated student's passport, aggregating verified skills, projects, and SHA-256 Merkle root hash.
-* **`PUT /api/passport`** (`app/api/passport/route.js`)
-  * Updates passport privacy settings (toggles `isPublic` flag).
-* **`GET /api/passport/[shareToken]`** (`app/api/passport/[shareToken]/route.js`)
-  * Public lookup endpoint returning verified credential data for a given `shareToken` (or 404 if private).
-* **`GET /api/passport/pdf`** (`app/api/passport/pdf/route.js`)
-  * Generates and streams a signed PDF Certificate using `@react-pdf/renderer`.
+* **`GET /api/passport`** (`app/api/passport/route.js`): Fetches authenticated student's passport, aggregating verified skills, projects, and SHA-256 Merkle root hash.
+* **`PUT /api/passport`** (`app/api/passport/route.js`): Updates passport privacy settings (toggles `isPublic` flag).
+* **`GET /api/passport/[shareToken]`** (`app/api/passport/[shareToken]/route.js`): Public lookup endpoint returning verified credential data for a given `shareToken` (or 404 if private).
+* **`GET /api/passport/pdf`** (`app/api/passport/pdf/route.js`): Generates and streams a signed PDF Certificate using `@react-pdf/renderer`.
 
 ### 5.4. Opportunities & Matching Engine
-* **`GET /api/opportunities`** (`app/api/opportunities/route.js`)
-  * Queries active opportunities and calculates real-time, bias-free match scores against the authenticated student's verified skills.
-* **`GET /api/opportunities/[id]`** (`app/api/opportunities/[id]/route.js`)
-  * Returns detailed opportunity data alongside complete explainable match breakdown (`supportingEvidence`, `matchedSkills`, `missingSkills`).
-* **`GET /api/cron/ingest`** (`app/api/cron/ingest/route.js`)
-  * Scraper cron endpoint that ingests internships from Adzuna, Arbeitnow, Jobicy, Jooble, and Remotive into the database.
+* **`GET /api/opportunities`** (`app/api/opportunities/route.js`): Queries active opportunities and calculates real-time, bias-free match scores against student's verified skills.
+* **`GET /api/opportunities/[id]`** (`app/api/opportunities/[id]/route.js`): Returns detailed opportunity data alongside complete explainable match breakdown.
+* **`GET /api/cron/ingest`** (`app/api/cron/ingest/route.js`): Scraper cron endpoint ingesting internships from Adzuna, Arbeitnow, Jobicy, Jooble, and Remotive.
 
 ### 5.5. Administrative Portal Endpoints
-* **`GET /api/admin/pipeline`** (`app/api/admin/pipeline/route.js`)
-  * Lists all submitted evidence records across all users with verification metadata.
-* **`PATCH /api/admin/pipeline`** (`app/api/admin/pipeline/route.js`)
-  * Allows administrators to manually override an evidence item's verification tier.
-* **`GET /api/admin/taxonomy`** (`app/api/admin/taxonomy/route.js`)
-  * Lists all canonical skills in the database taxonomy.
-* **`POST /api/admin/taxonomy`** (`app/api/admin/taxonomy/route.js`)
-  * Adds a new skill to the canonical taxonomy.
-* **`DELETE /api/admin/taxonomy`** (`app/api/admin/taxonomy/route.js`)
-  * Deletes a skill from the taxonomy.
-* **`GET /api/admin/fairness`** (`app/api/admin/fairness/route.js`)
-  * Returns algorithmic fairness logs and demographic parity audit metrics.
-* **`POST /api/admin/fairness`** (`app/api/admin/fairness/route.js`)
-  * Runs a new demographic parity simulation audit.
+* **`GET /api/admin/pipeline`** (`app/api/admin/pipeline/route.js`): Lists all submitted evidence records across all users.
+* **`PATCH /api/admin/pipeline`** (`app/api/admin/pipeline/route.js`): Manually overrides an evidence item's verification tier.
+* **`GET /api/admin/taxonomy`** (`app/api/admin/taxonomy/route.js`): Lists all canonical skills in the database taxonomy.
+* **`POST /api/admin/taxonomy`** (`app/api/admin/taxonomy/route.js`): Adds a new skill to the taxonomy.
+* **`DELETE /api/admin/taxonomy`** (`app/api/admin/taxonomy/route.js`): Deletes a skill from the taxonomy.
+* **`GET /api/admin/fairness`** (`app/api/admin/fairness/route.js`): Returns algorithmic fairness logs and demographic parity metrics.
+* **`POST /api/admin/fairness`** (`app/api/admin/fairness/route.js`): Runs a new demographic parity simulation audit.
 
 ---
 
-## 6. Core Business Logic, Services & Utilities (`lib/`)
+## 6. Core Business Logic, Security & Matching (`lib/`)
 
 ```text
 lib/
@@ -848,16 +709,26 @@ lib/
 │   ├── adzuna.js, arbeitnow.js, jobicy.js, jooble.js, remotive.js
 │   └── normalize.js                # Canonical opportunity schema normalizer
 ├── matching/                       # Deterministic Match Engine
-│   ├── scoring.js                  # Weighted skill overlap & level multipliers
+│   ├── config.js                   # Match weights, thresholds, and tier coefficients
 │   ├── explainability.js           # Natural language match justification generator
-│   └── getMatchingFeatures.js      # Student competency feature extraction
+│   ├── getMatchingFeatures.js      # Student competency feature extraction
+│   ├── jobParser.js                # Job requirements extraction & confidence scoring
+│   ├── scoring.js                  # Bias-free deterministic match scoring
+│   └── taxonomy.js                 # Skill alias normalization & strict incompatibilities
 ├── opportunities/
 │   └── opportunityService.js       # Database opportunity query service
+├── security/                       # Application Security & Threat Defense
+│   ├── botProtection.js            # User agent scanner detection & honeypot traps
+│   ├── logger.js                   # Structured security audit logger with data redaction
+│   ├── password.js                 # NIST password validation & 12-round bcrypt
+│   ├── rateLimit.js                # Memory-efficient sliding-window rate limiters
+│   ├── tokens.js                   # Cryptographically secure 64-character token generator
+│   └── validator.js                # XSS sanitizers, path traversal defense, file validators
 ├── verification/                   # Automated 3-Stage Verification Pipeline
-│   ├── pipeline.js                 # Verification orchestrator
 │   ├── cryptoHash.js               # SHA-256 Merkle root cryptographic hasher
 │   ├── githubCheck.js              # GitHub repository & commit verification
 │   ├── ocrParser.js                # Document OCR text extraction parser
+│   ├── pipeline.js                 # Verification orchestrator
 │   └── qrVerifier.js               # Cryptographic QR payload validator
 ├── auth.js                         # NextAuth v5 configuration & JWT callbacks
 ├── prisma.js                       # Prisma Client singleton
@@ -877,6 +748,7 @@ lib/
   * **Verified High Tier**: $1.0\times$ weight
   * **Verified Medium Tier**: $0.8\times$ weight
   * **Flagged Low Tier**: $0.4\times$ weight
+* **Strict Incompatibility & Anti-False-Positive Engine (`taxonomy.js`)**: Prevents false positive cross-matches (e.g. `Java != JavaScript`, `C != C++`, `React != React Native`, `AWS != Azure`).
 * **Zero-Bias Exclusion Guarantee**: Explicitly removes demographic variables from ranking algorithms:
   ```javascript
   const EXCLUDED_DEMOGRAPHIC_PARAMETERS = [
@@ -888,6 +760,12 @@ lib/
     "age"
   ];
   ```
+
+### 6.3. Security & Threat Mitigation (`lib/security/`)
+* **Password Policy (`password.js`)**: Enforces 8–128 character length, uppercase, lowercase, numeric digits, and special characters.
+* **Sliding Window Rate Limiting (`rateLimit.js`)**: Implements strict sliding-window request throttling for authentication, API writes, and AI generation.
+* **IDOR Ownership Checks**: Enforces resource ownership predicates on all mutations and private credential lookups.
+* **Automated Bot Defense (`botProtection.js`)**: Identifies vulnerability scanners (`sqlmap`, `nikto`, `scrapy`), blocks path probes (`/.env`, `/.git`), and traps form bots via hidden honeypot fields.
 
 ---
 
@@ -972,15 +850,50 @@ erDiagram
 
 ---
 
-## 8. Component Cross-Reference & Usages Matrix
+## 8. Automated Test Suite (`tests/`)
+
+SkillSync includes a comprehensive unit test suite (`npm test`) executing 38 automated test cases with 100% pass rate:
+
+### 1. Authentication & Security Suite (`tests/security.test.mjs` — 26 Tests)
+* Password policy validation (length, character classes, DoS size limit).
+* 12-round bcrypt hash creation and matching.
+* Sliding-window rate limiter quota enforcement and window resets.
+* Cryptographically secure 64-character hex token generation.
+* Backdoor password elimination and legacy credential rejection.
+* IDOR ownership predicates for evidence and private passport lookups.
+* Structured security logger with sensitive field redaction (`password`, `token`, `secret`).
+* Malicious bot and vulnerability scanner detection (`sqlmap`, `nikto`, `python-requests`).
+* Path traversal and restricted route probe defense (`/.env`, `/.git`).
+* Hidden honeypot form validation.
+* XSS script sanitization, null-byte stripping, and strict RFC 5322 email validation.
+* File upload extension whitelisting and MIME type size constraints.
+
+### 2. Job Match Score Engine Suite (`tests/matching.test.mjs` — 12 Tests)
+* High-confidence core stack match calculation ($\ge 88\%$).
+* Completely mismatched technology stack detection ($\le 35\%$).
+* Partial skill match scoring and missing tool identification.
+* Semantic related skill credit (e.g. `PostgreSQL` satisfying `SQL`).
+* Strict incompatibility anti-false-positive engine (`JavaScript != Java`, `C != C++`).
+* Fresher experience compatibility (0–2 yrs junior role full scoring).
+* Senior role experience penalty for fresher candidates.
+* Keyword inflation defense (repeated terms do not multiply score).
+* Match confidence scoring for rich vs sparse job descriptions.
+* Determinism & Zero Demographic Bias certification.
+* Canonical skill alias normalization.
+* Natural language explainability breakdown and citation generation.
+
+---
+
+## 9. Component Cross-Reference & Usages Matrix
 
 | Component Name | Category | Primary Purpose | Directly Imported & Consumed By |
 | :--- | :--- | :--- | :--- |
-| `Navbar` | Layout | Global sticky header & navigation | All 13 Pages, `HeaderNav.jsx` |
+| `Navbar` | Layout | Global sticky header & navigation | All App Router Pages, `HeaderNav.jsx` |
 | `HeaderNav` | Layout | Admin layout header alias | `app/admin/layout.js` |
 | `Footer` | Layout | Global footer & sitemap | `app/page.js`, `docs`, `privacy`, `terms`, `support` |
 | `AuthRequiredView` | Auth | Gatekeeper card for guest users | `dashboard`, `evidence/new`, `passport`, `profile`, `opportunities`, `opportunities/[id]` |
-| `InteractivePassportCard` | Passport | 3D flippable emerald credential card | `app/passport/page.js`, `app/passport/[shareToken]/page.js` |
+| `SkillPassportFolder` | Passport | 3D Confidential Folder envelope reveal | `app/passport/page.js`, `app/passport/[shareToken]/page.js` |
+| `InteractivePassportCard` | Passport | 3D flippable emerald credential card | `SkillPassportFolder.jsx`, `passport/page.js`, `passport/[shareToken]` |
 | `SkillEvidenceModal` | Passport | Skill evidence citation popover | `InteractivePassportCard.jsx` |
 | `ShareExportButtons` | Passport | PDF/JSON export & share triggers | `app/passport/page.js` |
 | `OpportunityCard` | Opportunities | Opportunity preview card with match score | `app/opportunities/page.js` |
@@ -988,6 +901,7 @@ erDiagram
 | `EvidenceCard` | Evidence | Verified evidence item with hash | `app/dashboard/page.js` |
 | `AdminNav` | Admin | Administrative sub-navigation tabs | `app/admin/layout.js` |
 | `ImageCropperModal` | Profile | Canvas profile photo cropper | `app/profile/page.js` |
+| `DatePickerFlyout` | UI Primitive | Interactive calendar date picker flyout | `app/profile/page.js` |
 | `Hero` | Landing | Hero section & floating previews | `app/page.js` |
 | `FeatureBento` | Landing | Bento grid of core pillars | `app/page.js` |
 | `UseCaseTabs` | Landing | Persona comparison tabs | `app/page.js` |

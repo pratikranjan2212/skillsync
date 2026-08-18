@@ -1,13 +1,15 @@
 {
   "name": "skillsync",
   "version": "0.1.0",
+  "type": "module",
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node tests/matching.test.mjs",
+    "postinstall": "prisma generate",
+    "test": "node tests/security.test.mjs && node tests/matching.test.mjs",
     "db:push": "prisma db push",
     "db:seed": "node prisma/seed.js",
     "db:studio": "prisma studio"
