@@ -2,12 +2,12 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Check, Sparkles, Award, ShieldCheck, ArrowRight, Play, QrCode, Database, Code2, Signal, Wifi, Battery, UserX, GraduationCap, EyeOff } from "lucide-react";
+import { Check, Sparkles, Award, ShieldCheck, ArrowRight, Play, QrCode, Database, Code2, UserX, GraduationCap, BookOpen, Calendar, User, FolderGit2, EyeOff, ExternalLink } from "lucide-react";
 import Badge from "@/app/components/ui/Badge";
 import RollingText from "@/app/components/ui/RollingText";
 import { FadeIn, FadeInStagger, FadeInItem } from "@/app/components/ui/FadeIn";
 import MagnifyingEvidence from "@/app/components/ui/MagnifyingEvidence";
-import { DocumentIcon } from "@/app/components/icons";
+import { DocumentIcon, PassportWaves, GitHubIcon } from "@/app/components/icons";
 
 export default function Hero() {
   const [hoveredButton, setHoveredButton] = useState(null);
@@ -135,81 +135,201 @@ export default function Hero() {
             </div>
           </div>
 
+          {/* CENTER: LANDING PAGE SKILL PASSPORT CARD */}
           <div className="sm:col-span-2 lg:col-span-6 order-first sm:order-none">
-            <div className="animate-float-slow bg-[#161616]/95 backdrop-blur-2xl border border-white/15 rounded-[36px] p-5 sm:p-7 shadow-[0_35px_80px_rgba(0,0,0,0.75)] text-white relative overflow-hidden group hover:border-white/25 transition-all duration-300">
-              <div className="flex items-center justify-between mb-5 pb-3 border-b border-white/10 text-neutral-400 text-xs">
-                <span className="font-mono font-bold text-[11px] text-neutral-300">Wed, 10:42</span>
+            <div className="animate-float-slow bg-linear-to-br from-[#121212] via-[#080808] to-[#000000] text-white rounded-3xl p-5 sm:p-6 border border-white/15 hover:border-emerald-500/40 shadow-[0_35px_80px_rgba(0,0,0,0.85)] relative overflow-hidden group transition-all duration-300">
+              {/* Ambient Lighting Glows */}
+              <div className="absolute -top-24 -left-24 w-72 h-72 bg-emerald-500/15 rounded-full blur-[70px] pointer-events-none" />
+              <div className="absolute top-1/2 -right-20 w-72 h-72 bg-white/5 rounded-full blur-[70px] pointer-events-none" />
 
-                <div className="w-16 h-4 bg-black rounded-full border border-white/15 flex items-center justify-end px-1.5 gap-1 shadow-inner">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  <div className="w-1 h-1 rounded-full bg-blue-500" />
+              {/* Watermark Waves */}
+              <PassportWaves />
+
+              <div className="relative z-10 flex flex-col justify-between h-full gap-4 sm:gap-5">
+                {/* Header */}
+                <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-2.5">
+                  <div className="flex items-center gap-2">
+                    <img 
+                      src="/logo.svg" 
+                      alt="SkillSync Logo" 
+                      className="w-5 h-5 sm:w-6 sm:h-6 object-contain shrink-0" 
+                    />
+                    <span className="text-lg sm:text-xl font-black tracking-tight text-white">
+                      SkillSync
+                    </span>
+                  </div>
+
+                  <div className="font-mono text-xs sm:text-sm font-bold">
+                    <span className="text-emerald-400">ID: </span>
+                    <span className="text-neutral-200">SS-2026-ALX99</span>
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-1.5 text-neutral-400">
-                  <Signal className="w-3 h-3" />
-                  <Wifi className="w-3 h-3" />
-                  <Battery className="w-3.5 h-3.5" />
-                </div>
-              </div>
+                {/* Content Body */}
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-5 items-start">
+                  
+                  {/* Left Column: Student Info */}
+                  <div className="md:col-span-5 flex flex-col gap-2.5">
+                    <div className="flex items-center gap-3">
+                      <div className="relative shrink-0">
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden border-2 border-emerald-400 shadow-[0_0_20px_rgba(52,211,153,0.35)] bg-neutral-900 relative">
+                          <img
+                            src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=250&auto=format&fit=crop"
+                            alt="Alex Chen"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-[#080808] border-2 border-emerald-400 flex items-center justify-center shadow-md">
+                          <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                        </div>
+                      </div>
 
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h3 className="font-black text-base sm:text-lg text-white leading-tight">
-                    Alex Chen's Skill Passport
-                  </h3>
-                  <p className="text-[11px] sm:text-xs text-neutral-400 font-medium mt-0.5">
-                    3 of 5 verified skills
-                  </p>
-                </div>
-                <span className="px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-400 text-[11px] font-extrabold border border-emerald-500/30">
-                  Public Link Active
-                </span>
-              </div>
+                      <div className="flex flex-col gap-0.5 min-w-0">
+                        <div>
+                          <div className="flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-emerald-400 uppercase tracking-wider">
+                            <User className="w-3 h-3 text-emerald-400" />
+                            <span>NAME</span>
+                          </div>
+                          <div className="text-sm sm:text-base font-black text-white leading-tight truncate">
+                            Alex Chen
+                          </div>
+                        </div>
 
-              <div className="space-y-3">
-                <div className="p-3 sm:p-3.5 rounded-2xl bg-neutral-900/90 border border-white/8 flex items-center justify-between gap-3 hover:bg-neutral-800/90 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
-                      <Code2 className="w-4.5 h-4.5" />
+                        <div className="flex items-center gap-3 text-xs whitespace-nowrap mt-0.5">
+                          <div>
+                            <span className="text-neutral-400 font-bold block text-[8px] sm:text-[9px] uppercase tracking-wider">GENDER</span>
+                            <span className="text-white font-bold text-[11px] sm:text-xs">Female</span>
+                          </div>
+                          <div>
+                            <span className="text-neutral-400 font-bold block text-[8px] sm:text-[9px] uppercase tracking-wider">DOB</span>
+                            <span className="text-white font-bold text-[11px] sm:text-xs">14 Oct 2003</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-xs sm:text-sm font-extrabold text-white">Data Pipeline Project</p>
-                      <p className="text-[11px] text-neutral-400">Python • SQL • ETL</p>
+
+                    <div className="flex flex-col gap-1.5 pt-2 border-t border-white/10">
+                      <div className="flex items-center gap-2">
+                        <div className="w-5.5 h-5.5 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-emerald-400">
+                          <GraduationCap className="w-3 h-3" />
+                        </div>
+                        <div className="min-w-0 flex items-baseline gap-1 text-xs">
+                          <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider shrink-0">COLLEGE:</span>
+                          <span className="font-bold text-white text-[11px] sm:text-xs truncate">Stanford University</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <div className="w-5.5 h-5.5 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-emerald-400">
+                          <BookOpen className="w-3 h-3" />
+                        </div>
+                        <div className="min-w-0 flex items-baseline gap-1 text-xs">
+                          <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider shrink-0">DEGREE:</span>
+                          <span className="font-bold text-white text-[11px] sm:text-xs truncate">Computer Science</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <div className="w-5.5 h-5.5 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-emerald-400">
+                          <Calendar className="w-3 h-3" />
+                        </div>
+                        <div className="min-w-0 flex items-baseline gap-1 text-xs">
+                          <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider shrink-0">BATCH:</span>
+                          <span className="font-bold text-white text-[11px] sm:text-xs">2023 - 2027</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <span className="px-3 py-1.5 rounded-full bg-emerald-400/15 text-emerald-300 text-[10px] sm:text-[11px] font-extrabold border border-emerald-400/30 whitespace-nowrap">
-                    verified-high
-                  </span>
+
+                  {/* Right Column: Projects */}
+                  {/* Right Column: Projects & Coursework */}
+                  <div className="md:col-span-7 flex flex-col gap-2.5 relative">
+                    
+                    {/* Project Section */}
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-emerald-400">
+                        <FolderGit2 className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>PROJECTS</span>
+                      </div>
+
+                      <div className="bg-neutral-900/90 border border-white/10 hover:border-emerald-500/40 rounded-2xl p-2.5 flex flex-col gap-1.5 transition-all hover:bg-neutral-800/90 shadow-2xs">
+                        <div className="flex items-center justify-between gap-2">
+                          <h4 className="text-xs sm:text-sm font-bold text-white truncate">
+                            Data Pipeline & ML Engine
+                          </h4>
+                          <GitHubIcon className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+                        </div>
+
+                        {/* Bottom Row: Skills on Left & Verified on Right */}
+                        <div className="flex items-center justify-between gap-1.5 pt-1 border-t border-white/5">
+                          <div className="flex flex-wrap gap-1 min-w-0">
+                            <span className="px-2 py-0.5 rounded-lg bg-emerald-950/70 border border-emerald-500/30 text-[9px] sm:text-[10px] font-bold text-emerald-300">
+                              Python
+                            </span>
+                            <span className="px-2 py-0.5 rounded-lg bg-emerald-950/70 border border-emerald-500/30 text-[9px] sm:text-[10px] font-bold text-emerald-300">
+                              SQL
+                            </span>
+                            <span className="px-2 py-0.5 rounded-lg bg-emerald-950/70 border border-emerald-500/30 text-[9px] sm:text-[10px] font-bold text-emerald-300">
+                              FastAPI
+                            </span>
+                          </div>
+
+                          <span className="inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-emerald-400 shrink-0 bg-emerald-950/50 px-2 py-0.5 rounded-md border border-emerald-500/25 shadow-2xs">
+                            <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                            <span>Verified</span>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Coursework Section */}
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-emerald-400">
+                        <Award className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>COURSEWORK</span>
+                      </div>
+
+                      <div className="bg-neutral-900/90 border border-white/10 hover:border-emerald-500/40 rounded-2xl p-2.5 flex flex-col gap-1.5 transition-all hover:bg-neutral-800/90 shadow-2xs">
+                        <div className="flex items-center justify-between gap-2">
+                          <h4 className="text-xs sm:text-sm font-bold text-white truncate">
+                            Machine Learning
+                          </h4>
+                          <span title="View Certificate" className="text-neutral-400 hover:text-emerald-400 transition-colors flex items-center gap-1 text-[10px] shrink-0 cursor-pointer">
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </span>
+                        </div>
+
+                        {/* Bottom Row: Skills on Left & Verified on Right */}
+                        <div className="flex items-center justify-between gap-1.5 pt-1 border-t border-white/5">
+                          <div className="flex flex-wrap gap-1 min-w-0">
+                            <span className="px-2 py-0.5 rounded-lg bg-emerald-950/70 border border-emerald-500/30 text-[9px] sm:text-[10px] font-bold text-emerald-300">
+                              PyTorch
+                            </span>
+                            <span className="px-2 py-0.5 rounded-lg bg-emerald-950/70 border border-emerald-500/30 text-[9px] sm:text-[10px] font-bold text-emerald-300">
+                              Transformers
+                            </span>
+                            <span className="px-2 py-0.5 rounded-lg bg-emerald-950/70 border border-emerald-500/30 text-[9px] sm:text-[10px] font-bold text-emerald-300">
+                              Optimization
+                            </span>
+                          </div>
+
+                          <span className="inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-emerald-400 shrink-0 bg-emerald-950/50 px-2 py-0.5 rounded-md border border-emerald-500/25 shadow-2xs">
+                            <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                            <span>Verified</span>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
                 </div>
 
-                <div className="p-3 sm:p-3.5 rounded-2xl bg-neutral-900/90 border border-white/8 flex items-center justify-between gap-3 hover:bg-neutral-800/90 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
-                      <Database className="w-4.5 h-4.5" />
-                    </div>
-                    <div>
-                      <p className="text-xs sm:text-sm font-extrabold text-white">DBMS Coursework (Grade 92%)</p>
-                      <p className="text-[11px] text-neutral-400">Relational DBs • Query Indexing</p>
-                    </div>
+                {/* Footer */}
+                <div className="flex items-center justify-end pt-2.5 border-t border-white/10 text-xs">
+                  <div className="flex items-center gap-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-emerald-400">
+                    <span>OFFICIAL SKILL PASSPORT</span>
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                   </div>
-                  <span className="px-3 py-1.5 rounded-full bg-amber-400/15 text-amber-300 text-[10px] sm:text-[11px] font-extrabold border border-amber-400/30 whitespace-nowrap">
-                    verified-medium
-                  </span>
-                </div>
-
-                <div className="p-3 sm:p-3.5 rounded-2xl bg-neutral-900/90 border border-white/8 flex items-center justify-between gap-3 hover:bg-neutral-800/90 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-teal-500/20 text-teal-400 flex items-center justify-center shrink-0">
-                      <Sparkles className="w-4.5 h-4.5" />
-                    </div>
-                    <div>
-                      <p className="text-xs sm:text-sm font-extrabold text-white">Neural Net Optimization</p>
-                      <p className="text-[11px] text-neutral-400">PyTorch • Transformer Model</p>
-                    </div>
-                  </div>
-                  <span className="px-3 py-1.5 rounded-full bg-teal-400/15 text-teal-300 text-[10px] sm:text-[11px] font-extrabold border border-teal-400/30 whitespace-nowrap">
-                    verified-high
-                  </span>
                 </div>
               </div>
             </div>

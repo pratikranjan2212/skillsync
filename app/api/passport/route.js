@@ -101,6 +101,7 @@ export async function GET(request) {
 
       // Extract verified projects
       const projects = [];
+      const coursework = [];
       for (const ev of user.evidences || []) {
         if (
           ev.type === "project" ||
@@ -114,6 +115,22 @@ export async function GET(request) {
             githubUrl: ev.fileUrl || "",
             skills: ev.claimedSkills || [],
             tier: ev.verificationTier,
+          });
+        } else if (
+          ev.type === "coursework" ||
+          ev.type === "lab" ||
+          ev.type === "certification" ||
+          ev.type === "micro-credential" ||
+          (ev.title && (ev.title.toLowerCase().includes("course") || ev.title.toLowerCase().includes("learning") || ev.title.toLowerCase().includes("dbms") || ev.title.toLowerCase().includes("specialization")))
+        ) {
+          coursework.push({
+            id: ev.id,
+            title: ev.title,
+            description: ev.description || "",
+            certificateUrl: ev.fileUrl || "",
+            skills: ev.claimedSkills || [],
+            tier: ev.verificationTier || "verified-high",
+            verified: ev.verificationStage === "completed" || ev.verificationTier === "verified-high" || ev.verificationTier === "verified-medium",
           });
         }
       }
@@ -145,6 +162,7 @@ export async function GET(request) {
         updatedAt: passport?.updatedAt?.toISOString() || new Date().toISOString(),
         skills: skills,
         projects: projects,
+        coursework: coursework,
       };
 
       return NextResponse.json(

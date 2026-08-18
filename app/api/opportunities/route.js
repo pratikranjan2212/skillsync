@@ -21,29 +21,33 @@ const CACHE_TTL_MS = 3 * 60 * 1000;
  * Deduplicates opportunities strictly by URL, externalId, and Title+Company signature.
  */
 function deduplicateOpportunities(list = []) {
+  if (!Array.isArray(list)) return [];
   const uniqueList = [];
-  const seenKeys = new Set();
+  const seenIds = new Set();
+  const seenUrls = new Set();
+  const seenSignatures = new Set();
 
   for (const opp of list) {
     if (!opp) continue;
 
+    const oppId = opp.id ? String(opp.id).trim() : null;
+    const rawUrl = opp.url || opp.linkedinUrl || opp.indeedUrl || opp.externalUrl || "";
+    const cleanUrl = rawUrl.split("?")[0].toLowerCase().trim();
+    const externalId = opp.externalId ? String(opp.externalId).trim() : null;
+
     const normTitle = (opp.title || "").toLowerCase().replace(/[^a-z0-9]/g, "");
     const normComp = (opp.company || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-    const titleCompKey = `${normTitle}__${normComp}`;
-    const urlKey = opp.url || opp.linkedinUrl || opp.indeedUrl || opp.externalUrl;
-    const externalIdKey = opp.externalId;
+    const signature = normTitle && normComp ? `${normTitle}__${normComp}` : null;
 
-    if (
-      (urlKey && seenKeys.has(urlKey)) ||
-      (externalIdKey && seenKeys.has(externalIdKey)) ||
-      (titleCompKey.length > 6 && seenKeys.has(titleCompKey))
-    ) {
-      continue;
-    }
+    if (oppId && seenIds.has(oppId)) continue;
+    if (externalId && seenIds.has(externalId)) continue;
+    if (cleanUrl && cleanUrl.length > 12 && seenUrls.has(cleanUrl)) continue;
+    if (signature && signature.length > 5 && seenSignatures.has(signature)) continue;
 
-    if (urlKey) seenKeys.add(urlKey);
-    if (externalIdKey) seenKeys.add(externalIdKey);
-    if (titleCompKey.length > 6) seenKeys.add(titleCompKey);
+    if (oppId) seenIds.add(oppId);
+    if (externalId) seenIds.add(externalId);
+    if (cleanUrl && cleanUrl.length > 12) seenUrls.add(cleanUrl);
+    if (signature && signature.length > 5) seenSignatures.add(signature);
 
     uniqueList.push(opp);
   }
@@ -271,8 +275,15 @@ export async function GET(request) {
     };
   });
 
-  // 8. Strict User Requirement Sorting:
-  scoredOpportunities.sort((a, b) => {
+  // 8. Strict Requirement: Exclude any listing where NOT A SINGLE SKILL matches the candidate
+  const filteredOpportunities = scoredOpportunities.filter(
+    (opp) =>
+      (opp.matchedSkills && opp.matchedSkills.length > 0) ||
+      (opp.matchedUserSkillCount && opp.matchedUserSkillCount > 0)
+  );
+
+  // 9. Multi-Skill Requirement Sorting:
+  filteredOpportunities.sort((a, b) => {
     if (b.matchedUserSkillCount !== a.matchedUserSkillCount) {
       return b.matchedUserSkillCount - a.matchedUserSkillCount;
     }
@@ -285,13 +296,13 @@ export async function GET(request) {
     return new Date(b.ingestedAt || 0) - new Date(a.ingestedAt || 0);
   });
 
-  // Cache the final scored response in server memory
-  FEED_CACHE.set(cacheKey, { data: scoredOpportunities, timestamp: Date.now() });
+  // Cache the final filtered response in server memory
+  FEED_CACHE.set(cacheKey, { data: filteredOpportunities, timestamp: Date.now() });
 
   return NextResponse.json({
     success: true,
     hasPassport: true,
-    opportunities: scoredOpportunities,
+    opportunities: filteredOpportunities,
     userSkillCount: allUserSkills.length,
     scrapedLinkedInCount: uniqueScrapedLinkedIn.length,
     scrapedIndeedCount: uniqueScrapedIndeed.length,

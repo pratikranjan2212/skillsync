@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { signOut } from "next-auth/react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   User,
@@ -33,11 +34,13 @@ import {
   Crop,
   Image as ImageIcon,
   Search,
+  AlertTriangle,
 } from "lucide-react";
 import Navbar from "@/app/components/layout/Navbar";
 import { useAuth } from "@/app/hooks/useAuth";
 import AuthRequiredView from "@/app/components/auth/AuthRequiredView";
 import ImageCropperModal from "@/app/components/profile/ImageCropperModal";
+import DatePickerFlyout from "@/app/components/ui/DatePickerFlyout";
 import { GitHubIcon, LinkedInIcon, PortfolioIcon } from "@/app/components/icons";
 import { STUDENT_INTERN_SKILLS, PRELOADED_SKILL_RECOMMENDATIONS } from "@/app/data/studentInternSkills";
 
@@ -149,6 +152,54 @@ export default function ProfilePage() {
   const [imageToCrop, setImageToCrop] = useState(null);
   const [customPhotoUrl, setCustomPhotoUrl] = useState("");
   const [isSyncingGithub, setIsSyncingGithub] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+  const deleteInputRef = useRef(null);
+
+  useEffect(() => {
+    if (showDeleteModal) {
+      setTimeout(() => deleteInputRef.current?.focus(), 80);
+    }
+  }, [showDeleteModal]);
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText.trim().toUpperCase() !== "DELETE") return;
+    setIsDeletingAccount(true);
+    setDeleteError("");
+
+    try {
+      const res = await fetch("/api/profile", {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || errorData.details || `Failed to delete account (${res.status})`);
+      }
+
+      // Clear client session cookies
+      document.cookie = "skillsync_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+      document.cookie = "authjs.session-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+      document.cookie = "__Secure-authjs.session-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+      document.cookie = "next-auth.session-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+      document.cookie = "skillsync_role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+      document.cookie = "__Secure-next-auth.session-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+
+      queryClient.clear();
+
+      try {
+        await signOut({ redirect: false });
+      } catch {}
+
+      window.location.href = "/";
+    } catch (err) {
+      console.error("Account deletion error:", err);
+      setDeleteError(err.message || "Failed to delete account. Please try again.");
+      setIsDeletingAccount(false);
+    }
+  };
 
   const { data: profile } = useQuery({
     queryKey: ["user-profile"],
@@ -419,53 +470,33 @@ export default function ProfilePage() {
                   </span>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-y-1 gap-x-4 text-xs font-medium text-[#494D4D]">
-                  <span className="flex items-center gap-1.5">
+                <div className="flex flex-col gap-1 text-xs font-medium text-[#494D4D]">
+                  <div className="flex items-center gap-1.5">
                     <Mail className="w-3.5 h-3.5 text-neutral-400" />
-                    {displayEmail}
-                  </span>
-                  {profile?.college ? (
-                    <span className="flex items-center gap-1.5">
-                      <Building className="w-3.5 h-3.5 text-neutral-400" />
-                      {profile.college}
+                    <span>{displayEmail}</span>
+                  </div>
+                  <div>
+                    <span className="inline-flex items-center gap-1.5 font-mono text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                      ID: {displayStudentId}
                     </span>
-                  ) : (
-                    <span className="flex items-center gap-1.5 text-neutral-400 italic">
-                      <Building className="w-3.5 h-3.5" />
-                      Institution not set
-                    </span>
-                  )}
-                  {(formData.dob || profile?.dob) && (
-                    <span className="flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5 text-neutral-400" />
-                      <span>DOB: {formData.dob || profile?.dob}</span>
-                    </span>
-                  )}
-                  {(formData.gender || profile?.gender) && (
-                    <span className="flex items-center gap-1.5">
-                      <User className="w-3.5 h-3.5 text-neutral-400" />
-                      <span>{formData.gender || profile?.gender}</span>
-                    </span>
-                  )}
-                  <span className="flex items-center gap-1.5 font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                    ID: {displayStudentId}
-                  </span>
+                  </div>
                 </div>
               </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
               <Link
-                href="/passport"
-                className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-[#F5F5F3] hover:bg-[#EAEAEA] text-[#111111] rounded-xl text-xs font-bold transition-colors shadow-xs"
+                href={`/passport/${shareToken}`}
+                target="_blank"
+                className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2.5 bg-neutral-900 hover:bg-neutral-800 text-white rounded-xl text-xs font-bold transition-colors shadow-xs"
               >
-                <Award className="w-4 h-4 text-amber-600" />
-                <span>View Passport</span>
+                <span>Preview Public Card</span>
+                <ExternalLink className="w-3.5 h-3.5" />
               </Link>
               <button
                 type="button"
                 onClick={() => setIsEditing(!isEditing)}
-                className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-neutral-900 hover:bg-neutral-800 text-white rounded-xl text-xs font-bold transition-colors shadow-xs cursor-pointer"
+                className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2.5 bg-neutral-900 hover:bg-neutral-800 text-white rounded-xl text-xs font-bold transition-colors shadow-xs cursor-pointer"
               >
                 <Edit3 className="w-4 h-4 text-emerald-400" />
                 <span>{isEditing ? "Cancel Edit" : "Edit Profile"}</span>
@@ -483,16 +514,6 @@ export default function ProfilePage() {
               }`}
             >
               Account Overview
-            </button>
-            <button
-              onClick={() => setActiveTab("academic")}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
-                activeTab === "academic"
-                  ? "bg-neutral-900 text-white shadow-xs"
-                  : "bg-neutral-100 text-[#494D4D] hover:text-[#111111] hover:bg-neutral-200"
-              }`}
-            >
-              Academic & Credentials
             </button>
             <button
               onClick={() => setActiveTab("settings")}
@@ -637,20 +658,26 @@ export default function ProfilePage() {
             <div className="lg:col-span-2 flex flex-col gap-6">
               {/* Personal Profile & Links Card */}
               <div className="bg-white rounded-4xl p-6 sm:p-8 shadow-xl border border-black/5">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex flex-wrap items-center gap-3 mb-5 pb-4 border-b border-neutral-100">
                   <h2 className="text-lg font-extrabold text-[#111111] flex items-center gap-2">
                     <User className="w-5 h-5 text-emerald-600" />
                     <span>Personal Profile</span>
                   </h2>
-                  {!isEditing && (
-                    <button
-                      type="button"
-                      onClick={() => setIsEditing(true)}
-                      className="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 cursor-pointer"
-                    >
-                      <Edit3 className="w-3.5 h-3.5" />
-                      <span>Edit Details</span>
-                    </button>
+                  {(formData.dob || profile?.dob || formData.gender || profile?.gender) && (
+                    <div className="flex items-center gap-2 text-xs font-medium text-[#494D4D]">
+                      {(formData.dob || profile?.dob) && (
+                        <span className="flex items-center gap-1 bg-[#F5F5F3] px-2.5 py-1 rounded-lg border border-black/5">
+                          <Calendar className="w-3.5 h-3.5 text-neutral-400" />
+                          <span>DOB: {formData.dob || profile?.dob}</span>
+                        </span>
+                      )}
+                      {(formData.gender || profile?.gender) && (
+                        <span className="flex items-center gap-1 bg-[#F5F5F3] px-2.5 py-1 rounded-lg border border-black/5">
+                          <User className="w-3.5 h-3.5 text-neutral-400" />
+                          <span>{formData.gender || profile?.gender}</span>
+                        </span>
+                      )}
+                    </div>
                   )}
                 </div>
 
@@ -681,61 +708,12 @@ export default function ProfilePage() {
                       </div>
 
                       <div>
-                        <div className="flex items-center justify-between mb-1.5">
-                          <label className="block text-xs font-bold text-[#111111]">Date of Birth (DOB)</label>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              try {
-                                datePickerRef.current?.showPicker?.();
-                              } catch {
-                                datePickerRef.current?.focus();
-                              }
-                            }}
-                            className="text-[11px] font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-1 cursor-pointer transition-colors"
-                          >
-                            <Calendar className="w-3.5 h-3.5" />
-                            <span>Choose from calendar</span>
-                          </button>
-                        </div>
-                        <div className="relative flex items-center">
-                          <input
-                            type="text"
-                            value={formData.dob}
-                            onChange={(e) => setFormData({ ...formData, dob: e.target.value })}
-                            placeholder="e.g. 12 May 2003"
-                            className="w-full pl-4 pr-10 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              try {
-                                datePickerRef.current?.showPicker?.();
-                              } catch {
-                                datePickerRef.current?.focus();
-                              }
-                            }}
-                            className="absolute right-2.5 p-1.5 rounded-lg text-neutral-400 hover:text-emerald-600 hover:bg-black/5 transition-colors cursor-pointer"
-                            title="Open calendar to pick date of birth"
-                          >
-                            <Calendar className="w-4 h-4" />
-                          </button>
-                          <input
-                            ref={datePickerRef}
-                            type="date"
-                            max={new Date().toISOString().split("T")[0]}
-                            value={parseDobToDateInput(formData.dob)}
-                            onChange={(e) => {
-                              const formatted = formatDateFromInput(e.target.value);
-                              if (formatted) {
-                                setFormData((prev) => ({ ...prev, dob: formatted }));
-                              }
-                            }}
-                            className="sr-only"
-                            tabIndex={-1}
-                            aria-hidden="true"
-                          />
-                        </div>
+                        <label className="block text-xs font-bold text-[#111111] mb-1.5">Date of Birth (DOB)</label>
+                        <DatePickerFlyout
+                          value={formData.dob}
+                          onChange={(val) => setFormData({ ...formData, dob: val })}
+                          placeholder="e.g. 21 January 2004"
+                        />
                       </div>
                     </div>
 
@@ -786,17 +764,6 @@ export default function ProfilePage() {
                           <option value="Other">Other</option>
                         </select>
                       </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold text-[#111111] mb-1.5">Bio / Summary</label>
-                      <textarea
-                        rows={3}
-                        value={formData.bio}
-                        onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                        placeholder="Introduce your technical background, current specialization, or career goals..."
-                        className="w-full px-4 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                      />
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -852,16 +819,34 @@ export default function ProfilePage() {
                     </div>
                   </form>
                 ) : (
-                  <div className="flex flex-col gap-4">
-                    <p className="text-xs text-[#494D4D] leading-relaxed">
-                      {formData.bio || (
-                        <span className="text-neutral-400 italic">
-                          No bio provided yet. Click &quot;Edit Details&quot; to describe your technical focus, current year, or aspirations.
-                        </span>
-                      )}
-                    </p>
+                  <div className="flex flex-col gap-6">
+                    {/* Primary Degree & Academic Background */}
+                    {(formData.degree || formData.college || formData.batch || profile?.degree || profile?.college || profile?.batch) && (
+                      <div className="flex items-start gap-3.5">
+                        <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-700 shrink-0 border border-emerald-200/60">
+                          <GraduationCap className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <div className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700">Primary Degree & Academic Background</div>
+                          <div className="text-base sm:text-lg font-extrabold text-[#111111] mt-0.5">
+                            {formData.degree || profile?.degree || "Degree not specified"}
+                          </div>
+                          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#494D4D] mt-1 font-medium">
+                            <span className="flex items-center gap-1.5">
+                              <Building className="w-3.5 h-3.5 text-neutral-400" />
+                              <span>{formData.college || profile?.college || "Institution not specified"}</span>
+                            </span>
+                            <span className="flex items-center gap-1.5">
+                              <Calendar className="w-3.5 h-3.5 text-neutral-400" />
+                              <span>Batch: {formData.batch || profile?.batch || "Not specified"}</span>
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                    {/* Social Links */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-neutral-100">
                       {formData.github ? (
                         <a
                           href={formData.github.startsWith("http") ? formData.github : `https://${formData.github}`}
@@ -1085,7 +1070,7 @@ export default function ProfilePage() {
                             className="w-full mt-1.5 pt-2 border-t border-neutral-100 flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-neutral-50 hover:bg-emerald-50 text-left transition-colors cursor-pointer"
                           >
                             <span className="text-xs font-bold text-emerald-800">
-                              Add "{newSkillInput.trim()}" as custom skill
+                              Add &quot;{newSkillInput.trim()}&quot; as custom skill
                             </span>
                             <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md">
                               Custom
@@ -1204,82 +1189,6 @@ export default function ProfilePage() {
                   </Link>
                 </div>
               </div>
-
-              {/* Public Passport Link Card */}
-              <div className="bg-white rounded-4xl p-6 sm:p-8 shadow-xl border border-black/5">
-                <h3 className="text-sm font-bold text-[#111111] mb-2 flex items-center gap-2">
-                  <Share2 className="w-4 h-4 text-blue-600" />
-                  <span>Public Passport Link</span>
-                </h3>
-                <p className="text-xs text-[#494D4D] mb-4">
-                  Employers and recruiters can verify your skills directly without logging in.
-                </p>
-
-                <div className="p-2.5 bg-[#F5F5F3] rounded-xl border border-black/5 text-[11px] font-mono text-[#111111] truncate mb-3 select-all">
-                  https://skillsync.edu/passport/{shareToken}
-                </div>
-
-                <Link
-                  href={`/passport/${shareToken}`}
-                  target="_blank"
-                  className="w-full flex items-center justify-center gap-1.5 py-2.5 bg-neutral-900 hover:bg-neutral-800 text-white rounded-xl text-xs font-bold transition-colors"
-                >
-                  <span>Preview Public Card</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </Link>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === "academic" && (
-          <div className="bg-white rounded-4xl p-6 sm:p-8 shadow-xl border border-black/5">
-            <h2 className="text-lg font-extrabold text-[#111111] mb-6 flex items-center gap-2">
-              <GraduationCap className="w-5 h-5 text-emerald-600" />
-              <span>Academic Background & Degree Credentials</span>
-            </h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="p-5 bg-[#F8F9FA] rounded-2xl border border-black/5 flex flex-col gap-3">
-                <div className="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">Primary Degree</div>
-                <div className="text-base font-extrabold text-[#111111]">
-                  {profile?.degree || formData.degree || "Degree not specified"}
-                </div>
-                <div className="text-xs text-[#494D4D] flex items-center gap-2">
-                  <Building className="w-4 h-4 text-neutral-400" />
-                  <span>{profile?.college || formData.college || "Institution not specified"}</span>
-                </div>
-                <div className="text-xs text-[#494D4D] flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-neutral-400" />
-                  <span>Batch: {profile?.batch || formData.batch || "Not specified"}</span>
-                </div>
-                <div className="pt-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setActiveTab("overview");
-                      setIsEditing(true);
-                    }}
-                    className="text-xs font-bold text-emerald-700 hover:underline cursor-pointer"
-                  >
-                    Edit Academic Details →
-                  </button>
-                </div>
-              </div>
-
-              <div className="p-5 bg-[#F8F9FA] rounded-2xl border border-black/5 flex flex-col gap-3">
-                <div className="text-[11px] font-bold text-neutral-500 uppercase tracking-wider">Verification Authority</div>
-                <div className="text-base font-extrabold text-[#111111]">
-                  {profile?.passport?.issuer || "SkillSync Verifiable Credential Engine"}
-                </div>
-                <div className="text-xs font-mono text-[#494D4D] break-all bg-white p-2.5 rounded-xl border border-black/5">
-                  Hash: {profile?.passport?.credentialHash || "0x7F8A2B9942ACD081884C7D659A2FEAA015A3BF4F"}
-                </div>
-                <div className="text-xs text-emerald-700 font-bold flex items-center gap-1.5 mt-auto">
-                  <ShieldCheck className="w-4 h-4" />
-                  <span>Signed & Tamper-Proof Cryptographic ID</span>
-                </div>
-              </div>
             </div>
           </div>
         )}
@@ -1331,6 +1240,171 @@ export default function ProfilePage() {
                   onChange={(e) => setFormData({ ...formData, publicPassport: e.target.checked })}
                   className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer"
                 />
+              </div>
+            </div>
+
+            {/* Danger Zone in Settings Tab */}
+            <div className="mt-4 pt-6 border-t border-neutral-100">
+              <div className="bg-white rounded-3xl p-6 sm:p-7 border border-rose-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+                <div className="flex items-start gap-4">
+                  <div className="p-3 rounded-2xl bg-rose-50 text-rose-600 shrink-0 border border-rose-200/50 shadow-2xs">
+                    <Trash2 className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-base font-extrabold text-[#111111]">Delete Account & Purge Records</h3>
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-rose-100 text-rose-700">
+                        Danger Zone
+                      </span>
+                    </div>
+                    <p className="text-xs text-[#494D4D] mt-1 max-w-xl leading-relaxed">
+                      Permanently delete your student profile, academic credentials, verified evidence uploads, and all database records from SkillSync. This action is irreversible.
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowDeleteModal(true);
+                    setDeleteConfirmText("");
+                    setDeleteError("");
+                  }}
+                  className="px-4 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white border border-rose-200 hover:border-rose-600 text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center justify-center gap-2 shadow-xs"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>Delete Account</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal: Focused Account Deletion Confirmation Dialog */}
+        {showDeleteModal && (
+          <div className="fixed inset-0 z-50 bg-black/65 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="delete-account-dialog-title"
+              className="bg-white rounded-4xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-rose-200 animate-in zoom-in-95 duration-200"
+            >
+              <div className="flex items-start justify-between gap-3 pb-4 border-b border-neutral-100">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 rounded-2xl bg-rose-100 text-rose-600 shrink-0">
+                    <AlertTriangle className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 id="delete-account-dialog-title" className="text-lg font-black text-[#111111]">
+                      Delete Account Permanently?
+                    </h3>
+                    <p className="text-xs text-rose-600 font-bold">This action is permanent & irreversible.</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowDeleteModal(false);
+                    setDeleteConfirmText("");
+                    setDeleteError("");
+                  }}
+                  disabled={isDeletingAccount}
+                  className="p-2 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="py-5 flex flex-col gap-4 text-xs text-[#494D4D]">
+                <p className="leading-relaxed">
+                  You are about to permanently delete the account for <strong className="text-neutral-900 font-bold">{displayEmail}</strong> ({displayName}).
+                </p>
+
+                <div className="p-4 bg-rose-50/60 rounded-2xl border border-rose-200/60 flex flex-col gap-2">
+                  <div className="text-[11px] font-bold text-rose-800 uppercase tracking-wider">
+                    The following records will be permanently wiped:
+                  </div>
+                  <ul className="flex flex-col gap-1.5 text-xs text-rose-950 font-medium">
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
+                      <span>Personal profile, DOB, institution, bio, and social links</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
+                      <span>All claimed skills and verified skill competencies</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
+                      <span>All uploaded coursework and project evidence records</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
+                      <span>Cryptographic Verifiable Credential Passport & share token ({displayStudentId})</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
+                      <span>All active login sessions and authentication records</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#111111] mb-1.5">
+                    To confirm deletion, please type <span className="font-mono text-rose-600 font-black">DELETE</span> below:
+                  </label>
+                  <input
+                    ref={deleteInputRef}
+                    type="text"
+                    autoFocus
+                    disabled={isDeletingAccount}
+                    value={deleteConfirmText}
+                    onChange={(e) => {
+                      setDeleteConfirmText(e.target.value);
+                      if (deleteError) setDeleteError("");
+                    }}
+                    placeholder="Type DELETE"
+                    className="w-full px-4 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/10 text-xs font-bold text-[#111111] placeholder:text-neutral-400 placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-rose-500 uppercase tracking-wide"
+                  />
+                </div>
+
+                {deleteError && (
+                  <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs font-semibold text-rose-700">
+                    {deleteError}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-neutral-100">
+                <button
+                  type="button"
+                  disabled={isDeletingAccount}
+                  onClick={() => {
+                    setShowDeleteModal(false);
+                    setDeleteConfirmText("");
+                    setDeleteError("");
+                  }}
+                  className="px-4 py-2.5 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-xs font-bold text-[#494D4D] transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={deleteConfirmText.trim().toUpperCase() !== "DELETE" || isDeletingAccount}
+                  onClick={handleDeleteAccount}
+                  className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-xs font-bold text-white shadow-xs transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {isDeletingAccount ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>Purging Database Records...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-4 h-4" />
+                      <span>Permanently Delete My Account</span>
+                    </>
+                  )}
+                </button>
               </div>
             </div>
           </div>

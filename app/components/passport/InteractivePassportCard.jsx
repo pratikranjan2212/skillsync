@@ -12,7 +12,6 @@ import {
   FolderGit2, 
   Hexagon, 
   QrCode, 
-  Sparkles, 
   RotateCw, 
   Copy, 
   Check, 
@@ -20,10 +19,11 @@ import {
   Share2, 
   Lock, 
   Globe,
+  Award,
+  ExternalLink,
   X
 } from "lucide-react";
-import SkillEvidenceModal from "./SkillEvidenceModal";
-import { GitHubIcon, GenderIcon, PassportWaves } from "@/app/components/icons";
+import { GitHubIcon, PassportWaves } from "@/app/components/icons";
 
 function GitHubLogo({ className = "w-4 h-4 text-emerald-400 hover:text-white" }) {
   return <GitHubIcon className={className} />;
@@ -32,8 +32,7 @@ function GitHubLogo({ className = "w-4 h-4 text-emerald-400 hover:text-white" })
 function SkillSyncLogo() {
   return (
     <img 
-      src="/logo.png" 
-      onError={(e) => { e.currentTarget.src = "/logo.svg"; }} 
+      src="/logo.svg" 
       alt="SkillSync Logo" 
       className="w-6 h-6 object-contain shrink-0" 
     />
@@ -47,35 +46,12 @@ export default function InteractivePassportCard({
   onTogglePublic,
   onClose
 }) {
-  const [selectedSkill, setSelectedSkill] = useState(null);
   const [isFlipped, setIsFlipped] = useState(false);
   const [copiedId, setCopiedId] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedHash, setCopiedHash] = useState(false);
   const [isPublic, setIsPublic] = useState(passportData?.isPublic ?? true);
   const [isExportingPdf, setIsExportingPdf] = useState(false);
-  const hoverTimeoutRef = React.useRef(null);
-
-  const handleSkillMouseEnter = (skill) => {
-    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
-    setSelectedSkill(skill);
-  };
-
-  const handleSkillMouseLeave = () => {
-    hoverTimeoutRef.current = setTimeout(() => {
-      setSelectedSkill(null);
-    }, 250);
-  };
-
-  const handlePopoverMouseEnter = () => {
-    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
-  };
-
-  const handlePopoverMouseLeave = () => {
-    hoverTimeoutRef.current = setTimeout(() => {
-      setSelectedSkill(null);
-    }, 250);
-  };
 
   const student = {
     id: passportData?.studentId || "SS-2026-STU01",
@@ -91,7 +67,14 @@ export default function InteractivePassportCard({
     verified: passportData?.verified ?? true,
     skills: passportData?.skills || [],
     projects: passportData?.projects || [],
+    coursework: passportData?.coursework || passportData?.courses || [],
   };
+
+  const hasProjects = Array.isArray(student.projects) && student.projects.length > 0;
+  const verifiedCourses = Array.isArray(student.coursework)
+    ? student.coursework.filter((c) => c.verified || c.tier === "verified-high" || c.tier === "verified-medium" || c.isVerified || c.verificationTier === "verified-high" || c.verificationTier === "verified-medium")
+    : [];
+  const hasCoursework = verifiedCourses.length > 0;
 
   const handleCopyId = (e) => {
     e.stopPropagation();
@@ -146,9 +129,9 @@ export default function InteractivePassportCard({
     }
   };
 
-  // Passport Front Surface (Focused / Enlarged Layout)
+  // Passport Front Surface (Focused Layout)
   const renderPassportFront = () => (
-    <div className="w-full bg-linear-to-br from-[#121212] via-[#080808] to-[#000000] text-white rounded-3xl p-5 sm:p-7 border border-white/10 shadow-[0_28px_64px_-12px_rgba(0,0,0,0.95),_0_0_0_1px_rgba(255,255,255,0.08)] overflow-hidden relative flex flex-col justify-between">
+    <div className="w-full bg-linear-to-br from-[#121212] via-[#080808] to-[#000000] text-white rounded-3xl p-6 sm:p-7 border border-white/10 shadow-[0_28px_64px_-12px_rgba(0,0,0,0.95),_0_0_0_1px_rgba(255,255,255,0.08)] overflow-hidden relative flex flex-col justify-between">
       {/* Ambient Lighting */}
       <div className="absolute -top-24 -left-24 w-80 h-80 bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none" />
       <div className="absolute top-1/2 -right-24 w-80 h-80 bg-white/5 rounded-full blur-[80px] pointer-events-none" />
@@ -156,7 +139,7 @@ export default function InteractivePassportCard({
       {/* Watermark Waves */}
       <PassportWaves />
 
-      <div className="relative z-10 flex flex-col justify-between h-full gap-6 sm:gap-7">
+      <div className="relative z-10 flex flex-col justify-between h-full gap-5 sm:gap-6">
         {/* Header */}
         <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-3">
           <div className="flex items-center gap-2">
@@ -166,28 +149,35 @@ export default function InteractivePassportCard({
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] sm:text-xs font-extrabold tracking-[0.18em] text-emerald-400 uppercase bg-emerald-500/10 px-3 py-0.5 rounded-full border border-emerald-500/30 shadow-inner">
-              SKILL PASSPORT
-            </span>
+          <div className="flex items-center gap-1.5 font-mono text-xs sm:text-sm font-bold">
+            <span className="text-emerald-400">ID:</span>
+            <button
+              onClick={handleCopyId}
+              className="text-neutral-200 hover:text-white flex items-center gap-1.5 cursor-pointer transition-colors"
+              aria-label="Copy student ID"
+              title="Copy ID"
+            >
+              <span>{student.id}</span>
+              {copiedId ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 opacity-60 hover:opacity-100 text-emerald-300" />}
+            </button>
           </div>
         </div>
 
         {/* Content Body */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-8 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-6 items-start my-auto">
           
           {/* Student Info */}
-          <div className="md:col-span-5 flex flex-col gap-3.5">
+          <div className="md:col-span-5 flex flex-col gap-3">
             <div className="flex items-center gap-3.5">
               <div className="relative shrink-0">
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-2 border-emerald-400 shadow-[0_0_24px_rgba(52,211,153,0.35)] bg-neutral-900 relative flex items-center justify-center">
+                <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-emerald-400 shadow-[0_0_24px_rgba(52,211,153,0.35)] bg-neutral-900 relative flex items-center justify-center">
                   {student.photoUrl ? (
                     <Image
                       src={student.photoUrl}
                       alt={student.name}
                       fill
                       unoptimized
-                      sizes="96px"
+                      sizes="80px"
                       className="object-cover"
                       priority
                     />
@@ -198,14 +188,14 @@ export default function InteractivePassportCard({
                   )}
                 </div>
                 
-                <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-[#080808] border-2 border-emerald-400 flex items-center justify-center shadow-md">
+                <div className="absolute -bottom-0.5 -right-0.5 w-5.5 h-5.5 rounded-full bg-[#080808] border-2 border-emerald-400 flex items-center justify-center shadow-md">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                 </div>
               </div>
 
-              <div className="flex flex-col gap-1.5 min-w-0">
+              <div className="flex flex-col gap-1 min-w-0">
                 <div>
-                  <div className="flex items-center gap-1 text-[11px] sm:text-xs font-bold text-emerald-400 uppercase tracking-wider">
+                  <div className="flex items-center gap-1 text-[10px] sm:text-[11px] font-bold text-emerald-400 uppercase tracking-wider">
                     <User className="w-3.5 h-3.5 text-emerald-400" />
                     <span>NAME</span>
                   </div>
@@ -214,161 +204,224 @@ export default function InteractivePassportCard({
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4 sm:gap-5 text-xs sm:text-sm whitespace-nowrap mt-1">
+                <div className="flex items-center gap-3.5 text-xs whitespace-nowrap mt-0.5">
                   <div>
-                    <span className="text-neutral-400 font-bold block text-[10px] sm:text-[11px] uppercase tracking-wider">GENDER</span>
-                    <span className="text-white font-bold text-xs sm:text-sm">{student.gender}</span>
+                    <span className="text-neutral-400 font-bold block text-[9px] sm:text-[10px] uppercase tracking-wider">GENDER</span>
+                    <span className="text-white font-bold text-xs">{student.gender}</span>
                   </div>
                   <div>
-                    <span className="text-neutral-400 font-bold block text-[10px] sm:text-[11px] uppercase tracking-wider">DOB</span>
-                    <span className="text-white font-bold text-xs sm:text-sm">{student.dob}</span>
+                    <span className="text-neutral-400 font-bold block text-[9px] sm:text-[10px] uppercase tracking-wider">DOB</span>
+                    <span className="text-white font-bold text-xs">{student.dob}</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-col gap-2.5 pt-2 border-t border-white/10">
-              <div className="flex items-start gap-2.5">
-                <div className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0 mt-0.5 text-emerald-400">
-                  <GraduationCap className="w-4 h-4" />
+            <div className="flex flex-col gap-2 pt-2.5 border-t border-white/10">
+              <div className="flex items-center gap-2.5">
+                <div className="w-6.5 h-6.5 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-emerald-400">
+                  <GraduationCap className="w-3.5 h-3.5" />
                 </div>
-                <div className="min-w-0">
-                  <div className="text-[10px] sm:text-[11px] font-bold text-neutral-400 uppercase tracking-wider">COLLEGE</div>
-                  <div className="text-xs sm:text-sm font-bold text-white leading-snug truncate">{student.college}</div>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-2.5">
-                <div className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0 mt-0.5 text-emerald-400">
-                  <BookOpen className="w-4 h-4" />
-                </div>
-                <div className="min-w-0">
-                  <div className="text-[10px] sm:text-[11px] font-bold text-neutral-400 uppercase tracking-wider">DEGREE</div>
-                  <div className="text-xs sm:text-sm font-bold text-white leading-snug truncate">{student.degree}</div>
+                <div className="min-w-0 flex items-baseline gap-1.5 text-xs">
+                  <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider shrink-0">COLLEGE:</span>
+                  <span className="font-bold text-white truncate">{student.college}</span>
                 </div>
               </div>
 
-              <div className="flex items-start gap-2.5">
-                <div className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0 mt-0.5 text-emerald-400">
-                  <Calendar className="w-4 h-4" />
+              <div className="flex items-center gap-2.5">
+                <div className="w-6.5 h-6.5 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-emerald-400">
+                  <BookOpen className="w-3.5 h-3.5" />
                 </div>
-                <div className="min-w-0">
-                  <div className="text-[10px] sm:text-[11px] font-bold text-neutral-400 uppercase tracking-wider">BATCH</div>
-                  <div className="text-xs sm:text-sm font-bold text-white">{student.batch}</div>
+                <div className="min-w-0 flex items-baseline gap-1.5 text-xs">
+                  <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider shrink-0">DEGREE:</span>
+                  <span className="font-bold text-white truncate">{student.degree}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2.5">
+                <div className="w-6.5 h-6.5 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-emerald-400">
+                  <Calendar className="w-3.5 h-3.5" />
+                </div>
+                <div className="min-w-0 flex items-baseline gap-1.5 text-xs">
+                  <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider shrink-0">BATCH:</span>
+                  <span className="font-bold text-white">{student.batch}</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Skills & Projects */}
-          <div className="md:col-span-7 flex flex-col gap-4 relative">
-            {/* Skills Section */}
-            <div className="flex flex-col gap-2 relative">
-              <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-emerald-400">
-                <Hexagon className="w-3 h-3 text-emerald-400 fill-emerald-400/20" />
-                <span>SKILLS</span>
+          {/* Right Column: Projects & Verified Coursework */}
+          <div className="md:col-span-7 flex flex-col gap-2.5 relative">
+            {hasProjects && (
+              /* Projects: Render verified projects with embedded skills */
+              <div className="flex flex-col gap-1.5">
+                <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-emerald-400">
+                  <FolderGit2 className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>PROJECTS</span>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  {student.projects.slice(0, hasCoursework ? 1 : 2).map((proj, idx) => {
+                    const projSkills = Array.isArray(proj.skills) 
+                      ? proj.skills 
+                      : (typeof proj.skills === "string" ? proj.skills.split(",").map(s => s.trim()) : []);
+
+                    return (
+                      <div
+                        key={proj.id || proj.title || `proj-${idx}`}
+                        className="bg-neutral-900/90 border border-white/10 hover:border-emerald-500/40 rounded-2xl p-3 flex flex-col gap-2 transition-all hover:bg-neutral-800/90 shadow-2xs"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <h4 className="text-xs sm:text-sm font-bold text-white truncate">
+                            {proj.title}
+                          </h4>
+
+                          {proj.githubUrl && (
+                            <a
+                              href={proj.githubUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="p-1 rounded-lg text-neutral-400 hover:text-white hover:bg-white/10 transition-all shrink-0 cursor-pointer"
+                              aria-label="View GitHub repository"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <GitHubLogo className="w-3.5 h-3.5 text-neutral-400 hover:text-white" />
+                            </a>
+                          )}
+                        </div>
+
+                        {/* Bottom Row: Skills on Left & "Verified" on Bottom Right */}
+                        <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-white/5">
+                          <div className="flex flex-wrap gap-1.5 min-w-0">
+                            {projSkills.length > 0 ? (
+                              projSkills.map((skName, skIdx) => (
+                                <span
+                                  key={skIdx}
+                                  className="px-2.5 py-0.5 rounded-lg bg-emerald-950/70 border border-emerald-500/30 text-[10px] font-bold text-emerald-300 shadow-2xs"
+                                >
+                                  {typeof skName === "object" ? skName.name || skName.title : String(skName).trim()}
+                                </span>
+                              ))
+                            ) : (
+                              <span className="text-[10px] text-neutral-500 italic">Project</span>
+                            )}
+                          </div>
+
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 shrink-0 bg-emerald-950/50 px-2.5 py-0.5 rounded-md border border-emerald-500/25 shadow-2xs">
+                            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                            <span>Verified</span>
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
+            )}
 
-              <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                {student.skills.map((skill, idx) => {
-                  const skillKey = skill.skillId || skill.id || skill.name || `skill-${idx}`;
-                  const isSelected = selectedSkill && (
-                    (selectedSkill.skillId && skill.skillId && selectedSkill.skillId === skill.skillId) ||
-                    selectedSkill.name === skill.name
-                  );
+            {/* Coursework Section: Hidden by default, shown ONLY when verified coursework exists */}
+            {hasCoursework && (
+              <div className="flex flex-col gap-1.5">
+                <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-emerald-400">
+                  <Award className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>COURSEWORK</span>
+                </div>
 
-                  return (
-                    <button
-                      type="button"
-                      key={skillKey}
-                      onMouseEnter={(e) => {
-                        e.stopPropagation();
-                        handleSkillMouseEnter(skill);
-                      }}
-                      onMouseLeave={(e) => {
-                        e.stopPropagation();
-                        handleSkillMouseLeave();
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedSkill(isSelected ? null : skill);
-                      }}
-                      className="group inline-flex items-center px-3 py-1.5 bg-neutral-900/90 hover:bg-neutral-800 border border-white/10 hover:border-emerald-400/60 rounded-xl text-xs font-bold text-neutral-200 hover:text-white transition-all shadow-xs hover:scale-105 cursor-pointer"
-                      title="View verified evidence citations"
+                <div className="flex flex-col gap-2">
+                  {verifiedCourses.slice(0, hasProjects ? 1 : 2).map((course, idx) => {
+                    const courseSkills = Array.isArray(course.skills) 
+                      ? course.skills 
+                      : (typeof course.skills === "string" ? course.skills.split(",").map(s => s.trim()) : []);
+
+                    const certUrl = course.certificateUrl || course.fileUrl || course.link;
+
+                    return (
+                      <div
+                        key={course.id || course.title || `course-${idx}`}
+                        className="bg-neutral-900/90 border border-white/10 hover:border-emerald-500/40 rounded-2xl p-3 flex flex-col gap-2 transition-all hover:bg-neutral-800/90 shadow-2xs"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <h4 className="text-xs sm:text-sm font-bold text-white truncate">
+                            {course.title}
+                          </h4>
+
+                          {certUrl ? (
+                            <a
+                              href={certUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="p-1 rounded-lg text-neutral-400 hover:text-emerald-400 hover:bg-white/10 transition-all shrink-0 cursor-pointer flex items-center gap-1 text-[10px]"
+                              title="View Certificate"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <ExternalLink className="w-3.5 h-3.5" />
+                            </a>
+                          ) : (
+                            <span 
+                              className="p-1 rounded-lg text-neutral-400 hover:text-emerald-400 transition-colors shrink-0 cursor-pointer"
+                              title="Verified Certificate"
+                            >
+                              <ExternalLink className="w-3.5 h-3.5" />
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Bottom Row: Skills on Left & "Verified" on Bottom Right */}
+                        <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-white/5">
+                          <div className="flex flex-wrap gap-1.5 min-w-0">
+                            {courseSkills.length > 0 ? (
+                              courseSkills.map((skName, skIdx) => (
+                                <span
+                                  key={skIdx}
+                                  className="px-2.5 py-0.5 rounded-lg bg-emerald-950/70 border border-emerald-500/30 text-[10px] font-bold text-emerald-300 shadow-2xs"
+                                >
+                                  {typeof skName === "object" ? skName.name || skName.title : String(skName).trim()}
+                                </span>
+                              ))
+                            ) : (
+                              <span className="text-[10px] text-neutral-500 italic">Coursework</span>
+                            )}
+                          </div>
+
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 shrink-0 bg-emerald-950/50 px-2.5 py-0.5 rounded-md border border-emerald-500/25 shadow-2xs">
+                            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                            <span>Verified</span>
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Fallback: Render Skills-only if no projects and no verified coursework exist */}
+            {!hasProjects && !hasCoursework && (
+              <div className="flex flex-col gap-2 relative">
+                <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-emerald-400">
+                  <Hexagon className="w-3.5 h-3.5 text-emerald-400 fill-emerald-400/20" />
+                  <span>SKILLS</span>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {student.skills.map((skill, idx) => (
+                    <div
+                      key={skill.skillId || skill.id || skill.name || `skill-${idx}`}
+                      className="inline-flex items-center px-3 py-1.5 bg-neutral-900/90 border border-white/10 hover:border-emerald-500/40 rounded-xl text-xs font-bold text-white transition-all shadow-xs"
                     >
                       <span>{skill.name}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              <SkillEvidenceModal
-                skill={selectedSkill}
-                isOpen={Boolean(selectedSkill)}
-                onClose={() => setSelectedSkill(null)}
-                projects={student.projects}
-                onMouseEnter={handlePopoverMouseEnter}
-                onMouseLeave={handlePopoverMouseLeave}
-              />
-            </div>
-
-            {/* Projects Section */}
-            <div className="flex flex-col gap-2 pt-1 border-t border-white/10">
-              <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-emerald-400">
-                <FolderGit2 className="w-3 h-3 text-emerald-400" />
-                <span>PROJECTS</span>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                {student.projects.slice(0, 3).map((proj, idx) => (
-                  <div
-                    key={proj.id || proj.title || `proj-${idx}`}
-                    className="bg-neutral-900/90 border border-white/10 hover:border-emerald-500/40 rounded-xl p-2.5 sm:p-3 flex items-center justify-between gap-3 transition-all hover:bg-neutral-800/90"
-                  >
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-xs font-bold text-white truncate">
-                        {proj.title}
-                      </h4>
-                      <p className="text-[10px] text-neutral-400 line-clamp-1 mt-0.5">
-                        {proj.description}
-                      </p>
                     </div>
-
-                    {proj.githubUrl && (
-                      <a
-                        href={proj.githubUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-1.5 rounded-lg text-neutral-400 hover:text-white hover:bg-white/10 transition-all shrink-0 cursor-pointer"
-                        title="View GitHub repository"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <GitHubLogo className="w-4 h-4 text-neutral-400 hover:text-white" />
-                      </a>
-                    )}
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between pt-3 border-t border-white/10 text-xs">
-          <div className="flex items-center gap-1.5 font-mono text-[11px]">
-            <span className="text-emerald-400 font-bold">ID:</span>
-            <button
-              onClick={handleCopyId}
-              className="text-neutral-200 font-bold hover:underline flex items-center gap-1 cursor-pointer"
-              title="Click to copy student ID"
-            >
-              <span>{student.id}</span>
-              {copiedId ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3 opacity-60" />}
-            </button>
-          </div>
-
+        <div className="flex items-center justify-end pt-3 border-t border-white/10 text-xs">
           <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-emerald-400">
-            <span>EMPOWERING VERIFIED SKILLS</span>
+            <span>OFFICIAL SKILL PASSPORT</span>
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
           </div>
         </div>
@@ -376,9 +429,9 @@ export default function InteractivePassportCard({
     </div>
   );
 
-  // Cryptographic Proof Back Surface (Focused / Enlarged Layout)
+  // Cryptographic Proof Back Surface (Focused Layout)
   const renderPassportBack = () => (
-    <div className="w-full h-full bg-linear-to-br from-[#121212] via-[#080808] to-[#000000] text-white rounded-3xl p-5 sm:p-7 border border-white/10 shadow-[0_28px_64px_-12px_rgba(0,0,0,0.95),_0_0_0_1px_rgba(255,255,255,0.08)] overflow-hidden flex flex-col justify-between">
+    <div className="w-full h-full bg-linear-to-br from-[#121212] via-[#080808] to-[#000000] text-white rounded-3xl p-6 sm:p-7 border border-white/10 shadow-[0_28px_64px_-12px_rgba(0,0,0,0.95),_0_0_0_1px_rgba(255,255,255,0.08)] overflow-hidden flex flex-col justify-between">
       <div className="absolute -top-24 -right-24 w-80 h-80 bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none" />
       
       <div className="flex items-center justify-between border-b border-white/10 pb-3 relative z-10">
@@ -412,6 +465,7 @@ export default function InteractivePassportCard({
               <button
                 onClick={handleCopyHash}
                 className="text-[10px] text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1 cursor-pointer"
+                aria-label="Copy hash"
               >
                 {copiedHash ? <Check className="w-2.5 h-2.5" /> : <Copy className="w-2.5 h-2.5" />}
                 <span>{copiedHash ? "Copied" : "Copy Hash"}</span>
@@ -436,95 +490,38 @@ export default function InteractivePassportCard({
   );
 
   return (
-    <div className={`w-full max-w-[760px] flex flex-col items-center select-none ${className}`}>
-      {/* Top Action Bar in Focused Card Window */}
+    <div className={`w-full max-w-[640px] flex flex-col items-center select-none ${className}`}>
+      {/* Top Action Bar in Focused Card Window: Flip + Close */}
       {showControls && (
-        <div className="w-full flex flex-wrap items-center justify-between gap-3 mb-3 px-1">
-          {/* Left: Official Skill Passport Badge */}
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold shadow-xs">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Official Skill Passport</span>
-            </span>
-          </div>
+        <motion.div
+          initial={{ opacity: 0, y: 32, scale: 0.96 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 1.1, delay: 0.65, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full flex items-center justify-end gap-2.5 mb-3 px-1 relative z-20"
+        >
+          {/* Flip to Cryptographic Proof Button */}
+          <button
+            type="button"
+            onClick={() => setIsFlipped(!isFlipped)}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-white/15 hover:border-emerald-500 transition-all shadow-xs cursor-pointer text-xs font-bold"
+            aria-label="Flip to Cryptographic Proof"
+          >
+            <RotateCw className="w-3.5 h-3.5" />
+            <span>{isFlipped ? "Flip to Passport" : "Flip to Proof"}</span>
+          </button>
 
-          {/* Right: Quick Actions + Flip + Close */}
-          <div className="flex items-center gap-2 flex-wrap">
-            {/* Public/Private Toggle */}
-            <button
-              onClick={handleToggle}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl font-bold text-xs border transition-all cursor-pointer ${
-                isPublic
-                  ? "bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100"
-                  : "bg-neutral-100 text-neutral-700 border-neutral-300 hover:bg-neutral-200"
-              }`}
-            >
-              {isPublic ? (
-                <>
-                  <Globe className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Public</span>
-                </>
-              ) : (
-                <>
-                  <Lock className="w-3.5 h-3.5 text-neutral-500" />
-                  <span>Private</span>
-                </>
-              )}
-            </button>
-
-            {/* Share / Copy Link */}
-            {isPublic && (
-              <button
-                onClick={handleCopyLink}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white text-neutral-800 hover:bg-neutral-50 border border-black/10 rounded-xl font-bold text-xs shadow-2xs transition-all cursor-pointer"
-              >
-                {copiedLink ? (
-                  <>
-                    <Check className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Copied!</span>
-                  </>
-                ) : (
-                  <>
-                    <Share2 className="w-3.5 h-3.5 text-neutral-600" />
-                    <span>Share</span>
-                  </>
-                )}
-              </button>
-            )}
-
-            {/* PDF Export */}
-            <button
-              onClick={handleExportPdf}
-              disabled={isExportingPdf}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-neutral-900 text-white hover:bg-neutral-800 rounded-xl font-bold text-xs shadow-xs transition-all disabled:opacity-50 cursor-pointer"
-            >
-              <Download className="w-3.5 h-3.5 text-emerald-400" />
-              <span>{isExportingPdf ? "Exporting..." : "PDF"}</span>
-            </button>
-
-            {/* Flip to Cryptographic Proof Button */}
+          {/* Close Button (if onClose provided) */}
+          {onClose && (
             <button
               type="button"
-              onClick={() => setIsFlipped(!isFlipped)}
-              className="p-2 rounded-xl bg-white/10 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-white/15 hover:border-emerald-500 transition-all shadow-xs cursor-pointer group"
-              title={isFlipped ? "Show Front Side" : "Flip to Cryptographic Proof"}
+              onClick={onClose}
+              className="p-2 rounded-xl bg-white/10 hover:bg-rose-600 text-neutral-300 hover:text-white border border-white/15 hover:border-rose-500 transition-all shadow-xs cursor-pointer group"
+              aria-label="Close"
             >
-              <RotateCw className="w-3.5 h-3.5 transition-transform group-hover:rotate-180 duration-500" />
+              <X className="w-4 h-4" />
             </button>
-
-            {/* Close Button (if onClose provided) */}
-            {onClose && (
-              <button
-                type="button"
-                onClick={onClose}
-                className="p-2 rounded-xl bg-white/10 hover:bg-rose-600 text-neutral-300 hover:text-white border border-white/15 hover:border-rose-500 transition-all shadow-xs cursor-pointer group"
-                title="Close"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
-          </div>
-        </div>
+          )}
+        </motion.div>
       )}
 
       {/* 3D Flippable Focused Card */}

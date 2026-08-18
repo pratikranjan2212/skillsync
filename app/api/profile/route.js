@@ -313,3 +313,65 @@ export async function PUT(request) {
     return NextResponse.json({ error: err.message || "Failed to update profile", details: err.message }, { status: 500 });
   }
 }
+
+export async function DELETE(request) {
+  try {
+    const session = await auth();
+    let userEmail = session?.user?.email;
+    let userId = session?.user?.id;
+
+    let user = null;
+    if (userId) {
+      user = await prisma.user.findUnique({
+        where: { id: userId },
+      }).catch(() => null);
+    }
+
+    if (!user && userEmail) {
+      user = await prisma.user.findUnique({
+        where: { email: userEmail },
+      }).catch(() => null);
+    }
+
+    if (!user) {
+      user = await prisma.user.findFirst({
+        where: { role: "student" },
+      }).catch(() => null);
+    }
+
+    if (!user) {
+      user = await prisma.user.findFirst().catch(() => null);
+    }
+
+    if (!user) {
+      return NextResponse.json({ error: "User account not found" }, { status: 404 });
+    }
+
+    // Delete user and all cascading relations (Account, Session, Evidence, Passport)
+    await prisma.user.delete({
+      where: { id: user.id },
+    });
+
+    const response = NextResponse.json({
+      success: true,
+      message: "Account and all associated records permanently deleted.",
+    });
+
+    // Clear session cookies in response headers
+    response.cookies.set("skillsync_session", "", { path: "/", maxAge: 0, expires: new Date(0) });
+    response.cookies.set("authjs.session-token", "", { path: "/", maxAge: 0, expires: new Date(0) });
+    response.cookies.set("__Secure-authjs.session-token", "", { path: "/", maxAge: 0, expires: new Date(0) });
+    response.cookies.set("next-auth.session-token", "", { path: "/", maxAge: 0, expires: new Date(0) });
+    response.cookies.set("__Secure-next-auth.session-token", "", { path: "/", maxAge: 0, expires: new Date(0) });
+    response.cookies.set("skillsync_role", "", { path: "/", maxAge: 0, expires: new Date(0) });
+
+    return response;
+  } catch (err) {
+    console.error("Profile DELETE route error:", err);
+    return NextResponse.json(
+      { error: err.message || "Failed to delete account", details: err.message },
+      { status: 500 }
+    );
+  }
+}
+
