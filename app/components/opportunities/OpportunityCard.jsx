@@ -2,7 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { Building2, MapPin, CheckCircle2, Globe, Home, Briefcase } from "lucide-react";
 import { getScoreBand } from "@/lib/matching/config";
-import { getOpportunityWorkMode } from "@/lib/opportunities/opportunityService";
+import { getOpportunityWorkMode } from "@/lib/opportunities/workModeUtils";
 
 function decodeHtml(html = "") {
   if (!html) return "";
@@ -78,12 +78,12 @@ export default function OpportunityCard({ opportunity }) {
   const isSalaryListed = displayStipend !== "Not Listed";
 
   // Score percentage & Score band
-  const scorePercentage =
-    typeof matchScore === "number"
-      ? matchScore <= 1
-        ? Math.round(matchScore * 100)
-        : Math.round(matchScore)
-      : 0;
+  const hasMatchScore = typeof matchScore === "number" && matchScore > 0;
+  const scorePercentage = hasMatchScore
+    ? matchScore <= 1
+      ? Math.round(matchScore * 100)
+      : Math.round(matchScore)
+    : 0;
 
   const band = getScoreBand(scorePercentage);
   const displayLabel = scoreLabel || band.label;
@@ -154,10 +154,17 @@ export default function OpportunityCard({ opportunity }) {
             <span>{modeBadge.label}</span>
           </span>
 
-          <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold border ${band.badgeBg}`}>
-            <span>{scorePercentage}%</span>
-            <span className="text-[10px] opacity-80">• {displayLabel}</span>
-          </div>
+          {hasMatchScore ? (
+            <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold border ${band.badgeBg}`}>
+              <span>{scorePercentage}%</span>
+              <span className="text-[10px] opacity-80">• {displayLabel}</span>
+            </div>
+          ) : (
+            <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-neutral-100 text-neutral-600 border border-neutral-200">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              <span>Active Role</span>
+            </div>
+          )}
         </div>
 
         <div>
@@ -192,8 +199,8 @@ export default function OpportunityCard({ opportunity }) {
           {cleanDescription}
         </p>
 
-        {/* Matched & Related Skills */}
-        {matchedList && matchedList.length > 0 && (
+        {/* Matched & Related Skills (or Required Skills for Guests) */}
+        {matchedList && matchedList.length > 0 ? (
           <div className="flex flex-wrap gap-1.5 mt-1">
             {matchedList.slice(0, 5).map((skill, index) => {
               const skillName = typeof skill === "string" ? skill : skill?.name || skill?.pureName || "Skill";
@@ -219,7 +226,23 @@ export default function OpportunityCard({ opportunity }) {
               </span>
             )}
           </div>
-        )}
+        ) : requiredSkills && requiredSkills.length > 0 ? (
+          <div className="flex flex-wrap gap-1.5 mt-1">
+            {requiredSkills.slice(0, 4).map((skill, index) => (
+              <span
+                key={index}
+                className="inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-xl border bg-[#F8F9FA] text-neutral-700 border-neutral-200"
+              >
+                {decodeHtml(skill)}
+              </span>
+            ))}
+            {requiredSkills.length > 4 && (
+              <span className="px-2 py-1 text-[11px] font-semibold text-neutral-500 bg-neutral-50 rounded-xl border border-neutral-150">
+                +{requiredSkills.length - 4} more
+              </span>
+            )}
+          </div>
+        ) : null}
 
         {/* Missing Skills Section */}
         {missingList && missingList.length > 0 && (

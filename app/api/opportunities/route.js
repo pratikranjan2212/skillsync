@@ -104,7 +104,7 @@ export async function GET(request) {
         source: { notIn: ["Adzuna", "Jooble", "adzuna", "jooble"] },
       },
       orderBy: { createdAt: "desc" },
-      take: 40,
+      take: 150,
     });
     if (fetchedDbOpps && fetchedDbOpps.length > 0) {
       dbOpps = fetchedDbOpps;
@@ -131,11 +131,49 @@ export async function GET(request) {
   const hasSkillsOrEvidence = allUserSkills.length > 0;
 
   if (!hasSkillsOrEvidence) {
+    const defaultTailored = generateTailoredOpportunities([
+      "React", "Python", "SQL", "JavaScript", "TypeScript", "Node.js", "Docker"
+    ]);
+
+    const normalizedDbOpps = dbOpps.map((opp) => {
+      const isIndeed = opp.source === "Indeed" || opp.isIndeedScraped === true;
+      const isLinkedIn = !isIndeed;
+      const directIndeedUrl =
+        opp.indeedUrl ||
+        opp.url ||
+        opp.externalUrl ||
+        `https://in.indeed.com/jobs?q=${encodeURIComponent(`${opp.title} ${opp.company}`.trim())}&l=India`;
+      const directLinkedInUrl =
+        opp.linkedinUrl ||
+        opp.url ||
+        opp.externalUrl ||
+        `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(`${opp.title} ${opp.company}`.trim())}`;
+
+      return {
+        ...opp,
+        title: decodeHtml(opp.title),
+        company: decodeHtml(opp.company),
+        location: decodeHtml(opp.location),
+        workMode: opp.workMode || normalizeWorkMode(null, opp.location),
+        source: isIndeed ? "Indeed" : "LinkedIn",
+        isLinkedInScraped: isLinkedIn,
+        isIndeedScraped: isIndeed,
+        linkedinUrl: isLinkedIn ? directLinkedInUrl : undefined,
+        indeedUrl: isIndeed ? directIndeedUrl : undefined,
+        url: isIndeed ? directIndeedUrl : directLinkedInUrl,
+        externalUrl: isIndeed ? directIndeedUrl : directLinkedInUrl,
+      };
+    });
+
+    const combinedGuestOpps = deduplicateOpportunities([...defaultTailored, ...normalizedDbOpps]);
+
     return NextResponse.json({
       success: true,
       hasPassport: false,
-      opportunities: [],
-      message: "Add at least one skill or evidence to unlock AI-matched opportunities.",
+      isGuest: true,
+      opportunities: combinedGuestOpps,
+      userSkillCount: 0,
+      message: "Sign in with your student account to unlock personalized AI match scores & Skill Passport calibration.",
       fairnessAudit: {
         excludedParameters: ["gender", "college tier", "name", "photo"],
         verifiedAt: new Date().toISOString(),

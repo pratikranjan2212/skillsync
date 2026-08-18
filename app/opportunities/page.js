@@ -4,7 +4,6 @@ import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import Navbar from "@/app/components/layout/Navbar";
 import OpportunityCard from "@/app/components/opportunities/OpportunityCard";
-import AuthRequiredView from "@/app/components/auth/AuthRequiredView";
 import {
   Search,
   Briefcase,
@@ -19,12 +18,12 @@ import {
   Home,
   Building2,
   AlertCircle,
-  Database,
-  Lock,
+  LogIn,
+  UserPlus,
 } from "lucide-react";
 import { useAuth } from "@/app/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
-import { getOpportunityWorkMode } from "@/lib/opportunities/opportunityService";
+import { getOpportunityWorkMode } from "@/lib/opportunities/workModeUtils";
 
 const WORK_MODE_TABS = [
   { id: "all", label: "All Modes", icon: Layers },
@@ -35,12 +34,13 @@ const WORK_MODE_TABS = [
 
 async function fetchOpportunitiesFeed() {
   const res = await fetch("/api/opportunities");
-  if (!res.ok) throw new Error("Failed to fetch matched opportunities");
+  if (!res.ok) throw new Error("Failed to fetch opportunities feed");
   const data = await res.json();
   return {
     opportunities: data.opportunities || [],
     hasPassport: data.hasPassport ?? (data.opportunities && data.opportunities.length > 0),
     userSkillCount: data.userSkillCount || 0,
+    isGuest: data.isGuest ?? false,
   };
 }
 
@@ -62,7 +62,6 @@ export default function OpportunityFeedPage() {
     staleTime: 5 * 60 * 1000,
     gcTime: 15 * 60 * 1000,
     refetchOnWindowFocus: false,
-    enabled: isAuthenticated,
   });
 
   const opportunities = feedData?.opportunities || [];
@@ -107,46 +106,52 @@ export default function OpportunityFeedPage() {
     return result;
   }, [opportunities, searchTerm, selectedWorkMode]);
 
-  if (!authLoading && !isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-[#F5F5F3] text-[#111111] flex flex-col justify-start pb-16">
-        <Navbar />
-        <main className="max-w-7xl 2xl:max-w-384 mx-auto px-3.5 sm:px-6 2xl:px-8 w-full pt-4">
-          <AuthRequiredView
-            badgeText="Skill-Calibrated Opportunities"
-            badgeIcon={Briefcase}
-            badgeColor="emerald"
-            title="Matched Opportunities Access"
-            subtitle="Sign in to explore internships and roles calibrated strictly against the skills added to your profile & verified Skill Passport."
-            sectionName="Opportunities Feed"
-            features={[
-              {
-                icon: Sparkles,
-                title: "Dynamic Profile Skill Calibration",
-                desc: "Every opportunity is ranked dynamically against your active technical skills, coursework, and project citations.",
-              },
-              {
-                icon: ShieldCheck,
-                title: "Demographic Bias Exclusion",
-                desc: "Strictly excludes race, gender, age, and postal code from ranking algorithms to ensure fair evaluation.",
-              },
-              {
-                icon: Database,
-                title: "Live Verified Hiring Pipeline",
-                desc: "Real-time internship and role ingestion from vetted technology partners and industry ecosystems.",
-              },
-            ]}
-          />
-        </main>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-[#F5F5F3] text-[#111111] flex flex-col justify-start pb-16">
       <Navbar />
 
       <main className="max-w-7xl 2xl:max-w-384 mx-auto px-3.5 sm:px-6 2xl:px-8 w-full pt-4">
+        {/* Guest / Non-Authenticated Callout Banner */}
+        {!authLoading && !isAuthenticated && (
+          <div className="bg-linear-to-r from-neutral-900 to-neutral-800 text-white rounded-3xl p-5 sm:p-6 mb-6 shadow-md border border-black/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0 mt-0.5">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-sm font-bold text-white">
+                    Explore Verified Opportunities
+                  </span>
+                  <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    Live Feed
+                  </span>
+                </div>
+                <p className="text-xs text-neutral-300 mt-1 leading-relaxed max-w-2xl">
+                  Sign in with your student account to calculate your personalized AI Match Score and calibrate against your verified Skill Passport.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5 shrink-0 w-full md:w-auto">
+              <Link
+                href="/signin"
+                className="flex-1 md:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-sm transition-all active:scale-95"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                <span>Sign In</span>
+              </Link>
+              <Link
+                href="/signup"
+                className="flex-1 md:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-white/10 hover:bg-white/15 text-white rounded-xl text-xs font-bold border border-white/10 transition-all"
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                <span>Register</span>
+              </Link>
+            </div>
+          </div>
+        )}
+
         {/* Search & Filter Header Bar */}
         <div className="bg-white rounded-2xl p-3 sm:p-4 shadow-sm border border-neutral-200/80 mb-6 flex flex-col lg:flex-row items-center justify-between gap-4">
           <div className="relative w-full lg:max-w-md">
@@ -169,11 +174,10 @@ export default function OpportunityFeedPage() {
                 <button
                   key={tab.id}
                   onClick={() => setSelectedWorkMode(tab.id)}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                    isActive
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${isActive
                       ? "bg-neutral-900 text-white shadow-sm"
                       : "bg-neutral-100/80 hover:bg-neutral-200/80 text-neutral-600 border border-neutral-200/60"
-                  }`}
+                    }`}
                 >
                   <TabIcon className="w-3.5 h-3.5" />
                   <span>{tab.label}</span>
@@ -223,7 +227,7 @@ export default function OpportunityFeedPage() {
         {isError && (
           <div className="bg-red-50 border border-red-200 rounded-2xl p-6 text-center max-w-lg mx-auto">
             <AlertCircle className="w-8 h-8 text-red-500 mx-auto mb-2" />
-            <h3 className="text-base font-bold text-red-800">Unable to load matched opportunities</h3>
+            <h3 className="text-base font-bold text-red-800">Unable to load opportunities</h3>
             <p className="text-xs text-red-600 mt-1 mb-4">
               {error?.message || "There was an unexpected connection error while querying opportunities."}
             </p>
@@ -236,13 +240,13 @@ export default function OpportunityFeedPage() {
           </div>
         )}
 
-        {/* Empty Passport / No Skills State */}
-        {!isLoading && !isError && !hasPassport && (
+        {/* Empty State for Signed In Users with 0 Skills and 0 Feed Results */}
+        {!isLoading && !isError && isAuthenticated && !hasPassport && opportunities.length === 0 && (
           <div className="bg-white rounded-3xl p-8 sm:p-12 border border-neutral-200 shadow-sm text-center max-w-xl mx-auto my-6">
             <div className="w-14 h-14 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <Sparkles className="w-7 h-7 text-emerald-600" />
             </div>
-            <h2 className="text-xl font-bold text-[#111111] mb-2">Build Your Skill Passport to Unlock Feed</h2>
+            <h2 className="text-xl font-bold text-[#111111] mb-2">Build Your Skill Passport to Unlock Calibrated Feed</h2>
             <p className="text-sm text-neutral-600 leading-relaxed mb-6">
               SkillSync matches opportunities dynamically based on your verified technical evidence and claimed skills.
               Add your technical skills or evidence to get personalized, bias-free matched listings.
@@ -266,7 +270,7 @@ export default function OpportunityFeedPage() {
         )}
 
         {/* Opportunities Grid */}
-        {!isLoading && !isError && hasPassport && filteredList.length > 0 && (
+        {!isLoading && !isError && filteredList.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredList.map((opportunity, idx) => (
               <OpportunityCard
@@ -278,7 +282,7 @@ export default function OpportunityFeedPage() {
         )}
 
         {/* No Results Filter State */}
-        {!isLoading && !isError && hasPassport && filteredList.length === 0 && (
+        {!isLoading && !isError && opportunities.length > 0 && filteredList.length === 0 && (
           <div className="bg-white rounded-3xl p-10 border border-neutral-200 shadow-sm text-center max-w-md mx-auto my-8">
             <Search className="w-8 h-8 text-neutral-400 mx-auto mb-3" />
             <h3 className="text-base font-bold text-neutral-800">No opportunities match your filter</h3>

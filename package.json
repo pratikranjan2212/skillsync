@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "eslint",
     "postinstall": "prisma generate",
-    "test": "node tests/security.test.mjs && node tests/matching.test.mjs",
+    "test": "node tests/env.test.mjs && node tests/security.test.mjs && node tests/matching.test.mjs",
     "db:push": "prisma db push",
     "db:seed": "node prisma/seed.js",
     "db:studio": "prisma studio"
