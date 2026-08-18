@@ -111,7 +111,7 @@ export default function OpportunityFeedPage() {
     return (
       <div className="min-h-screen bg-[#F5F5F3] text-[#111111] flex flex-col justify-start pb-16">
         <Navbar />
-        <main className="max-w-7xl 2xl:max-w-[1536px] mx-auto px-3.5 sm:px-6 2xl:px-8 w-full pt-4">
+        <main className="max-w-7xl 2xl:max-w-384 mx-auto px-3.5 sm:px-6 2xl:px-8 w-full pt-4">
           <AuthRequiredView
             badgeText="Skill-Calibrated Opportunities"
             badgeIcon={Briefcase}
@@ -146,7 +146,7 @@ export default function OpportunityFeedPage() {
     <div className="min-h-screen bg-[#F5F5F3] text-[#111111] flex flex-col justify-start pb-16">
       <Navbar />
 
-      <main className="max-w-7xl 2xl:max-w-[1536px] mx-auto px-3.5 sm:px-6 2xl:px-8 w-full pt-4">
+      <main className="max-w-7xl 2xl:max-w-384 mx-auto px-3.5 sm:px-6 2xl:px-8 w-full pt-4">
         {/* Search & Filter Header Bar */}
         <div className="bg-white rounded-2xl p-3 sm:p-4 shadow-sm border border-neutral-200/80 mb-6 flex flex-col lg:flex-row items-center justify-between gap-4">
           <div className="relative w-full lg:max-w-md">

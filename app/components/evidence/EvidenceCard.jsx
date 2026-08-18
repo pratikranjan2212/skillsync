@@ -21,14 +21,14 @@ export default function EvidenceCard({ evidence, onOverride }) {
 
   const formattedDate = verifiedAt
     ? new Date(verifiedAt).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      })
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    })
     : "Pending";
 
   return (
-    <div className="bg-white rounded-2xl sm:rounded-[24px] p-4 sm:p-6 shadow-md hover:shadow-lg transition-all border border-black/5 flex flex-col justify-between gap-4">
+    <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-md hover:shadow-lg transition-all border border-black/5 flex flex-col justify-between gap-4">
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between gap-2 flex-wrap">
           <span className="px-2.5 sm:px-3 py-1 bg-[#F5F5F3] text-[#494D4D] text-[11px] sm:text-xs font-bold uppercase tracking-wider rounded-xl">
