@@ -1,11 +1,27 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 import { INITIAL_PASSPORT } from "@/app/data/mockData";
+import { checkRateLimit, createRateLimitResponse, RATE_LIMIT_PRESETS, getClientIp } from "@/lib/security/rateLimit";
 
 export async function GET(request, { params }) {
+  const clientIp = getClientIp(request);
+  const rateLimit = checkRateLimit(
+    `share-token:${clientIp}`,
+    RATE_LIMIT_PRESETS.FEED_SCRAPING.maxRequests,
+    RATE_LIMIT_PRESETS.FEED_SCRAPING.windowMs
+  );
+  if (!rateLimit.success) {
+    return createRateLimitResponse(rateLimit.resetTime);
+  }
+
   const { shareToken } = await params;
 
   try {
+    const session = await auth();
+    const sessionUserId = session?.user?.id;
+    const sessionUserEmail = session?.user?.email;
+
     const passport = await prisma.passport.findUnique({
       where: { shareToken },
       include: {
@@ -18,7 +34,12 @@ export async function GET(request, { params }) {
     });
 
     if (passport) {
-      if (!passport.isPublic) {
+      const isOwner =
+        (sessionUserId && passport.userId === sessionUserId) ||
+        (sessionUserEmail && passport.user.email === sessionUserEmail);
+
+      // If passport is private, only the owner may access it
+      if (!passport.isPublic && !isOwner) {
         return NextResponse.json({ error: "Passport is set to private by student" }, { status: 403 });
       }
 
@@ -98,23 +119,13 @@ export async function GET(request, { params }) {
         }
       }
 
-      let resolvedDob = passport.user.dob || "Not Specified";
-      let resolvedGender = passport.user.gender && passport.user.gender !== "Student" ? passport.user.gender : "Male";
-      try {
-        const rawRow = await prisma.$queryRaw`SELECT dob, gender FROM users WHERE id = ${passport.user.id}`;
-        if (rawRow && rawRow[0]) {
-          if (rawRow[0].dob) resolvedDob = rawRow[0].dob;
-          if (rawRow[0].gender && rawRow[0].gender !== "Student") resolvedGender = rawRow[0].gender;
-        }
-      } catch (rawErr) {}
-
       return NextResponse.json({
         success: true,
         passport: {
           studentId: passport.studentId,
           studentName: passport.user.name || "Student User",
-          gender: resolvedGender,
-          dob: resolvedDob,
+          gender: passport.user.gender && passport.user.gender !== "Student" ? passport.user.gender : "Male",
+          dob: passport.user.dob || "Not Specified",
           college: passport.user.college || "Institution Not Specified",
           degree: passport.user.degree || "Degree Not Specified",
           batch: passport.user.batch || "Batch Not Specified",
@@ -132,16 +143,13 @@ export async function GET(request, { params }) {
       });
     }
   } catch (err) {
-    console.warn("DB Share Token GET fallback:", err.message);
+    console.warn("DB Share Token GET error:", err.message);
   }
 
-  // Fallback check
-  if (shareToken === INITIAL_PASSPORT.shareToken || shareToken.startsWith("sp-token-")) {
-    if (!INITIAL_PASSPORT.isPublic && shareToken !== INITIAL_PASSPORT.shareToken) {
-      return NextResponse.json({ error: "Passport is set to private by student" }, { status: 403 });
-    }
+  // Fallback ONLY for the initial demo share token
+  if (shareToken === INITIAL_PASSPORT.shareToken) {
     return NextResponse.json({ success: true, passport: INITIAL_PASSPORT });
   }
 
-  return NextResponse.json({ error: "Invalid share token" }, { status: 404 });
+  return NextResponse.json({ error: "Invalid or expired share token." }, { status: 404 });
 }
