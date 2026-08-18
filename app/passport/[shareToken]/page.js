@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { Lock, ExternalLink, ArrowLeft } from "lucide-react";
 import InteractivePassportCard from "@/app/components/passport/InteractivePassportCard";
+import SkillPassportFolder from "@/app/components/passport/SkillPassportFolder";
 import prisma from "@/lib/prisma";
 import { INITIAL_PASSPORT } from "@/app/data/mockData";
 
@@ -142,8 +143,8 @@ export default async function PublicPassportPage({ params }) {
           </Link>
         </div>
 
-        <div className="w-full flex justify-center">
-          <InteractivePassportCard passportData={passport} />
+        <div className="w-full flex justify-center py-6">
+          <SkillPassportFolder passportData={passport} />
         </div>
       </main>
     </div>

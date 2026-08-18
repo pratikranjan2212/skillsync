@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { 
   ShieldCheck, 
   User, 
@@ -44,31 +44,17 @@ export default function InteractivePassportCard({
   passportData,
   className = "",
   showControls = true,
-  onTogglePublic
+  onTogglePublic,
+  onClose
 }) {
   const [selectedSkill, setSelectedSkill] = useState(null);
   const [isFlipped, setIsFlipped] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);
   const [copiedId, setCopiedId] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedHash, setCopiedHash] = useState(false);
   const [isPublic, setIsPublic] = useState(passportData?.isPublic ?? true);
   const [isExportingPdf, setIsExportingPdf] = useState(false);
   const hoverTimeoutRef = React.useRef(null);
-
-  // Close focus view on Escape key
-  React.useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === "Escape") {
-        setIsFocused(false);
-        setSelectedSkill(null);
-      }
-    };
-    if (isFocused) {
-      window.addEventListener("keydown", handleKeyDown);
-    }
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isFocused]);
 
   const handleSkillMouseEnter = (skill) => {
     if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
@@ -160,9 +146,9 @@ export default function InteractivePassportCard({
     }
   };
 
-  // Reusable Passport Front Surface
-  const renderPassportFront = (isEnlarged = false) => (
-    <div className={`w-full bg-linear-to-br from-[#121212] via-[#080808] to-[#000000] text-white rounded-3xl ${isEnlarged ? "p-6 sm:p-9" : "p-5 sm:p-6"} border border-white/10 shadow-[0_28px_64px_-12px_rgba(0,0,0,0.95),_0_0_0_1px_rgba(255,255,255,0.08)] overflow-hidden relative flex flex-col justify-between`}>
+  // Passport Front Surface (Focused / Enlarged Layout)
+  const renderPassportFront = () => (
+    <div className="w-full bg-linear-to-br from-[#121212] via-[#080808] to-[#000000] text-white rounded-3xl p-5 sm:p-7 border border-white/10 shadow-[0_28px_64px_-12px_rgba(0,0,0,0.95),_0_0_0_1px_rgba(255,255,255,0.08)] overflow-hidden relative flex flex-col justify-between">
       {/* Ambient Lighting */}
       <div className="absolute -top-24 -left-24 w-80 h-80 bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none" />
       <div className="absolute top-1/2 -right-24 w-80 h-80 bg-white/5 rounded-full blur-[80px] pointer-events-none" />
@@ -170,12 +156,12 @@ export default function InteractivePassportCard({
       {/* Watermark Waves */}
       <PassportWaves />
 
-      <div className={`relative z-10 flex flex-col justify-between h-full ${isEnlarged ? "gap-6 sm:gap-7" : "gap-4 sm:gap-5"}`}>
+      <div className="relative z-10 flex flex-col justify-between h-full gap-6 sm:gap-7">
         {/* Header */}
         <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-3">
           <div className="flex items-center gap-2">
             <SkillSyncLogo />
-            <span className={`${isEnlarged ? "text-xl sm:text-2xl" : "text-lg sm:text-xl"} font-black tracking-tight text-white`}>
+            <span className="text-xl sm:text-2xl font-black tracking-tight text-white">
               SkillSync
             </span>
           </div>
@@ -188,13 +174,13 @@ export default function InteractivePassportCard({
         </div>
 
         {/* Content Body */}
-        <div className={`grid grid-cols-1 ${isEnlarged ? "md:grid-cols-12 gap-6 sm:gap-8" : "sm:grid-cols-12 gap-4 sm:gap-5"} items-start`}>
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-8 items-start">
           
           {/* Student Info */}
-          <div className={`${isEnlarged ? "md:col-span-5" : "sm:col-span-5"} flex flex-col gap-3.5`}>
+          <div className="md:col-span-5 flex flex-col gap-3.5">
             <div className="flex items-center gap-3.5">
               <div className="relative shrink-0">
-                <div className={`${isEnlarged ? "w-20 h-20 sm:w-24 sm:h-24" : "w-16 h-16 sm:w-18 sm:h-18"} rounded-full overflow-hidden border-2 border-emerald-400 shadow-[0_0_24px_rgba(52,211,153,0.35)] bg-neutral-900 relative flex items-center justify-center`}>
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-2 border-emerald-400 shadow-[0_0_24px_rgba(52,211,153,0.35)] bg-neutral-900 relative flex items-center justify-center">
                   {student.photoUrl ? (
                     <Image
                       src={student.photoUrl}
@@ -219,64 +205,64 @@ export default function InteractivePassportCard({
 
               <div className="flex flex-col gap-1.5 min-w-0">
                 <div>
-                  <div className="flex items-center gap-1 text-[9px] font-bold text-emerald-400 uppercase tracking-wider">
-                    <User className="w-3 h-3 text-emerald-400" />
+                  <div className="flex items-center gap-1 text-[11px] sm:text-xs font-bold text-emerald-400 uppercase tracking-wider">
+                    <User className="w-3.5 h-3.5 text-emerald-400" />
                     <span>NAME</span>
                   </div>
-                  <div className={`${isEnlarged ? "text-base sm:text-lg" : "text-sm sm:text-base"} font-black text-white leading-tight truncate`}>
+                  <div className="text-base sm:text-lg font-black text-white leading-tight truncate mt-0.5">
                     {student.name}
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 text-[10px] whitespace-nowrap">
+                <div className="flex items-center gap-4 sm:gap-5 text-xs sm:text-sm whitespace-nowrap mt-1">
                   <div>
-                    <span className="text-neutral-400 font-bold block text-[8px] uppercase">GENDER</span>
-                    <span className="text-neutral-200 font-semibold">{student.gender}</span>
+                    <span className="text-neutral-400 font-bold block text-[10px] sm:text-[11px] uppercase tracking-wider">GENDER</span>
+                    <span className="text-white font-bold text-xs sm:text-sm">{student.gender}</span>
                   </div>
                   <div>
-                    <span className="text-neutral-400 font-bold block text-[8px] uppercase">DOB</span>
-                    <span className="text-neutral-200 font-semibold">{student.dob}</span>
+                    <span className="text-neutral-400 font-bold block text-[10px] sm:text-[11px] uppercase tracking-wider">DOB</span>
+                    <span className="text-white font-bold text-xs sm:text-sm">{student.dob}</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-col gap-2 pt-1 border-t border-white/10">
+            <div className="flex flex-col gap-2.5 pt-2 border-t border-white/10">
               <div className="flex items-start gap-2.5">
-                <div className="w-6 h-6 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0 mt-0.5 text-emerald-400">
-                  <GraduationCap className="w-3.5 h-3.5" />
+                <div className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0 mt-0.5 text-emerald-400">
+                  <GraduationCap className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
-                  <div className="text-[8px] font-bold text-neutral-400 uppercase tracking-wider">COLLEGE</div>
-                  <div className="text-xs font-bold text-white leading-snug truncate">{student.college}</div>
+                  <div className="text-[10px] sm:text-[11px] font-bold text-neutral-400 uppercase tracking-wider">COLLEGE</div>
+                  <div className="text-xs sm:text-sm font-bold text-white leading-snug truncate">{student.college}</div>
                 </div>
               </div>
 
               <div className="flex items-start gap-2.5">
-                <div className="w-6 h-6 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0 mt-0.5 text-emerald-400">
-                  <BookOpen className="w-3.5 h-3.5" />
+                <div className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0 mt-0.5 text-emerald-400">
+                  <BookOpen className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
-                  <div className="text-[8px] font-bold text-neutral-400 uppercase tracking-wider">DEGREE</div>
-                  <div className="text-xs font-bold text-white leading-snug truncate">{student.degree}</div>
+                  <div className="text-[10px] sm:text-[11px] font-bold text-neutral-400 uppercase tracking-wider">DEGREE</div>
+                  <div className="text-xs sm:text-sm font-bold text-white leading-snug truncate">{student.degree}</div>
                 </div>
               </div>
 
               <div className="flex items-start gap-2.5">
-                <div className="w-6 h-6 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0 mt-0.5 text-emerald-400">
-                  <Calendar className="w-3.5 h-3.5" />
+                <div className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0 mt-0.5 text-emerald-400">
+                  <Calendar className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
-                  <div className="text-[8px] font-bold text-neutral-400 uppercase tracking-wider">BATCH</div>
-                  <div className="text-xs font-bold text-white">{student.batch}</div>
+                  <div className="text-[10px] sm:text-[11px] font-bold text-neutral-400 uppercase tracking-wider">BATCH</div>
+                  <div className="text-xs sm:text-sm font-bold text-white">{student.batch}</div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Skills & Projects (Without Skill Icons) */}
-          <div className={`${isEnlarged ? "md:col-span-7" : "sm:col-span-7"} flex flex-col gap-4 relative`}>
-            {/* Skills Section - Clean Text Badges */}
+          {/* Skills & Projects */}
+          <div className="md:col-span-7 flex flex-col gap-4 relative">
+            {/* Skills Section */}
             <div className="flex flex-col gap-2 relative">
               <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-emerald-400">
                 <Hexagon className="w-3 h-3 text-emerald-400 fill-emerald-400/20" />
@@ -390,9 +376,9 @@ export default function InteractivePassportCard({
     </div>
   );
 
-  // Reusable Cryptographic Proof Back Surface
-  const renderPassportBack = (isEnlarged = false) => (
-    <div className={`w-full h-full bg-linear-to-br from-[#121212] via-[#080808] to-[#000000] text-white rounded-3xl ${isEnlarged ? "p-6 sm:p-9" : "p-5 sm:p-6"} border border-white/10 shadow-[0_28px_64px_-12px_rgba(0,0,0,0.95),_0_0_0_1px_rgba(255,255,255,0.08)] overflow-hidden flex flex-col justify-between`}>
+  // Cryptographic Proof Back Surface (Focused / Enlarged Layout)
+  const renderPassportBack = () => (
+    <div className="w-full h-full bg-linear-to-br from-[#121212] via-[#080808] to-[#000000] text-white rounded-3xl p-5 sm:p-7 border border-white/10 shadow-[0_28px_64px_-12px_rgba(0,0,0,0.95),_0_0_0_1px_rgba(255,255,255,0.08)] overflow-hidden flex flex-col justify-between">
       <div className="absolute -top-24 -right-24 w-80 h-80 bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none" />
       
       <div className="flex items-center justify-between border-b border-white/10 pb-3 relative z-10">
@@ -450,9 +436,11 @@ export default function InteractivePassportCard({
   );
 
   return (
-    <div className={`relative w-full flex flex-col items-center select-none ${className}`}>
+    <div className={`w-full max-w-[760px] flex flex-col items-center select-none ${className}`}>
+      {/* Top Action Bar in Focused Card Window */}
       {showControls && (
-        <div className="w-full max-w-2xl flex flex-wrap items-center justify-between gap-3 mb-4 px-2">
+        <div className="w-full flex flex-wrap items-center justify-between gap-3 mb-3 px-1">
+          {/* Left: Official Skill Passport Badge */}
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold shadow-xs">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
@@ -460,10 +448,12 @@ export default function InteractivePassportCard({
             </span>
           </div>
 
+          {/* Right: Quick Actions + Flip + Close */}
           <div className="flex items-center gap-2 flex-wrap">
+            {/* Public/Private Toggle */}
             <button
               onClick={handleToggle}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-xs border transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl font-bold text-xs border transition-all cursor-pointer ${
                 isPublic
                   ? "bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100"
                   : "bg-neutral-100 text-neutral-700 border-neutral-300 hover:bg-neutral-200"
@@ -482,10 +472,11 @@ export default function InteractivePassportCard({
               )}
             </button>
 
+            {/* Share / Copy Link */}
             {isPublic && (
               <button
                 onClick={handleCopyLink}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-white text-neutral-800 hover:bg-neutral-50 border border-black/10 rounded-xl font-bold text-xs shadow-2xs transition-all cursor-pointer"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white text-neutral-800 hover:bg-neutral-50 border border-black/10 rounded-xl font-bold text-xs shadow-2xs transition-all cursor-pointer"
               >
                 {copiedLink ? (
                   <>
@@ -501,6 +492,7 @@ export default function InteractivePassportCard({
               </button>
             )}
 
+            {/* PDF Export */}
             <button
               onClick={handleExportPdf}
               disabled={isExportingPdf}
@@ -509,111 +501,68 @@ export default function InteractivePassportCard({
               <Download className="w-3.5 h-3.5 text-emerald-400" />
               <span>{isExportingPdf ? "Exporting..." : "PDF"}</span>
             </button>
+
+            {/* Flip to Cryptographic Proof Button */}
+            <button
+              type="button"
+              onClick={() => setIsFlipped(!isFlipped)}
+              className="p-2 rounded-xl bg-white/10 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-white/15 hover:border-emerald-500 transition-all shadow-xs cursor-pointer group"
+              title={isFlipped ? "Show Front Side" : "Flip to Cryptographic Proof"}
+            >
+              <RotateCw className="w-3.5 h-3.5 transition-transform group-hover:rotate-180 duration-500" />
+            </button>
+
+            {/* Close Button (if onClose provided) */}
+            {onClose && (
+              <button
+                type="button"
+                onClick={onClose}
+                className="p-2 rounded-xl bg-white/10 hover:bg-rose-600 text-neutral-300 hover:text-white border border-white/15 hover:border-rose-500 transition-all shadow-xs cursor-pointer group"
+                title="Close"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
         </div>
       )}
 
-      {/* Compact Passport Card (Click to Enlarge / Focus) */}
+      {/* 3D Flippable Focused Card */}
       <div 
-        className="w-full max-w-2xl relative cursor-pointer select-none"
-        onClick={() => setIsFocused(true)}
+        style={{ perspective: 1800 }} 
+        className="w-full relative cursor-pointer"
+        onClick={() => setIsFlipped(!isFlipped)}
       >
-        {renderPassportFront(false)}
-      </div>
-
-      {/* Focused Enlarged Modal View with Smooth Zoom In & Out Animations */}
-      <AnimatePresence>
-        {isFocused && (
-          <motion.div 
-            key="passport-modal-backdrop"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.22, ease: "easeOut" }}
-            className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex flex-col items-center justify-center p-4 sm:p-6 overflow-y-auto"
-            onClick={() => {
-              setIsFocused(false);
-              setSelectedSkill(null);
+        <motion.div
+          animate={{ rotateY: isFlipped ? 180 : 0 }}
+          transition={{ duration: 0.6, ease: [0.35, 0, 0.2, 1] }}
+          style={{ transformStyle: "preserve-3d" }}
+          className="relative w-full"
+        >
+          {/* Front of Enlarged Focused Card */}
+          <div
+            style={{ 
+              backfaceVisibility: "hidden", 
+              WebkitBackfaceVisibility: "hidden" 
             }}
+            className="w-full"
           >
-            {/* Zoom In / Out Animated Container */}
-            <motion.div
-              key="passport-modal-content"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 380, damping: 28 }}
-              className="w-full max-w-3xl flex flex-col items-center"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Top Floating Control Bar (Icon-only Flip and Close Buttons Aligned Right) */}
-              <div className="w-full flex items-center justify-end gap-2.5 mb-3 px-1">
-                <button
-                  type="button"
-                  onClick={() => setIsFlipped(!isFlipped)}
-                  className="p-2.5 rounded-full bg-white/10 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-white/15 hover:border-emerald-500 transition-all shadow-md cursor-pointer hover:scale-110 active:scale-95 group"
-                  title={isFlipped ? "Show Front Side" : "Flip to Cryptographic Proof"}
-                >
-                  <RotateCw className="w-4 h-4 transition-transform group-hover:rotate-180 duration-500" />
-                </button>
+            {renderPassportFront()}
+          </div>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsFocused(false);
-                    setSelectedSkill(null);
-                  }}
-                  className="p-2.5 rounded-full bg-white/10 hover:bg-rose-600 text-neutral-300 hover:text-white border border-white/15 hover:border-rose-500 transition-all shadow-md cursor-pointer hover:scale-110 active:scale-95 group"
-                  title="Close"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Enlarged 3D Flippable Card (Click to Return to Compact Mode) */}
-              <div 
-                style={{ perspective: 1800 }} 
-                className="w-full relative cursor-pointer"
-                onClick={() => {
-                  setIsFocused(false);
-                  setSelectedSkill(null);
-                }}
-              >
-                <motion.div
-                  animate={{ rotateY: isFlipped ? 180 : 0 }}
-                  transition={{ duration: 0.6, ease: [0.35, 0, 0.2, 1] }}
-                  style={{ transformStyle: "preserve-3d" }}
-                  className="relative w-full"
-                >
-                  {/* Front of Enlarged Card */}
-                  <div
-                    style={{ 
-                      backfaceVisibility: "hidden", 
-                      WebkitBackfaceVisibility: "hidden" 
-                    }}
-                    className="w-full"
-                  >
-                    {renderPassportFront(true)}
-                  </div>
-
-                  {/* Back of Enlarged Card (Proof) */}
-                  <div
-                    style={{ 
-                      backfaceVisibility: "hidden", 
-                      WebkitBackfaceVisibility: "hidden",
-                      transform: "rotateY(180deg)" 
-                    }}
-                    className="absolute inset-0 w-full h-full"
-                  >
-                    {renderPassportBack(true)}
-                  </div>
-                </motion.div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          {/* Back of Enlarged Focused Card (Proof) */}
+          <div
+            style={{ 
+              backfaceVisibility: "hidden", 
+              WebkitBackfaceVisibility: "hidden",
+              transform: "rotateY(180deg)" 
+            }}
+            className="absolute inset-0 w-full h-full"
+          >
+            {renderPassportBack()}
+          </div>
+        </motion.div>
+      </div>
     </div>
   );
 }
-
