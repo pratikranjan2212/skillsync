@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FileCheck, ExternalLink, Calendar, Key, ShieldCheck } from "lucide-react";
+import { FileCheck, ExternalLink, Calendar, ShieldCheck } from "lucide-react";
 import Badge from "@/app/components/ui/Badge";
 import RollingText from "@/app/components/ui/RollingText";
 
@@ -68,13 +68,6 @@ export default function EvidenceCard({ evidence, onOverride }) {
               {verificationReason}
             </div>
           </div>
-
-          {fileHash && (
-            <div className="flex items-center gap-2 text-neutral-500 font-mono text-[11px] truncate">
-              <Key className="w-3.5 h-3.5 shrink-0 text-neutral-400" />
-              <span className="truncate">Hash: {fileHash.substring(0, 24)}...</span>
-            </div>
-          )}
         </div>
       </div>
 

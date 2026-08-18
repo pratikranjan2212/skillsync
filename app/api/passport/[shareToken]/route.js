@@ -64,6 +64,7 @@ export async function GET(request, { params }) {
       }
 
       const projects = [];
+      const coursework = [];
       for (const ev of passport.user.evidences || []) {
         if (
           ev.type === "project" ||
@@ -77,6 +78,22 @@ export async function GET(request, { params }) {
             githubUrl: ev.fileUrl || "",
             skills: ev.claimedSkills || [],
             tier: ev.verificationTier,
+          });
+        } else if (
+          ev.type === "coursework" ||
+          ev.type === "lab" ||
+          ev.type === "certification" ||
+          ev.type === "micro-credential" ||
+          (ev.title && (ev.title.toLowerCase().includes("course") || ev.title.toLowerCase().includes("learning") || ev.title.toLowerCase().includes("dbms") || ev.title.toLowerCase().includes("specialization")))
+        ) {
+          coursework.push({
+            id: ev.id,
+            title: ev.title,
+            description: ev.description || "",
+            certificateUrl: ev.fileUrl || "",
+            skills: ev.claimedSkills || [],
+            tier: ev.verificationTier || "verified-high",
+            verified: ev.verificationStage === "completed" || ev.verificationTier === "verified-high" || ev.verificationTier === "verified-medium",
           });
         }
       }
@@ -110,6 +127,7 @@ export async function GET(request, { params }) {
           updatedAt: passport.updatedAt.toISOString(),
           skills: skills.length > 0 ? skills : INITIAL_PASSPORT.skills,
           projects: projects.length > 0 ? projects : INITIAL_PASSPORT.projects,
+          coursework: coursework,
         },
       });
     }

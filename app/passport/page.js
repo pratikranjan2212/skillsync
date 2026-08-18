@@ -84,10 +84,10 @@ export default function SkillPassportPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F5F3] text-[#111111] pb-24">
+    <div className="h-screen max-h-screen overflow-hidden bg-[#F5F5F3] text-[#111111] flex flex-col justify-between">
       <Navbar />
 
-      <main className="max-w-5xl 2xl:max-w-6xl mx-auto px-3.5 sm:px-8 md:px-12 flex flex-col items-center justify-center pt-4 sm:pt-8">
+      <main className="flex-1 max-w-6xl 2xl:max-w-7xl mx-auto px-4 sm:px-8 md:px-12 flex flex-col items-center justify-center w-full min-h-0">
         {isLoading && (
           <div className="w-full bg-white rounded-4xl p-16 text-center border border-black/5 flex flex-col items-center gap-4 shadow-sm animate-pulse">
             <div className="w-10 h-10 rounded-full border-4 border-emerald-500 border-t-transparent animate-spin"></div>
@@ -109,7 +109,7 @@ export default function SkillPassportPage() {
         )}
 
         {passport && (
-          <div className="w-full flex justify-center py-6">
+          <div className="w-full flex justify-center items-center py-2">
             <SkillPassportFolder
               passportData={passport}
               onTogglePublic={handleTogglePublic}
