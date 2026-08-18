@@ -5,6 +5,7 @@ import { createToken } from "@/lib/security/tokens";
 import { checkRateLimit, createRateLimitResponse, getClientIp } from "@/lib/security/rateLimit";
 import { logSecurityEvent, SecurityEvent, LogLevel } from "@/lib/security/logger";
 import { validateHoneypot } from "@/lib/security/botProtection";
+import { sanitizeString, validateAndSanitizeEmail } from "@/lib/security/validator";
 
 export async function POST(request) {
   try {
