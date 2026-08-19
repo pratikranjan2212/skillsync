@@ -28,22 +28,25 @@ export default function ShareExportButtons({ passportData, isPublic: initialPubl
   const handleExportPdf = async () => {
     setIsExportingPdf(true);
     try {
-      const res = await fetch(`/api/passport/pdf?studentId=${passportData?.studentId || "std-101"}`);
+      const studentId = passportData?.studentId || "SS-2026-STU01";
+      const token = shareToken || passportData?.shareToken || "";
+      const res = await fetch(`/api/passport/pdf?studentId=${encodeURIComponent(studentId)}&shareToken=${encodeURIComponent(token)}`);
       if (res.ok) {
         const blob = await res.blob();
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `SkillSync_Passport_${passportData?.studentId || "export"}.pdf`;
+        a.download = `SkillSync_Passport_${studentId}.pdf`;
         document.body.appendChild(a);
         a.click();
         a.remove();
+        setTimeout(() => window.URL.revokeObjectURL(url), 1000);
       } else {
-        window.print();
+        alert("Could not generate PDF transcript. Please try again.");
       }
     } catch (err) {
       console.error("PDF export error:", err);
-      window.print();
+      alert("Failed to export PDF transcript.");
     } finally {
       setIsExportingPdf(false);
     }
