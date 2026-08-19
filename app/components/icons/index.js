@@ -1,0 +1,9 @@
+export { default as GitHubIcon } from "./GitHubIcon";
+export { default as LinkedInIcon } from "./LinkedInIcon";
+export { default as LinkedInWordmark } from "./LinkedInWordmark";
+export { default as IndeedWordmark } from "./IndeedWordmark";
+export { default as DocumentIcon } from "./DocumentIcon";
+export { default as PortfolioIcon } from "./PortfolioIcon";
+export { default as GenderIcon } from "./GenderIcon";
+export { default as PassportWaves } from "./PassportWaves";
+export { default as MagnifyingGlassIcon } from "./MagnifyingGlassIcon";
