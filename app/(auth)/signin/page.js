@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { Mail, Lock, ArrowRight, Sparkles } from "lucide-react";
 import { signIn } from "next-auth/react";
 import Navbar from "@/app/components/layout/Navbar";
-import { GitHubIcon } from "@/app/components/icons";
+import { GitHubIcon, GoogleIcon, LinkedInIcon } from "@/app/components/icons";
 
 function SignInContent() {
   const router = useRouter();
@@ -75,14 +75,34 @@ function SignInContent() {
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={() => signIn("github", { callbackUrl: "/dashboard", redirectTo: "/dashboard" })}
-            className="w-full py-3 px-4 bg-[#24292F] hover:bg-[#1B1F23] text-white rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2.5 shadow-sm cursor-pointer"
-          >
-            <GitHubIcon className="w-4 h-4 fill-current" />
-            <span>Continue with GitHub</span>
-          </button>
+          <div className="flex flex-col gap-2.5">
+            <button
+              type="button"
+              onClick={() => signIn("google", { callbackUrl: "/dashboard", redirectTo: "/dashboard" })}
+              className="w-full py-3 px-4 bg-white hover:bg-neutral-50 text-[#111111] border border-black/10 rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2.5 shadow-2xs cursor-pointer"
+            >
+              <GoogleIcon className="w-4.5 h-4.5" />
+              <span>Continue with Google</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => signIn("linkedin", { callbackUrl: "/dashboard", redirectTo: "/dashboard" })}
+              className="w-full py-3 px-4 bg-[#0A66C2] hover:bg-[#004182] text-white rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2.5 shadow-xs cursor-pointer"
+            >
+              <LinkedInIcon className="w-4.5 h-4.5 fill-current" />
+              <span>Continue with LinkedIn</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => signIn("github", { callbackUrl: "/dashboard", redirectTo: "/dashboard" })}
+              className="w-full py-3 px-4 bg-[#24292F] hover:bg-[#1B1F23] text-white rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2.5 shadow-xs cursor-pointer"
+            >
+              <GitHubIcon className="w-4.5 h-4.5 fill-current" />
+              <span>Continue with GitHub</span>
+            </button>
+          </div>
 
           <div className="relative flex items-center justify-center my-0.5">
             <div className="border-t border-black/10 w-full"></div>

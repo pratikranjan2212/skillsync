@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { auth, formatDisplayName } from "@/lib/auth";
-import { sanitizeString, sanitizeUrl, sanitizeSkillList } from "@/lib/security/validator";
+import { sanitizeString, sanitizeUrl, sanitizeImageUrl, sanitizeSkillList } from "@/lib/security/validator";
 import { logSecurityEvent, SecurityEvent, LogLevel } from "@/lib/security/logger";
 
 export const dynamic = "force-dynamic";
@@ -163,7 +163,18 @@ export async function PUT(request) {
     const validatedGithub = github !== undefined ? (sanitizeUrl(github).valid ? sanitizeUrl(github).url : "") : user.githubUrl;
     const validatedLinkedin = linkedin !== undefined ? (sanitizeUrl(linkedin).valid ? sanitizeUrl(linkedin).url : "") : user.linkedinUrl;
     const validatedPortfolio = portfolio !== undefined ? (sanitizeUrl(portfolio).valid ? sanitizeUrl(portfolio).url : "") : user.portfolioUrl;
-    const validatedImage = image !== undefined ? (sanitizeUrl(image).valid ? sanitizeUrl(image).url : null) : user.image;
+
+    let validatedImage = user.image;
+    if (image !== undefined) {
+      if (!image || (typeof image === "string" && image.trim() === "")) {
+        validatedImage = null;
+      } else {
+        const imgResult = sanitizeImageUrl(image);
+        if (imgResult.valid) {
+          validatedImage = imgResult.url;
+        }
+      }
+    }
 
     const sanitizedSkills = skills !== undefined ? sanitizeSkillList(skills, 50, 50) : user.skills;
 

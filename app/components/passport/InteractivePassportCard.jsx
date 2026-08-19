@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import QRCode from "qrcode";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   ShieldCheck, 
   User, 
@@ -21,7 +22,8 @@ import {
   Globe,
   Award,
   ExternalLink,
-  X
+  X,
+  Maximize2
 } from "lucide-react";
 import { GitHubIcon, PassportWaves } from "@/app/components/icons";
 
@@ -52,6 +54,8 @@ export default function InteractivePassportCard({
   const [copiedHash, setCopiedHash] = useState(false);
   const [isPublic, setIsPublic] = useState(passportData?.isPublic ?? true);
   const [isExportingPdf, setIsExportingPdf] = useState(false);
+  const [qrSvg, setQrSvg] = useState("");
+  const [isQrExpanded, setIsQrExpanded] = useState(false);
 
   const student = {
     id: passportData?.studentId || "SS-2026-STU01",
@@ -76,25 +80,113 @@ export default function InteractivePassportCard({
     : [];
   const hasCoursework = verifiedCourses.length > 0;
 
-  const handleCopyId = (e) => {
-    e.stopPropagation();
-    navigator.clipboard.writeText(student.id);
-    setCopiedId(true);
-    setTimeout(() => setCopiedId(false), 2000);
+  // Generate Unique White QR Code whenever student credentials change
+  useEffect(() => {
+    let isMounted = true;
+    const origin = typeof window !== "undefined" && window.location?.origin ? window.location.origin : "https://skillsync.app";
+    const verificationUrl = `${origin}/passport/${student.shareToken || student.id}`;
+
+    QRCode.toString(verificationUrl, {
+      type: "svg",
+      margin: 1,
+      color: {
+        dark: "#FFFFFF",
+        light: "#00000000",
+      },
+      errorCorrectionLevel: "M",
+    })
+      .then((svg) => {
+        if (isMounted) setQrSvg(svg);
+      })
+      .catch((err) => {
+        console.error("Failed to generate QR code SVG:", err);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [student.shareToken, student.id, student.credentialHash]);
+
+  // Keyboard accessibility: Escape key dismisses QR pop-up lightbox
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (isQrExpanded && e.key === "Escape") {
+        e.preventDefault();
+        setIsQrExpanded(false);
+      }
+    };
+    if (isQrExpanded) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isQrExpanded]);
+
+  // Robust cross-browser clipboard copy with fallback
+  const copyToClipboard = async (text) => {
+    try {
+      if (typeof navigator !== "undefined" && navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch (err) {
+      console.warn("navigator.clipboard failed, attempting fallback:", err);
+    }
+
+    try {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-999999px";
+      textArea.style.top = "-999999px";
+      textArea.setAttribute("readonly", "");
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      const successful = document.execCommand("copy");
+      textArea.remove();
+      return successful;
+    } catch (err) {
+      console.error("Fallback clipboard copy failed:", err);
+      return false;
+    }
   };
 
-  const handleCopyHash = (e) => {
-    e.stopPropagation();
-    navigator.clipboard.writeText(student.credentialHash);
-    setCopiedHash(true);
-    setTimeout(() => setCopiedHash(false), 2000);
+  const handleCopyId = async (e) => {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    const ok = await copyToClipboard(student.id);
+    if (ok) {
+      setCopiedId(true);
+      setTimeout(() => setCopiedId(false), 2000);
+    }
   };
 
-  const handleCopyLink = () => {
-    const url = `${typeof window !== "undefined" ? window.location.origin : ""}/passport/${student.shareToken}`;
-    navigator.clipboard.writeText(url);
-    setCopiedLink(true);
-    setTimeout(() => setCopiedLink(false), 2000);
+  const handleCopyHash = async (e) => {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    const ok = await copyToClipboard(student.credentialHash);
+    if (ok) {
+      setCopiedHash(true);
+      setTimeout(() => setCopiedHash(false), 2000);
+    }
+  };
+
+  const handleCopyLink = async (e) => {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    const origin = typeof window !== "undefined" && window.location?.origin ? window.location.origin : "https://skillsync.app";
+    const url = `${origin}/passport/${student.shareToken || student.id}`;
+    const ok = await copyToClipboard(url);
+    if (ok) {
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2000);
+    }
   };
 
   const handleToggle = async () => {
@@ -108,7 +200,7 @@ export default function InteractivePassportCard({
   const handleExportPdf = async () => {
     setIsExportingPdf(true);
     try {
-      const res = await fetch(`/api/passport/pdf?studentId=${student.id}`);
+      const res = await fetch(`/api/passport/pdf?studentId=${encodeURIComponent(student.id)}&shareToken=${encodeURIComponent(student.shareToken || "")}`);
       if (res.ok) {
         const blob = await res.blob();
         const url = window.URL.createObjectURL(blob);
@@ -118,12 +210,13 @@ export default function InteractivePassportCard({
         document.body.appendChild(a);
         a.click();
         a.remove();
+        setTimeout(() => window.URL.revokeObjectURL(url), 1000);
       } else {
-        window.print();
+        alert("Could not generate PDF transcript. Please try again.");
       }
     } catch (err) {
       console.error("PDF export error:", err);
-      window.print();
+      alert("Failed to export PDF transcript.");
     } finally {
       setIsExportingPdf(false);
     }
@@ -431,7 +524,7 @@ export default function InteractivePassportCard({
 
   // Cryptographic Proof Back Surface (Focused Layout)
   const renderPassportBack = () => (
-    <div className="w-full h-full bg-linear-to-br from-[#121212] via-[#080808] to-[#000000] text-white rounded-3xl p-6 sm:p-7 border border-white/10 shadow-[0_28px_64px_-12px_rgba(0,0,0,0.95),_0_0_0_1px_rgba(255,255,255,0.08)] overflow-hidden flex flex-col justify-between">
+    <div className="w-full h-full bg-linear-to-br from-[#121212] via-[#080808] to-[#000000] text-white rounded-3xl p-6 sm:p-7 border border-white/10 shadow-[0_28px_64px_-12px_rgba(0,0,0,0.95),_0_0_0_1px_rgba(255,255,255,0.08)] overflow-hidden flex flex-col justify-between relative">
       <div className="absolute -top-24 -right-24 w-80 h-80 bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none" />
       
       <div className="flex items-center justify-between border-b border-white/10 pb-3 relative z-10">
@@ -463,23 +556,68 @@ export default function InteractivePassportCard({
             <div className="flex items-center justify-between">
               <span className="text-[9px] text-neutral-400 uppercase font-bold tracking-wider">SHA-256 Merkle Root</span>
               <button
+                type="button"
                 onClick={handleCopyHash}
-                className="text-[10px] text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1 cursor-pointer"
-                aria-label="Copy hash"
+                className="text-[10px] text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1 cursor-pointer transition-all active:scale-95 px-1.5 py-0.5 rounded-md hover:bg-emerald-500/10"
+                aria-label="Copy cryptographic hash"
               >
-                {copiedHash ? <Check className="w-2.5 h-2.5" /> : <Copy className="w-2.5 h-2.5" />}
-                <span>{copiedHash ? "Copied" : "Copy Hash"}</span>
+                {copiedHash ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                <span>{copiedHash ? "Copied!" : "Copy Hash"}</span>
               </button>
             </div>
-            <div className="text-[10px] sm:text-xs font-mono text-emerald-400 break-all bg-black/70 p-2 rounded-xl border border-white/10 font-semibold mt-0.5">
+            <div className="text-[10px] sm:text-xs font-mono text-emerald-400 break-all bg-black/70 p-2 rounded-xl border border-white/10 font-semibold mt-0.5 select-all">
               {student.credentialHash}
             </div>
           </div>
         </div>
 
-        <div className="md:col-span-5 flex flex-col items-center justify-center p-3 bg-black/70 rounded-xl border border-white/10 gap-1.5 text-center">
-          <QrCode className="w-20 h-20 sm:w-24 sm:h-24 text-emerald-400" />
-          <span className="text-[9px] font-mono text-neutral-400">Scan to verify proof</span>
+        {/* Unique White QR Code Box with Appealing Borders & Click-to-Popup */}
+        <div 
+          role="button"
+          tabIndex={0}
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            setIsQrExpanded(true);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.stopPropagation();
+              e.preventDefault();
+              setIsQrExpanded(true);
+            }
+          }}
+          className="md:col-span-5 flex flex-col items-center justify-center p-3 sm:p-3.5 bg-gradient-to-b from-[#141414] via-[#0c0c0c] to-[#040404] rounded-2xl border border-emerald-500/25 hover:border-emerald-400/60 shadow-[inset_0_1px_1px_rgba(255,255,255,0.08),_0_8px_20px_-4px_rgba(0,0,0,0.7)] hover:shadow-[0_0_25px_rgba(52,211,153,0.25)] transition-all duration-300 gap-1.5 text-center group cursor-pointer relative overflow-hidden"
+          title="Click to expand QR Code"
+          aria-label="Click to enlarge verification QR code"
+        >
+          {/* Ambient glowing backdrop on hover */}
+          <div className="absolute inset-0 bg-emerald-500/5 group-hover:bg-emerald-500/10 transition-colors pointer-events-none" />
+
+          {/* Sleek Corner Accent Borders */}
+          <div className="absolute top-1.5 left-1.5 w-2.5 h-2.5 border-t-2 border-l-2 border-emerald-400/60 group-hover:border-emerald-400 rounded-tl-xs pointer-events-none transition-colors" />
+          <div className="absolute top-1.5 right-1.5 w-2.5 h-2.5 border-t-2 border-r-2 border-emerald-400/60 group-hover:border-emerald-400 rounded-tr-xs pointer-events-none transition-colors" />
+          <div className="absolute bottom-1.5 left-1.5 w-2.5 h-2.5 border-b-2 border-l-2 border-emerald-400/60 group-hover:border-emerald-400 rounded-bl-xs pointer-events-none transition-colors" />
+          <div className="absolute bottom-1.5 right-1.5 w-2.5 h-2.5 border-b-2 border-r-2 border-emerald-400/60 group-hover:border-emerald-400 rounded-br-xs pointer-events-none transition-colors" />
+
+          {/* White QR Code SVG */}
+          <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center">
+            {qrSvg ? (
+              <div 
+                className="w-full h-full text-white [&>svg]:w-full [&>svg]:h-full [&>svg]:drop-shadow-[0_0_8px_rgba(255,255,255,0.35)] transition-transform duration-300 group-hover:scale-105"
+                dangerouslySetInnerHTML={{ __html: qrSvg }}
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-neutral-600 animate-pulse">
+                <QrCode className="w-16 h-16 text-neutral-500" />
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-1 text-[9px] font-mono font-bold text-neutral-400 group-hover:text-emerald-300 transition-colors z-10">
+            <Maximize2 className="w-2.5 h-2.5 text-emerald-400" />
+            <span>Scan / Tap to zoom</span>
+          </div>
         </div>
       </div>
 
@@ -540,7 +678,8 @@ export default function InteractivePassportCard({
           <div
             style={{ 
               backfaceVisibility: "hidden", 
-              WebkitBackfaceVisibility: "hidden" 
+              WebkitBackfaceVisibility: "hidden",
+              pointerEvents: isFlipped ? "none" : "auto",
             }}
             className="w-full"
           >
@@ -552,7 +691,8 @@ export default function InteractivePassportCard({
             style={{ 
               backfaceVisibility: "hidden", 
               WebkitBackfaceVisibility: "hidden",
-              transform: "rotateY(180deg)" 
+              transform: "rotateY(180deg)",
+              pointerEvents: isFlipped ? "auto" : "none",
             }}
             className="absolute inset-0 w-full h-full"
           >
@@ -560,6 +700,130 @@ export default function InteractivePassportCard({
           </div>
         </motion.div>
       </div>
+
+      {/* Interactive QR Code Pop-up Lightbox Modal */}
+      <AnimatePresence>
+        {isQrExpanded && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22 }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsQrExpanded(false);
+            }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md cursor-pointer select-none"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Verifiable QR Code Lightbox"
+          >
+            <motion.div
+              initial={{ scale: 0.82, opacity: 0, y: 24 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.82, opacity: 0, y: 24 }}
+              transition={{ type: "spring", stiffness: 360, damping: 26 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative max-w-sm sm:max-w-md w-full bg-gradient-to-b from-[#181818] via-[#101010] to-[#080808] border border-emerald-500/40 rounded-3xl p-6 sm:p-7 shadow-[0_0_60px_rgba(16,185,129,0.25),_0_24px_48px_rgba(0,0,0,0.9)] flex flex-col items-center gap-5 cursor-default text-white"
+            >
+              {/* Ambient Radial Lighting */}
+              <div className="absolute -top-16 -right-16 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={() => setIsQrExpanded(false)}
+                className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-rose-500/20 text-neutral-400 hover:text-white border border-white/10 hover:border-rose-500/40 transition-all cursor-pointer"
+                aria-label="Close QR Modal"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              {/* Header */}
+              <div className="flex flex-col items-center text-center gap-1 pt-1">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold shadow-inner">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Verifiable Credential QR</span>
+                </div>
+                <h3 className="text-lg sm:text-xl font-black text-white mt-1">
+                  {student.name}
+                </h3>
+                <p className="text-xs text-neutral-400 font-medium">
+                  {student.id} • {student.college}
+                </p>
+              </div>
+
+              {/* High-res Crisp White QR Code */}
+              <div className="relative p-4 sm:p-5 bg-black/90 rounded-2xl border-2 border-emerald-500/40 shadow-[inset_0_0_20px_rgba(0,0,0,0.8),_0_0_30px_rgba(16,185,129,0.2)] flex items-center justify-center">
+                {/* Glowing Corner Accents */}
+                <div className="absolute top-2 left-2 w-3.5 h-3.5 border-t-2 border-l-2 border-emerald-400 rounded-tl-xs pointer-events-none" />
+                <div className="absolute top-2 right-2 w-3.5 h-3.5 border-t-2 border-r-2 border-emerald-400 rounded-tr-xs pointer-events-none" />
+                <div className="absolute bottom-2 left-2 w-3.5 h-3.5 border-b-2 border-l-2 border-emerald-400 rounded-bl-xs pointer-events-none" />
+                <div className="absolute bottom-2 right-2 w-3.5 h-3.5 border-b-2 border-r-2 border-emerald-400 rounded-br-xs pointer-events-none" />
+
+                <div className="w-48 h-48 sm:w-56 sm:h-56 flex items-center justify-center">
+                  {qrSvg ? (
+                    <div 
+                      className="w-full h-full text-white [&>svg]:w-full [&>svg]:h-full [&>svg]:drop-shadow-[0_0_12px_rgba(255,255,255,0.4)]"
+                      dangerouslySetInnerHTML={{ __html: qrSvg }}
+                    />
+                  ) : (
+                    <QrCode className="w-32 h-32 text-white animate-pulse" />
+                  )}
+                </div>
+              </div>
+
+              {/* Merkle Hash & Verification Link Actions */}
+              <div className="w-full space-y-2.5">
+                <div className="bg-neutral-900/90 rounded-xl p-2.5 border border-white/10 flex flex-col gap-1">
+                  <div className="flex items-center justify-between text-[10px] text-neutral-400 font-bold uppercase tracking-wider">
+                    <span>SHA-256 Merkle Root</span>
+                    <button
+                      type="button"
+                      onClick={handleCopyHash}
+                      className="text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1 cursor-pointer transition-colors"
+                    >
+                      {copiedHash ? <Check className="w-2.5 h-2.5" /> : <Copy className="w-2.5 h-2.5" />}
+                      <span>{copiedHash ? "Copied" : "Copy"}</span>
+                    </button>
+                  </div>
+                  <div className="text-[10px] font-mono text-emerald-400 break-all bg-black/60 p-1.5 rounded-lg border border-white/5 font-semibold select-all">
+                    {student.credentialHash}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleCopyLink}
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 hover:text-white border border-emerald-500/30 font-bold text-xs transition-all cursor-pointer shadow-xs active:scale-[0.98]"
+                  >
+                    {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Share2 className="w-3.5 h-3.5" />}
+                    <span>{copiedLink ? "Link Copied!" : "Copy Verification URL"}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsQrExpanded(false)}
+                    className="py-2.5 px-4 rounded-xl bg-white/10 hover:bg-white/15 text-white border border-white/10 font-bold text-xs transition-all cursor-pointer active:scale-[0.98]"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+
+              {/* Click anywhere dismiss hint */}
+              <div 
+                onClick={() => setIsQrExpanded(false)}
+                className="text-center text-[10px] text-neutral-400 hover:text-neutral-200 font-medium cursor-pointer transition-colors pt-0.5"
+              >
+                Click anywhere on screen to close
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

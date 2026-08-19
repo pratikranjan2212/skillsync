@@ -78,9 +78,10 @@ export default function SkillPassportFolder({
 
   const handleExportPdf = async () => {
     const studentId = passportData?.studentId || "SS-2026-STU01";
+    const shareToken = passportData?.shareToken || "";
     setIsExportingPdf(true);
     try {
-      const res = await fetch(`/api/passport/pdf?studentId=${studentId}`);
+      const res = await fetch(`/api/passport/pdf?studentId=${encodeURIComponent(studentId)}&shareToken=${encodeURIComponent(shareToken)}`);
       if (res.ok) {
         const blob = await res.blob();
         const url = window.URL.createObjectURL(blob);
@@ -90,12 +91,13 @@ export default function SkillPassportFolder({
         document.body.appendChild(a);
         a.click();
         a.remove();
+        setTimeout(() => window.URL.revokeObjectURL(url), 1000);
       } else {
-        window.print();
+        alert("Could not generate PDF transcript. Please try again.");
       }
     } catch (err) {
       console.error("PDF export error:", err);
-      window.print();
+      alert("Failed to export PDF transcript.");
     } finally {
       setIsExportingPdf(false);
     }
