@@ -41,8 +41,10 @@ import { useAuth } from "@/app/hooks/useAuth";
 import AuthRequiredView from "@/app/components/auth/AuthRequiredView";
 import ImageCropperModal from "@/app/components/profile/ImageCropperModal";
 import DatePickerFlyout from "@/app/components/ui/DatePickerFlyout";
+import SearchableDropdown from "@/app/components/ui/SearchableDropdown";
 import { GitHubIcon, LinkedInIcon, PortfolioIcon } from "@/app/components/icons";
 import { STUDENT_INTERN_SKILLS, PRELOADED_SKILL_RECOMMENDATIONS } from "@/app/data/studentInternSkills";
+import { COLLEGES_DATA, DEGREES_DATA } from "@/app/data/institutionsAndDegrees";
 
 function GitHubLogo({ className = "w-4 h-4 shrink-0" }) {
   return <GitHubIcon className={className} />;
@@ -710,22 +712,22 @@ export default function ProfilePage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-xs font-bold text-[#111111] mb-1.5">College / Institution</label>
-                        <input
-                          type="text"
+                        <SearchableDropdown
+                          options={COLLEGES_DATA}
                           value={formData.college}
-                          onChange={(e) => setFormData({ ...formData, college: e.target.value })}
-                          placeholder="e.g. Stanford University / Tech Institute"
-                          className="w-full px-4 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          onChange={(val) => setFormData({ ...formData, college: val })}
+                          placeholder="Select or search college / institute..."
+                          iconType="building"
                         />
                       </div>
                       <div>
                         <label className="block text-xs font-bold text-[#111111] mb-1.5">Degree / Major</label>
-                        <input
-                          type="text"
+                        <SearchableDropdown
+                          options={DEGREES_DATA}
                           value={formData.degree}
-                          onChange={(e) => setFormData({ ...formData, degree: e.target.value })}
-                          placeholder="e.g. B.S. Computer Science"
-                          className="w-full px-4 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          onChange={(val) => setFormData({ ...formData, degree: val })}
+                          placeholder="Select or search degree / program..."
+                          iconType="degree"
                         />
                       </div>
                     </div>
