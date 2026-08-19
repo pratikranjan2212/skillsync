@@ -650,27 +650,36 @@ export default function ProfilePage() {
             <div className="lg:col-span-2 flex flex-col gap-6">
               {/* Personal Profile & Links Card */}
               <div className="bg-white rounded-4xl p-6 sm:p-8 shadow-xl border border-black/5">
-                <div className="flex flex-wrap items-center gap-3 mb-5 pb-4 border-b border-neutral-100">
-                  <h2 className="text-lg font-extrabold text-[#111111] flex items-center gap-2">
-                    <User className="w-5 h-5 text-emerald-600" />
-                    <span>Personal Profile</span>
-                  </h2>
-                  {(formData.dob || profile?.dob || formData.gender || profile?.gender) && (
-                    <div className="flex items-center gap-2 text-xs font-medium text-[#494D4D]">
-                      {(formData.dob || profile?.dob) && (
-                        <span className="flex items-center gap-1 bg-[#F5F5F3] px-2.5 py-1 rounded-lg border border-black/5">
-                          <Calendar className="w-3.5 h-3.5 text-neutral-400" />
-                          <span>DOB: {formData.dob || profile?.dob}</span>
-                        </span>
-                      )}
-                      {(formData.gender || profile?.gender) && (
-                        <span className="flex items-center gap-1 bg-[#F5F5F3] px-2.5 py-1 rounded-lg border border-black/5">
-                          <User className="w-3.5 h-3.5 text-neutral-400" />
-                          <span>{formData.gender || profile?.gender}</span>
-                        </span>
-                      )}
+                <div className="flex items-center justify-between gap-3 mb-6 pb-4 border-b border-neutral-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center border border-emerald-200/60 shadow-2xs">
+                      <User className="w-5 h-5" />
                     </div>
-                  )}
+                    <div>
+                      <h2 className="text-base sm:text-lg font-black text-[#111111] tracking-tight">
+                        Personal & Academic Profile
+                      </h2>
+                      <p className="text-xs text-[#494D4D] font-medium">
+                        Verified student credentials, academic standing & links
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {(formData.gender || profile?.gender) && (
+                      <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F5F5F3] text-xs font-bold text-[#111111] border border-black/5">
+                        <span>{formData.gender || profile?.gender}</span>
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => setIsEditing(!isEditing)}
+                      className="px-3.5 py-1.5 rounded-xl bg-[#F5F5F3] hover:bg-[#EAEAEA] text-xs font-bold text-[#111111] border border-black/5 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                    >
+                      <Edit3 className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>{isEditing ? "Cancel" : "Edit Profile"}</span>
+                    </button>
+                  </div>
                 </div>
 
                 {isEditing ? (
@@ -801,98 +810,262 @@ export default function ProfilePage() {
                   </form>
                 ) : (
                   <div className="flex flex-col gap-6">
-                    {/* Primary Degree & Academic Background */}
-                    {(formData.degree || formData.college || formData.batch || profile?.degree || profile?.college || profile?.batch) && (
-                      <div className="flex items-start gap-3.5">
-                        <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-700 shrink-0 border border-emerald-200/60">
-                          <GraduationCap className="w-5 h-5" />
+                    {/* 2x2 Bento Grid: Academic Information */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                      {/* Institution Card */}
+                      <div className="p-4 rounded-2xl bg-[#F8F9FA] border border-black/5 flex items-start gap-3.5 transition-all hover:border-black/10">
+                        <div className="p-2.5 rounded-xl bg-blue-50 text-blue-600 shrink-0 border border-blue-100">
+                          <Building className="w-4.5 h-4.5" />
                         </div>
-                        <div>
-                          <div className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700">Primary Degree & Academic Background</div>
-                          <div className="text-base sm:text-lg font-extrabold text-[#111111] mt-0.5">
-                            {formData.degree || profile?.degree || "Degree not specified"}
-                          </div>
-                          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#494D4D] mt-1 font-medium">
-                            <span className="flex items-center gap-1.5">
-                              <Building className="w-3.5 h-3.5 text-neutral-400" />
-                              <span>{formData.college || profile?.college || "Institution not specified"}</span>
+                        <div className="min-w-0 flex-1">
+                          <span className="text-[10px] font-extrabold uppercase tracking-wider text-neutral-400 block">
+                            College / Institution
+                          </span>
+                          {formData.college || profile?.college ? (
+                            <span className="text-xs sm:text-sm font-bold text-[#111111] block truncate mt-0.5">
+                              {formData.college || profile?.college}
                             </span>
-                            <span className="flex items-center gap-1.5">
-                              <Calendar className="w-3.5 h-3.5 text-neutral-400" />
-                              <span>Batch: {formData.batch || profile?.batch || "Not specified"}</span>
-                            </span>
-                          </div>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => setIsEditing(true)}
+                              className="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 mt-1 cursor-pointer"
+                            >
+                              <span>+ Add Institution</span>
+                            </button>
+                          )}
                         </div>
+                      </div>
+
+                      {/* Degree Card */}
+                      <div className="p-4 rounded-2xl bg-[#F8F9FA] border border-black/5 flex items-start gap-3.5 transition-all hover:border-black/10">
+                        <div className="p-2.5 rounded-xl bg-purple-50 text-purple-600 shrink-0 border border-purple-100">
+                          <GraduationCap className="w-4.5 h-4.5" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <span className="text-[10px] font-extrabold uppercase tracking-wider text-neutral-400 block">
+                            Degree & Program
+                          </span>
+                          {formData.degree || profile?.degree ? (
+                            <span className="text-xs sm:text-sm font-bold text-[#111111] block truncate mt-0.5">
+                              {formData.degree || profile?.degree}
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => setIsEditing(true)}
+                              className="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 mt-1 cursor-pointer"
+                            >
+                              <span>+ Add Degree / Major</span>
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Batch / Graduation Year Card */}
+                      <div className="p-4 rounded-2xl bg-[#F8F9FA] border border-black/5 flex items-start gap-3.5 transition-all hover:border-black/10">
+                        <div className="p-2.5 rounded-xl bg-amber-50 text-amber-600 shrink-0 border border-amber-100">
+                          <Calendar className="w-4.5 h-4.5" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <span className="text-[10px] font-extrabold uppercase tracking-wider text-neutral-400 block">
+                            Graduation Batch
+                          </span>
+                          {formData.batch || profile?.batch ? (
+                            <span className="text-xs sm:text-sm font-bold text-[#111111] block truncate mt-0.5">
+                              {formData.batch || profile?.batch}
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => setIsEditing(true)}
+                              className="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 mt-1 cursor-pointer"
+                            >
+                              <span>+ Add Batch Year</span>
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Date of Birth & Gender Card */}
+                      <div className="p-4 rounded-2xl bg-[#F8F9FA] border border-black/5 flex items-start gap-3.5 transition-all hover:border-black/10">
+                        <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 shrink-0 border border-emerald-100">
+                          <Clock className="w-4.5 h-4.5" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <span className="text-[10px] font-extrabold uppercase tracking-wider text-neutral-400 block">
+                            Date of Birth & Gender
+                          </span>
+                          {formData.dob || profile?.dob ? (
+                            <span className="text-xs sm:text-sm font-bold text-[#111111] block truncate mt-0.5">
+                              {formData.dob || profile?.dob} • {formData.gender || profile?.gender || "Male"}
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => setIsEditing(true)}
+                              className="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 mt-1 cursor-pointer"
+                            >
+                              <span>+ Add Date of Birth</span>
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Bio / Summary (if available) */}
+                    {(formData.bio || profile?.bio) && (
+                      <div className="p-4 rounded-2xl bg-[#F8F9FA] border border-black/5">
+                        <span className="text-[10px] font-extrabold uppercase tracking-wider text-neutral-400 block mb-1">
+                          Student Bio & Summary
+                        </span>
+                        <p className="text-xs font-medium text-[#494D4D] leading-relaxed">
+                          {formData.bio || profile?.bio}
+                        </p>
                       </div>
                     )}
 
-                    {/* Social Links */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-neutral-100">
-                      {formData.github ? (
-                        <a
-                          href={formData.github.startsWith("http") ? formData.github : `https://${formData.github}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="flex items-center gap-2.5 p-3 bg-[#F8F9FA] hover:bg-[#F1F3F5] rounded-2xl border border-black/5 transition-colors text-xs font-bold text-[#111111]"
-                        >
-                          <GitHubLogo className="w-4.5 h-4.5 text-neutral-900 shrink-0" />
-                          <span className="truncate">GitHub</span>
-                          <ExternalLink className="w-3 h-3 ml-auto text-neutral-400" />
-                        </a>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => setIsEditing(true)}
-                          className="flex items-center gap-2 p-3 bg-neutral-50 hover:bg-neutral-100 border border-dashed border-neutral-300 rounded-2xl text-xs font-medium text-neutral-500 cursor-pointer"
-                        >
-                          <GitHubLogo className="w-4 h-4 text-neutral-500 shrink-0" />
-                          <span>+ Add GitHub Link</span>
-                        </button>
-                      )}
+                    {/* Connected Profiles & Links */}
+                    <div className="pt-4 border-t border-neutral-100">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-xs font-extrabold uppercase tracking-wider text-[#111111]">
+                          Connected Links & Portfolios
+                        </span>
+                        <span className="text-[11px] font-medium text-neutral-400">
+                          Click to view or update
+                        </span>
+                      </div>
 
-                      {formData.linkedin ? (
-                        <a
-                          href={formData.linkedin.startsWith("http") ? formData.linkedin : `https://${formData.linkedin}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="flex items-center gap-2.5 p-3 bg-[#F8F9FA] hover:bg-[#F1F3F5] rounded-2xl border border-black/5 transition-colors text-xs font-bold text-[#111111]"
-                        >
-                          <LinkedInLogo className="w-4.5 h-4.5 text-[#0A66C2] shrink-0" />
-                          <span className="truncate">LinkedIn</span>
-                          <ExternalLink className="w-3 h-3 ml-auto text-neutral-400" />
-                        </a>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => setIsEditing(true)}
-                          className="flex items-center gap-2 p-3 bg-neutral-50 hover:bg-neutral-100 border border-dashed border-neutral-300 rounded-2xl text-xs font-medium text-neutral-500 cursor-pointer"
-                        >
-                          <LinkedInLogo className="w-4 h-4 text-[#0A66C2] shrink-0" />
-                          <span>+ Add LinkedIn Link</span>
-                        </button>
-                      )}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        {/* GitHub Card */}
+                        {formData.github || profile?.githubUrl ? (
+                          <a
+                            href={(formData.github || profile?.githubUrl).startsWith("http") ? (formData.github || profile?.githubUrl) : `https://${formData.github || profile?.githubUrl}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex items-center gap-3 p-3.5 bg-[#F8F9FA] hover:bg-[#F1F3F5] rounded-2xl border border-black/5 transition-all group"
+                          >
+                            <div className="w-8 h-8 rounded-xl bg-neutral-900 text-white flex items-center justify-center shrink-0">
+                              <GitHubLogo className="w-4 h-4 fill-current" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs font-bold text-[#111111] group-hover:text-emerald-700 transition-colors truncate">
+                                  GitHub
+                                </span>
+                                <ExternalLink className="w-3 h-3 text-neutral-400 group-hover:text-emerald-600 transition-colors" />
+                              </div>
+                              <span className="text-[10px] font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-md inline-block mt-0.5">
+                                Connected
+                              </span>
+                            </div>
+                          </a>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setIsEditing(true)}
+                            className="flex items-center gap-3 p-3.5 bg-[#F8F9FA] hover:bg-neutral-100 rounded-2xl border border-dashed border-neutral-300 transition-all text-left group cursor-pointer"
+                          >
+                            <div className="w-8 h-8 rounded-xl bg-neutral-200 text-neutral-500 flex items-center justify-center shrink-0 group-hover:bg-neutral-900 group-hover:text-white transition-colors">
+                              <GitHubLogo className="w-4 h-4 fill-current" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <span className="text-xs font-bold text-neutral-600 group-hover:text-[#111111] block transition-colors">
+                                GitHub
+                              </span>
+                              <span className="text-[10px] font-bold text-emerald-600 group-hover:underline">
+                                + Connect
+                              </span>
+                            </div>
+                          </button>
+                        )}
 
-                      {formData.portfolio ? (
-                        <a
-                          href={formData.portfolio.startsWith("http") ? formData.portfolio : `https://${formData.portfolio}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="flex items-center gap-2.5 p-3 bg-[#F8F9FA] hover:bg-[#F1F3F5] rounded-2xl border border-black/5 transition-colors text-xs font-bold text-[#111111]"
-                        >
-                          <PortfolioLogo className="w-5 h-5 shrink-0" />
-                          <span className="truncate">Portfolio</span>
-                          <ExternalLink className="w-3 h-3 ml-auto text-neutral-400" />
-                        </a>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => setIsEditing(true)}
-                          className="flex items-center gap-2 p-3 bg-neutral-50 hover:bg-neutral-100 border border-dashed border-neutral-300 rounded-2xl text-xs font-medium text-neutral-500 cursor-pointer"
-                        >
-                          <PortfolioLogo className="w-4.5 h-4.5 shrink-0" />
-                          <span>+ Add Portfolio Link</span>
-                        </button>
-                      )}
+                        {/* LinkedIn Card */}
+                        {formData.linkedin || profile?.linkedinUrl ? (
+                          <a
+                            href={(formData.linkedin || profile?.linkedinUrl).startsWith("http") ? (formData.linkedin || profile?.linkedinUrl) : `https://${formData.linkedin || profile?.linkedinUrl}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex items-center gap-3 p-3.5 bg-[#F8F9FA] hover:bg-[#F1F3F5] rounded-2xl border border-black/5 transition-all group"
+                          >
+                            <div className="w-8 h-8 rounded-xl bg-[#0A66C2] text-white flex items-center justify-center shrink-0">
+                              <LinkedInLogo className="w-4 h-4 fill-current" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs font-bold text-[#111111] group-hover:text-[#0A66C2] transition-colors truncate">
+                                  LinkedIn
+                                </span>
+                                <ExternalLink className="w-3 h-3 text-neutral-400 group-hover:text-[#0A66C2] transition-colors" />
+                              </div>
+                              <span className="text-[10px] font-medium text-[#0A66C2] bg-blue-50 px-1.5 py-0.5 rounded-md inline-block mt-0.5">
+                                Connected
+                              </span>
+                            </div>
+                          </a>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setIsEditing(true)}
+                            className="flex items-center gap-3 p-3.5 bg-[#F8F9FA] hover:bg-neutral-100 rounded-2xl border border-dashed border-neutral-300 transition-all text-left group cursor-pointer"
+                          >
+                            <div className="w-8 h-8 rounded-xl bg-blue-100 text-[#0A66C2] flex items-center justify-center shrink-0 group-hover:bg-[#0A66C2] group-hover:text-white transition-colors">
+                              <LinkedInLogo className="w-4 h-4 fill-current" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <span className="text-xs font-bold text-neutral-600 group-hover:text-[#111111] block transition-colors">
+                                LinkedIn
+                              </span>
+                              <span className="text-[10px] font-bold text-[#0A66C2] group-hover:underline">
+                                + Connect
+                              </span>
+                            </div>
+                          </button>
+                        )}
+
+                        {/* Portfolio Card */}
+                        {formData.portfolio || profile?.portfolioUrl ? (
+                          <a
+                            href={(formData.portfolio || profile?.portfolioUrl).startsWith("http") ? (formData.portfolio || profile?.portfolioUrl) : `https://${formData.portfolio || profile?.portfolioUrl}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex items-center gap-3 p-3.5 bg-[#F8F9FA] hover:bg-[#F1F3F5] rounded-2xl border border-black/5 transition-all group"
+                          >
+                            <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0">
+                              <Globe className="w-4 h-4" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs font-bold text-[#111111] group-hover:text-emerald-700 transition-colors truncate">
+                                  Portfolio
+                                </span>
+                                <ExternalLink className="w-3 h-3 text-neutral-400 group-hover:text-emerald-600 transition-colors" />
+                              </div>
+                              <span className="text-[10px] font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-md inline-block mt-0.5">
+                                Connected
+                              </span>
+                            </div>
+                          </a>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setIsEditing(true)}
+                            className="flex items-center gap-3 p-3.5 bg-[#F8F9FA] hover:bg-neutral-100 rounded-2xl border border-dashed border-neutral-300 transition-all text-left group cursor-pointer"
+                          >
+                            <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                              <Globe className="w-4 h-4" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <span className="text-xs font-bold text-neutral-600 group-hover:text-[#111111] block transition-colors">
+                                Portfolio
+                              </span>
+                              <span className="text-[10px] font-bold text-emerald-600 group-hover:underline">
+                                + Add URL
+                              </span>
+                            </div>
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}
