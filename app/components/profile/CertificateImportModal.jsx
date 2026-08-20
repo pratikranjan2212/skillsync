@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import {
   X,
   Check,
@@ -9,28 +9,24 @@ import {
   RefreshCw,
   Award,
   ShieldCheck,
-  Search,
   Link2,
   FileCheck2,
   AlertCircle,
   Plus,
-  Sparkles,
 } from "lucide-react";
-import { CourseraIcon, LinkedInIcon } from "@/app/components/icons";
+import { LinkedInIcon } from "@/app/components/icons";
 
 export default function CertificateImportModal({
   isOpen,
   onClose,
-  provider = "coursera", // "coursera" | "linkedin"
+  provider = "linkedin",
   initialUrl = "",
   onImportSuccess,
 }) {
-  const isCoursera = provider === "coursera";
-  const [activeTab, setActiveTab] = useState("verify_link"); // "verify_link" | "catalog_search" | "manual_entry"
+  const [activeTab, setActiveTab] = useState("verify_link"); // "verify_link" | "manual_entry"
 
   // Input states
   const [certificateLink, setCertificateLink] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
   const [manualTitle, setManualTitle] = useState("");
   const [manualIssuer, setManualIssuer] = useState("");
   const [manualCredId, setManualCredId] = useState("");
@@ -43,14 +39,10 @@ export default function CertificateImportModal({
   const [errorMessage, setErrorMessage] = useState("");
   const [successResult, setSuccessResult] = useState(null);
 
-  const brandTitle = isCoursera ? "Coursera Certificate Verification" : "LinkedIn & Credly Certifications";
-  const brandColor = isCoursera ? "bg-[#0056D2]" : "bg-[#0A66C2]";
-
   // Reset states on open
   useEffect(() => {
     if (isOpen) {
       setCertificateLink(initialUrl || "");
-      setSearchQuery("");
       setManualTitle("");
       setManualIssuer("");
       setManualCredId("");
@@ -58,19 +50,19 @@ export default function CertificateImportModal({
       setSuccessResult(null);
       setItems([]);
       setSelectedIds(new Set());
-      setActiveTab(isCoursera ? "verify_link" : "verify_link");
+      setActiveTab("verify_link");
 
       if (initialUrl) {
         verifyByLink(initialUrl);
       }
     }
-  }, [isOpen, provider, initialUrl, isCoursera]);
+  }, [isOpen, initialUrl]);
 
-  // 1. Verify by Certificate URL / Code
+  // 1. Verify by Credly / LinkedIn / Digital Badge link
   const verifyByLink = async (inputLink) => {
     const target = (inputLink || certificateLink).trim();
     if (!target) {
-      setErrorMessage("Please enter a valid certificate link or verification code.");
+      setErrorMessage("Please enter a valid Credly badge link or LinkedIn certification URL.");
       return;
     }
 
@@ -79,9 +71,9 @@ export default function CertificateImportModal({
     setSuccessResult(null);
 
     try {
-      const endpoint = isCoursera
-        ? `/api/coursera/certificates?courseraUrl=${encodeURIComponent(target)}`
-        : `/api/linkedin/certifications?verificationUrl=${encodeURIComponent(target)}&linkedinUrl=${encodeURIComponent(target)}`;
+      const endpoint = `/api/linkedin/certifications?verificationUrl=${encodeURIComponent(
+        target
+      )}&linkedinUrl=${encodeURIComponent(target)}`;
 
       const res = await fetch(endpoint);
       const data = await res.json();
@@ -90,12 +82,10 @@ export default function CertificateImportModal({
         throw new Error(data.error || "Could not verify this credential.");
       }
 
-      const fetchedList = isCoursera ? data.certificates || [] : data.certifications || [];
+      const fetchedList = data.certifications || [];
       if (fetchedList.length === 0) {
         setErrorMessage(
-          isCoursera
-            ? "No certificate found for this code or link. Please verify the link format (e.g., https://coursera.org/verify/YOUR_CODE) or search for your course."
-            : "No certification found for this link. You can also add it via the Custom Entry tab below."
+          "No certification found for this link. You can easily add it via the Custom Entry tab below."
         );
         setItems([]);
         setSelectedIds(new Set());
@@ -104,7 +94,7 @@ export default function CertificateImportModal({
         setSelectedIds(new Set(fetchedList.map((item) => item.id)));
       }
     } catch (err) {
-      console.error(`Verification error for ${provider}:`, err);
+      console.error("LinkedIn verification error:", err);
       setErrorMessage(err.message || "Failed to verify certificate.");
       setItems([]);
       setSelectedIds(new Set());
@@ -113,45 +103,7 @@ export default function CertificateImportModal({
     }
   };
 
-  // 2. Search Live Coursera Course Catalog
-  const handleSearchCourses = async (queryText) => {
-    const q = (queryText !== undefined ? queryText : searchQuery).trim();
-    if (!q) {
-      setItems([]);
-      setSelectedIds(new Set());
-      return;
-    }
-
-    setIsLoading(true);
-    setErrorMessage("");
-    setSuccessResult(null);
-
-    try {
-      const endpoint = `/api/coursera/certificates?query=${encodeURIComponent(q)}`;
-      const res = await fetch(endpoint);
-      const data = await res.json();
-
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || "Course search failed.");
-      }
-
-      const list = data.certificates || [];
-      setItems(list);
-      setSelectedIds(new Set(list.map((c) => c.id)));
-      if (list.length === 0) {
-        setErrorMessage(`No Coursera courses found matching "${q}". Try another keyword.`);
-      }
-    } catch (err) {
-      console.error("Search error:", err);
-      setErrorMessage(err.message || "Failed to search Coursera catalog.");
-      setItems([]);
-      setSelectedIds(new Set());
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // 3. Manual / Custom Certification Verification
+  // 2. Manual / Custom Certification Verification
   const handleAddManualCertification = async (e) => {
     if (e) e.preventDefault();
     if (!manualTitle.trim()) {
@@ -207,10 +159,8 @@ export default function CertificateImportModal({
     setErrorMessage("");
 
     try {
-      const endpoint = isCoursera ? "/api/coursera/import" : "/api/linkedin/import";
-      const payload = isCoursera
-        ? { certificates: selectedItems, courseraUrl: certificateLink }
-        : { certifications: selectedItems, linkedinUrl: certificateLink };
+      const endpoint = "/api/linkedin/import";
+      const payload = { certifications: selectedItems, linkedinUrl: certificateLink };
 
       const res = await fetch(endpoint, {
         method: "POST",
@@ -228,7 +178,7 @@ export default function CertificateImportModal({
         onImportSuccess(data);
       }
     } catch (err) {
-      console.error(`Import ${provider} error:`, err);
+      console.error("Import LinkedIn error:", err);
       setErrorMessage(err.message || "Failed to import certificates.");
     } finally {
       setIsImporting(false);
@@ -247,22 +197,20 @@ export default function CertificateImportModal({
         {/* Header */}
         <div className="p-5 sm:p-6 border-b border-neutral-100 flex items-start justify-between gap-4 bg-[#FBFBFB]">
           <div className="flex items-center gap-3">
-            <div
-              className={`w-11 h-11 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-md ${brandColor}`}
-            >
-              {isCoursera ? <CourseraIcon className="w-6 h-6" /> : <LinkedInIcon className="w-5 h-5 fill-current" />}
+            <div className="w-11 h-11 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-md bg-[#0A66C2]">
+              <LinkedInIcon className="w-5 h-5 fill-current" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-base sm:text-lg font-black text-[#111111] tracking-tight">{brandTitle}</h3>
+                <h3 className="text-base sm:text-lg font-black text-[#111111] tracking-tight">
+                  LinkedIn & Credly Certifications
+                </h3>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-800">
-                  Instant Verification
+                  Direct Verification
                 </span>
               </div>
               <p className="text-xs text-[#494D4D] mt-0.5">
-                {isCoursera
-                  ? "Verify your Coursera certificate or search from 5,000+ certified courses."
-                  : "Import verified licenses and certifications directly into your Skill Passport."}
+                Import verified licenses, industry badges, and certifications directly into your Skill Passport.
               </p>
             </div>
           </div>
@@ -285,49 +233,29 @@ export default function CertificateImportModal({
             }}
             className={`pb-3 px-3 text-xs font-bold transition-all border-b-2 flex items-center gap-1.5 cursor-pointer ${
               activeTab === "verify_link"
-                ? isCoursera
-                  ? "border-[#0056D2] text-[#0056D2]"
-                  : "border-[#0A66C2] text-[#0A66C2]"
+                ? "border-[#0A66C2] text-[#0A66C2]"
                 : "border-transparent text-[#494D4D] hover:text-[#111111]"
             }`}
           >
             <Link2 className="w-3.5 h-3.5" />
-            <span>Verify by Certificate Link / Code</span>
+            <span>Verify by Credly / Badge Link</span>
           </button>
 
-          {isCoursera ? (
-            <button
-              type="button"
-              onClick={() => {
-                setActiveTab("catalog_search");
-                setErrorMessage("");
-              }}
-              className={`pb-3 px-3 text-xs font-bold transition-all border-b-2 flex items-center gap-1.5 cursor-pointer ${
-                activeTab === "catalog_search"
-                  ? "border-[#0056D2] text-[#0056D2]"
-                  : "border-transparent text-[#494D4D] hover:text-[#111111]"
-              }`}
-            >
-              <Search className="w-3.5 h-3.5" />
-              <span>Search Coursera Catalog</span>
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => {
-                setActiveTab("manual_entry");
-                setErrorMessage("");
-              }}
-              className={`pb-3 px-3 text-xs font-bold transition-all border-b-2 flex items-center gap-1.5 cursor-pointer ${
-                activeTab === "manual_entry"
-                  ? "border-[#0A66C2] text-[#0A66C2]"
-                  : "border-transparent text-[#494D4D] hover:text-[#111111]"
-              }`}
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Add Custom Credential</span>
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() => {
+              setActiveTab("manual_entry");
+              setErrorMessage("");
+            }}
+            className={`pb-3 px-3 text-xs font-bold transition-all border-b-2 flex items-center gap-1.5 cursor-pointer ${
+              activeTab === "manual_entry"
+                ? "border-[#0A66C2] text-[#0A66C2]"
+                : "border-transparent text-[#494D4D] hover:text-[#111111]"
+            }`}
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Add Custom Credential</span>
+          </button>
         </div>
 
         {/* Sync Controls / Form Area */}
@@ -335,9 +263,7 @@ export default function CertificateImportModal({
           {activeTab === "verify_link" && (
             <div>
               <label className="block text-xs font-bold text-[#111111] mb-1.5">
-                {isCoursera
-                  ? "Coursera Certificate Verification Link or Code"
-                  : "Credly / LinkedIn Certification Link"}
+                Credly Badge URL / LinkedIn Certification Link
               </label>
               <div className="flex flex-col sm:flex-row items-center gap-2">
                 <div className="relative flex-1 w-full">
@@ -346,11 +272,7 @@ export default function CertificateImportModal({
                     value={certificateLink}
                     onChange={(e) => setCertificateLink(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && verifyByLink(certificateLink)}
-                    placeholder={
-                      isCoursera
-                        ? "e.g. https://coursera.org/verify/YOUR_CODE or code..."
-                        : "e.g. https://www.credly.com/badges/... or cert URL"
-                    }
+                    placeholder="e.g. https://www.credly.com/badges/... or cert URL"
                     className="w-full pl-3.5 pr-3.5 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-semibold text-[#111111] focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
@@ -358,9 +280,7 @@ export default function CertificateImportModal({
                   type="button"
                   onClick={() => verifyByLink(certificateLink)}
                   disabled={isLoading || isImporting}
-                  className={`w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-bold text-white transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer disabled:opacity-50 ${
-                    isCoursera ? "bg-[#0056D2] hover:bg-[#0047B3]" : "bg-[#0A66C2] hover:bg-[#084E96]"
-                  }`}
+                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-[#0A66C2] hover:bg-[#084E96] transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer disabled:opacity-50"
                 >
                   {isLoading ? (
                     <>
@@ -371,44 +291,6 @@ export default function CertificateImportModal({
                     <>
                       <ShieldCheck className="w-3.5 h-3.5" />
                       <span>Verify & Fetch</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {activeTab === "catalog_search" && (
-            <div>
-              <label className="block text-xs font-bold text-[#111111] mb-1.5">
-                Search Completed Coursera Course / Specialization
-              </label>
-              <div className="flex flex-col sm:flex-row items-center gap-2">
-                <div className="relative flex-1 w-full">
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleSearchCourses(searchQuery)}
-                    placeholder="e.g. Python, Machine Learning, Google Data, React, AWS..."
-                    className="w-full pl-3.5 pr-3.5 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-semibold text-[#111111] focus:outline-none focus:ring-2 focus:ring-[#0056D2]"
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => handleSearchCourses(searchQuery)}
-                  disabled={isLoading || isImporting}
-                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-[#0056D2] hover:bg-[#0047B3] transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer disabled:opacity-50"
-                >
-                  {isLoading ? (
-                    <>
-                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                      <span>Searching...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Search className="w-3.5 h-3.5" />
-                      <span>Search Catalog</span>
                     </>
                   )}
                 </button>
@@ -467,15 +349,11 @@ export default function CertificateImportModal({
           <div className="flex items-center justify-between text-[11px] text-[#494D4D] pt-1">
             <div className="flex items-center gap-1.5 text-emerald-700 font-medium">
               <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
-              <span>
-                {isCoursera
-                  ? "Direct cryptographic registry verification & skill extraction"
-                  : "Verified credential registry & skill taxonomy extraction"}
-              </span>
+              <span>Verified credential registry & skill taxonomy extraction</span>
             </div>
             {items.length > 0 && (
               <span className="font-bold text-neutral-600">
-                {items.length} {items.length === 1 ? "certificate" : "certificates"} ready
+                {items.length} {items.length === 1 ? "certification" : "certifications"} ready
               </span>
             )}
           </div>
@@ -507,14 +385,14 @@ export default function CertificateImportModal({
               <RefreshCw className="w-8 h-8 text-emerald-600 animate-spin" />
               <div className="text-xs font-bold text-[#111111]">Verifying Credential Details...</div>
               <p className="text-[11px] text-[#494D4D] max-w-xs">
-                Extracting verified course completions, institutional signatures, and skill tags.
+                Extracting verified certification signatures, issuer metadata, and skill tags.
               </p>
             </div>
           ) : items.length > 0 ? (
             <>
               <div className="flex items-center justify-between pb-1">
                 <span className="text-xs font-extrabold uppercase tracking-wider text-[#111111]">
-                  Verified Digital Credentials
+                  Verified Digital Certifications
                 </span>
                 <button
                   type="button"
@@ -560,7 +438,7 @@ export default function CertificateImportModal({
                         </div>
 
                         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-[#494D4D] mt-1 font-medium">
-                          <span>{item.partner || item.issuer}</span>
+                          <span>{item.issuer}</span>
                           <span>•</span>
                           <span>Issued: {item.issueDate}</span>
                           {item.credentialId && (
@@ -617,13 +495,9 @@ export default function CertificateImportModal({
           ) : (
             <div className="py-12 flex flex-col items-center justify-center gap-2 text-center">
               <Award className="w-10 h-10 text-neutral-300" />
-              <div className="text-xs font-bold text-[#111111]">
-                {isCoursera ? "Enter Your Certificate Link or Search Courses" : "Enter Your Credly/LinkedIn Certificate Link"}
-              </div>
+              <div className="text-xs font-bold text-[#111111]">Enter Your Credly Badge or Certification Link</div>
               <p className="text-[11px] text-[#494D4D] max-w-sm">
-                {isCoursera
-                  ? "Paste your Coursera certificate verification link (https://coursera.org/verify/...) or search for your course to import verified credentials into your Skill Passport."
-                  : "Paste your Credly badge URL or enter your certification title above to verify and attach it to your Skill Passport."}
+                Paste your Credly badge URL or enter your certification details above to verify and attach it directly to your Skill Passport.
               </p>
             </div>
           )}
@@ -632,7 +506,7 @@ export default function CertificateImportModal({
         {/* Footer actions */}
         <div className="p-4 sm:p-5 border-t border-neutral-100 bg-white flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="text-xs font-semibold text-[#494D4D]">
-            {selectedIds.size} of {items.length} {items.length === 1 ? "credential" : "credentials"} selected
+            {selectedIds.size} of {items.length} {items.length === 1 ? "certification" : "certifications"} selected
           </div>
 
           <div className="flex items-center gap-2 w-full sm:w-auto">

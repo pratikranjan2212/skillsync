@@ -1115,47 +1115,6 @@ export default function ProfilePage() {
                 )}
               </div>
 
-              {/* Quick Certificate Sync Action Hub */}
-              <div className="p-5 sm:p-6 bg-linear-to-r from-[#0056D2]/10 via-[#0A66C2]/10 to-emerald-500/10 border border-blue-500/20 rounded-4xl shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                <div className="flex items-start gap-3.5">
-                  <div className="p-3 rounded-2xl bg-white shadow-xs text-[#0056D2] shrink-0 border border-blue-100">
-                    <Award className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-sm sm:text-base font-black text-[#111111] tracking-tight">
-                        Fetch & Verify Digital Certificates Directly
-                      </h3>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-[#0056D2] uppercase tracking-wider">
-                        Automated
-                      </span>
-                    </div>
-                    <p className="text-xs text-[#494D4D] mt-0.5 max-w-xl">
-                      Connect your <strong>Coursera</strong> or <strong>LinkedIn</strong> accounts to import official certificates, accredited course completions, and cryptographic credentials directly into your Skill Passport.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 w-full md:w-auto shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => setActiveSyncProvider("coursera")}
-                    className="flex-1 md:flex-none px-4 py-2.5 bg-[#0056D2] hover:bg-[#0047B3] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <CourseraLogo className="w-4 h-4" />
-                    <span>Sync Coursera</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setActiveSyncProvider("linkedin")}
-                    className="flex-1 md:flex-none px-4 py-2.5 bg-[#0A66C2] hover:bg-[#084E96] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <LinkedInLogo className="w-4 h-4 fill-current" />
-                    <span>Sync LinkedIn</span>
-                  </button>
-                </div>
-              </div>
-
               {/* Skills Card with Add/Delete Feature */}
               <div className="bg-white rounded-4xl p-6 sm:p-8 shadow-xl border border-black/5">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
@@ -1416,7 +1375,7 @@ export default function ProfilePage() {
                   </>
                 )}
 
-                <div className="mt-5 pt-4 border-t border-neutral-100">
+                <div className="mt-5 pt-4 border-t border-neutral-100 flex flex-col gap-2.5">
                   <Link
                     href="/dashboard/evidence/new"
                     className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs"
@@ -1424,6 +1383,15 @@ export default function ProfilePage() {
                     <FileCheck className="w-4 h-4" />
                     <span>{hasEvidence ? "Submit New Evidence" : "Submit First Evidence"}</span>
                   </Link>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveSyncProvider("linkedin")}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-[#0A66C2] hover:bg-[#084E96] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
+                  >
+                    <LinkedInLogo className="w-4 h-4 fill-current" />
+                    <span>Fetch LinkedIn Certifications</span>
+                  </button>
                 </div>
               </div>
             </div>
