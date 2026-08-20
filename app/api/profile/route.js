@@ -44,6 +44,13 @@ function normalizeProviderUrl(url, provider) {
     if (clean.startsWith("user/")) clean = clean.slice(5);
     return clean ? `https://coursera.org/user/${clean}` : "";
   }
+  if (provider === "credly") {
+    clean = clean.replace(/^(https?:\/\/)?(www\.)?credly\.com\/?/, "");
+    if (clean.startsWith("users/")) clean = clean.slice(6);
+    if (clean.startsWith("u/")) clean = clean.slice(2);
+    if (clean.endsWith("/badges")) clean = clean.slice(0, -7);
+    return clean ? `https://www.credly.com/users/${clean}/badges` : "";
+  }
   if (provider === "portfolio") {
     if (!clean.startsWith("http://") && !clean.startsWith("https://")) {
       return `https://${clean}`;
