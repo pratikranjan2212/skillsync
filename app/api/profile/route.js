@@ -26,6 +26,33 @@ function computeTrustScore(evidences) {
   return count > 0 ? (totalScore / count).toFixed(1) : null;
 }
 
+function normalizeProviderUrl(url, provider) {
+  if (!url || typeof url !== "string") return "";
+  let clean = url.trim();
+  if (!clean) return "";
+  if (provider === "github") {
+    clean = clean.replace(/^(https?:\/\/)?(www\.)?github\.com\/?/, "");
+    return clean ? `https://github.com/${clean}` : "";
+  }
+  if (provider === "linkedin") {
+    clean = clean.replace(/^(https?:\/\/)?(www\.)?linkedin\.com\/?/, "");
+    if (clean.startsWith("in/")) clean = clean.slice(3);
+    return clean ? `https://linkedin.com/in/${clean}` : "";
+  }
+  if (provider === "coursera") {
+    clean = clean.replace(/^(https?:\/\/)?(www\.)?coursera\.org\/?/, "");
+    if (clean.startsWith("user/")) clean = clean.slice(5);
+    return clean ? `https://coursera.org/user/${clean}` : "";
+  }
+  if (provider === "portfolio") {
+    if (!clean.startsWith("http://") && !clean.startsWith("https://")) {
+      return `https://${clean}`;
+    }
+    return clean;
+  }
+  return clean;
+}
+
 export async function GET(request) {
   try {
     const session = await auth();
@@ -45,6 +72,7 @@ export async function GET(request) {
       },
       include: {
         passport: true,
+        accounts: true,
         evidences: {
           orderBy: { createdAt: "desc" },
         },
@@ -107,9 +135,15 @@ export async function GET(request) {
         degree: user.degree || "",
         batch: user.batch || "",
         bio: user.bio || "",
-        github: user.githubUrl || (resolvedName ? `https://github.com/${user.name || resolvedName}` : ""),
+        github: user.githubUrl || "",
+        githubUrl: user.githubUrl || "",
         linkedin: user.linkedinUrl || "",
+        linkedinUrl: user.linkedinUrl || "",
         portfolio: user.portfolioUrl || "",
+        portfolioUrl: user.portfolioUrl || "",
+        coursera: user.courseraUrl || "",
+        courseraUrl: user.courseraUrl || "",
+        connectedProviders: user.accounts?.map((a) => a.provider) || [],
         skills: allSkills,
         customSkills: user.skills || [],
         evidenceCount: user.evidences?.length || 0,
@@ -142,6 +176,7 @@ export async function PUT(request) {
           ...(userEmail ? [{ email: userEmail }] : []),
         ],
       },
+      include: { accounts: true },
     });
 
     if (!user) {
@@ -149,7 +184,7 @@ export async function PUT(request) {
     }
 
     const body = await request.json();
-    const { name, image, college, degree, batch, dob, gender, bio, github, linkedin, portfolio, skills } = body;
+    const { name, image, college, degree, batch, dob, gender, bio, github, linkedin, portfolio, coursera, skills } = body;
 
     // Strict input validation & sanitization
     const sanitizedName = name !== undefined ? sanitizeString(name, 100) : user.name;
@@ -160,9 +195,15 @@ export async function PUT(request) {
     const sanitizedGender = gender !== undefined ? sanitizeString(gender, 30) : user.gender;
     const sanitizedBio = bio !== undefined ? sanitizeString(bio, 1000) : user.bio;
 
-    const validatedGithub = github !== undefined ? (sanitizeUrl(github).valid ? sanitizeUrl(github).url : "") : user.githubUrl;
-    const validatedLinkedin = linkedin !== undefined ? (sanitizeUrl(linkedin).valid ? sanitizeUrl(linkedin).url : "") : user.linkedinUrl;
-    const validatedPortfolio = portfolio !== undefined ? (sanitizeUrl(portfolio).valid ? sanitizeUrl(portfolio).url : "") : user.portfolioUrl;
+    const rawGithub = github !== undefined ? normalizeProviderUrl(github, "github") : user.githubUrl;
+    const rawLinkedin = linkedin !== undefined ? normalizeProviderUrl(linkedin, "linkedin") : user.linkedinUrl;
+    const rawPortfolio = portfolio !== undefined ? normalizeProviderUrl(portfolio, "portfolio") : user.portfolioUrl;
+    const rawCoursera = coursera !== undefined ? normalizeProviderUrl(coursera, "coursera") : user.courseraUrl;
+
+    const validatedGithub = rawGithub ? (sanitizeUrl(rawGithub).valid ? sanitizeUrl(rawGithub).url : "") : (github !== undefined ? "" : user.githubUrl);
+    const validatedLinkedin = rawLinkedin ? (sanitizeUrl(rawLinkedin).valid ? sanitizeUrl(rawLinkedin).url : "") : (linkedin !== undefined ? "" : user.linkedinUrl);
+    const validatedPortfolio = rawPortfolio ? (sanitizeUrl(rawPortfolio).valid ? sanitizeUrl(rawPortfolio).url : "") : (portfolio !== undefined ? "" : user.portfolioUrl);
+    const validatedCoursera = rawCoursera ? (sanitizeUrl(rawCoursera).valid ? sanitizeUrl(rawCoursera).url : "") : (coursera !== undefined ? "" : user.courseraUrl);
 
     let validatedImage = user.image;
     if (image !== undefined) {
@@ -192,10 +233,12 @@ export async function PUT(request) {
         githubUrl: validatedGithub,
         linkedinUrl: validatedLinkedin,
         portfolioUrl: validatedPortfolio,
+        courseraUrl: validatedCoursera,
         skills: sanitizedSkills,
       },
       include: {
         passport: true,
+        accounts: true,
         evidences: {
           orderBy: { createdAt: "desc" },
         },
@@ -220,8 +263,14 @@ export async function PUT(request) {
         batch: updatedUser.batch || "",
         bio: updatedUser.bio || "",
         github: updatedUser.githubUrl || "",
+        githubUrl: updatedUser.githubUrl || "",
         linkedin: updatedUser.linkedinUrl || "",
+        linkedinUrl: updatedUser.linkedinUrl || "",
         portfolio: updatedUser.portfolioUrl || "",
+        portfolioUrl: updatedUser.portfolioUrl || "",
+        coursera: updatedUser.courseraUrl || "",
+        courseraUrl: updatedUser.courseraUrl || "",
+        connectedProviders: updatedUser.accounts?.map((a) => a.provider) || [],
         skills: updatedUser.skills || [],
         customSkills: updatedUser.skills || [],
         evidenceCount: updatedUser.evidences?.length || 0,

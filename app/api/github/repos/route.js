@@ -75,9 +75,6 @@ export async function GET(request) {
     if (user?.githubUrl) {
       const match = user.githubUrl.match(/github\.com\/([^/]+)/);
       if (match) githubUsername = match[1];
-    } else if (session?.user?.name) {
-      const cleaned = session.user.name.toLowerCase().replace(/[^a-z0-9]/g, "");
-      if (cleaned) githubUsername = cleaned;
     }
 
     if (githubUsername) {

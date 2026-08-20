@@ -42,7 +42,9 @@ import AuthRequiredView from "@/app/components/auth/AuthRequiredView";
 import ImageCropperModal from "@/app/components/profile/ImageCropperModal";
 import DatePickerFlyout from "@/app/components/ui/DatePickerFlyout";
 import SearchableDropdown from "@/app/components/ui/SearchableDropdown";
-import { GitHubIcon, LinkedInIcon, PortfolioIcon } from "@/app/components/icons";
+import { GitHubIcon, LinkedInIcon, PortfolioIcon, CourseraIcon } from "@/app/components/icons";
+import CertificateImportModal from "@/app/components/profile/CertificateImportModal";
+import AccountConnectModal from "@/app/components/profile/AccountConnectModal";
 import { STUDENT_INTERN_SKILLS, PRELOADED_SKILL_RECOMMENDATIONS } from "@/app/data/studentInternSkills";
 import { COLLEGES_DATA, DEGREES_DATA } from "@/app/data/institutionsAndDegrees";
 
@@ -52,6 +54,10 @@ function GitHubLogo({ className = "w-4 h-4 shrink-0" }) {
 
 function LinkedInLogo({ className = "w-4 h-4 shrink-0" }) {
   return <LinkedInIcon className={className} />;
+}
+
+function CourseraLogo({ className = "w-4 h-4 shrink-0" }) {
+  return <CourseraIcon className={className} />;
 }
 
 function PortfolioLogo({ className = "w-4 h-4 shrink-0" }) {
@@ -158,6 +164,8 @@ export default function ProfilePage() {
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [deleteError, setDeleteError] = useState("");
   const deleteInputRef = useRef(null);
+  const [activeSyncProvider, setActiveSyncProvider] = useState(null);
+  const [accountConnectProvider, setAccountConnectProvider] = useState(null);
 
   useEffect(() => {
     if (showDeleteModal) {
@@ -192,7 +200,7 @@ export default function ProfilePage() {
 
       try {
         await signOut({ redirect: false });
-      } catch {}
+      } catch { }
 
       window.location.href = "/";
     } catch (err) {
@@ -219,6 +227,7 @@ export default function ProfilePage() {
     bio: "",
     github: "",
     linkedin: "",
+    coursera: "",
     portfolio: "",
     skills: [],
     emailNotifications: true,
@@ -243,6 +252,7 @@ export default function ProfilePage() {
         bio: profile.bio || "",
         github: profile.github || "",
         linkedin: profile.linkedin || "",
+        coursera: profile.coursera || "",
         portfolio: profile.portfolio || "",
         skills: profile.skills || [],
         emailNotifications: true,
@@ -374,11 +384,11 @@ export default function ProfilePage() {
   const displayImage = formData.image || profile?.image || authUser?.image;
   const userInitials = displayName
     ? displayName
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
-        .substring(0, 2)
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .substring(0, 2)
     : "ST";
 
   const evidenceCount = profile?.evidenceCount || 0;
@@ -481,21 +491,19 @@ export default function ProfilePage() {
           <div className="flex items-center gap-2 pt-6 overflow-x-auto">
             <button
               onClick={() => setActiveTab("overview")}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
-                activeTab === "overview"
-                  ? "bg-neutral-900 text-white shadow-xs"
-                  : "bg-neutral-100 text-[#494D4D] hover:text-[#111111] hover:bg-neutral-200"
-              }`}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${activeTab === "overview"
+                ? "bg-neutral-900 text-white shadow-xs"
+                : "bg-neutral-100 text-[#494D4D] hover:text-[#111111] hover:bg-neutral-200"
+                }`}
             >
               Account Overview
             </button>
             <button
               onClick={() => setActiveTab("settings")}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
-                activeTab === "settings"
-                  ? "bg-neutral-900 text-white shadow-xs"
-                  : "bg-neutral-100 text-[#494D4D] hover:text-[#111111] hover:bg-neutral-200"
-              }`}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${activeTab === "settings"
+                ? "bg-neutral-900 text-white shadow-xs"
+                : "bg-neutral-100 text-[#494D4D] hover:text-[#111111] hover:bg-neutral-200"
+                }`}
             >
               Preferences & Security
             </button>
@@ -504,7 +512,7 @@ export default function ProfilePage() {
 
         {/* Incomplete Profile Callout Banner */}
         {!isProfileComplete && !isEditing && (
-          <div className="mb-6 p-5 sm:p-6 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-white border border-amber-500/30 rounded-3xl sm:rounded-4xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm animate-in fade-in duration-300">
+          <div className="mb-6 p-5 sm:p-6 bg-linear-to-r from-amber-500/10 via-amber-500/5 to-white border border-amber-500/30 rounded-3xl sm:rounded-4xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm animate-in fade-in duration-300">
             <div className="flex items-start sm:items-center gap-3.5">
               <div className="p-2.5 rounded-2xl bg-amber-500/20 text-amber-600 shrink-0">
                 <AlertTriangle className="w-5 h-5" />
@@ -758,7 +766,7 @@ export default function ProfilePage() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                       <div>
                         <label className="block text-xs font-bold text-[#111111] mb-1.5">GitHub Profile</label>
                         <input
@@ -776,6 +784,16 @@ export default function ProfilePage() {
                           value={formData.linkedin}
                           onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
                           placeholder="https://linkedin.com/in/username"
+                          className="w-full px-4 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-[#111111] mb-1.5">Coursera Account</label>
+                        <input
+                          type="text"
+                          value={formData.coursera}
+                          onChange={(e) => setFormData({ ...formData, coursera: e.target.value })}
+                          placeholder="https://coursera.org/user/username"
                           className="w-full px-4 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
                         />
                       </div>
@@ -931,21 +949,21 @@ export default function ProfilePage() {
                     <div className="pt-4 border-t border-neutral-100">
                       <div className="flex items-center justify-between mb-3">
                         <span className="text-xs font-extrabold uppercase tracking-wider text-[#111111]">
-                          Connected Links & Portfolios
+                          CONNECTED LINKS & PORTFOLIOS
                         </span>
                         <span className="text-[11px] font-medium text-neutral-400">
                           Click to view or update
                         </span>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                         {/* GitHub Card */}
                         {formData.github || profile?.githubUrl ? (
                           <a
                             href={(formData.github || profile?.githubUrl).startsWith("http") ? (formData.github || profile?.githubUrl) : `https://${formData.github || profile?.githubUrl}`}
                             target="_blank"
                             rel="noreferrer"
-                            className="flex items-center gap-3 p-3.5 bg-[#F8F9FA] hover:bg-[#F1F3F5] rounded-2xl border border-black/5 transition-all group"
+                            className="flex items-center gap-3 p-3.5 bg-[#F8F9FA] hover:bg-[#F1F3F5] rounded-2xl border border-black/5 transition-all group cursor-pointer"
                           >
                             <div className="w-8 h-8 rounded-xl bg-neutral-900 text-white flex items-center justify-center shrink-0">
                               <GitHubLogo className="w-4 h-4 fill-current" />
@@ -955,7 +973,7 @@ export default function ProfilePage() {
                                 <span className="text-xs font-bold text-[#111111] group-hover:text-emerald-700 transition-colors truncate">
                                   GitHub
                                 </span>
-                                <ExternalLink className="w-3 h-3 text-neutral-400 group-hover:text-emerald-600 transition-colors" />
+                                <ExternalLink className="w-3.5 h-3.5 text-neutral-400 group-hover:text-emerald-600 transition-colors" />
                               </div>
                               <span className="text-[10px] font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-md inline-block mt-0.5">
                                 Connected
@@ -965,7 +983,7 @@ export default function ProfilePage() {
                         ) : (
                           <button
                             type="button"
-                            onClick={() => setIsEditing(true)}
+                            onClick={() => setAccountConnectProvider("github")}
                             className="flex items-center gap-3 p-3.5 bg-[#F8F9FA] hover:bg-neutral-100 rounded-2xl border border-dashed border-neutral-300 transition-all text-left group cursor-pointer"
                           >
                             <div className="w-8 h-8 rounded-xl bg-neutral-200 text-neutral-500 flex items-center justify-center shrink-0 group-hover:bg-neutral-900 group-hover:text-white transition-colors">
@@ -975,7 +993,7 @@ export default function ProfilePage() {
                               <span className="text-xs font-bold text-neutral-600 group-hover:text-[#111111] block transition-colors">
                                 GitHub
                               </span>
-                              <span className="text-[10px] font-bold text-emerald-600 group-hover:underline">
+                              <span className="text-[10px] font-bold text-[#0A66C2] group-hover:underline">
                                 + Connect
                               </span>
                             </div>
@@ -988,7 +1006,7 @@ export default function ProfilePage() {
                             href={(formData.linkedin || profile?.linkedinUrl).startsWith("http") ? (formData.linkedin || profile?.linkedinUrl) : `https://${formData.linkedin || profile?.linkedinUrl}`}
                             target="_blank"
                             rel="noreferrer"
-                            className="flex items-center gap-3 p-3.5 bg-[#F8F9FA] hover:bg-[#F1F3F5] rounded-2xl border border-black/5 transition-all group"
+                            className="flex items-center gap-3 p-3.5 bg-[#F8F9FA] hover:bg-[#F1F3F5] rounded-2xl border border-black/5 transition-all group cursor-pointer"
                           >
                             <div className="w-8 h-8 rounded-xl bg-[#0A66C2] text-white flex items-center justify-center shrink-0">
                               <LinkedInLogo className="w-4 h-4 fill-current" />
@@ -998,7 +1016,7 @@ export default function ProfilePage() {
                                 <span className="text-xs font-bold text-[#111111] group-hover:text-[#0A66C2] transition-colors truncate">
                                   LinkedIn
                                 </span>
-                                <ExternalLink className="w-3 h-3 text-neutral-400 group-hover:text-[#0A66C2] transition-colors" />
+                                <ExternalLink className="w-3.5 h-3.5 text-neutral-400 group-hover:text-[#0A66C2] transition-colors" />
                               </div>
                               <span className="text-[10px] font-medium text-[#0A66C2] bg-blue-50 px-1.5 py-0.5 rounded-md inline-block mt-0.5">
                                 Connected
@@ -1008,10 +1026,10 @@ export default function ProfilePage() {
                         ) : (
                           <button
                             type="button"
-                            onClick={() => setIsEditing(true)}
+                            onClick={() => setAccountConnectProvider("linkedin")}
                             className="flex items-center gap-3 p-3.5 bg-[#F8F9FA] hover:bg-neutral-100 rounded-2xl border border-dashed border-neutral-300 transition-all text-left group cursor-pointer"
                           >
-                            <div className="w-8 h-8 rounded-xl bg-blue-100 text-[#0A66C2] flex items-center justify-center shrink-0 group-hover:bg-[#0A66C2] group-hover:text-white transition-colors">
+                            <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#0A66C2] flex items-center justify-center shrink-0 border border-blue-100 group-hover:bg-[#0A66C2] group-hover:text-white transition-colors">
                               <LinkedInLogo className="w-4 h-4 fill-current" />
                             </div>
                             <div className="min-w-0 flex-1">
@@ -1031,7 +1049,7 @@ export default function ProfilePage() {
                             href={(formData.portfolio || profile?.portfolioUrl).startsWith("http") ? (formData.portfolio || profile?.portfolioUrl) : `https://${formData.portfolio || profile?.portfolioUrl}`}
                             target="_blank"
                             rel="noreferrer"
-                            className="flex items-center gap-3 p-3.5 bg-[#F8F9FA] hover:bg-[#F1F3F5] rounded-2xl border border-black/5 transition-all group"
+                            className="flex items-center gap-3 p-3.5 bg-[#F8F9FA] hover:bg-[#F1F3F5] rounded-2xl border border-black/5 transition-all group cursor-pointer"
                           >
                             <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0">
                               <Globe className="w-4 h-4" />
@@ -1041,7 +1059,7 @@ export default function ProfilePage() {
                                 <span className="text-xs font-bold text-[#111111] group-hover:text-emerald-700 transition-colors truncate">
                                   Portfolio
                                 </span>
-                                <ExternalLink className="w-3 h-3 text-neutral-400 group-hover:text-emerald-600 transition-colors" />
+                                <ExternalLink className="w-3.5 h-3.5 text-neutral-400 group-hover:text-emerald-600 transition-colors" />
                               </div>
                               <span className="text-[10px] font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-md inline-block mt-0.5">
                                 Connected
@@ -1051,10 +1069,10 @@ export default function ProfilePage() {
                         ) : (
                           <button
                             type="button"
-                            onClick={() => setIsEditing(true)}
+                            onClick={() => setAccountConnectProvider("portfolio")}
                             className="flex items-center gap-3 p-3.5 bg-[#F8F9FA] hover:bg-neutral-100 rounded-2xl border border-dashed border-neutral-300 transition-all text-left group cursor-pointer"
                           >
-                            <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 border border-emerald-100 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
                               <Globe className="w-4 h-4" />
                             </div>
                             <div className="min-w-0 flex-1">
@@ -1071,6 +1089,47 @@ export default function ProfilePage() {
                     </div>
                   </div>
                 )}
+              </div>
+
+              {/* Quick Certificate Sync Action Hub */}
+              <div className="p-5 sm:p-6 bg-linear-to-r from-[#0056D2]/10 via-[#0A66C2]/10 to-emerald-500/10 border border-blue-500/20 rounded-4xl shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div className="flex items-start gap-3.5">
+                  <div className="p-3 rounded-2xl bg-white shadow-xs text-[#0056D2] shrink-0 border border-blue-100">
+                    <Award className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-sm sm:text-base font-black text-[#111111] tracking-tight">
+                        Fetch & Verify Digital Certificates Directly
+                      </h3>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-[#0056D2] uppercase tracking-wider">
+                        Automated
+                      </span>
+                    </div>
+                    <p className="text-xs text-[#494D4D] mt-0.5 max-w-xl">
+                      Connect your <strong>Coursera</strong> or <strong>LinkedIn</strong> accounts to import official certificates, accredited course completions, and cryptographic credentials directly into your Skill Passport.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 w-full md:w-auto shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setActiveSyncProvider("coursera")}
+                    className="flex-1 md:flex-none px-4 py-2.5 bg-[#0056D2] hover:bg-[#0047B3] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <CourseraLogo className="w-4 h-4" />
+                    <span>Sync Coursera</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveSyncProvider("linkedin")}
+                    className="flex-1 md:flex-none px-4 py-2.5 bg-[#0A66C2] hover:bg-[#084E96] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <LinkedInLogo className="w-4 h-4 fill-current" />
+                    <span>Sync LinkedIn</span>
+                  </button>
+                </div>
               </div>
 
               {/* Skills Card with Add/Delete Feature */}
@@ -1092,16 +1151,14 @@ export default function ProfilePage() {
                 {/* Unified Add Skill Input with Focus Animation & Intelligent Recommendations */}
                 <div className="relative mb-5">
                   <div
-                    className={`relative flex items-center bg-[#F8F9FA] rounded-2xl border transition-all duration-300 ease-out ${
-                      isSkillFocused
-                        ? "scale-[1.015] bg-white border-emerald-500 shadow-xl shadow-emerald-500/10 ring-4 ring-emerald-500/15"
-                        : "border-black/5 hover:border-black/10"
-                    }`}
+                    className={`relative flex items-center bg-[#F8F9FA] rounded-2xl border transition-all duration-300 ease-out ${isSkillFocused
+                      ? "scale-[1.015] bg-white border-emerald-500 shadow-xl shadow-emerald-500/10 ring-4 ring-emerald-500/15"
+                      : "border-black/5 hover:border-black/10"
+                      }`}
                   >
                     <Search
-                      className={`w-4 h-4 ml-4 shrink-0 transition-colors duration-300 ${
-                        isSkillFocused ? "text-emerald-600" : "text-neutral-400"
-                      }`}
+                      className={`w-4 h-4 ml-4 shrink-0 transition-colors duration-300 ${isSkillFocused ? "text-emerald-600" : "text-neutral-400"
+                        }`}
                     />
                     <input
                       ref={skillInputRef}
@@ -1288,8 +1345,8 @@ export default function ProfilePage() {
                         {parseFloat(trustScore) >= 85
                           ? "High Institutional Trust"
                           : parseFloat(trustScore) >= 65
-                          ? "Moderate Institutional Trust"
-                          : "Verification In Progress"}
+                            ? "Moderate Institutional Trust"
+                            : "Verification In Progress"}
                       </div>
                     </div>
 
@@ -1565,6 +1622,50 @@ export default function ProfilePage() {
             </div>
           </div>
         )}
+
+        {/* Modal: Certificate & Credential Import Dialog (Coursera & LinkedIn) */}
+        <CertificateImportModal
+          isOpen={Boolean(activeSyncProvider)}
+          onClose={() => setActiveSyncProvider(null)}
+          provider={activeSyncProvider || "coursera"}
+          initialUrl={
+            activeSyncProvider === "coursera"
+              ? formData.coursera || profile?.coursera || ""
+              : formData.linkedin || profile?.linkedin || ""
+          }
+          onImportSuccess={(result) => {
+            queryClient.invalidateQueries({ queryKey: ["user-profile"] });
+            queryClient.invalidateQueries({ queryKey: ["skill-passport"] });
+            queryClient.invalidateQueries({ queryKey: ["dash-passport"] });
+            queryClient.invalidateQueries({ queryKey: ["dash-evidence"] });
+            setSavedSuccess(true);
+            setTimeout(() => setSavedSuccess(false), 5000);
+          }}
+        />
+
+        {/* Modal: Account Connection & URL Linking Dialog (GitHub, LinkedIn, Portfolio) */}
+        <AccountConnectModal
+          isOpen={Boolean(accountConnectProvider)}
+          onClose={() => setAccountConnectProvider(null)}
+          provider={accountConnectProvider || "github"}
+          currentUrl={
+            accountConnectProvider === "github"
+              ? formData.github || profile?.githubUrl || ""
+              : accountConnectProvider === "linkedin"
+                ? formData.linkedin || profile?.linkedinUrl || ""
+                : accountConnectProvider === "coursera"
+                  ? formData.coursera || profile?.courseraUrl || ""
+                  : formData.portfolio || profile?.portfolioUrl || ""
+          }
+          onSaveSuccess={(updatedProfile) => {
+            queryClient.invalidateQueries({ queryKey: ["user-profile"] });
+            queryClient.invalidateQueries({ queryKey: ["skill-passport"] });
+            queryClient.invalidateQueries({ queryKey: ["dash-passport"] });
+            queryClient.invalidateQueries({ queryKey: ["dash-evidence"] });
+            setSavedSuccess(true);
+            setTimeout(() => setSavedSuccess(false), 5000);
+          }}
+        />
       </main>
     </div>
   );
