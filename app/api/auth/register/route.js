@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { validatePassword, hashPassword } from "@/lib/security/password";
-import { createToken } from "@/lib/security/tokens";
+import { createOtpToken } from "@/lib/security/tokens";
+import { sendOtpEmail } from "@/lib/email/mailer";
 import { checkRateLimit, createRateLimitResponse, getClientIp } from "@/lib/security/rateLimit";
 import { logSecurityEvent, SecurityEvent, LogLevel } from "@/lib/security/logger";
 import { validateHoneypot } from "@/lib/security/botProtection";
 import { sanitizeString, validateAndSanitizeEmail } from "@/lib/security/validator";
+
 
 export async function POST(request) {
   try {
@@ -116,21 +118,31 @@ export async function POST(request) {
       },
     });
 
-    // Generate email verification token
-    const verificationToken = await createToken(normalizedEmail, "email-verify", 24);
+    // Generate a 6-digit OTP and send it to the user's email
+    const otp = await createOtpToken(normalizedEmail);
+
+    try {
+      await sendOtpEmail(normalizedEmail, otp, trimmedName);
+    } catch (emailErr) {
+      console.error("Failed to send OTP email:", emailErr.message);
+      // Clean up the created user on email failure to keep the system consistent
+      await prisma.user.delete({ where: { id: newUser.id } }).catch(() => {});
+      return NextResponse.json(
+        { error: "Failed to send verification email. Please try again." },
+        { status: 500 }
+      );
+    }
 
     logSecurityEvent(SecurityEvent.AUTH_REGISTRATION_SUCCESS, LogLevel.INFO, {
       ip: clientIp,
       user: { id: newUser.id, email: newUser.email },
       route: "/api/auth/register",
       method: "POST",
+      details: { verificationMethod: "otp-email" },
     });
 
-    if (process.env.NODE_ENV !== "production") {
-      console.log(`[DEV SECURITY LOG] New user registered: ${normalizedEmail}. Verification link: /verify-email?token=${verificationToken}&email=${encodeURIComponent(normalizedEmail)}`);
-    }
-
     return NextResponse.json(
+
       {
         success: true,
         message: "Registration successful. Please verify your email.",

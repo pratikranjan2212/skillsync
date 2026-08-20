@@ -9,128 +9,115 @@ import {
   RefreshCw,
   Award,
   ShieldCheck,
-  Link2,
   FileCheck2,
   AlertCircle,
-  Plus,
+  Lock,
+  ArrowRight,
+  Sparkles,
 } from "lucide-react";
-import { LinkedInIcon } from "@/app/components/icons";
+import { LinkedInIcon, CredlyIcon } from "@/app/components/icons";
 
 export default function CertificateImportModal({
   isOpen,
   onClose,
-  provider = "linkedin",
+  provider = "linkedin", // "linkedin" | "credly"
   initialUrl = "",
   onImportSuccess,
 }) {
-  const [activeTab, setActiveTab] = useState("verify_link"); // "verify_link" | "manual_entry"
-
-  // Input states
-  const [certificateLink, setCertificateLink] = useState("");
-  const [manualTitle, setManualTitle] = useState("");
-  const [manualIssuer, setManualIssuer] = useState("");
-  const [manualCredId, setManualCredId] = useState("");
-
-  // Async states
+  const isCredly = provider === "credly";
+  const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [items, setItems] = useState([]);
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [errorMessage, setErrorMessage] = useState("");
+  const [isPrivateProfile, setIsPrivateProfile] = useState(false);
   const [successResult, setSuccessResult] = useState(null);
 
-  // Reset states on open
+  const brandTitle = isCredly ? "Credly Digital Badges" : "LinkedIn Certifications & Licenses";
+  const brandColor = isCredly ? "bg-[#FF6B00]" : "bg-[#0A66C2]";
+  const brandHoverColor = isCredly ? "hover:bg-[#E05E00]" : "hover:bg-[#084E96]";
+  const brandLabel = isCredly
+    ? "Credly Public Profile URL or Badge Link"
+    : "LinkedIn Profile URL or Certificate Link";
+  const brandPlaceholder = isCredly
+    ? "https://www.credly.com/users/username/badges or badge URL..."
+    : "https://linkedin.com/in/username or certificate link...";
+
   useEffect(() => {
     if (isOpen) {
-      setCertificateLink(initialUrl || "");
-      setManualTitle("");
-      setManualIssuer("");
-      setManualCredId("");
+      setInputValue(initialUrl || "");
       setErrorMessage("");
+      setIsPrivateProfile(false);
       setSuccessResult(null);
       setItems([]);
       setSelectedIds(new Set());
-      setActiveTab("verify_link");
 
       if (initialUrl) {
-        verifyByLink(initialUrl);
+        verifyCredentials(initialUrl);
       }
     }
-  }, [isOpen, initialUrl]);
+  }, [isOpen, provider, initialUrl]);
 
-  // 1. Verify by Credly / LinkedIn / Digital Badge link
-  const verifyByLink = async (inputLink) => {
-    const target = (inputLink || certificateLink).trim();
+  const verifyCredentials = async (inputUrl) => {
+    const target = (inputUrl || inputValue).trim();
     if (!target) {
-      setErrorMessage("Please enter a valid Credly badge link or LinkedIn certification URL.");
+      setErrorMessage(
+        isCredly
+          ? "Please enter a valid Credly public profile URL (https://www.credly.com/users/username/badges) or badge link."
+          : "Please enter your LinkedIn profile URL or certificate link."
+      );
       return;
     }
 
     setIsLoading(true);
     setErrorMessage("");
+    setIsPrivateProfile(false);
     setSuccessResult(null);
 
     try {
-      const endpoint = `/api/linkedin/certifications?verificationUrl=${encodeURIComponent(
-        target
-      )}&linkedinUrl=${encodeURIComponent(target)}`;
+      const endpoint = isCredly
+        ? `/api/credly/badges?badgeUrl=${encodeURIComponent(target)}&credlyUrl=${encodeURIComponent(target)}`
+        : `/api/linkedin/certifications?verificationUrl=${encodeURIComponent(
+            target
+          )}&linkedinUrl=${encodeURIComponent(target)}`;
 
       const res = await fetch(endpoint);
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        throw new Error(data.error || "Could not verify this credential.");
+        if (data.isPrivate || (data.error && data.error.toLowerCase().includes("private"))) {
+          setIsPrivateProfile(true);
+          setErrorMessage(
+            data.message ||
+              "Your Credly profile appears to be set to Private. Credly does not allow public badge fetching for private accounts."
+          );
+        } else {
+          throw new Error(data.error || data.message || "Could not verify credentials.");
+        }
+        setItems([]);
+        setSelectedIds(new Set());
+        return;
       }
 
-      const fetchedList = data.certifications || [];
-      if (fetchedList.length === 0) {
+      const list = isCredly ? data.badges || [] : data.certifications || [];
+      if (list.length === 0) {
         setErrorMessage(
-          "No certification found for this link. You can easily add it via the Custom Entry tab below."
+          isCredly
+            ? "No public badges found on this profile. Please make sure your profile has public badges or try entering an individual badge URL."
+            : "No certifications found for this profile or link."
         );
         setItems([]);
         setSelectedIds(new Set());
       } else {
-        setItems(fetchedList);
-        setSelectedIds(new Set(fetchedList.map((item) => item.id)));
+        setItems(list);
+        setSelectedIds(new Set(list.map((item) => item.id)));
       }
     } catch (err) {
-      console.error("LinkedIn verification error:", err);
-      setErrorMessage(err.message || "Failed to verify certificate.");
+      console.error(`Verification error for ${provider}:`, err);
+      setErrorMessage(err.message || "Failed to verify credentials.");
       setItems([]);
       setSelectedIds(new Set());
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // 2. Manual / Custom Certification Verification
-  const handleAddManualCertification = async (e) => {
-    if (e) e.preventDefault();
-    if (!manualTitle.trim()) {
-      setErrorMessage("Please enter a certification title.");
-      return;
-    }
-
-    setIsLoading(true);
-    setErrorMessage("");
-
-    try {
-      const endpoint = `/api/linkedin/certifications?title=${encodeURIComponent(
-        manualTitle
-      )}&issuer=${encodeURIComponent(manualIssuer)}&credentialId=${encodeURIComponent(manualCredId)}`;
-      const res = await fetch(endpoint);
-      const data = await res.json();
-
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || "Failed to add certification.");
-      }
-
-      const list = data.certifications || [];
-      setItems(list);
-      setSelectedIds(new Set(list.map((c) => c.id)));
-    } catch (err) {
-      console.error("Manual cert error:", err);
-      setErrorMessage(err.message || "Failed to add certification.");
     } finally {
       setIsLoading(false);
     }
@@ -159,8 +146,10 @@ export default function CertificateImportModal({
     setErrorMessage("");
 
     try {
-      const endpoint = "/api/linkedin/import";
-      const payload = { certifications: selectedItems, linkedinUrl: certificateLink };
+      const endpoint = isCredly ? "/api/credly/import" : "/api/linkedin/import";
+      const payload = isCredly
+        ? { badges: selectedItems, credlyUrl: inputValue }
+        : { certifications: selectedItems, linkedinUrl: inputValue };
 
       const res = await fetch(endpoint, {
         method: "POST",
@@ -178,7 +167,7 @@ export default function CertificateImportModal({
         onImportSuccess(data);
       }
     } catch (err) {
-      console.error("Import LinkedIn error:", err);
+      console.error(`Import ${provider} error:`, err);
       setErrorMessage(err.message || "Failed to import certificates.");
     } finally {
       setIsImporting(false);
@@ -197,20 +186,22 @@ export default function CertificateImportModal({
         {/* Header */}
         <div className="p-5 sm:p-6 border-b border-neutral-100 flex items-start justify-between gap-4 bg-[#FBFBFB]">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-md bg-[#0A66C2]">
-              <LinkedInIcon className="w-5 h-5 fill-current" />
+            <div
+              className={`w-11 h-11 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-md ${brandColor}`}
+            >
+              {isCredly ? <CredlyIcon className="w-6 h-6" /> : <LinkedInIcon className="w-5 h-5 fill-current" />}
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-base sm:text-lg font-black text-[#111111] tracking-tight">
-                  LinkedIn & Credly Certifications
-                </h3>
+                <h3 className="text-base sm:text-lg font-black text-[#111111] tracking-tight">{brandTitle}</h3>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-800">
-                  Direct Verification
+                  Direct API Verification
                 </span>
               </div>
               <p className="text-xs text-[#494D4D] mt-0.5">
-                Import verified licenses, industry badges, and certifications directly into your Skill Passport.
+                {isCredly
+                  ? "Fetch and choose which verified badges to add from your public Credly profile into your Skill Passport."
+                  : "Import verified licenses and certifications directly into your Skill Passport."}
               </p>
             </div>
           </div>
@@ -223,145 +214,114 @@ export default function CertificateImportModal({
           </button>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex items-center gap-2 px-5 sm:px-6 pt-4 border-b border-neutral-100 bg-white">
-          <button
-            type="button"
-            onClick={() => {
-              setActiveTab("verify_link");
-              setErrorMessage("");
-            }}
-            className={`pb-3 px-3 text-xs font-bold transition-all border-b-2 flex items-center gap-1.5 cursor-pointer ${
-              activeTab === "verify_link"
-                ? "border-[#0A66C2] text-[#0A66C2]"
-                : "border-transparent text-[#494D4D] hover:text-[#111111]"
-            }`}
-          >
-            <Link2 className="w-3.5 h-3.5" />
-            <span>Verify by Credly / Badge Link</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              setActiveTab("manual_entry");
-              setErrorMessage("");
-            }}
-            className={`pb-3 px-3 text-xs font-bold transition-all border-b-2 flex items-center gap-1.5 cursor-pointer ${
-              activeTab === "manual_entry"
-                ? "border-[#0A66C2] text-[#0A66C2]"
-                : "border-transparent text-[#494D4D] hover:text-[#111111]"
-            }`}
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Add Custom Credential</span>
-          </button>
-        </div>
-
         {/* Sync Controls / Form Area */}
         <div className="p-5 sm:p-6 border-b border-neutral-100 bg-white flex flex-col gap-3">
-          {activeTab === "verify_link" && (
-            <div>
-              <label className="block text-xs font-bold text-[#111111] mb-1.5">
-                Credly Badge URL / LinkedIn Certification Link
-              </label>
-              <div className="flex flex-col sm:flex-row items-center gap-2">
-                <div className="relative flex-1 w-full">
-                  <input
-                    type="text"
-                    value={certificateLink}
-                    onChange={(e) => setCertificateLink(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && verifyByLink(certificateLink)}
-                    placeholder="e.g. https://www.credly.com/badges/... or cert URL"
-                    className="w-full pl-3.5 pr-3.5 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-semibold text-[#111111] focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => verifyByLink(certificateLink)}
-                  disabled={isLoading || isImporting}
-                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-[#0A66C2] hover:bg-[#084E96] transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer disabled:opacity-50"
-                >
-                  {isLoading ? (
-                    <>
-                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                      <span>Verifying...</span>
-                    </>
-                  ) : (
-                    <>
-                      <ShieldCheck className="w-3.5 h-3.5" />
-                      <span>Verify & Fetch</span>
-                    </>
-                  )}
-                </button>
+          <div>
+            <label className="block text-xs font-bold text-[#111111] mb-1.5">{brandLabel}</label>
+            <div className="flex flex-col sm:flex-row items-center gap-2">
+              <div className="relative flex-1 w-full">
+                <input
+                  type="text"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && verifyCredentials(inputValue)}
+                  placeholder={brandPlaceholder}
+                  className="w-full pl-3.5 pr-3.5 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-semibold text-[#111111] focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
               </div>
+              <button
+                type="button"
+                onClick={() => verifyCredentials(inputValue)}
+                disabled={isLoading || isImporting}
+                className={`w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-bold text-white ${brandColor} ${brandHoverColor} transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer disabled:opacity-50`}
+              >
+                {isLoading ? (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    <span>Fetching Badges...</span>
+                  </>
+                ) : (
+                  <>
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    <span>{isCredly ? "Fetch Badges" : "Verify & Fetch"}</span>
+                  </>
+                )}
+              </button>
             </div>
-          )}
-
-          {activeTab === "manual_entry" && (
-            <form onSubmit={handleAddManualCertification} className="flex flex-col gap-2.5">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-[11px] font-bold text-[#111111] mb-1">Certification Title *</label>
-                  <input
-                    type="text"
-                    required
-                    value={manualTitle}
-                    onChange={(e) => setManualTitle(e.target.value)}
-                    placeholder="e.g. AWS Solutions Architect, CKA, Meta Frontend"
-                    className="w-full px-3 py-2 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-semibold text-[#111111] focus:outline-none focus:ring-2 focus:ring-[#0A66C2]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-bold text-[#111111] mb-1">Issuing Organization</label>
-                  <input
-                    type="text"
-                    value={manualIssuer}
-                    onChange={(e) => setManualIssuer(e.target.value)}
-                    placeholder="e.g. Amazon Web Services, Google, Microsoft, Cisco"
-                    className="w-full px-3 py-2 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-semibold text-[#111111] focus:outline-none focus:ring-2 focus:ring-[#0A66C2]"
-                  />
-                </div>
-              </div>
-
-              <div className="flex flex-col sm:flex-row items-center gap-2">
-                <div className="relative flex-1 w-full">
-                  <input
-                    type="text"
-                    value={manualCredId}
-                    onChange={(e) => setManualCredId(e.target.value)}
-                    placeholder="Credential ID or License Number (Optional)"
-                    className="w-full px-3 py-2 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-semibold text-[#111111] focus:outline-none focus:ring-2 focus:ring-[#0A66C2]"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={isLoading || isImporting || !manualTitle.trim()}
-                  className="w-full sm:w-auto px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#0A66C2] hover:bg-[#084E96] transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer disabled:opacity-50"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Verify & Add</span>
-                </button>
-              </div>
-            </form>
-          )}
+          </div>
 
           <div className="flex items-center justify-between text-[11px] text-[#494D4D] pt-1">
             <div className="flex items-center gap-1.5 text-emerald-700 font-medium">
               <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
-              <span>Verified credential registry & skill taxonomy extraction</span>
+              <span>
+                {isCredly
+                  ? "Live API sync with Credly public badge registry & skill taxonomy extraction"
+                  : "Verified with LinkedIn credential registry & skill taxonomy extraction"}
+              </span>
             </div>
             {items.length > 0 && (
               <span className="font-bold text-neutral-600">
-                {items.length} {items.length === 1 ? "certification" : "certifications"} ready
+                {items.length} {items.length === 1 ? "badge" : "badges"} found
               </span>
             )}
           </div>
         </div>
 
-        {/* Body: Certificates list or states */}
+        {/* Body: Certificates list, Private Profile Alert, or empty states */}
         <div className="flex-1 overflow-y-auto p-5 sm:p-6 bg-[#F8F9FA] flex flex-col gap-3">
-          {errorMessage && (
+          {/* Private Profile Warning Dialog / Alert Box */}
+          {isPrivateProfile && (
+            <div className="p-5 bg-amber-50/90 border border-amber-300/80 rounded-3xl flex flex-col gap-3.5 animate-in fade-in zoom-in-95 duration-200">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+                  <Lock className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-black text-amber-950">
+                    Credly Profile is Set to Private
+                  </h4>
+                  <p className="text-xs text-amber-900 mt-1 leading-relaxed">
+                    Credly security policies restrict automated badge fetching for private accounts. To fetch all your badges automatically, your Credly profile needs to be visible publicly.
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-3.5 bg-white/80 rounded-2xl border border-amber-200/60 flex flex-col gap-2 text-xs text-neutral-800 font-medium">
+                <span className="font-bold text-amber-900 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                  How to make your Credly badges accessible:
+                </span>
+                <ol className="list-decimal list-inside space-y-1 text-[11px] text-neutral-700">
+                  <li>Log in to your account at <a href="https://www.credly.com" target="_blank" rel="noreferrer" className="text-blue-600 underline font-bold">credly.com</a></li>
+                  <li>Click your profile icon → <strong>Settings</strong> → <strong>Privacy + Security</strong></li>
+                  <li>Toggle <strong>Public Profile Visibility</strong> to <strong>Enabled (Public)</strong></li>
+                  <li>Save changes, then click <strong>Retry Verification</strong> below</li>
+                </ol>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => verifyCredentials(inputValue)}
+                  className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>Retry Verification</span>
+                </button>
+                <a
+                  href="https://www.credly.com/users/settings/privacy"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-4 py-2 rounded-xl bg-white hover:bg-neutral-100 text-neutral-800 text-xs font-bold border border-black/10 transition-all cursor-pointer flex items-center gap-1.5"
+                >
+                  <span>Open Credly Privacy Settings</span>
+                  <ExternalLink className="w-3.5 h-3.5 text-neutral-500" />
+                </a>
+              </div>
+            </div>
+          )}
+
+          {errorMessage && !isPrivateProfile && (
             <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl flex items-start gap-3 text-xs text-rose-800 font-semibold">
               <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
               <span>{errorMessage}</span>
@@ -382,17 +342,19 @@ export default function CertificateImportModal({
 
           {isLoading ? (
             <div className="py-12 flex flex-col items-center justify-center gap-3 text-center">
-              <RefreshCw className="w-8 h-8 text-emerald-600 animate-spin" />
-              <div className="text-xs font-bold text-[#111111]">Verifying Credential Details...</div>
+              <RefreshCw className="w-8 h-8 text-[#FF6B00] animate-spin" />
+              <div className="text-xs font-bold text-[#111111]">
+                {isCredly ? "Connecting to Credly Registry API..." : "Verifying Credential Details..."}
+              </div>
               <p className="text-[11px] text-[#494D4D] max-w-xs">
-                Extracting verified certification signatures, issuer metadata, and skill tags.
+                Extracting official badge templates, cryptographic hashes, issuing organizations, and verified skills.
               </p>
             </div>
           ) : items.length > 0 ? (
             <>
               <div className="flex items-center justify-between pb-1">
                 <span className="text-xs font-extrabold uppercase tracking-wider text-[#111111]">
-                  Verified Digital Certifications
+                  Choose Badges to Add ({selectedIds.size} of {items.length} Selected)
                 </span>
                 <button
                   type="button"
@@ -418,12 +380,25 @@ export default function CertificateImportModal({
                     >
                       {/* Checkbox */}
                       <div
-                        className={`w-5 h-5 rounded-lg flex items-center justify-center mt-0.5 shrink-0 transition-colors ${
+                        className={`w-5 h-5 rounded-lg flex items-center justify-center mt-1 shrink-0 transition-colors ${
                           isSelected ? "bg-emerald-600 text-white" : "border border-neutral-300 bg-neutral-50"
                         }`}
                       >
                         {isSelected && <Check className="w-3.5 h-3.5 stroke-3" />}
                       </div>
+
+                      {/* Badge Thumbnail / Icon */}
+                      {item.imageUrl ? (
+                        <img
+                          src={item.imageUrl}
+                          alt={item.title}
+                          className="w-12 h-12 object-contain shrink-0 rounded-lg p-1 bg-neutral-50 border border-black/5"
+                        />
+                      ) : (
+                        <div className="w-11 h-11 rounded-xl bg-[#FF6B00]/10 text-[#FF6B00] flex items-center justify-center shrink-0 border border-[#FF6B00]/20">
+                          <Award className="w-6 h-6" />
+                        </div>
+                      )}
 
                       {/* Info */}
                       <div className="flex-1 min-w-0">
@@ -480,10 +455,12 @@ export default function CertificateImportModal({
                               onClick={(e) => e.stopPropagation()}
                               className="text-[11px] font-bold text-neutral-500 hover:text-emerald-700 flex items-center gap-1 transition-colors"
                             >
-                              <span>View Public Registry</span>
+                              <span>View Public Credly Registry</span>
                               <ExternalLink className="w-3 h-3" />
                             </a>
-                            <span className="text-[10px] text-neutral-400">Tier: High Institutional Trust</span>
+                            <span className="text-[10px] text-neutral-400 font-medium">
+                              Tier: High Institutional Trust
+                            </span>
                           </div>
                         )}
                       </div>
@@ -492,21 +469,25 @@ export default function CertificateImportModal({
                 })}
               </div>
             </>
-          ) : (
+          ) : !isPrivateProfile ? (
             <div className="py-12 flex flex-col items-center justify-center gap-2 text-center">
               <Award className="w-10 h-10 text-neutral-300" />
-              <div className="text-xs font-bold text-[#111111]">Enter Your Credly Badge or Certification Link</div>
+              <div className="text-xs font-bold text-[#111111]">
+                {isCredly ? "Enter Your Credly Public Profile URL" : "Enter Your LinkedIn Certification Link"}
+              </div>
               <p className="text-[11px] text-[#494D4D] max-w-sm">
-                Paste your Credly badge URL or enter your certification details above to verify and attach it directly to your Skill Passport.
+                {isCredly
+                  ? "Enter your Credly public profile (e.g. https://www.credly.com/users/username/badges) to fetch all your verified badges with individual selection choices."
+                  : "Paste your LinkedIn certification link or profile URL above to verify and attach it directly to your Skill Passport."}
               </p>
             </div>
-          )}
+          ) : null}
         </div>
 
         {/* Footer actions */}
         <div className="p-4 sm:p-5 border-t border-neutral-100 bg-white flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="text-xs font-semibold text-[#494D4D]">
-            {selectedIds.size} of {items.length} {items.length === 1 ? "certification" : "certifications"} selected
+            {selectedIds.size} of {items.length} {items.length === 1 ? "badge" : "badges"} selected
           </div>
 
           <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -527,12 +508,14 @@ export default function CertificateImportModal({
               {isImporting ? (
                 <>
                   <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                  <span>Importing to Passport...</span>
+                  <span>Importing Badges to Passport...</span>
                 </>
               ) : (
                 <>
                   <FileCheck2 className="w-4 h-4" />
-                  <span>Import {selectedIds.size > 0 ? `(${selectedIds.size})` : ""} to Passport</span>
+                  <span>
+                    Add {selectedIds.size > 0 ? `${selectedIds.size} Selected ` : ""}to Passport
+                  </span>
                 </>
               )}
             </button>

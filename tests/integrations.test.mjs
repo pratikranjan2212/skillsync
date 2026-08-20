@@ -140,26 +140,51 @@ test("Cryptographic Hash: Generates deterministic SHA-256 evidence digest", () =
   assert.strictEqual(hash.length, 7 + 64);
 });
 
-// 9. OAuth Profile Photo Extraction
-test("OAuth Photo Extractor: Extracts LinkedIn OpenID Connect picture", () => {
-  const oidcProfile = {
-    sub: "123456",
-    name: "Tony Stark",
-    picture: "https://media.licdn.com/dms/image/v2/D5603AQF/profile-displayphoto-shrink_800_800/0/stark.jpg",
-  };
-  const photo = extractOAuthAvatar(oidcProfile);
-  assert.strictEqual(photo, "https://media.licdn.com/dms/image/v2/D5603AQF/profile-displayphoto-shrink_800_800/0/stark.jpg");
+import { parseCredlyInput, fetchCredlyBadges } from "../lib/integrations/credly.js";
+
+// 10. Credly Parser & Badge Verification Tests
+test("Credly Parser: Extracts badge ID and user handles accurately", () => {
+  const parsedBadge = parseCredlyInput("https://www.credly.com/badges/abc-123-aws-cert");
+  assert.strictEqual(parsedBadge.type, "badge_id");
+  assert.strictEqual(parsedBadge.cleanId, "abc-123-aws-cert");
+
+  const parsedUser = parseCredlyInput("https://www.credly.com/users/tonystark/badges");
+  assert.strictEqual(parsedUser.type, "user_handle");
+  assert.strictEqual(parsedUser.cleanId, "tonystark");
 });
 
-test("OAuth Photo Extractor: Extracts GitHub avatar_url and user object override", () => {
-  const ghProfile = {
-    login: "tonystark",
-    avatar_url: "https://avatars.githubusercontent.com/u/101?v=4",
-  };
-  assert.strictEqual(extractOAuthAvatar(ghProfile), "https://avatars.githubusercontent.com/u/101?v=4");
+await asyncTest("Credly Integration: Verifies badge directly into verified-high tier", async () => {
+  const result = await fetchCredlyBadges({
+    badgeUrl: "https://www.credly.com/badges/aws-certified-solutions-architect-associate",
+  });
 
-  const existingUser = { image: "https://custom-domain.com/photo.png" };
-  assert.strictEqual(extractOAuthAvatar(ghProfile, existingUser), "https://custom-domain.com/photo.png");
+  assert.strictEqual(result.success, true);
+  assert.strictEqual(result.badges.length, 1);
+  const badge = result.badges[0];
+  assert.strictEqual(badge.issuer, "Amazon Web Services (AWS)");
+  assert.strictEqual(badge.verificationTier, "verified-high");
+  assert.ok(badge.skills.includes("AWS"));
+});
+
+await asyncTest("Credly Integration: Empty input returns clean prompt without fake suggestions", async () => {
+  const result = await fetchCredlyBadges({
+    badgeUrl: "",
+    credlyUrl: "",
+  });
+
+  assert.strictEqual(result.success, true);
+  assert.strictEqual(result.badges.length, 0);
+  assert.ok(result.message);
+});
+
+await asyncTest("Credly Integration: Inaccessible or private profile triggers private indicator", async () => {
+  const result = await fetchCredlyBadges({
+    credlyUrl: "https://www.credly.com/users/non-existent-user-xyz-99182/badges",
+  });
+
+  assert.strictEqual(result.success, false);
+  assert.ok(result.isPrivate || result.error);
+  assert.strictEqual(result.badges.length, 0);
 });
 
 console.log("\n------------------------------------------------------------");

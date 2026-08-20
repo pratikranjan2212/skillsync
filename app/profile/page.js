@@ -42,7 +42,7 @@ import AuthRequiredView from "@/app/components/auth/AuthRequiredView";
 import ImageCropperModal from "@/app/components/profile/ImageCropperModal";
 import DatePickerFlyout from "@/app/components/ui/DatePickerFlyout";
 import SearchableDropdown from "@/app/components/ui/SearchableDropdown";
-import { GitHubIcon, LinkedInIcon, PortfolioIcon, CourseraIcon } from "@/app/components/icons";
+import { GitHubIcon, LinkedInIcon, PortfolioIcon, CourseraIcon, CredlyIcon } from "@/app/components/icons";
 import CertificateImportModal from "@/app/components/profile/CertificateImportModal";
 import AccountConnectModal from "@/app/components/profile/AccountConnectModal";
 import { STUDENT_INTERN_SKILLS, PRELOADED_SKILL_RECOMMENDATIONS } from "@/app/data/studentInternSkills";
@@ -58,6 +58,10 @@ function LinkedInLogo({ className = "w-4 h-4 shrink-0" }) {
 
 function CourseraLogo({ className = "w-4 h-4 shrink-0" }) {
   return <CourseraIcon className={className} />;
+}
+
+function CredlyLogo({ className = "w-4 h-4 shrink-0" }) {
+  return <CredlyIcon className={className} />;
 }
 
 function PortfolioLogo({ className = "w-4 h-4 shrink-0" }) {
@@ -227,6 +231,7 @@ export default function ProfilePage() {
     bio: "",
     github: "",
     linkedin: "",
+    credly: "",
     coursera: "",
     portfolio: "",
     skills: [],
@@ -252,6 +257,7 @@ export default function ProfilePage() {
         bio: profile.bio || "",
         github: profile.github || "",
         linkedin: profile.linkedin || "",
+        credly: profile.credly || profile.credlyUrl || "",
         coursera: profile.coursera || "",
         portfolio: profile.portfolio || "",
         skills: profile.skills || [],
@@ -790,7 +796,7 @@ export default function ProfilePage() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                       <div>
                         <label className="block text-xs font-bold text-[#111111] mb-1.5">GitHub Profile</label>
                         <input
@@ -798,7 +804,7 @@ export default function ProfilePage() {
                           value={formData.github}
                           onChange={(e) => setFormData({ ...formData, github: e.target.value })}
                           placeholder="https://github.com/username"
-                          className="w-full px-4 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
                         />
                       </div>
                       <div>
@@ -808,7 +814,17 @@ export default function ProfilePage() {
                           value={formData.linkedin}
                           onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
                           placeholder="https://linkedin.com/in/username"
-                          className="w-full px-4 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-[#111111] mb-1.5">Credly Profile</label>
+                        <input
+                          type="text"
+                          value={formData.credly}
+                          onChange={(e) => setFormData({ ...formData, credly: e.target.value })}
+                          placeholder="https://credly.com/users/username/badges"
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#FF6B00]"
                         />
                       </div>
                       <div>
@@ -818,7 +834,7 @@ export default function ProfilePage() {
                           value={formData.coursera}
                           onChange={(e) => setFormData({ ...formData, coursera: e.target.value })}
                           placeholder="https://coursera.org/user/username"
-                          className="w-full px-4 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
                         />
                       </div>
                       <div>
@@ -828,7 +844,7 @@ export default function ProfilePage() {
                           value={formData.portfolio}
                           onChange={(e) => setFormData({ ...formData, portfolio: e.target.value })}
                           placeholder="https://yourportfolio.dev"
-                          className="w-full px-4 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
                         />
                       </div>
                     </div>
@@ -980,7 +996,7 @@ export default function ProfilePage() {
                         </span>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
                         {/* GitHub Card */}
                         {formData.github || profile?.githubUrl ? (
                           <a
@@ -1061,6 +1077,49 @@ export default function ProfilePage() {
                                 LinkedIn
                               </span>
                               <span className="text-[10px] font-bold text-[#0A66C2] group-hover:underline">
+                                + Connect
+                              </span>
+                            </div>
+                          </button>
+                        )}
+
+                        {/* Credly Card */}
+                        {formData.credly || profile?.credlyUrl ? (
+                          <a
+                            href={(formData.credly || profile?.credlyUrl).startsWith("http") ? (formData.credly || profile?.credlyUrl) : `https://${formData.credly || profile?.credlyUrl}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex items-center gap-3 p-3.5 bg-[#F8F9FA] hover:bg-[#F1F3F5] rounded-2xl border border-black/5 transition-all group cursor-pointer"
+                          >
+                            <div className="w-8 h-8 rounded-xl bg-[#FF6B00] text-white flex items-center justify-center shrink-0 shadow-2xs">
+                              <CredlyLogo className="w-4 h-4" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs font-bold text-[#111111] group-hover:text-[#FF6B00] transition-colors truncate">
+                                  Credly
+                                </span>
+                                <ExternalLink className="w-3.5 h-3.5 text-neutral-400 group-hover:text-[#FF6B00] transition-colors" />
+                              </div>
+                              <span className="text-[10px] font-medium text-[#FF6B00] bg-orange-50 px-1.5 py-0.5 rounded-md inline-block mt-0.5">
+                                Connected
+                              </span>
+                            </div>
+                          </a>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setAccountConnectProvider("credly")}
+                            className="flex items-center gap-3 p-3.5 bg-[#F8F9FA] hover:bg-neutral-100 rounded-2xl border border-dashed border-neutral-300 transition-all text-left group cursor-pointer"
+                          >
+                            <div className="w-8 h-8 rounded-xl bg-orange-50 text-[#FF6B00] flex items-center justify-center shrink-0 border border-orange-100 group-hover:bg-[#FF6B00] group-hover:text-white transition-colors">
+                              <CredlyLogo className="w-4 h-4" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <span className="text-xs font-bold text-neutral-600 group-hover:text-[#111111] block transition-colors">
+                                Credly
+                              </span>
+                              <span className="text-[10px] font-bold text-[#FF6B00] group-hover:underline">
                                 + Connect
                               </span>
                             </div>
@@ -1392,6 +1451,15 @@ export default function ProfilePage() {
                     <LinkedInLogo className="w-4 h-4 fill-current" />
                     <span>Fetch LinkedIn Certifications</span>
                   </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveSyncProvider("credly")}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-[#FF6B00] hover:bg-[#E05E00] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
+                  >
+                    <CredlyLogo className="w-4 h-4" />
+                    <span>Fetch Credly Badges</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -1615,15 +1683,15 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {/* Modal: Certificate & Credential Import Dialog (Coursera & LinkedIn) */}
+        {/* Modal: Certificate & Credential Import Dialog (LinkedIn & Credly) */}
         <CertificateImportModal
           isOpen={Boolean(activeSyncProvider)}
           onClose={() => setActiveSyncProvider(null)}
-          provider={activeSyncProvider || "coursera"}
+          provider={activeSyncProvider || "linkedin"}
           initialUrl={
-            activeSyncProvider === "coursera"
-              ? formData.coursera || profile?.coursera || ""
-              : formData.linkedin || profile?.linkedin || ""
+            activeSyncProvider === "credly"
+              ? formData.credly || profile?.credlyUrl || profile?.credly || ""
+              : formData.linkedin || profile?.linkedinUrl || profile?.linkedin || ""
           }
           onImportSuccess={(result) => {
             queryClient.invalidateQueries({ queryKey: ["user-profile"] });
@@ -1635,7 +1703,7 @@ export default function ProfilePage() {
           }}
         />
 
-        {/* Modal: Account Connection & URL Linking Dialog (GitHub, LinkedIn, Portfolio) */}
+        {/* Modal: Account Connection & URL Linking Dialog (GitHub, LinkedIn, Credly, Portfolio, Coursera) */}
         <AccountConnectModal
           isOpen={Boolean(accountConnectProvider)}
           onClose={() => setAccountConnectProvider(null)}
@@ -1645,9 +1713,11 @@ export default function ProfilePage() {
               ? formData.github || profile?.githubUrl || ""
               : accountConnectProvider === "linkedin"
                 ? formData.linkedin || profile?.linkedinUrl || ""
-                : accountConnectProvider === "coursera"
-                  ? formData.coursera || profile?.courseraUrl || ""
-                  : formData.portfolio || profile?.portfolioUrl || ""
+                : accountConnectProvider === "credly"
+                  ? formData.credly || profile?.credlyUrl || ""
+                  : accountConnectProvider === "coursera"
+                    ? formData.coursera || profile?.courseraUrl || ""
+                    : formData.portfolio || profile?.portfolioUrl || ""
           }
           onSaveSuccess={(updatedProfile) => {
             queryClient.invalidateQueries({ queryKey: ["user-profile"] });

@@ -9,13 +9,13 @@ import {
   Globe,
   Trash2,
 } from "lucide-react";
-import { GitHubIcon, LinkedInIcon, CourseraIcon } from "@/app/components/icons";
+import { GitHubIcon, LinkedInIcon, CourseraIcon, CredlyIcon } from "@/app/components/icons";
 import { signIn } from "next-auth/react";
 
 export default function AccountConnectModal({
   isOpen,
   onClose,
-  provider = "github", // "github" | "linkedin" | "portfolio" | "coursera"
+  provider = "github", // "github" | "linkedin" | "portfolio" | "coursera" | "credly"
   currentUrl = "",
   onSaveSuccess,
 }) {
@@ -80,6 +80,26 @@ export default function AccountConnectModal({
             let trimmed = val.trim().replace(/^https?:\/\/(www\.)?linkedin\.com\/?/, "");
             if (trimmed.startsWith("in/")) trimmed = trimmed.slice(3);
             return trimmed ? `https://linkedin.com/in/${trimmed}` : "";
+          },
+        };
+      case "credly":
+        return {
+          title: "Credly Public Profile",
+          subtitle: "Link your public Credly profile to verify and display your verified industry badges & IT certifications.",
+          placeholder: "https://www.credly.com/users/your-username/badges",
+          example: "e.g. https://www.credly.com/users/tonystark/badges or tonystark",
+          icon: <CredlyIcon className="w-5 h-5" />,
+          iconBg: "bg-[#FF6B00] text-white",
+          brandColor: "text-[#FF6B00]",
+          brandButtonBg: "bg-[#FF6B00] hover:bg-[#E05E00] text-white",
+          allowOAuth: false,
+          fieldName: "credly",
+          formatUrl: (val) => {
+            let trimmed = val.trim().replace(/^https?:\/\/(www\.)?credly\.com\/?/, "");
+            if (trimmed.startsWith("users/")) trimmed = trimmed.slice(6);
+            if (trimmed.startsWith("u/")) trimmed = trimmed.slice(2);
+            if (trimmed.endsWith("/badges")) trimmed = trimmed.slice(0, -7);
+            return trimmed ? `https://www.credly.com/users/${trimmed}/badges` : "";
           },
         };
       case "coursera":

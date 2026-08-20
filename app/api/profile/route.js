@@ -143,6 +143,8 @@ export async function GET(request) {
         portfolioUrl: user.portfolioUrl || "",
         coursera: user.courseraUrl || "",
         courseraUrl: user.courseraUrl || "",
+        credly: user.credlyUrl || "",
+        credlyUrl: user.credlyUrl || "",
         connectedProviders: user.accounts?.map((a) => a.provider) || [],
         skills: allSkills,
         customSkills: user.skills || [],
@@ -184,7 +186,7 @@ export async function PUT(request) {
     }
 
     const body = await request.json();
-    const { name, image, college, degree, batch, dob, gender, bio, github, linkedin, portfolio, coursera, skills } = body;
+    const { name, image, college, degree, batch, dob, gender, bio, github, linkedin, portfolio, coursera, credly, skills } = body;
 
     // Strict input validation & sanitization
     const sanitizedName = name !== undefined ? sanitizeString(name, 100) : user.name;
@@ -199,11 +201,13 @@ export async function PUT(request) {
     const rawLinkedin = linkedin !== undefined ? normalizeProviderUrl(linkedin, "linkedin") : user.linkedinUrl;
     const rawPortfolio = portfolio !== undefined ? normalizeProviderUrl(portfolio, "portfolio") : user.portfolioUrl;
     const rawCoursera = coursera !== undefined ? normalizeProviderUrl(coursera, "coursera") : user.courseraUrl;
+    const rawCredly = credly !== undefined ? normalizeProviderUrl(credly, "credly") : user.credlyUrl;
 
     const validatedGithub = rawGithub ? (sanitizeUrl(rawGithub).valid ? sanitizeUrl(rawGithub).url : "") : (github !== undefined ? "" : user.githubUrl);
     const validatedLinkedin = rawLinkedin ? (sanitizeUrl(rawLinkedin).valid ? sanitizeUrl(rawLinkedin).url : "") : (linkedin !== undefined ? "" : user.linkedinUrl);
     const validatedPortfolio = rawPortfolio ? (sanitizeUrl(rawPortfolio).valid ? sanitizeUrl(rawPortfolio).url : "") : (portfolio !== undefined ? "" : user.portfolioUrl);
     const validatedCoursera = rawCoursera ? (sanitizeUrl(rawCoursera).valid ? sanitizeUrl(rawCoursera).url : "") : (coursera !== undefined ? "" : user.courseraUrl);
+    const validatedCredly = rawCredly ? (sanitizeUrl(rawCredly).valid ? sanitizeUrl(rawCredly).url : "") : (credly !== undefined ? "" : user.credlyUrl);
 
     let validatedImage = user.image;
     if (image !== undefined) {
@@ -234,6 +238,7 @@ export async function PUT(request) {
         linkedinUrl: validatedLinkedin,
         portfolioUrl: validatedPortfolio,
         courseraUrl: validatedCoursera,
+        credlyUrl: validatedCredly,
         skills: sanitizedSkills,
       },
       include: {
@@ -270,6 +275,8 @@ export async function PUT(request) {
         portfolioUrl: updatedUser.portfolioUrl || "",
         coursera: updatedUser.courseraUrl || "",
         courseraUrl: updatedUser.courseraUrl || "",
+        credly: updatedUser.credlyUrl || "",
+        credlyUrl: updatedUser.credlyUrl || "",
         connectedProviders: updatedUser.accounts?.map((a) => a.provider) || [],
         skills: updatedUser.skills || [],
         customSkills: updatedUser.skills || [],
