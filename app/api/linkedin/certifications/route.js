@@ -33,11 +33,19 @@ export async function GET(request) {
 
     const { searchParams } = new URL(request.url);
     const queryUrl = searchParams.get("linkedinUrl") || searchParams.get("url") || user.linkedinUrl || "";
+    const title = searchParams.get("title") || "";
+    const issuer = searchParams.get("issuer") || "";
+    const credentialId = searchParams.get("credentialId") || "";
+    const verificationUrl = searchParams.get("verificationUrl") || "";
 
     const linkedInAccount = user.accounts?.find((a) => a.provider === "linkedin");
 
     const result = await fetchLinkedInCertifications({
       linkedinUrl: queryUrl,
+      title,
+      issuer,
+      credentialId,
+      verificationUrl,
       accessToken: linkedInAccount?.access_token || null,
       userId: user.id,
       name: user.name || "",
@@ -49,7 +57,7 @@ export async function GET(request) {
       certifications: result.certifications || [],
       totalCount: result.totalCount || 0,
       source: result.source,
-      hasApiKey: result.hasApiKey,
+      message: result.message,
     });
   } catch (err) {
     console.error("LinkedIn certifications GET error:", err);

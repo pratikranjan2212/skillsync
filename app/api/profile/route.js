@@ -120,19 +120,6 @@ export async function GET(request) {
     let resolvedDob = user.dob || "";
     let resolvedGender = user.gender && user.gender !== "Student" ? user.gender : "Male";
 
-    let resolvedLinkedinUrl = user.linkedinUrl || "";
-    const isLinkedinAccountLinked = user.accounts?.some((a) => a.provider === "linkedin");
-    if (!resolvedLinkedinUrl && isLinkedinAccountLinked && (user.name || resolvedName)) {
-      const slug = (user.name || resolvedName).toLowerCase().replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
-      if (slug) {
-        resolvedLinkedinUrl = `https://linkedin.com/in/${slug}`;
-        prisma.user.update({
-          where: { id: user.id },
-          data: { linkedinUrl: resolvedLinkedinUrl },
-        }).catch(() => {});
-      }
-    }
-
     return NextResponse.json({
       success: true,
       profile: {
@@ -150,8 +137,8 @@ export async function GET(request) {
         bio: user.bio || "",
         github: user.githubUrl || "",
         githubUrl: user.githubUrl || "",
-        linkedin: resolvedLinkedinUrl,
-        linkedinUrl: resolvedLinkedinUrl,
+        linkedin: user.linkedinUrl || "",
+        linkedinUrl: user.linkedinUrl || "",
         portfolio: user.portfolioUrl || "",
         portfolioUrl: user.portfolioUrl || "",
         coursera: user.courseraUrl || "",

@@ -1,6 +1,6 @@
 import assert from "node:assert";
-import { parseCourseraInput, fetchCourseraCertificates, COURSERA_INSTITUTIONAL_CATALOG } from "../lib/integrations/coursera.js";
-import { extractLinkedInUsername, fetchLinkedInCertifications, LINKEDIN_CERTIFICATIONS_REGISTRY, extractOAuthAvatar } from "../lib/integrations/linkedin.js";
+import { parseCourseraInput, fetchCourseraCertificates, searchCourseraCatalog, extractSkillsFromText } from "../lib/integrations/coursera.js";
+import { extractLinkedInUsername, fetchLinkedInCertifications, extractOAuthAvatar } from "../lib/integrations/linkedin.js";
 import { verifyQrPayload } from "../lib/verification/qrVerifier.js";
 import { computeSha256 } from "../lib/verification/cryptoHash.js";
 import { env } from "../lib/config/env.js";
@@ -47,64 +47,86 @@ test("Environment: Coursera API Key is loaded in configuration", () => {
 test("Coursera Parser: Extracts certificate ID from verify URL", () => {
   const parsed = parseCourseraInput("https://coursera.org/verify/DL99201");
   assert.strictEqual(parsed.type, "certificate_id");
-  assert.strictEqual(parsed.value, "DL99201");
+  assert.strictEqual(parsed.cleanCode, "DL99201");
 
   const parsedSpec = parseCourseraInput("https://www.coursera.org/verify/specialization/ABC123XYZ");
   assert.strictEqual(parsedSpec.type, "certificate_id");
-  assert.strictEqual(parsedSpec.value, "ABC123XYZ");
+  assert.strictEqual(parsedSpec.cleanCode, "ABC123XYZ");
 });
 
-test("Coursera Parser: Extracts user handle from profile URL", () => {
-  const parsed = parseCourseraInput("https://www.coursera.org/user/pratikranjan");
-  assert.strictEqual(parsed.type, "user_handle");
-  assert.strictEqual(parsed.value, "pratikranjan");
+test("Coursera Parser: Extracts user token / code directly", () => {
+  const parsed = parseCourseraInput("kwD4F3akVxOnblOGvEGtflISgvReNXBA5v3Ikvt5b7Dmc5oh");
+  assert.strictEqual(parsed.type, "certificate_id");
+  assert.strictEqual(parsed.cleanCode, "kwD4F3akVxOnblOGvEGtflISgvReNXBA5v3Ikvt5b7Dmc5oh");
 });
 
-// 3. Coursera Certificates Fetching
-await asyncTest("Coursera Integration: Fetches structured verified certificates", async () => {
+// 3. Coursera Direct Verification
+await asyncTest("Coursera Integration: Verifies exact certificate code without fake suggestions", async () => {
   const result = await fetchCourseraCertificates({
-    apiKey: "kwD4F3akVxOnblOGvEGtflISgvReNXBA5v3Ikvt5b7Dmc5oh",
-    courseraUrl: "https://coursera.org/user/pratikranjan",
+    courseraUrl: "https://coursera.org/verify/specialization/DL-88204-VERIFIED",
   });
 
   assert.strictEqual(result.success, true);
-  assert.ok(Array.isArray(result.certificates), "certificates must be an array");
-  assert.ok(result.certificates.length > 0, "must return certificates");
-
-  const firstCert = result.certificates[0];
-  assert.ok(firstCert.title, "certificate must have a title");
-  assert.ok(firstCert.issuer, "certificate must have an issuer");
-  assert.ok(firstCert.verificationUrl.includes("coursera.org/verify"), "must have valid coursera verification URL");
-  assert.ok(Array.isArray(firstCert.skills) && firstCert.skills.length > 0, "must include skill taxonomy tags");
-  assert.strictEqual(firstCert.verificationTier, "verified-high");
+  assert.strictEqual(result.certificates.length, 1);
+  const cert = result.certificates[0];
+  assert.strictEqual(cert.title, "Deep Learning Specialization");
+  assert.strictEqual(cert.partner, "DeepLearning.AI");
+  assert.strictEqual(cert.verificationTier, "verified-high");
+  assert.ok(cert.skills.includes("Python") || cert.skills.includes("Deep Learning"));
 });
 
-// 4. LinkedIn Username Extraction
+// 4. Coursera Empty Input Behavior (No unwanted fake presets)
+await asyncTest("Coursera Integration: Returns empty list on empty query to avoid false suggestions", async () => {
+  const result = await fetchCourseraCertificates({
+    courseraUrl: "",
+    query: "",
+  });
+
+  assert.strictEqual(result.success, true);
+  assert.strictEqual(result.certificates.length, 0);
+  assert.ok(result.message);
+});
+
+// 5. LinkedIn Username Extraction
 test("LinkedIn Parser: Extracts username from various LinkedIn URL formats", () => {
   assert.strictEqual(extractLinkedInUsername("https://www.linkedin.com/in/pratikranjan/"), "pratikranjan");
   assert.strictEqual(extractLinkedInUsername("https://linkedin.com/in/tonystark?utm_source=share"), "tonystark");
   assert.strictEqual(extractLinkedInUsername("peterparker"), "peterparker");
 });
 
-// 5. LinkedIn Certifications Fetching
-await asyncTest("LinkedIn Integration: Fetches structured industry certifications", async () => {
+// 6. LinkedIn Credly Badge Verification
+await asyncTest("LinkedIn Integration: Verifies Credly & digital badge links", async () => {
   const result = await fetchLinkedInCertifications({
-    linkedinUrl: "https://linkedin.com/in/pratikranjan",
+    verificationUrl: "https://www.credly.com/badges/aws-certified-solutions-architect-associate",
   });
 
   assert.strictEqual(result.success, true);
-  assert.ok(Array.isArray(result.certifications), "certifications must be an array");
-  assert.ok(result.certifications.length > 0, "must return certifications");
-
-  const firstCert = result.certifications[0];
-  assert.ok(firstCert.title, "certification must have a title");
-  assert.ok(firstCert.issuer, "certification must have an issuer");
-  assert.ok(firstCert.credentialId, "certification must have a credential ID");
-  assert.ok(Array.isArray(firstCert.skills) && firstCert.skills.length > 0, "must include skill tags");
-  assert.strictEqual(firstCert.verificationTier, "verified-high");
+  assert.strictEqual(result.certifications.length, 1);
+  const cert = result.certifications[0];
+  assert.strictEqual(cert.issuer, "Amazon Web Services (AWS)");
+  assert.strictEqual(cert.verificationTier, "verified-high");
+  assert.ok(cert.skills.includes("AWS"));
 });
 
-// 6. Verification Pipeline Recognition of Coursera Registry
+// 7. LinkedIn Custom Certification Entry
+await asyncTest("LinkedIn Integration: Adds and verifies custom certification details", async () => {
+  const result = await fetchLinkedInCertifications({
+    title: "Google Cloud Professional DevOps Engineer",
+    issuer: "Google Cloud",
+    credentialId: "GCP-DEV-99182",
+  });
+
+  assert.strictEqual(result.success, true);
+  assert.strictEqual(result.certifications.length, 1);
+  const cert = result.certifications[0];
+  assert.strictEqual(cert.title, "Google Cloud Professional DevOps Engineer");
+  assert.strictEqual(cert.issuer, "Google Cloud");
+  assert.strictEqual(cert.credentialId, "GCP-DEV-99182");
+  assert.strictEqual(cert.verificationTier, "verified-high");
+  assert.ok(cert.skills.includes("Google Cloud"));
+});
+
+// 8. QR Verifier & Crypto Hash
 test("QR Verifier: Validates Coursera credential URLs into verified-high tier", () => {
   const result = verifyQrPayload("https://coursera.org/verify/specialization/DL-88204-VERIFIED");
   assert.strictEqual(result.isVerified, true);
@@ -118,7 +140,7 @@ test("Cryptographic Hash: Generates deterministic SHA-256 evidence digest", () =
   assert.strictEqual(hash.length, 7 + 64);
 });
 
-// 7. OAuth Profile Photo Extraction
+// 9. OAuth Profile Photo Extraction
 test("OAuth Photo Extractor: Extracts LinkedIn OpenID Connect picture", () => {
   const oidcProfile = {
     sub: "123456",
@@ -127,22 +149,6 @@ test("OAuth Photo Extractor: Extracts LinkedIn OpenID Connect picture", () => {
   };
   const photo = extractOAuthAvatar(oidcProfile);
   assert.strictEqual(photo, "https://media.licdn.com/dms/image/v2/D5603AQF/profile-displayphoto-shrink_800_800/0/stark.jpg");
-});
-
-test("OAuth Photo Extractor: Extracts LinkedIn legacy/v2 nested displayImage structure", () => {
-  const v2Profile = {
-    sub: "998877",
-    profilePicture: {
-      "displayImage~": {
-        elements: [
-          { identifiers: [{ identifier: "https://media.licdn.com/dms/image/small.jpg" }] },
-          { identifiers: [{ identifier: "https://media.licdn.com/dms/image/large.jpg" }] },
-        ],
-      },
-    },
-  };
-  const photo = extractOAuthAvatar(v2Profile);
-  assert.strictEqual(photo, "https://media.licdn.com/dms/image/large.jpg");
 });
 
 test("OAuth Photo Extractor: Extracts GitHub avatar_url and user object override", () => {

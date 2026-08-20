@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   X,
   Check,
@@ -9,12 +9,12 @@ import {
   RefreshCw,
   Award,
   ShieldCheck,
-  Sparkles,
+  Search,
   Link2,
-  Layers,
-  ArrowRight,
-  AlertCircle,
   FileCheck2,
+  AlertCircle,
+  Plus,
+  Sparkles,
 } from "lucide-react";
 import { CourseraIcon, LinkedInIcon } from "@/app/components/icons";
 
@@ -25,7 +25,17 @@ export default function CertificateImportModal({
   initialUrl = "",
   onImportSuccess,
 }) {
-  const [profileUrl, setProfileUrl] = useState(initialUrl);
+  const isCoursera = provider === "coursera";
+  const [activeTab, setActiveTab] = useState("verify_link"); // "verify_link" | "catalog_search" | "manual_entry"
+
+  // Input states
+  const [certificateLink, setCertificateLink] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [manualTitle, setManualTitle] = useState("");
+  const [manualIssuer, setManualIssuer] = useState("");
+  const [manualCredId, setManualCredId] = useState("");
+
+  // Async states
   const [isLoading, setIsLoading] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [items, setItems] = useState([]);
@@ -33,49 +43,69 @@ export default function CertificateImportModal({
   const [errorMessage, setErrorMessage] = useState("");
   const [successResult, setSuccessResult] = useState(null);
 
-  const isCoursera = provider === "coursera";
-  const brandTitle = isCoursera ? "Coursera Account & Certificates" : "LinkedIn Certifications & Licenses";
+  const brandTitle = isCoursera ? "Coursera Certificate Verification" : "LinkedIn & Credly Certifications";
   const brandColor = isCoursera ? "bg-[#0056D2]" : "bg-[#0A66C2]";
-  const brandTextColor = isCoursera ? "text-[#0056D2]" : "text-[#0A66C2]";
-  const brandBorderColor = isCoursera ? "border-[#0056D2]/30" : "border-[#0A66C2]/30";
-  const brandBgLight = isCoursera ? "bg-[#0056D2]/5" : "bg-[#0A66C2]/5";
-  const inputPlaceholder = isCoursera
-    ? "https://coursera.org/user/username or certificate ID..."
-    : "https://linkedin.com/in/username or profile handle...";
 
+  // Reset states on open
   useEffect(() => {
     if (isOpen) {
-      setProfileUrl(initialUrl || "");
+      setCertificateLink(initialUrl || "");
+      setSearchQuery("");
+      setManualTitle("");
+      setManualIssuer("");
+      setManualCredId("");
       setErrorMessage("");
       setSuccessResult(null);
-      fetchCertificates(initialUrl || "");
-    }
-  }, [isOpen, provider, initialUrl]);
+      setItems([]);
+      setSelectedIds(new Set());
+      setActiveTab(isCoursera ? "verify_link" : "verify_link");
 
-  const fetchCertificates = async (urlToUse) => {
+      if (initialUrl) {
+        verifyByLink(initialUrl);
+      }
+    }
+  }, [isOpen, provider, initialUrl, isCoursera]);
+
+  // 1. Verify by Certificate URL / Code
+  const verifyByLink = async (inputLink) => {
+    const target = (inputLink || certificateLink).trim();
+    if (!target) {
+      setErrorMessage("Please enter a valid certificate link or verification code.");
+      return;
+    }
+
     setIsLoading(true);
     setErrorMessage("");
     setSuccessResult(null);
 
     try {
       const endpoint = isCoursera
-        ? `/api/coursera/certificates?courseraUrl=${encodeURIComponent(urlToUse || "")}`
-        : `/api/linkedin/certifications?linkedinUrl=${encodeURIComponent(urlToUse || "")}`;
+        ? `/api/coursera/certificates?courseraUrl=${encodeURIComponent(target)}`
+        : `/api/linkedin/certifications?verificationUrl=${encodeURIComponent(target)}&linkedinUrl=${encodeURIComponent(target)}`;
 
       const res = await fetch(endpoint);
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        throw new Error(data.error || "Failed to retrieve credentials.");
+        throw new Error(data.error || "Could not verify this credential.");
       }
 
       const fetchedList = isCoursera ? data.certificates || [] : data.certifications || [];
-      setItems(fetchedList);
-      // Select all by default
-      setSelectedIds(new Set(fetchedList.map((item) => item.id)));
+      if (fetchedList.length === 0) {
+        setErrorMessage(
+          isCoursera
+            ? "No certificate found for this code or link. Please verify the link format (e.g., https://coursera.org/verify/YOUR_CODE) or search for your course."
+            : "No certification found for this link. You can also add it via the Custom Entry tab below."
+        );
+        setItems([]);
+        setSelectedIds(new Set());
+      } else {
+        setItems(fetchedList);
+        setSelectedIds(new Set(fetchedList.map((item) => item.id)));
+      }
     } catch (err) {
-      console.error(`Error fetching ${provider} credentials:`, err);
-      setErrorMessage(err.message || "Failed to fetch credentials. Please check the profile URL or try again.");
+      console.error(`Verification error for ${provider}:`, err);
+      setErrorMessage(err.message || "Failed to verify certificate.");
       setItems([]);
       setSelectedIds(new Set());
     } finally {
@@ -83,13 +113,81 @@ export default function CertificateImportModal({
     }
   };
 
+  // 2. Search Live Coursera Course Catalog
+  const handleSearchCourses = async (queryText) => {
+    const q = (queryText !== undefined ? queryText : searchQuery).trim();
+    if (!q) {
+      setItems([]);
+      setSelectedIds(new Set());
+      return;
+    }
+
+    setIsLoading(true);
+    setErrorMessage("");
+    setSuccessResult(null);
+
+    try {
+      const endpoint = `/api/coursera/certificates?query=${encodeURIComponent(q)}`;
+      const res = await fetch(endpoint);
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Course search failed.");
+      }
+
+      const list = data.certificates || [];
+      setItems(list);
+      setSelectedIds(new Set(list.map((c) => c.id)));
+      if (list.length === 0) {
+        setErrorMessage(`No Coursera courses found matching "${q}". Try another keyword.`);
+      }
+    } catch (err) {
+      console.error("Search error:", err);
+      setErrorMessage(err.message || "Failed to search Coursera catalog.");
+      setItems([]);
+      setSelectedIds(new Set());
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 3. Manual / Custom Certification Verification
+  const handleAddManualCertification = async (e) => {
+    if (e) e.preventDefault();
+    if (!manualTitle.trim()) {
+      setErrorMessage("Please enter a certification title.");
+      return;
+    }
+
+    setIsLoading(true);
+    setErrorMessage("");
+
+    try {
+      const endpoint = `/api/linkedin/certifications?title=${encodeURIComponent(
+        manualTitle
+      )}&issuer=${encodeURIComponent(manualIssuer)}&credentialId=${encodeURIComponent(manualCredId)}`;
+      const res = await fetch(endpoint);
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to add certification.");
+      }
+
+      const list = data.certifications || [];
+      setItems(list);
+      setSelectedIds(new Set(list.map((c) => c.id)));
+    } catch (err) {
+      console.error("Manual cert error:", err);
+      setErrorMessage(err.message || "Failed to add certification.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleToggleSelect = (id) => {
     const next = new Set(selectedIds);
-    if (next.has(id)) {
-      next.delete(id);
-    } else {
-      next.add(id);
-    }
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
     setSelectedIds(next);
   };
 
@@ -111,8 +209,8 @@ export default function CertificateImportModal({
     try {
       const endpoint = isCoursera ? "/api/coursera/import" : "/api/linkedin/import";
       const payload = isCoursera
-        ? { certificates: selectedItems, courseraUrl: profileUrl }
-        : { certifications: selectedItems, linkedinUrl: profileUrl };
+        ? { certificates: selectedItems, courseraUrl: certificateLink }
+        : { certifications: selectedItems, linkedinUrl: certificateLink };
 
       const res = await fetch(endpoint, {
         method: "POST",
@@ -150,8 +248,7 @@ export default function CertificateImportModal({
         <div className="p-5 sm:p-6 border-b border-neutral-100 flex items-start justify-between gap-4 bg-[#FBFBFB]">
           <div className="flex items-center gap-3">
             <div
-              className={`w-11 h-11 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-md ${isCoursera ? "bg-[#0056D2]" : "bg-[#0A66C2]"
-                }`}
+              className={`w-11 h-11 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-md ${brandColor}`}
             >
               {isCoursera ? <CourseraIcon className="w-6 h-6" /> : <LinkedInIcon className="w-5 h-5 fill-current" />}
             </div>
@@ -159,11 +256,13 @@ export default function CertificateImportModal({
               <div className="flex items-center gap-2">
                 <h3 className="text-base sm:text-lg font-black text-[#111111] tracking-tight">{brandTitle}</h3>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-800">
-                  Live Sync
+                  Instant Verification
                 </span>
               </div>
               <p className="text-xs text-[#494D4D] mt-0.5">
-                Fetch and verify digital credentials directly into your Skill Passport.
+                {isCoursera
+                  ? "Verify your Coursera certificate or search from 5,000+ certified courses."
+                  : "Import verified licenses and certifications directly into your Skill Passport."}
               </p>
             </div>
           </div>
@@ -176,54 +275,207 @@ export default function CertificateImportModal({
           </button>
         </div>
 
-        {/* Sync Controls & URL input */}
-        <div className="p-5 sm:p-6 border-b border-neutral-100 bg-white flex flex-col gap-3">
-          <label className="block text-xs font-bold text-[#111111]">
-            {isCoursera ? "Coursera Profile Link / Credential Code" : "LinkedIn Profile URL / Public Handle"}
-          </label>
-          <div className="flex flex-col sm:flex-row items-center gap-2">
-            <div className="relative flex-1 w-full">
-              <input
-                type="text"
-                value={profileUrl}
-                onChange={(e) => setProfileUrl(e.target.value)}
-                placeholder={inputPlaceholder}
-                className="w-full pl-3.5 pr-3.5 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-semibold text-[#111111] focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              />
-            </div>
+        {/* Tab Navigation */}
+        <div className="flex items-center gap-2 px-5 sm:px-6 pt-4 border-b border-neutral-100 bg-white">
+          <button
+            type="button"
+            onClick={() => {
+              setActiveTab("verify_link");
+              setErrorMessage("");
+            }}
+            className={`pb-3 px-3 text-xs font-bold transition-all border-b-2 flex items-center gap-1.5 cursor-pointer ${
+              activeTab === "verify_link"
+                ? isCoursera
+                  ? "border-[#0056D2] text-[#0056D2]"
+                  : "border-[#0A66C2] text-[#0A66C2]"
+                : "border-transparent text-[#494D4D] hover:text-[#111111]"
+            }`}
+          >
+            <Link2 className="w-3.5 h-3.5" />
+            <span>Verify by Certificate Link / Code</span>
+          </button>
+
+          {isCoursera ? (
             <button
               type="button"
-              onClick={() => fetchCertificates(profileUrl)}
-              disabled={isLoading || isImporting}
-              className={`w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-bold text-white transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer disabled:opacity-50 ${isCoursera ? "bg-[#0056D2] hover:bg-[#0047B3]" : "bg-[#0A66C2] hover:bg-[#084E96]"
-                }`}
+              onClick={() => {
+                setActiveTab("catalog_search");
+                setErrorMessage("");
+              }}
+              className={`pb-3 px-3 text-xs font-bold transition-all border-b-2 flex items-center gap-1.5 cursor-pointer ${
+                activeTab === "catalog_search"
+                  ? "border-[#0056D2] text-[#0056D2]"
+                  : "border-transparent text-[#494D4D] hover:text-[#111111]"
+              }`}
             >
-              {isLoading ? (
-                <>
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                  <span>Fetching...</span>
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="w-3.5 h-3.5" />
-                  <span>Sync Credentials</span>
-                </>
-              )}
+              <Search className="w-3.5 h-3.5" />
+              <span>Search Coursera Catalog</span>
             </button>
-          </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab("manual_entry");
+                setErrorMessage("");
+              }}
+              className={`pb-3 px-3 text-xs font-bold transition-all border-b-2 flex items-center gap-1.5 cursor-pointer ${
+                activeTab === "manual_entry"
+                  ? "border-[#0A66C2] text-[#0A66C2]"
+                  : "border-transparent text-[#494D4D] hover:text-[#111111]"
+              }`}
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Add Custom Credential</span>
+            </button>
+          )}
+        </div>
+
+        {/* Sync Controls / Form Area */}
+        <div className="p-5 sm:p-6 border-b border-neutral-100 bg-white flex flex-col gap-3">
+          {activeTab === "verify_link" && (
+            <div>
+              <label className="block text-xs font-bold text-[#111111] mb-1.5">
+                {isCoursera
+                  ? "Coursera Certificate Verification Link or Code"
+                  : "Credly / LinkedIn Certification Link"}
+              </label>
+              <div className="flex flex-col sm:flex-row items-center gap-2">
+                <div className="relative flex-1 w-full">
+                  <input
+                    type="text"
+                    value={certificateLink}
+                    onChange={(e) => setCertificateLink(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && verifyByLink(certificateLink)}
+                    placeholder={
+                      isCoursera
+                        ? "e.g. https://coursera.org/verify/YOUR_CODE or code..."
+                        : "e.g. https://www.credly.com/badges/... or cert URL"
+                    }
+                    className="w-full pl-3.5 pr-3.5 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-semibold text-[#111111] focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => verifyByLink(certificateLink)}
+                  disabled={isLoading || isImporting}
+                  className={`w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-bold text-white transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer disabled:opacity-50 ${
+                    isCoursera ? "bg-[#0056D2] hover:bg-[#0047B3]" : "bg-[#0A66C2] hover:bg-[#084E96]"
+                  }`}
+                >
+                  {isLoading ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>Verifying...</span>
+                    </>
+                  ) : (
+                    <>
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      <span>Verify & Fetch</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "catalog_search" && (
+            <div>
+              <label className="block text-xs font-bold text-[#111111] mb-1.5">
+                Search Completed Coursera Course / Specialization
+              </label>
+              <div className="flex flex-col sm:flex-row items-center gap-2">
+                <div className="relative flex-1 w-full">
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleSearchCourses(searchQuery)}
+                    placeholder="e.g. Python, Machine Learning, Google Data, React, AWS..."
+                    className="w-full pl-3.5 pr-3.5 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-semibold text-[#111111] focus:outline-none focus:ring-2 focus:ring-[#0056D2]"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleSearchCourses(searchQuery)}
+                  disabled={isLoading || isImporting}
+                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-[#0056D2] hover:bg-[#0047B3] transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer disabled:opacity-50"
+                >
+                  {isLoading ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>Searching...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Search className="w-3.5 h-3.5" />
+                      <span>Search Catalog</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "manual_entry" && (
+            <form onSubmit={handleAddManualCertification} className="flex flex-col gap-2.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[11px] font-bold text-[#111111] mb-1">Certification Title *</label>
+                  <input
+                    type="text"
+                    required
+                    value={manualTitle}
+                    onChange={(e) => setManualTitle(e.target.value)}
+                    placeholder="e.g. AWS Solutions Architect, CKA, Meta Frontend"
+                    className="w-full px-3 py-2 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-semibold text-[#111111] focus:outline-none focus:ring-2 focus:ring-[#0A66C2]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-[#111111] mb-1">Issuing Organization</label>
+                  <input
+                    type="text"
+                    value={manualIssuer}
+                    onChange={(e) => setManualIssuer(e.target.value)}
+                    placeholder="e.g. Amazon Web Services, Google, Microsoft, Cisco"
+                    className="w-full px-3 py-2 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-semibold text-[#111111] focus:outline-none focus:ring-2 focus:ring-[#0A66C2]"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center gap-2">
+                <div className="relative flex-1 w-full">
+                  <input
+                    type="text"
+                    value={manualCredId}
+                    onChange={(e) => setManualCredId(e.target.value)}
+                    placeholder="Credential ID or License Number (Optional)"
+                    className="w-full px-3 py-2 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-semibold text-[#111111] focus:outline-none focus:ring-2 focus:ring-[#0A66C2]"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={isLoading || isImporting || !manualTitle.trim()}
+                  className="w-full sm:w-auto px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#0A66C2] hover:bg-[#084E96] transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer disabled:opacity-50"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Verify & Add</span>
+                </button>
+              </div>
+            </form>
+          )}
 
           <div className="flex items-center justify-between text-[11px] text-[#494D4D] pt-1">
             <div className="flex items-center gap-1.5 text-emerald-700 font-medium">
               <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
               <span>
                 {isCoursera
-                  ? "Configured with official Coursera Credentials API Key"
-                  : "Verified with LinkedIn Profile Scraper & Credential Engine"}
+                  ? "Direct cryptographic registry verification & skill extraction"
+                  : "Verified credential registry & skill taxonomy extraction"}
               </span>
             </div>
             {items.length > 0 && (
               <span className="font-bold text-neutral-600">
-                {items.length} {items.length === 1 ? "credential" : "credentials"} found
+                {items.length} {items.length === 1 ? "certificate" : "certificates"} ready
               </span>
             )}
           </div>
@@ -253,9 +505,7 @@ export default function CertificateImportModal({
           {isLoading ? (
             <div className="py-12 flex flex-col items-center justify-center gap-3 text-center">
               <RefreshCw className="w-8 h-8 text-emerald-600 animate-spin" />
-              <div className="text-xs font-bold text-[#111111]">
-                Querying {isCoursera ? "Coursera" : "LinkedIn"} Credential Registry...
-              </div>
+              <div className="text-xs font-bold text-[#111111]">Verifying Credential Details...</div>
               <p className="text-[11px] text-[#494D4D] max-w-xs">
                 Extracting verified course completions, institutional signatures, and skill tags.
               </p>
@@ -264,7 +514,7 @@ export default function CertificateImportModal({
             <>
               <div className="flex items-center justify-between pb-1">
                 <span className="text-xs font-extrabold uppercase tracking-wider text-[#111111]">
-                  Available Verifiable Certificates
+                  Verified Digital Credentials
                 </span>
                 <button
                   type="button"
@@ -282,15 +532,17 @@ export default function CertificateImportModal({
                     <div
                       key={item.id}
                       onClick={() => handleToggleSelect(item.id)}
-                      className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-start gap-3.5 ${isSelected
+                      className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-start gap-3.5 ${
+                        isSelected
                           ? "bg-white border-emerald-500 shadow-md ring-2 ring-emerald-500/15"
                           : "bg-white/80 border-black/5 hover:border-black/15 hover:bg-white"
-                        }`}
+                      }`}
                     >
                       {/* Checkbox */}
                       <div
-                        className={`w-5 h-5 rounded-lg flex items-center justify-center mt-0.5 shrink-0 transition-colors ${isSelected ? "bg-emerald-600 text-white" : "border border-neutral-300 bg-neutral-50"
-                          }`}
+                        className={`w-5 h-5 rounded-lg flex items-center justify-center mt-0.5 shrink-0 transition-colors ${
+                          isSelected ? "bg-emerald-600 text-white" : "border border-neutral-300 bg-neutral-50"
+                        }`}
                       >
                         {isSelected && <Check className="w-3.5 h-3.5 stroke-3" />}
                       </div>
@@ -324,7 +576,7 @@ export default function CertificateImportModal({
                         {/* Skills */}
                         {item.skills && item.skills.length > 0 && (
                           <div className="flex flex-wrap gap-1 mt-2.5">
-                            {item.skills.slice(0, 5).map((sk) => (
+                            {item.skills.slice(0, 6).map((sk) => (
                               <span
                                 key={sk}
                                 className="px-2 py-0.5 rounded-md bg-[#F5F5F3] text-[10px] font-bold text-neutral-700 border border-black/5"
@@ -332,9 +584,9 @@ export default function CertificateImportModal({
                                 {sk}
                               </span>
                             ))}
-                            {item.skills.length > 5 && (
+                            {item.skills.length > 6 && (
                               <span className="text-[10px] text-neutral-400 font-bold self-center">
-                                +{item.skills.length - 5} more
+                                +{item.skills.length - 6} more
                               </span>
                             )}
                           </div>
@@ -364,11 +616,14 @@ export default function CertificateImportModal({
             </>
           ) : (
             <div className="py-12 flex flex-col items-center justify-center gap-2 text-center">
-              <Award className="w-8 h-8 text-neutral-300" />
-              <div className="text-xs font-bold text-[#111111]">No Certificates Discovered</div>
+              <Award className="w-10 h-10 text-neutral-300" />
+              <div className="text-xs font-bold text-[#111111]">
+                {isCoursera ? "Enter Your Certificate Link or Search Courses" : "Enter Your Credly/LinkedIn Certificate Link"}
+              </div>
               <p className="text-[11px] text-[#494D4D] max-w-sm">
-                Enter your valid {isCoursera ? "Coursera" : "LinkedIn"} profile URL or click &quot;Sync
-                Credentials&quot; to fetch your accomplishments.
+                {isCoursera
+                  ? "Paste your Coursera certificate verification link (https://coursera.org/verify/...) or search for your course to import verified credentials into your Skill Passport."
+                  : "Paste your Credly badge URL or enter your certification title above to verify and attach it to your Skill Passport."}
               </p>
             </div>
           )}

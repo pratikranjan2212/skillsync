@@ -31,10 +31,12 @@ export async function GET(request) {
 
     const { searchParams } = new URL(request.url);
     const queryUrl = searchParams.get("courseraUrl") || searchParams.get("url") || user.courseraUrl || "";
+    const searchQuery = searchParams.get("query") || searchParams.get("q") || "";
 
     const result = await fetchCourseraCertificates({
       apiKey: env.courseraApiKey,
       courseraUrl: queryUrl,
+      query: searchQuery,
       userId: user.id,
       email: user.email,
       name: user.name || "",
@@ -44,9 +46,11 @@ export async function GET(request) {
       success: true,
       apiKeyConfigured: Boolean(env.courseraApiKey),
       courseraUrl: queryUrl,
+      query: searchQuery,
       certificates: result.certificates || [],
       totalCount: result.totalCount || 0,
       source: result.source,
+      message: result.message,
     });
   } catch (err) {
     console.error("Coursera certificates GET error:", err);
