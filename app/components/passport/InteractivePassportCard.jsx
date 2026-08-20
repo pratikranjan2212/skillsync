@@ -272,6 +272,7 @@ export default function InteractivePassportCard({
                       unoptimized
                       sizes="80px"
                       className="object-cover"
+                      referrerPolicy="no-referrer"
                       priority
                     />
                   ) : (

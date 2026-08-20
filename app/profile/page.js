@@ -170,6 +170,7 @@ export default function ProfilePage() {
   const deleteInputRef = useRef(null);
   const [activeSyncProvider, setActiveSyncProvider] = useState(null);
   const [accountConnectProvider, setAccountConnectProvider] = useState(null);
+  const [avatarError, setAvatarError] = useState(false);
 
   useEffect(() => {
     if (showDeleteModal) {
@@ -427,10 +428,12 @@ export default function ProfilePage() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
               {/* Profile Avatar with Hover Change Photo Trigger */}
               <div className="relative group cursor-pointer" onClick={() => setShowPhotoModal(true)}>
-                {displayImage ? (
+                {displayImage && !avatarError ? (
                   <img
                     src={displayImage}
                     alt={displayName}
+                    referrerPolicy="no-referrer"
+                    onError={() => setAvatarError(true)}
                     className="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl object-cover ring-4 ring-emerald-500/20 shadow-md transition-all group-hover:brightness-75"
                   />
                 ) : (
@@ -571,14 +574,12 @@ export default function ProfilePage() {
               </div>
 
               <div className="py-6 flex flex-col items-center gap-4">
-                {displayImage ? (
+                {displayImage && !avatarError ? (
                   <img
                     src={displayImage}
                     alt={displayName}
-                    onError={(e) => {
-                      e.currentTarget.onerror = null;
-                      e.currentTarget.src = "";
-                    }}
+                    referrerPolicy="no-referrer"
+                    onError={() => setAvatarError(true)}
                     className="w-24 h-24 rounded-3xl object-cover ring-4 ring-emerald-500/20 shadow-md"
                   />
                 ) : (

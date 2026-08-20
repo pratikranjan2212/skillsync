@@ -327,9 +327,15 @@ export async function DELETE(request) {
       return NextResponse.json({ error: "User account not found." }, { status: 404 });
     }
 
-    // Delete user and all cascading relations (Account, Session, Evidence, Passport)
-    await prisma.user.delete({
-      where: { id: user.id },
+    // Explicitly delete all related records in a transaction to avoid FK constraint issues
+    await prisma.$transaction(async (tx) => {
+      // Delete related records first
+      await tx.passport.deleteMany({ where: { userId: user.id } });
+      await tx.evidence.deleteMany({ where: { userId: user.id } });
+      await tx.session.deleteMany({ where: { userId: user.id } });
+      await tx.account.deleteMany({ where: { userId: user.id } });
+      // Finally delete the user
+      await tx.user.delete({ where: { id: user.id } });
     });
 
     return NextResponse.json({
@@ -338,6 +344,9 @@ export async function DELETE(request) {
     });
   } catch (err) {
     console.error("Profile DELETE route error:", err);
-    return NextResponse.json({ error: "Failed to delete account" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to delete account", details: err.message || String(err) },
+      { status: 500 }
+    );
   }
 }
