@@ -797,7 +797,7 @@ export default function ProfilePage() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                       <div>
                         <label className="block text-xs font-bold text-[#111111] mb-1.5">GitHub Profile</label>
                         <input
@@ -826,16 +826,6 @@ export default function ProfilePage() {
                           onChange={(e) => setFormData({ ...formData, credly: e.target.value })}
                           placeholder="https://credly.com/users/username/badges"
                           className="w-full px-3.5 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#FF6B00]"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold text-[#111111] mb-1.5">Coursera Account</label>
-                        <input
-                          type="text"
-                          value={formData.coursera}
-                          onChange={(e) => setFormData({ ...formData, coursera: e.target.value })}
-                          placeholder="https://coursera.org/user/username"
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
                         />
                       </div>
                       <div>
