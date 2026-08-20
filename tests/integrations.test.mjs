@@ -1,6 +1,6 @@
 import assert from "node:assert";
 import { parseCourseraInput, fetchCourseraCertificates, COURSERA_INSTITUTIONAL_CATALOG } from "../lib/integrations/coursera.js";
-import { extractLinkedInUsername, fetchLinkedInCertifications, LINKEDIN_CERTIFICATIONS_REGISTRY } from "../lib/integrations/linkedin.js";
+import { extractLinkedInUsername, fetchLinkedInCertifications, LINKEDIN_CERTIFICATIONS_REGISTRY, extractOAuthAvatar } from "../lib/integrations/linkedin.js";
 import { verifyQrPayload } from "../lib/verification/qrVerifier.js";
 import { computeSha256 } from "../lib/verification/cryptoHash.js";
 import { env } from "../lib/config/env.js";
@@ -116,6 +116,44 @@ test("Cryptographic Hash: Generates deterministic SHA-256 evidence digest", () =
   const hash = computeSha256("Deep Learning Specialization_https://coursera.org/verify/DL99201");
   assert.ok(hash.startsWith("sha256:"));
   assert.strictEqual(hash.length, 7 + 64);
+});
+
+// 7. OAuth Profile Photo Extraction
+test("OAuth Photo Extractor: Extracts LinkedIn OpenID Connect picture", () => {
+  const oidcProfile = {
+    sub: "123456",
+    name: "Tony Stark",
+    picture: "https://media.licdn.com/dms/image/v2/D5603AQF/profile-displayphoto-shrink_800_800/0/stark.jpg",
+  };
+  const photo = extractOAuthAvatar(oidcProfile);
+  assert.strictEqual(photo, "https://media.licdn.com/dms/image/v2/D5603AQF/profile-displayphoto-shrink_800_800/0/stark.jpg");
+});
+
+test("OAuth Photo Extractor: Extracts LinkedIn legacy/v2 nested displayImage structure", () => {
+  const v2Profile = {
+    sub: "998877",
+    profilePicture: {
+      "displayImage~": {
+        elements: [
+          { identifiers: [{ identifier: "https://media.licdn.com/dms/image/small.jpg" }] },
+          { identifiers: [{ identifier: "https://media.licdn.com/dms/image/large.jpg" }] },
+        ],
+      },
+    },
+  };
+  const photo = extractOAuthAvatar(v2Profile);
+  assert.strictEqual(photo, "https://media.licdn.com/dms/image/large.jpg");
+});
+
+test("OAuth Photo Extractor: Extracts GitHub avatar_url and user object override", () => {
+  const ghProfile = {
+    login: "tonystark",
+    avatar_url: "https://avatars.githubusercontent.com/u/101?v=4",
+  };
+  assert.strictEqual(extractOAuthAvatar(ghProfile), "https://avatars.githubusercontent.com/u/101?v=4");
+
+  const existingUser = { image: "https://custom-domain.com/photo.png" };
+  assert.strictEqual(extractOAuthAvatar(ghProfile, existingUser), "https://custom-domain.com/photo.png");
 });
 
 console.log("\n------------------------------------------------------------");

@@ -48,6 +48,11 @@ export default function AccountConnectModal({
           brandColor: "text-neutral-900",
           brandButtonBg: "bg-neutral-900 hover:bg-neutral-800 text-white",
           allowOAuth: true,
+          oauthProvider: "github",
+          oauthLabel: "Verify with GitHub",
+          oauthSubtitle: "Sign in with GitHub to auto-verify your handle & import public repositories.",
+          oauthBtnBg: "bg-neutral-900 hover:bg-neutral-800 text-white",
+          oauthIcon: <GitHubIcon className="w-3.5 h-3.5 fill-current" />,
           fieldName: "github",
           formatUrl: (val) => {
             const trimmed = val.trim().replace(/^https?:\/\/(www\.)?github\.com\/?/, "");
@@ -57,14 +62,19 @@ export default function AccountConnectModal({
       case "linkedin":
         return {
           title: "LinkedIn Profile",
-          subtitle: "Connect your LinkedIn profile to display your professional network and verify accredited industry licenses.",
+          subtitle: "Connect your LinkedIn profile to display your professional network, sync your profile photo, and verify accredited industry licenses.",
           placeholder: "https://linkedin.com/in/your-username or your-username",
           example: "e.g. https://linkedin.com/in/tonystark or in/tonystark",
           icon: <LinkedInIcon className="w-5 h-5 fill-current" />,
           iconBg: "bg-[#0A66C2] text-white",
           brandColor: "text-[#0A66C2]",
           brandButtonBg: "bg-[#0A66C2] hover:bg-[#084E96] text-white",
-          allowOAuth: false,
+          allowOAuth: true,
+          oauthProvider: "linkedin",
+          oauthLabel: "Verify & Sync with LinkedIn",
+          oauthSubtitle: "Sign in with LinkedIn to auto-sync your profile photo, handle & accredited credentials.",
+          oauthBtnBg: "bg-[#0A66C2] hover:bg-[#084E96] text-white",
+          oauthIcon: <LinkedInIcon className="w-3.5 h-3.5 fill-current" />,
           fieldName: "linkedin",
           formatUrl: (val) => {
             let trimmed = val.trim().replace(/^https?:\/\/(www\.)?linkedin\.com\/?/, "");
@@ -277,22 +287,22 @@ export default function AccountConnectModal({
               )}
             </div>
 
-            {/* Direct OAuth Alternative for GitHub */}
+            {/* Direct OAuth Alternative for Supported Providers (LinkedIn / GitHub) */}
             {config.allowOAuth && (
               <div className="p-4 rounded-2xl bg-[#F8F9FA] border border-black/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <span className="text-xs font-bold text-[#111111] block">Automatic OAuth Verification</span>
                   <span className="text-[11px] text-neutral-500 block mt-0.5">
-                    Sign in with GitHub to auto-verify your handle & import public repositories.
+                    {config.oauthSubtitle || `Sign in with ${config.title} to auto-verify your handle & credentials.`}
                   </span>
                 </div>
                 <button
                   type="button"
-                  onClick={() => signIn("github", { callbackUrl: "/profile" })}
-                  className="px-3.5 py-2 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-bold transition-all shrink-0 flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                  onClick={() => signIn(config.oauthProvider || "github", { callbackUrl: "/profile" })}
+                  className={`px-3.5 py-2 rounded-xl ${config.oauthBtnBg || "bg-neutral-900 text-white"} text-xs font-bold transition-all shrink-0 flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs`}
                 >
-                  <GitHubIcon className="w-3.5 h-3.5 fill-current" />
-                  <span>Verify with GitHub</span>
+                  {config.oauthIcon}
+                  <span>{config.oauthLabel || `Verify with ${config.title}`}</span>
                 </button>
               </div>
             )}

@@ -553,7 +553,7 @@ export default function ProfilePage() {
                   </div>
                   <div>
                     <h3 className="text-base font-extrabold text-[#111111]">Update Profile Picture</h3>
-                    <p className="text-xs text-[#494D4D]">Upload an image or sync from your GitHub account.</p>
+                    <p className="text-xs text-[#494D4D]">Upload an image or sync directly from LinkedIn / GitHub.</p>
                   </div>
                 </div>
                 <button
@@ -569,6 +569,10 @@ export default function ProfilePage() {
                   <img
                     src={displayImage}
                     alt={displayName}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = "";
+                    }}
                     className="w-24 h-24 rounded-3xl object-cover ring-4 ring-emerald-500/20 shadow-md"
                   />
                 ) : (
@@ -585,6 +589,26 @@ export default function ProfilePage() {
                   className="hidden"
                 />
 
+                <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => signIn("linkedin", { callbackUrl: "/profile" })}
+                    className="flex items-center justify-center gap-2 py-2.5 px-3 bg-[#0A66C2] hover:bg-[#084E96] text-white text-xs font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
+                  >
+                    <LinkedInLogo className="w-4 h-4 fill-current" />
+                    <span>Sync via LinkedIn</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => signIn("github", { callbackUrl: "/profile" })}
+                    className="flex items-center justify-center gap-2 py-2.5 px-3 bg-[#24292F] hover:bg-[#1B1F23] text-white text-xs font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
+                  >
+                    <GitHubLogo className="w-4 h-4 fill-current" />
+                    <span>Sync via GitHub</span>
+                  </button>
+                </div>
+
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
@@ -594,7 +618,7 @@ export default function ProfilePage() {
                   <span>Upload Image File</span>
                 </button>
 
-                <form onSubmit={handleApplyPhotoUrl} className="w-full flex items-center gap-2 mt-2">
+                <form onSubmit={handleApplyPhotoUrl} className="w-full flex items-center gap-2 mt-1">
                   <div className="relative flex-1">
                     <input
                       type="url"
