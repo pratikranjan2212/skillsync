@@ -6,9 +6,13 @@ import { calculateMatchScore } from "@/lib/matching/scoring";
 import {
   generateTailoredOpportunities,
   normalizeWorkMode,
+  formatStipend,
+  deduplicateOpportunities,
+  validateAndNormalizeOpportunity,
+  decodeHtml,
   syncOpportunitiesToDb,
 } from "@/lib/opportunities/opportunityService";
-import { fetchLinkedInJobs, decodeHtml } from "@/lib/ingestion/linkedin";
+import { fetchLinkedInJobs } from "@/lib/ingestion/linkedin";
 import { fetchIndeedJobs } from "@/lib/ingestion/indeed";
 import { checkRateLimit, createRateLimitResponse, RATE_LIMIT_PRESETS, getClientIp } from "@/lib/security/rateLimit";
 import { logSecurityEvent, SecurityEvent, LogLevel } from "@/lib/security/logger";
@@ -18,44 +22,6 @@ export const dynamic = "force-dynamic";
 // Server-side response cache (key: skillSignature, TTL: 3 minutes)
 const FEED_CACHE = new Map();
 const CACHE_TTL_MS = 3 * 60 * 1000;
-
-/**
- * Deduplicates opportunities strictly by URL, externalId, and Title+Company signature.
- */
-function deduplicateOpportunities(list = []) {
-  if (!Array.isArray(list)) return [];
-  const uniqueList = [];
-  const seenIds = new Set();
-  const seenUrls = new Set();
-  const seenSignatures = new Set();
-
-  for (const opp of list) {
-    if (!opp) continue;
-
-    const oppId = opp.id ? String(opp.id).trim() : null;
-    const rawUrl = opp.url || opp.linkedinUrl || opp.indeedUrl || opp.externalUrl || "";
-    const cleanUrl = rawUrl.split("?")[0].toLowerCase().trim();
-    const externalId = opp.externalId ? String(opp.externalId).trim() : null;
-
-    const normTitle = (opp.title || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-    const normComp = (opp.company || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-    const signature = normTitle && normComp ? `${normTitle}__${normComp}` : null;
-
-    if (oppId && seenIds.has(oppId)) continue;
-    if (externalId && seenIds.has(externalId)) continue;
-    if (cleanUrl && cleanUrl.length > 12 && seenUrls.has(cleanUrl)) continue;
-    if (signature && signature.length > 5 && seenSignatures.has(signature)) continue;
-
-    if (oppId) seenIds.add(oppId);
-    if (externalId) seenIds.add(externalId);
-    if (cleanUrl && cleanUrl.length > 12) seenUrls.add(cleanUrl);
-    if (signature && signature.length > 5) seenSignatures.add(signature);
-
-    uniqueList.push(opp);
-  }
-
-  return uniqueList;
-}
 
 export async function GET(request) {
   const clientIp = getClientIp(request);
@@ -135,37 +101,15 @@ export async function GET(request) {
       "React", "Python", "SQL", "JavaScript", "TypeScript", "Node.js", "Docker"
     ]);
 
-    const normalizedDbOpps = dbOpps.map((opp) => {
-      const isIndeed = opp.source === "Indeed" || opp.isIndeedScraped === true;
-      const isLinkedIn = !isIndeed;
-      const directIndeedUrl =
-        opp.indeedUrl ||
-        opp.url ||
-        opp.externalUrl ||
-        `https://in.indeed.com/jobs?q=${encodeURIComponent(`${opp.title} ${opp.company}`.trim())}&l=India`;
-      const directLinkedInUrl =
-        opp.linkedinUrl ||
-        opp.url ||
-        opp.externalUrl ||
-        `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(`${opp.title} ${opp.company}`.trim())}`;
+    const normalizedDbOpps = dbOpps
+      .map((opp) => validateAndNormalizeOpportunity(opp))
+      .filter(Boolean);
 
-      return {
-        ...opp,
-        title: decodeHtml(opp.title),
-        company: decodeHtml(opp.company),
-        location: decodeHtml(opp.location),
-        workMode: opp.workMode || normalizeWorkMode(null, opp.location),
-        source: isIndeed ? "Indeed" : "LinkedIn",
-        isLinkedInScraped: isLinkedIn,
-        isIndeedScraped: isIndeed,
-        linkedinUrl: isLinkedIn ? directLinkedInUrl : undefined,
-        indeedUrl: isIndeed ? directIndeedUrl : undefined,
-        url: isIndeed ? directIndeedUrl : directLinkedInUrl,
-        externalUrl: isIndeed ? directIndeedUrl : directLinkedInUrl,
-      };
-    });
+    const normalizedTailored = defaultTailored
+      .map((opp) => validateAndNormalizeOpportunity(opp))
+      .filter(Boolean);
 
-    const combinedGuestOpps = deduplicateOpportunities([...defaultTailored, ...normalizedDbOpps]);
+    const combinedGuestOpps = deduplicateOpportunities([...normalizedTailored, ...normalizedDbOpps]);
 
     return NextResponse.json({
       success: true,
@@ -199,7 +143,8 @@ export async function GET(request) {
   }
 
   // 1. Generate tailored partner opportunities based on skills
-  const tailoredOpps = generateTailoredOpportunities(allUserSkills);
+  const rawTailoredOpps = generateTailoredOpportunities(allUserSkills);
+  const tailoredOpps = rawTailoredOpps.map((opp) => validateAndNormalizeOpportunity(opp)).filter(Boolean);
 
   // 2. Fetch live LinkedIn and Indeed scraped jobs in parallel
   let scrapedLinkedInJobs = [];
@@ -236,30 +181,21 @@ export async function GET(request) {
     console.warn("Live scraping attempt skipped:", scrapeErr.message);
   }
 
-  // Deduplicate scraped jobs immediately
-  const uniqueScrapedLinkedIn = deduplicateOpportunities(scrapedLinkedInJobs);
-  const uniqueScrapedIndeed = deduplicateOpportunities(scrapedIndeedJobs);
+  // Deduplicate and normalize scraped jobs immediately
+  const uniqueScrapedLinkedIn = deduplicateOpportunities(
+    scrapedLinkedInJobs.map((opp) => validateAndNormalizeOpportunity(opp)).filter(Boolean)
+  );
+  const uniqueScrapedIndeed = deduplicateOpportunities(
+    scrapedIndeedJobs.map((opp) => validateAndNormalizeOpportunity(opp)).filter(Boolean)
+  );
 
   // 3. Persist to DB in background
   syncOpportunitiesToDb([...uniqueScrapedLinkedIn, ...uniqueScrapedIndeed, ...tailoredOpps]).catch(() => {});
 
   // 4. Normalize existing DB opportunities
-  const normalizedDbOpps = dbOpps.map((opp) => {
-    const isIndeed = opp.source === "Indeed" || opp.isIndeedScraped === true;
-    const isLinkedIn = !isIndeed && (opp.source === "LinkedIn" || opp.isLinkedInScraped === true);
-    return {
-      ...opp,
-      title: decodeHtml(opp.title),
-      company: decodeHtml(opp.company),
-      location: decodeHtml(opp.location),
-      isLinkedInScraped: isLinkedIn,
-      isIndeedScraped: isIndeed,
-      source: isIndeed ? "Indeed" : "LinkedIn",
-      workMode: normalizeWorkMode(opp.workMode, opp.location),
-      linkedinUrl: isLinkedIn ? (opp.linkedinUrl || opp.url) : undefined,
-      indeedUrl: isIndeed ? (opp.indeedUrl || opp.url) : undefined,
-    };
-  });
+  const normalizedDbOpps = dbOpps
+    .map((opp) => validateAndNormalizeOpportunity(opp))
+    .filter(Boolean);
 
   // 5. Combine and strictly deduplicate all opportunities
   const rawCombined = [...uniqueScrapedLinkedIn, ...uniqueScrapedIndeed, ...tailoredOpps, ...normalizedDbOpps];
@@ -311,7 +247,8 @@ export async function GET(request) {
       title: decodeHtml(opp.title),
       company: decodeHtml(opp.company),
       location: decodeHtml(opp.location),
-      workMode: opp.workMode || normalizeWorkMode(null, opp.location),
+      workMode: opp.workMode,
+      stipend: formatStipend(opp.stipend, opp.title, opp.type),
       matchScore: scoreResult.score,
       matchedSkills: matchedNames,
       missingSkills: missingNames,

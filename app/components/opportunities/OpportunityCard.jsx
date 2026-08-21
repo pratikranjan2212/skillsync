@@ -2,45 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { Building2, MapPin, CheckCircle2, Globe, Home, Briefcase } from "lucide-react";
 import { getScoreBand } from "@/lib/matching/config";
-import { getOpportunityWorkMode } from "@/lib/opportunities/workModeUtils";
-
-function decodeHtml(html = "") {
-  if (!html) return "";
-  return html
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&apos;/g, "'")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&#(\d+);/g, (match, dec) => String.fromCharCode(dec))
-    .trim();
-}
-
-function formatStipendDisplay(rawStipend) {
-  if (!rawStipend || typeof rawStipend !== "string") return "Not Listed";
-
-  let clean = decodeHtml(rawStipend)
-    .replace(/a month/gi, "/ month")
-    .replace(/per month/gi, "/ month")
-    .replace(/a year/gi, "/ yr")
-    .replace(/per year/gi, "/ yr")
-    .replace(/a day/gi, "/ day")
-    .replace(/per day/gi, "/ day")
-    .replace(/an hour/gi, "/ hr")
-    .replace(/per hour/gi, "/ hr")
-    .replace(/\.00/g, "")
-    .replace(/\s+/g, " ")
-    .replace(/[,;.:]+$/, "")
-    .trim();
-
-  if (!/\d/.test(clean) || clean.toLowerCase().includes("not listed") || clean.length > 50) {
-    return "Not Listed";
-  }
-
-  return clean;
-}
+import { getOpportunityWorkMode, formatStipend, decodeHtml } from "@/lib/opportunities/workModeUtils";
 
 export default function OpportunityCard({ opportunity }) {
   const {
@@ -74,8 +36,8 @@ export default function OpportunityCard({ opportunity }) {
   const cleanCompany = decodeHtml(company);
   const cleanLocation = decodeHtml(location);
   const cleanDescription = decodeHtml(description);
-  const displayStipend = formatStipendDisplay(stipend);
-  const isSalaryListed = displayStipend !== "Not Listed";
+  const displayStipend = formatStipend(stipend, cleanTitle, type);
+  const isSalaryListed = Boolean(displayStipend);
 
   // Score percentage & Score band
   const hasMatchScore = typeof matchScore === "number" && matchScore > 0;

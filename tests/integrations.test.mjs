@@ -194,6 +194,84 @@ await asyncTest("Credly Integration: Inaccessible or private profile triggers pr
   assert.strictEqual(result.badges.length, 0);
 });
 
+import {
+  formatStipend,
+  deduplicateOpportunities,
+  validateAndNormalizeOpportunity,
+  getOpportunityWorkMode,
+} from "../lib/opportunities/workModeUtils.js";
+
+// 11. Opportunity Salary Standardization & Deduplication Tests
+test("Salary Formatter: Standardizes diverse compensation formats into clean strings", () => {
+  assert.strictEqual(formatStipend("₹15,000 a month"), "₹15,000 / month");
+  assert.strictEqual(formatStipend("From ₹25,000 per month"), "From ₹25,000 / month");
+  assert.strictEqual(formatStipend("45000 / month"), "₹45000 / month");
+  assert.strictEqual(formatStipend(60000), "₹60,000 / month");
+  assert.strictEqual(formatStipend(750000), "₹7,50,000 / yr");
+  assert.strictEqual(formatStipend("$60,000 a year"), "$60,000 / yr");
+  
+  // Market benchmark fallbacks for empty / unlisted values
+  assert.strictEqual(formatStipend(null, "AI Research Intern", "Internship"), "₹55,000 – ₹75,000 / month");
+  assert.strictEqual(formatStipend(undefined, "Data Engineer Intern", "Internship"), "₹50,000 – ₹65,000 / month");
+  assert.strictEqual(formatStipend("", "Frontend Developer Intern", "Internship"), "₹40,000 – ₹55,000 / month");
+  assert.strictEqual(formatStipend("Not Listed", "Junior Software Engineer", "Full-time Role"), "₹6,00,000 – ₹8,50,000 / yr");
+});
+
+test("Opportunity Deduplication: Eliminates duplicates with variations in IDs, URLs and company suffixes", () => {
+  const sampleList = [
+    {
+      id: "job-1",
+      externalId: "ext-1",
+      title: "Full-Stack Developer Intern",
+      company: "Vercel Labs",
+      url: "https://linkedin.com/jobs/view/12345678?trackingId=xyz",
+    },
+    {
+      id: "job-2",
+      externalId: "ext-2",
+      title: "Full Stack Developer Intern",
+      company: "Vercel Inc",
+      url: "https://linkedin.com/jobs/view/12345678?utm_source=feed",
+    },
+    {
+      id: "job-3",
+      externalId: "ext-3",
+      title: "AI Research Scientist",
+      company: "Scale AI",
+      url: "https://indeed.com/jobs/view/99988877",
+    },
+    {
+      id: "job-1", // duplicate by ID
+      title: "Full-Stack Developer Intern",
+      company: "Vercel Labs",
+    },
+  ];
+
+  const deduped = deduplicateOpportunities(sampleList);
+  assert.strictEqual(deduped.length, 2, "Should deduplicate down to 2 unique jobs (Vercel and Scale AI)");
+  assert.strictEqual(deduped[0].id, "job-1");
+  assert.strictEqual(deduped[1].id, "job-3");
+});
+
+test("Opportunity Validator: Ensures complete data integrity, workMode and clean skills", () => {
+  const malformed = {
+    title: "React &amp; Next.js Intern",
+    company: "Razorpay Core &amp; Co",
+    location: "Bengaluru, KA (Hybrid)",
+    workMode: null,
+    stipend: null,
+    requiredSkills: ["React", "&lt;Python&gt;", ""],
+  };
+
+  const normalized = validateAndNormalizeOpportunity(malformed);
+  assert.strictEqual(normalized.title, "React & Next.js Intern");
+  assert.strictEqual(normalized.company, "Razorpay Core & Co");
+  assert.strictEqual(normalized.workMode, "Hybrid");
+  assert.ok(normalized.stipend.includes("₹"));
+  assert.strictEqual(normalized.source, "LinkedIn");
+  assert.ok(normalized.url.includes("linkedin.com"));
+});
+
 console.log("\n------------------------------------------------------------");
 console.log(`Results: ${passed} / ${total} tests passed (${Math.round((passed / total) * 100)}%)`);
 console.log("------------------------------------------------------------\n");

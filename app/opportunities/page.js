@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/app/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
-import { getOpportunityWorkMode } from "@/lib/opportunities/workModeUtils";
+import { getOpportunityWorkMode, deduplicateOpportunities } from "@/lib/opportunities/workModeUtils";
 
 const WORK_MODE_TABS = [
   { id: "all", label: "All Modes", icon: Layers },
@@ -70,14 +70,10 @@ export default function OpportunityFeedPage() {
   const filteredList = useMemo(() => {
     if (!Array.isArray(opportunities)) return [];
     const term = searchTerm.toLowerCase().trim();
-    const seenIds = new Set();
     const result = [];
 
     for (const op of opportunities) {
       if (!op) continue;
-      const opId = op.id ? String(op.id).trim() : null;
-      if (opId && seenIds.has(opId)) continue;
-      if (opId) seenIds.add(opId);
 
       const matchesKeyword =
         !term ||
@@ -103,7 +99,7 @@ export default function OpportunityFeedPage() {
       }
     }
 
-    return result;
+    return deduplicateOpportunities(result);
   }, [opportunities, searchTerm, selectedWorkMode]);
 
   return (

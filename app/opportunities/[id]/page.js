@@ -22,6 +22,7 @@ import Navbar from "@/app/components/layout/Navbar";
 import MatchExplanationCard from "@/app/components/opportunities/MatchExplanationCard";
 import { useAuth } from "@/app/hooks/useAuth";
 import { LinkedInIcon } from "@/app/components/icons";
+import { getOpportunityWorkMode, formatStipend, decodeHtml } from "@/lib/opportunities/workModeUtils";
 
 async function fetchMatchDetail(id) {
   const res = await fetch(`/api/opportunities/${id}`);
@@ -47,28 +48,29 @@ export default function MatchDetailPage({ params: paramsPromise }) {
   const opportunity = data?.opportunity;
   const explanation = data?.explanation;
 
-  const normalizedMode = (opportunity?.workMode || "").toLowerCase();
+  const cleanTitle = decodeHtml(opportunity?.title);
+  const cleanCompany = decodeHtml(opportunity?.company);
+  const cleanLocation = decodeHtml(opportunity?.location);
+  const displayStipend = opportunity ? formatStipend(opportunity.stipend, cleanTitle, opportunity.type) : null;
+
+  const standardMode = opportunity ? getOpportunityWorkMode(opportunity) : "Remote";
   let modeBadge = {
-    label: "Remote",
-    icon: Globe,
-    style: "bg-teal-50 text-teal-800 border-teal-200",
+    label: "On-site",
+    icon: Building2,
+    style: "bg-amber-50 text-amber-900 border-amber-200",
   };
 
-  if (normalizedMode === "hybrid") {
+  if (standardMode === "Remote") {
+    modeBadge = {
+      label: "Remote",
+      icon: Globe,
+      style: "bg-sky-50 text-sky-800 border-sky-200",
+    };
+  } else if (standardMode === "Hybrid") {
     modeBadge = {
       label: "Hybrid",
       icon: Home,
-      style: "bg-indigo-50 text-indigo-800 border-indigo-200",
-    };
-  } else if (
-    normalizedMode === "on-site" ||
-    normalizedMode === "onsite" ||
-    normalizedMode === "offline"
-  ) {
-    modeBadge = {
-      label: "On-site",
-      icon: Building2,
-      style: "bg-amber-50 text-amber-900 border-amber-200",
+      style: "bg-rose-50 text-rose-800 border-rose-200",
     };
   }
 
@@ -78,7 +80,7 @@ export default function MatchDetailPage({ params: paramsPromise }) {
     opportunity?.linkedinUrl ||
     opportunity?.url ||
     opportunity?.externalUrl ||
-    (opportunity ? `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(`${opportunity.title} ${opportunity.company}`.trim())}` : "");
+    (opportunity ? `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(`${cleanTitle} ${cleanCompany}`.trim())}` : "");
 
   return (
     <div className="min-h-screen bg-[#F5F5F3] text-[#111111] pb-16">
@@ -140,20 +142,20 @@ export default function MatchDetailPage({ params: paramsPromise }) {
                   <span>{modeBadge.label}</span>
                 </span>
               </div>
-              <h1 className="text-xl sm:text-2xl font-black text-[#111111] mt-2">{opportunity.title}</h1>
+              <h1 className="text-xl sm:text-2xl font-black text-[#111111] mt-2">{cleanTitle}</h1>
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs font-semibold text-[#494D4D] mt-1.5">
                 <span className="flex items-center gap-1">
                   <Building2 className="w-3.5 h-3.5 text-neutral-400" />
-                  <span className="font-bold text-neutral-800">{opportunity.company}</span>
+                  <span className="font-bold text-neutral-800">{cleanCompany}</span>
                 </span>
                 <span className="flex items-center gap-1">
                   <MapPin className="w-3.5 h-3.5 text-neutral-400" />
-                  <span>{opportunity.location}</span>
+                  <span>{cleanLocation}</span>
                 </span>
-                {opportunity.stipend && (
+                {displayStipend && (
                   <span className="flex items-center gap-1 text-emerald-700 font-bold">
                     <Briefcase className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>{opportunity.stipend}</span>
+                    <span>{displayStipend}</span>
                   </span>
                 )}
               </div>

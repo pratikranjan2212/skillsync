@@ -5,6 +5,9 @@ import { buildExplainableMatch } from "@/lib/matching/explainability";
 import {
   generateTailoredOpportunities,
   normalizeWorkMode,
+  formatStipend,
+  validateAndNormalizeOpportunity,
+  decodeHtml,
 } from "@/lib/opportunities/opportunityService";
 import { checkRateLimit, createRateLimitResponse, RATE_LIMIT_PRESETS, getClientIp } from "@/lib/security/rateLimit";
 
@@ -81,19 +84,7 @@ export async function GET(request, { params }) {
     return NextResponse.json({ error: "Opportunity not found" }, { status: 404 });
   }
 
-  const directLinkedInUrl =
-    opportunity.linkedinUrl ||
-    opportunity.url ||
-    opportunity.externalUrl ||
-    `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(`${opportunity.title} ${opportunity.company}`.trim())}`;
-
-  const normalizedOpp = {
-    ...opportunity,
-    workMode: opportunity.workMode || normalizeWorkMode(null, opportunity.location),
-    linkedinUrl: directLinkedInUrl,
-    url: directLinkedInUrl,
-    externalUrl: directLinkedInUrl,
-  };
+  const normalizedOpp = validateAndNormalizeOpportunity(opportunity);
 
   const explanation = buildExplainableMatch(
     normalizedOpp,
