@@ -276,7 +276,7 @@ export default function AccountConnectModal({
 
           <form onSubmit={handleSave} className="space-y-4">
             <div>
-              <label className="block text-xs font-bold text-[#111111] mb-1.5 flex items-center justify-between">
+              <label className="text-xs font-bold text-[#111111] mb-1.5 flex items-center justify-between">
                 <span>Profile URL or Handle</span>
                 <span className="text-[10px] text-neutral-400 font-normal">{config.example}</span>
               </label>
