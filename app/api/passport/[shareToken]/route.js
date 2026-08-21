@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { formatDob } from "@/lib/opportunities/workModeUtils";
 import { INITIAL_PASSPORT } from "@/app/data/mockData";
 import { checkRateLimit, createRateLimitResponse, RATE_LIMIT_PRESETS, getClientIp } from "@/lib/security/rateLimit";
 
@@ -125,7 +126,7 @@ export async function GET(request, { params }) {
           studentId: passport.studentId,
           studentName: passport.user.name || "Student User",
           gender: passport.user.gender && passport.user.gender !== "Student" ? passport.user.gender : "Male",
-          dob: passport.user.dob || "Not Specified",
+          dob: formatDob(passport.user.dob),
           college: passport.user.college || "Institution Not Specified",
           degree: passport.user.degree || "Degree Not Specified",
           batch: passport.user.batch || "Batch Not Specified",

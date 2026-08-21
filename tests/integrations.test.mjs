@@ -13,6 +13,7 @@ import {
   deduplicateOpportunities,
   validateAndNormalizeOpportunity,
   getOpportunityWorkMode,
+  formatDob,
 } from "../lib/opportunities/workModeUtils.js";
 
 console.log("------------------------------------------------------------");
@@ -276,6 +277,20 @@ test("Opportunity Validator: Ensures complete data integrity, workMode and clean
   assert.ok(normalized.stipend.includes("₹"));
   assert.strictEqual(normalized.source, "LinkedIn");
   assert.ok(normalized.url.includes("linkedin.com"));
+});
+
+test("DOB Formatter: Formats full month names and date formats to short 3-letter months", () => {
+  assert.strictEqual(formatDob("18 January 2005"), "18 Jan 2005");
+  assert.strictEqual(formatDob("22 December 2005"), "22 Dec 2005");
+  assert.strictEqual(formatDob("12 May 2003"), "12 May 2003");
+  assert.strictEqual(formatDob("2005-01-18"), "18 Jan 2005");
+  assert.strictEqual(formatDob("2004-11-05"), "5 Nov 2004");
+  assert.strictEqual(formatDob("18/01/2005"), "18 Jan 2005");
+  assert.strictEqual(formatDob("February 28, 2002"), "28 Feb 2002");
+  assert.strictEqual(formatDob("August 15 2001"), "15 Aug 2001");
+  assert.strictEqual(formatDob(""), "Not Specified");
+  assert.strictEqual(formatDob(null), "Not Specified");
+  assert.strictEqual(formatDob("Not Specified"), "Not Specified");
 });
 
 console.log("\n------------------------------------------------------------");

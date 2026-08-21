@@ -26,6 +26,7 @@ import {
   Maximize2
 } from "lucide-react";
 import { GitHubIcon, PassportWaves } from "@/app/components/icons";
+import { formatDob } from "@/lib/opportunities/workModeUtils";
 
 function GitHubLogo({ className = "w-4 h-4 text-emerald-400 hover:text-white" }) {
   return <GitHubIcon className={className} />;
@@ -66,7 +67,7 @@ export default function InteractivePassportCard({
     id: passportData?.studentId || "SS-2026-STU01",
     name: passportData?.studentName || "Student User",
     gender: passportData?.gender && passportData.gender !== "Student" ? passportData.gender : "Male",
-    dob: passportData?.dob || "Not Specified",
+    dob: formatDob(passportData?.dob),
     college: passportData?.college || "Institution Not Specified",
     degree: passportData?.degree || "Degree Not Specified",
     batch: passportData?.batch || "Batch Not Specified",
@@ -333,7 +334,7 @@ export default function InteractivePassportCard({
                   </div>
                   <div className="min-w-0">
                     <span className="text-neutral-400 font-bold block text-[8px] sm:text-[9px] uppercase tracking-wider">DOB</span>
-                    <span className="text-white font-bold text-[11px] sm:text-xs truncate block" title={student.dob}>{student.dob}</span>
+                    <span className="text-white font-bold text-[11px] sm:text-xs whitespace-nowrap block" title={student.dob}>{student.dob}</span>
                   </div>
                 </div>
               </div>

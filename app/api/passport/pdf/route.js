@@ -4,6 +4,7 @@ import { Document, Page, Text, View, StyleSheet, Image, renderToBuffer } from "@
 import QRCode from "qrcode";
 import prisma from "@/lib/prisma";
 import { auth, formatDisplayName } from "@/lib/auth";
+import { formatDob } from "@/lib/opportunities/workModeUtils";
 import { checkRateLimit, createRateLimitResponse, RATE_LIMIT_PRESETS, getClientIp } from "@/lib/security/rateLimit";
 import { logSecurityEvent, SecurityEvent, LogLevel } from "@/lib/security/logger";
 
@@ -541,7 +542,7 @@ export async function GET(request) {
       college: user.college || "Institution Not Specified",
       degree: user.degree || "Degree Not Specified",
       batch: user.batch || "Batch Not Specified",
-      dob: user.dob || "Not Specified",
+      dob: formatDob(user.dob),
       gender: user.gender && user.gender !== "Student" ? user.gender : "Male",
       photoUrl: user.image || null,
       credentialHash: passport.credentialHash || "0x7F8A2B9942ACD081884C7D659A2FEAA015A3BF4F",

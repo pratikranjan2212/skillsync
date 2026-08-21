@@ -134,8 +134,8 @@ function formatDateFromInput(val) {
   const monthIdx = parseInt(parts[1], 10) - 1;
   const day = parseInt(parts[2], 10);
   const months = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
   ];
   if (monthIdx >= 0 && monthIdx < 12) {
     return `${day} ${months[monthIdx]} ${year}`;

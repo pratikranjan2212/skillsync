@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { auth, formatDisplayName } from "@/lib/auth";
+import { formatDob } from "@/lib/opportunities/workModeUtils";
 
 export const dynamic = "force-dynamic";
 
@@ -136,7 +137,7 @@ export async function GET(request) {
       studentId: passport?.studentId || `SS-${new Date().getFullYear()}-${user.id.substring(0, 6).toUpperCase()}`,
       studentName: formatDisplayName(user.name, user.name || (user.email ? user.email.split("@")[0] : "Student User")),
       gender: user.gender || "Male",
-      dob: user.dob || "Not Specified",
+      dob: formatDob(user.dob),
       college: user.college || "Institution Not Specified",
       degree: user.degree || "Degree Not Specified",
       batch: user.batch || "Batch Not Specified",

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { auth, formatDisplayName } from "@/lib/auth";
 import { sanitizeString, sanitizeUrl, sanitizeImageUrl, sanitizeSkillList } from "@/lib/security/validator";
+import { formatDob } from "@/lib/opportunities/workModeUtils";
 import { logSecurityEvent, SecurityEvent, LogLevel } from "@/lib/security/logger";
 
 export const dynamic = "force-dynamic";
@@ -119,7 +120,8 @@ export async function GET(request) {
     let resolvedName = formatDisplayName(user.name, user.name || (user.email ? user.email.split("@")[0] : "Student User"));
     let resolvedImage = user.image || null;
 
-    let resolvedDob = user.dob || "";
+    let resolvedDob = formatDob(user.dob);
+    if (resolvedDob === "Not Specified") resolvedDob = "";
     let resolvedGender = user.gender && user.gender !== "Student" ? user.gender : "Male";
 
     return NextResponse.json({
@@ -193,7 +195,7 @@ export async function PUT(request) {
     const sanitizedCollege = college !== undefined ? sanitizeString(college, 150) : user.college;
     const sanitizedDegree = degree !== undefined ? sanitizeString(degree, 150) : user.degree;
     const sanitizedBatch = batch !== undefined ? sanitizeString(batch, 50) : user.batch;
-    const sanitizedDob = dob !== undefined ? sanitizeString(dob, 50) : user.dob;
+    const sanitizedDob = dob !== undefined ? (dob ? formatDob(sanitizeString(dob, 50)) : "") : user.dob;
     const sanitizedGender = gender !== undefined ? sanitizeString(gender, 30) : user.gender;
     const sanitizedBio = bio !== undefined ? sanitizeString(bio, 1000) : user.bio;
 

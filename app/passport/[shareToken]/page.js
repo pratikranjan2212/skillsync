@@ -5,6 +5,7 @@ import InteractivePassportCard from "@/app/components/passport/InteractivePasspo
 import SkillPassportFolder from "@/app/components/passport/SkillPassportFolder";
 import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { formatDob } from "@/lib/opportunities/workModeUtils";
 import { INITIAL_PASSPORT } from "@/app/data/mockData";
 
 export default async function PublicPassportPage({ params }) {
@@ -83,7 +84,7 @@ export default async function PublicPassportPage({ params }) {
           studentId: dbPassport.studentId,
           studentName: user.name || "Student User",
           gender: user.gender && user.gender !== "Student" ? user.gender : "Male",
-          dob: user.dob || "Not Specified",
+          dob: formatDob(user.dob),
           college: user.college || "Institution Not Specified",
           degree: user.degree || "Degree Not Specified",
           batch: user.batch || "Batch Not Specified",
