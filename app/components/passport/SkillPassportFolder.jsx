@@ -135,7 +135,7 @@ export default function SkillPassportFolder({
   );
 
   return (
-    <div className={`relative flex flex-col md:flex-row items-center justify-center gap-12 md:gap-20 lg:gap-28 select-none ${className}`}>
+    <div className={`relative flex flex-col md:flex-row items-center justify-center gap-12 md:gap-20 lg:gap-28 select-none touch-pan-y ${className}`}>
       {/* ========================================================================= */}
       {/* ======================= LEFT: IDLE / HOVER FOLDER ======================= */}
       {/* ========================================================================= */}
@@ -336,8 +336,7 @@ export default function SkillPassportFolder({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: shouldReduceMotion ? 0.15 : 0.5 }}
-            style={{ perspective: 2000 }}
-            className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 md:p-10 overflow-y-auto"
+            className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex flex-col items-center justify-start sm:justify-center p-3 sm:p-6 md:p-10 overflow-y-auto overscroll-y-contain touch-pan-y"
             onClick={handleClose}
           >
             {/* Unfolding Animated Card Container: Slides out in portrait, flips from backside to frontside in landscape */}
@@ -388,10 +387,11 @@ export default function SkillPassportFolder({
                     }
               }
               style={{
+                perspective: 2000,
                 transformStyle: "preserve-3d"
               }}
               onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-[760px] my-auto z-50 flex items-center justify-center"
+              className="relative w-full max-w-[760px] my-auto py-4 sm:py-6 z-50 flex items-center justify-center touch-pan-y"
             >
               {cardContent}
             </motion.div>

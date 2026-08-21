@@ -629,7 +629,7 @@ export default function InteractivePassportCard({
   );
 
   return (
-    <div className={`w-full max-w-[640px] flex flex-col items-center select-none ${className}`}>
+    <div className={`w-full max-w-[640px] flex flex-col items-center select-none touch-pan-y ${className}`}>
       {/* Top Action Bar in Focused Card Window: Flip + Close */}
       {showControls && (
         <motion.div
@@ -714,7 +714,7 @@ export default function InteractivePassportCard({
               e.stopPropagation();
               setIsQrExpanded(false);
             }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md cursor-pointer select-none"
+            className="fixed inset-0 z-50 flex flex-col items-center justify-start sm:justify-center p-4 sm:p-6 overflow-y-auto overscroll-y-contain touch-pan-y bg-black/85 backdrop-blur-md cursor-pointer select-none"
             role="dialog"
             aria-modal="true"
             aria-label="Verifiable QR Code Lightbox"
@@ -725,7 +725,7 @@ export default function InteractivePassportCard({
               exit={{ scale: 0.82, opacity: 0, y: 24 }}
               transition={{ type: "spring", stiffness: 360, damping: 26 }}
               onClick={(e) => e.stopPropagation()}
-              className="relative max-w-sm sm:max-w-md w-full bg-gradient-to-b from-[#181818] via-[#101010] to-[#080808] border border-emerald-500/40 rounded-3xl p-6 sm:p-7 shadow-[0_0_60px_rgba(16,185,129,0.25),_0_24px_48px_rgba(0,0,0,0.9)] flex flex-col items-center gap-5 cursor-default text-white"
+              className="relative max-w-sm sm:max-w-md w-full bg-gradient-to-b from-[#181818] via-[#101010] to-[#080808] border border-emerald-500/40 rounded-3xl p-6 sm:p-7 shadow-[0_0_60px_rgba(16,185,129,0.25),_0_24px_48px_rgba(0,0,0,0.9)] flex flex-col items-center gap-5 cursor-default text-white my-auto touch-pan-y"
             >
               {/* Ambient Radial Lighting */}
               <div className="absolute -top-16 -right-16 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none" />

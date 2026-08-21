@@ -84,10 +84,10 @@ export default function SkillPassportPage() {
   }
 
   return (
-    <div className="h-screen max-h-screen overflow-hidden bg-[#F5F5F3] text-[#111111] flex flex-col justify-between">
+    <div className="min-h-screen pb-12 bg-[#F5F5F3] text-[#111111] flex flex-col justify-between">
       <Navbar />
 
-      <main className="flex-1 max-w-6xl 2xl:max-w-7xl mx-auto px-4 sm:px-8 md:px-12 flex flex-col items-center justify-center w-full min-h-0">
+      <main className="flex-1 max-w-6xl 2xl:max-w-7xl mx-auto px-4 sm:px-8 md:px-12 flex flex-col items-center justify-start sm:justify-center w-full min-h-0 py-4 sm:py-8">
         {isLoading && (
           <div className="w-full bg-white rounded-4xl p-16 text-center border border-black/5 flex flex-col items-center gap-4 shadow-sm animate-pulse">
             <div className="w-10 h-10 rounded-full border-4 border-emerald-500 border-t-transparent animate-spin"></div>
