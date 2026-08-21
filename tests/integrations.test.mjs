@@ -1,6 +1,6 @@
 import assert from "node:assert";
 import { parseCourseraInput, fetchCourseraCertificates, searchCourseraCatalog, extractSkillsFromText } from "../lib/integrations/coursera.js";
-import { extractLinkedInUsername, fetchLinkedInCertifications, extractOAuthAvatar } from "../lib/integrations/linkedin.js";
+import { extractLinkedInUsername, extractGitHubUsername, fetchLinkedInCertifications, extractOAuthAvatar } from "../lib/integrations/linkedin.js";
 import { verifyQrPayload } from "../lib/verification/qrVerifier.js";
 import { computeSha256 } from "../lib/verification/cryptoHash.js";
 import { env } from "../lib/config/env.js";
@@ -87,11 +87,18 @@ await asyncTest("Coursera Integration: Returns empty list on empty query to avoi
   assert.ok(result.message);
 });
 
-// 5. LinkedIn Username Extraction
+// 5. LinkedIn & GitHub Username Extraction
 test("LinkedIn Parser: Extracts username from various LinkedIn URL formats", () => {
   assert.strictEqual(extractLinkedInUsername("https://www.linkedin.com/in/pratikranjan/"), "pratikranjan");
   assert.strictEqual(extractLinkedInUsername("https://linkedin.com/in/tonystark?utm_source=share"), "tonystark");
   assert.strictEqual(extractLinkedInUsername("peterparker"), "peterparker");
+});
+
+test("GitHub Parser: Extracts username from various GitHub URL formats", () => {
+  assert.strictEqual(extractGitHubUsername("https://github.com/pratikranjan2212"), "pratikranjan2212");
+  assert.strictEqual(extractGitHubUsername("https://github.com/torvalds/"), "torvalds");
+  assert.strictEqual(extractGitHubUsername("@octocat"), "octocat");
+  assert.strictEqual(extractGitHubUsername("ananya-sharma"), "ananya-sharma");
 });
 
 // 6. LinkedIn Credly Badge Verification

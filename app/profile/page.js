@@ -171,6 +171,11 @@ export default function ProfilePage() {
   const [activeSyncProvider, setActiveSyncProvider] = useState(null);
   const [accountConnectProvider, setAccountConnectProvider] = useState(null);
   const [avatarError, setAvatarError] = useState(false);
+  const [isSyncingPhoto, setIsSyncingPhoto] = useState(false);
+  const [photoSyncProvider, setPhotoSyncProvider] = useState(null);
+  const [photoSyncError, setPhotoSyncError] = useState("");
+  const [showProviderPrompt, setShowProviderPrompt] = useState(null);
+  const [providerInput, setProviderInput] = useState("");
 
   useEffect(() => {
     if (showDeleteModal) {
@@ -320,13 +325,102 @@ export default function ProfilePage() {
     reader.readAsDataURL(file);
   };
 
-  const handleApplyPhotoUrl = (e) => {
+  const handleSyncAvatar = async (provider, customIdentifier = null) => {
+    setPhotoSyncError("");
+    const identifier = customIdentifier !== null
+      ? customIdentifier.trim()
+      : (provider === "github"
+          ? (formData.github || profile?.githubUrl || profile?.github || "").trim()
+          : (formData.linkedin || profile?.linkedinUrl || profile?.linkedin || "").trim());
+
+    if (!identifier) {
+      setShowProviderPrompt(provider);
+      setProviderInput("");
+      return;
+    }
+
+    setIsSyncingPhoto(true);
+    setPhotoSyncProvider(provider);
+
+    try {
+      const res = await fetch("/api/profile/sync-avatar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          provider,
+          identifier,
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || !data.success || !data.avatarUrl) {
+        throw new Error(data.error || `Could not fetch photo from ${provider}.`);
+      }
+
+      // If user typed a new handle in prompt, auto update formData
+      if (customIdentifier) {
+        if (provider === "github" && !formData.github) {
+          setFormData((prev) => ({ ...prev, github: customIdentifier.trim() }));
+        } else if (provider === "linkedin" && !formData.linkedin) {
+          setFormData((prev) => ({ ...prev, linkedin: customIdentifier.trim() }));
+        }
+      }
+
+      setShowProviderPrompt(null);
+      setAvatarError(false);
+      setImageToCrop(data.avatarUrl);
+      setShowCropperModal(true);
+      setShowPhotoModal(false);
+    } catch (err) {
+      console.error("Avatar sync error:", err);
+      setPhotoSyncError(err.message || `Failed to fetch avatar from ${provider}.`);
+    } finally {
+      setIsSyncingPhoto(false);
+      setPhotoSyncProvider(null);
+    }
+  };
+
+  const handleApplyPhotoUrl = async (e) => {
     if (e) e.preventDefault();
     const trimmed = customPhotoUrl.trim();
     if (!trimmed) return;
-    setImageToCrop(trimmed);
-    setShowCropperModal(true);
-    setShowPhotoModal(false);
+
+    setPhotoSyncError("");
+    setIsSyncingPhoto(true);
+    setPhotoSyncProvider("url");
+
+    try {
+      const res = await fetch("/api/profile/sync-avatar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          provider: "url",
+          url: trimmed,
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (res.ok && data.success && data.avatarUrl) {
+        setAvatarError(false);
+        setImageToCrop(data.avatarUrl);
+      } else {
+        setAvatarError(false);
+        setImageToCrop(trimmed);
+      }
+
+      setShowCropperModal(true);
+      setShowPhotoModal(false);
+    } catch {
+      setAvatarError(false);
+      setImageToCrop(trimmed);
+      setShowCropperModal(true);
+      setShowPhotoModal(false);
+    } finally {
+      setIsSyncingPhoto(false);
+      setPhotoSyncProvider(null);
+    }
   };
 
   const handleCropComplete = (croppedDataUrl) => {
@@ -566,7 +660,11 @@ export default function ProfilePage() {
                   </div>
                 </div>
                 <button
-                  onClick={() => setShowPhotoModal(false)}
+                  onClick={() => {
+                    setShowPhotoModal(false);
+                    setShowProviderPrompt(null);
+                    setPhotoSyncError("");
+                  }}
                   className="p-2 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 rounded-xl transition-colors cursor-pointer"
                 >
                   <X className="w-5 h-5" />
@@ -588,6 +686,92 @@ export default function ProfilePage() {
                   </div>
                 )}
 
+                {/* Error Banner */}
+                {photoSyncError && (
+                  <div className="w-full p-3 bg-rose-50 border border-rose-200 rounded-2xl flex items-start gap-2.5 text-rose-800 text-xs font-medium animate-in fade-in duration-200">
+                    <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                    <div className="flex-1 min-w-0 break-words">{photoSyncError}</div>
+                    <button
+                      type="button"
+                      onClick={() => setPhotoSyncError("")}
+                      className="p-0.5 text-rose-400 hover:text-rose-700 cursor-pointer"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+
+                {/* Inline Prompt for User Identifier if not already connected */}
+                {showProviderPrompt && (
+                  <div className="w-full p-4 bg-neutral-50 border border-neutral-200 rounded-2xl flex flex-col gap-3 animate-in fade-in zoom-in-95 duration-200">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        {showProviderPrompt === "github" ? (
+                          <GitHubLogo className="w-4 h-4 text-neutral-800" />
+                        ) : (
+                          <LinkedInLogo className="w-4 h-4 text-[#0A66C2]" />
+                        )}
+                        <span className="text-xs font-bold text-neutral-800">
+                          {showProviderPrompt === "github" ? "Fetch GitHub Avatar" : "Fetch LinkedIn Avatar"}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setShowProviderPrompt(null)}
+                        className="text-neutral-400 hover:text-neutral-600 p-0.5 cursor-pointer"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        if (providerInput.trim()) {
+                          handleSyncAvatar(showProviderPrompt, providerInput.trim());
+                        }
+                      }}
+                      className="flex flex-col gap-2"
+                    >
+                      <input
+                        type="text"
+                        value={providerInput}
+                        onChange={(e) => setProviderInput(e.target.value)}
+                        placeholder={
+                          showProviderPrompt === "github"
+                            ? "Enter username or https://github.com/username"
+                            : "Enter profile URL or https://linkedin.com/in/username"
+                        }
+                        autoFocus
+                        className="w-full px-3 py-2 text-xs bg-white border border-neutral-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-neutral-900"
+                      />
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setShowProviderPrompt(null)}
+                          className="px-3 py-1.5 text-xs text-neutral-600 hover:text-neutral-800 font-medium rounded-lg hover:bg-neutral-200 transition-colors cursor-pointer"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={isSyncingPhoto || !providerInput.trim()}
+                          className="px-3 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer"
+                        >
+                          {isSyncingPhoto ? (
+                            <>
+                              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                              <span>Fetching...</span>
+                            </>
+                          ) : (
+                            <span>Fetch Photo</span>
+                          )}
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                )}
+
                 <input
                   type="file"
                   ref={fileInputRef}
@@ -599,20 +783,40 @@ export default function ProfilePage() {
                 <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <button
                     type="button"
-                    onClick={() => signIn("linkedin", { callbackUrl: "/profile" })}
-                    className="flex items-center justify-center gap-2 py-2.5 px-3 bg-[#0A66C2] hover:bg-[#084E96] text-white text-xs font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
+                    onClick={() => handleSyncAvatar("linkedin")}
+                    disabled={isSyncingPhoto}
+                    className="flex items-center justify-center gap-2 py-2.5 px-3 bg-[#0A66C2] hover:bg-[#084E96] disabled:opacity-75 text-white text-xs font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
                   >
-                    <LinkedInLogo className="w-4 h-4 fill-current" />
-                    <span>Sync via LinkedIn</span>
+                    {isSyncingPhoto && photoSyncProvider === "linkedin" ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        <span>Fetching...</span>
+                      </>
+                    ) : (
+                      <>
+                        <LinkedInLogo className="w-4 h-4 fill-current" />
+                        <span>Sync via LinkedIn</span>
+                      </>
+                    )}
                   </button>
 
                   <button
                     type="button"
-                    onClick={() => signIn("github", { callbackUrl: "/profile" })}
-                    className="flex items-center justify-center gap-2 py-2.5 px-3 bg-[#24292F] hover:bg-[#1B1F23] text-white text-xs font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
+                    onClick={() => handleSyncAvatar("github")}
+                    disabled={isSyncingPhoto}
+                    className="flex items-center justify-center gap-2 py-2.5 px-3 bg-[#24292F] hover:bg-[#1B1F23] disabled:opacity-75 text-white text-xs font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
                   >
-                    <GitHubLogo className="w-4 h-4 fill-current" />
-                    <span>Sync via GitHub</span>
+                    {isSyncingPhoto && photoSyncProvider === "github" ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        <span>Fetching...</span>
+                      </>
+                    ) : (
+                      <>
+                        <GitHubLogo className="w-4 h-4 fill-current" />
+                        <span>Sync via GitHub</span>
+                      </>
+                    )}
                   </button>
                 </div>
 
@@ -632,14 +836,22 @@ export default function ProfilePage() {
                       value={customPhotoUrl}
                       onChange={(e) => setCustomPhotoUrl(e.target.value)}
                       placeholder="Paste image URL (https://...)"
-                      className="w-full pl-3.5 pr-3.5 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      className="w-full pl-3.5 pr-3.5 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 text-neutral-900"
                     />
                   </div>
                   <button
                     type="submit"
-                    className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shrink-0 transition-colors cursor-pointer"
+                    disabled={isSyncingPhoto || !customPhotoUrl.trim()}
+                    className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white text-xs font-bold rounded-xl shrink-0 transition-colors flex items-center gap-1.5 cursor-pointer"
                   >
-                    Apply URL
+                    {isSyncingPhoto && photoSyncProvider === "url" ? (
+                      <>
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        <span>Loading...</span>
+                      </>
+                    ) : (
+                      <span>Apply URL</span>
+                    )}
                   </button>
                 </form>
 
