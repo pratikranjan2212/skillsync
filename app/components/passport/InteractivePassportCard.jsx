@@ -41,27 +41,12 @@ function SkillSyncLogo() {
   );
 }
 
-function formatPassportDob(rawDob) {
-  if (!rawDob || rawDob === "Not Specified") return "Not Specified";
-  if (/^\d{4}-\d{2}-\d{2}$/.test(rawDob)) {
-    try {
-      const [year, month, day] = rawDob.split("-");
-      const d = new Date(Number(year), Number(month) - 1, Number(day));
-      if (!isNaN(d.getTime())) {
-        return d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
-      }
-    } catch {
-      return rawDob;
-    }
-  }
-  return rawDob;
-}
-
 export default function InteractivePassportCard({
   passportData,
-  onUpdateVisibility,
-  isOwnPassport = false,
-  showActions = true,
+  className = "",
+  showControls = true,
+  onTogglePublic,
+  onClose
 }) {
   const [isFlipped, setIsFlipped] = useState(false);
   const [copiedId, setCopiedId] = useState(false);
@@ -71,12 +56,17 @@ export default function InteractivePassportCard({
   const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [qrSvg, setQrSvg] = useState("");
   const [isQrExpanded, setIsQrExpanded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  useEffect(() => {
+    setImageError(false);
+  }, [passportData?.photoUrl]);
 
   const student = {
     id: passportData?.studentId || "SS-2026-STU01",
     name: passportData?.studentName || "Student User",
     gender: passportData?.gender && passportData.gender !== "Student" ? passportData.gender : "Male",
-    dob: formatPassportDob(passportData?.dob),
+    dob: passportData?.dob || "Not Specified",
     college: passportData?.college || "Institution Not Specified",
     degree: passportData?.degree || "Degree Not Specified",
     batch: passportData?.batch || "Batch Not Specified",
@@ -88,6 +78,26 @@ export default function InteractivePassportCard({
     projects: passportData?.projects || [],
     coursework: passportData?.coursework || passportData?.courses || [],
   };
+
+  const validPhotoUrl =
+    student.photoUrl &&
+    typeof student.photoUrl === "string" &&
+    student.photoUrl.trim() !== "" &&
+    student.photoUrl !== "null" &&
+    student.photoUrl !== "undefined" &&
+    !imageError
+      ? student.photoUrl.trim()
+      : null;
+
+  const initials = student.name
+    ? student.name
+        .split(" ")
+        .filter(Boolean)
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .substring(0, 2)
+    : "SS";
 
   const hasProjects = Array.isArray(student.projects) && student.projects.length > 0;
   const verifiedCourses = Array.isArray(student.coursework)
@@ -272,16 +282,16 @@ export default function InteractivePassportCard({
         </div>
 
         {/* Content Body */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-3.5 sm:gap-4 md:gap-5 items-start my-auto">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 items-start my-auto">
           
           {/* Student Info */}
-          <div className="md:col-span-6 flex flex-col gap-2 sm:gap-2.5 min-w-0">
-            <div className="flex items-center gap-2.5 sm:gap-3.5">
+          <div className="md:col-span-6 flex flex-col gap-2.5 sm:gap-3 min-w-0">
+            <div className="flex items-center gap-3 sm:gap-3.5">
               <div className="relative shrink-0">
-                <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-18 md:h-18 lg:w-20 lg:h-20 rounded-full overflow-hidden border-2 border-emerald-400 shadow-[0_0_24px_rgba(52,211,153,0.35)] bg-neutral-900 relative flex items-center justify-center">
-                  {student.photoUrl ? (
+                <div className="w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 rounded-full overflow-hidden border-2 border-emerald-400 shadow-[0_0_24px_rgba(52,211,153,0.35)] bg-neutral-900 relative flex items-center justify-center">
+                  {validPhotoUrl ? (
                     <Image
-                      src={student.photoUrl}
+                      src={validPhotoUrl}
                       alt={student.name}
                       fill
                       unoptimized
@@ -289,10 +299,13 @@ export default function InteractivePassportCard({
                       className="object-cover"
                       referrerPolicy="no-referrer"
                       priority
+                      onError={() => setImageError(true)}
                     />
                   ) : (
-                    <div className="w-full h-full bg-linear-to-br from-neutral-800 to-neutral-950 text-white flex items-center justify-center font-black text-xl">
-                      {student.name ? student.name.split(" ").map((n) => n[0]).join("").toUpperCase().substring(0, 2) : "ST"}
+                    <div className="w-full h-full bg-linear-to-br from-emerald-950 via-neutral-900 to-neutral-950 flex items-center justify-center select-none">
+                      <span className="text-emerald-300 font-black text-lg sm:text-xl tracking-wider drop-shadow-[0_0_8px_rgba(52,211,153,0.45)]">
+                        {initials}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -304,31 +317,31 @@ export default function InteractivePassportCard({
 
               <div className="flex flex-col gap-0.5 sm:gap-1 min-w-0 flex-1">
                 <div>
-                  <div className="flex items-center gap-1 text-[9px] sm:text-[11px] font-bold text-emerald-400 uppercase tracking-wider">
+                  <div className="flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-emerald-400 uppercase tracking-wider">
                     <User className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-400" />
                     <span>NAME</span>
                   </div>
-                  <div className="text-sm sm:text-base md:text-lg font-black text-white leading-tight truncate mt-0.5">
+                  <div className="text-sm sm:text-lg font-black text-white leading-tight truncate mt-0.5" title={student.name}>
                     {student.name}
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2.5 sm:gap-4 text-xs mt-0.5">
-                  <div className="shrink-0">
+                <div className="grid grid-cols-2 gap-2 text-xs mt-0.5">
+                  <div className="min-w-0">
                     <span className="text-neutral-400 font-bold block text-[8px] sm:text-[9px] uppercase tracking-wider">GENDER</span>
-                    <span className="text-white font-bold text-[11px] sm:text-xs whitespace-nowrap">{student.gender}</span>
+                    <span className="text-white font-bold text-[11px] sm:text-xs truncate block">{student.gender}</span>
                   </div>
                   <div className="min-w-0">
                     <span className="text-neutral-400 font-bold block text-[8px] sm:text-[9px] uppercase tracking-wider">DOB</span>
-                    <span className="text-white font-bold text-[11px] sm:text-xs whitespace-nowrap block" title={student.dob}>{student.dob}</span>
+                    <span className="text-white font-bold text-[11px] sm:text-xs truncate block" title={student.dob}>{student.dob}</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-col gap-1 sm:gap-1.5 pt-1.5 sm:pt-2 border-t border-white/10">
+            <div className="flex flex-col gap-1.5 sm:gap-2 pt-2 sm:pt-2.5 border-t border-white/10">
               <div className="flex items-center gap-2 sm:gap-2.5">
-                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-emerald-400">
+                <div className="w-5.5 h-5.5 sm:w-6.5 sm:h-6.5 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-emerald-400">
                   <GraduationCap className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 </div>
                 <div className="min-w-0 flex items-baseline gap-1.5 text-xs">
@@ -338,7 +351,7 @@ export default function InteractivePassportCard({
               </div>
 
               <div className="flex items-center gap-2 sm:gap-2.5">
-                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-emerald-400">
+                <div className="w-5.5 h-5.5 sm:w-6.5 sm:h-6.5 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-emerald-400">
                   <BookOpen className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 </div>
                 <div className="min-w-0 flex items-baseline gap-1.5 text-xs">
@@ -348,7 +361,7 @@ export default function InteractivePassportCard({
               </div>
 
               <div className="flex items-center gap-2 sm:gap-2.5">
-                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-emerald-400">
+                <div className="w-5.5 h-5.5 sm:w-6.5 sm:h-6.5 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-emerald-400">
                   <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 </div>
                 <div className="min-w-0 flex items-baseline gap-1.5 text-xs">
@@ -513,19 +526,14 @@ export default function InteractivePassportCard({
                 </div>
 
                 <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                  {student.skills.map((skill, idx) => {
-                    const skillName = typeof skill === "object" ? skill?.name || skill?.title || String(skill || "") : String(skill || "");
-                    if (!skillName) return null;
-                    const keyVal = typeof skill === "object" ? skill?.skillId || skill?.id || skillName : `skill-${idx}-${skillName}`;
-                    return (
-                      <div
-                        key={keyVal}
-                        className="inline-flex items-center px-2.5 sm:px-3 py-1 sm:py-1.5 bg-neutral-900/90 border border-white/10 hover:border-emerald-500/40 rounded-xl text-[11px] sm:text-xs font-bold text-white transition-all shadow-xs"
-                      >
-                        <span>{skillName}</span>
-                      </div>
-                    );
-                  })}
+                  {student.skills.map((skill, idx) => (
+                    <div
+                      key={skill.skillId || skill.id || skill.name || `skill-${idx}`}
+                      className="inline-flex items-center px-2.5 sm:px-3 py-1 sm:py-1.5 bg-neutral-900/90 border border-white/10 hover:border-emerald-500/40 rounded-xl text-[11px] sm:text-xs font-bold text-white transition-all shadow-xs"
+                    >
+                      <span>{skill.name}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
