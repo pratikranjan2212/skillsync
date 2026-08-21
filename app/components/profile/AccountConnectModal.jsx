@@ -9,13 +9,13 @@ import {
   Globe,
   Trash2,
 } from "lucide-react";
-import { GitHubIcon, LinkedInIcon, CourseraIcon, CredlyIcon } from "@/app/components/icons";
+import { GitHubIcon, LinkedInIcon, CredlyIcon } from "@/app/components/icons";
 import { signIn } from "next-auth/react";
 
 export default function AccountConnectModal({
   isOpen,
   onClose,
-  provider = "github", // "github" | "linkedin" | "portfolio" | "coursera" | "credly"
+  provider = "github", // "github" | "linkedin" | "portfolio" | "credly"
   currentUrl = "",
   onSaveSuccess,
 }) {
@@ -100,24 +100,6 @@ export default function AccountConnectModal({
             if (trimmed.startsWith("u/")) trimmed = trimmed.slice(2);
             if (trimmed.endsWith("/badges")) trimmed = trimmed.slice(0, -7);
             return trimmed ? `https://www.credly.com/users/${trimmed}/badges` : "";
-          },
-        };
-      case "coursera":
-        return {
-          title: "Coursera Account",
-          subtitle: "Link your Coursera public profile to import verified coursework certificates and skill specializations.",
-          placeholder: "https://coursera.org/user/your-username",
-          example: "e.g. https://coursera.org/user/tonystark or user/tonystark",
-          icon: <CourseraIcon className="w-5 h-5" />,
-          iconBg: "bg-[#0056D2] text-white",
-          brandColor: "text-[#0056D2]",
-          brandButtonBg: "bg-[#0056D2] hover:bg-[#0047B3] text-white",
-          allowOAuth: false,
-          fieldName: "coursera",
-          formatUrl: (val) => {
-            let trimmed = val.trim().replace(/^https?:\/\/(www\.)?coursera\.org\/?/, "");
-            if (trimmed.startsWith("user/")) trimmed = trimmed.slice(5);
-            return trimmed ? `https://coursera.org/user/${trimmed}` : "";
           },
         };
       case "portfolio":

@@ -1,7 +1,6 @@
 export { default as GitHubIcon } from "./GitHubIcon";
 export { default as GoogleIcon } from "./GoogleIcon";
 export { default as LinkedInIcon } from "./LinkedInIcon";
-export { default as CourseraIcon } from "./CourseraIcon";
 export { default as CredlyIcon } from "./CredlyIcon";
 export { default as LinkedInWordmark } from "./LinkedInWordmark";
 export { default as IndeedWordmark } from "./IndeedWordmark";

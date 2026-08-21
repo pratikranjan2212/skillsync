@@ -42,7 +42,7 @@ import AuthRequiredView from "@/app/components/auth/AuthRequiredView";
 import ImageCropperModal from "@/app/components/profile/ImageCropperModal";
 import DatePickerFlyout from "@/app/components/ui/DatePickerFlyout";
 import SearchableDropdown from "@/app/components/ui/SearchableDropdown";
-import { GitHubIcon, LinkedInIcon, PortfolioIcon, CourseraIcon, CredlyIcon } from "@/app/components/icons";
+import { GitHubIcon, LinkedInIcon, PortfolioIcon, CredlyIcon } from "@/app/components/icons";
 import CertificateImportModal from "@/app/components/profile/CertificateImportModal";
 import AccountConnectModal from "@/app/components/profile/AccountConnectModal";
 import { STUDENT_INTERN_SKILLS, PRELOADED_SKILL_RECOMMENDATIONS } from "@/app/data/studentInternSkills";
@@ -54,10 +54,6 @@ function GitHubLogo({ className = "w-4 h-4 shrink-0" }) {
 
 function LinkedInLogo({ className = "w-4 h-4 shrink-0" }) {
   return <LinkedInIcon className={className} />;
-}
-
-function CourseraLogo({ className = "w-4 h-4 shrink-0" }) {
-  return <CourseraIcon className={className} />;
 }
 
 function CredlyLogo({ className = "w-4 h-4 shrink-0" }) {
@@ -238,7 +234,6 @@ export default function ProfilePage() {
     github: "",
     linkedin: "",
     credly: "",
-    coursera: "",
     portfolio: "",
     skills: [],
     emailNotifications: true,
@@ -264,7 +259,6 @@ export default function ProfilePage() {
         github: profile.github || "",
         linkedin: profile.linkedin || "",
         credly: profile.credly || profile.credlyUrl || "",
-        coursera: profile.coursera || "",
         portfolio: profile.portfolio || "",
         skills: profile.skills || [],
         emailNotifications: true,
@@ -1906,7 +1900,7 @@ export default function ProfilePage() {
           }}
         />
 
-        {/* Modal: Account Connection & URL Linking Dialog (GitHub, LinkedIn, Credly, Portfolio, Coursera) */}
+        {/* Modal: Account Connection & URL Linking Dialog (GitHub, LinkedIn, Credly, Portfolio) */}
         <AccountConnectModal
           isOpen={Boolean(accountConnectProvider)}
           onClose={() => setAccountConnectProvider(null)}
@@ -1918,9 +1912,7 @@ export default function ProfilePage() {
                 ? formData.linkedin || profile?.linkedinUrl || ""
                 : accountConnectProvider === "credly"
                   ? formData.credly || profile?.credlyUrl || ""
-                  : accountConnectProvider === "coursera"
-                    ? formData.coursera || profile?.courseraUrl || ""
-                    : formData.portfolio || profile?.portfolioUrl || ""
+                  : formData.portfolio || profile?.portfolioUrl || ""
           }
           onSaveSuccess={(updatedProfile) => {
             queryClient.invalidateQueries({ queryKey: ["user-profile"] });

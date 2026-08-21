@@ -85,7 +85,7 @@
 ```
 
 ### 1. Automated 3-Stage Verification Pipeline
-* **Stage 1 — QR Signature Verification**: Validates digital signatures, Coursera/institution credential URLs, and tamper-proof verification payloads using `jsQR`.
+* **Stage 1 — QR Signature Verification**: Validates digital signatures, Credly/institution credential URLs, and tamper-proof verification payloads using `jsQR`.
 * **Stage 2 — GitHub Repository Heuristics**: Analyzes commit history, user authorship, repository activity, and detected language distributions via Octokit.
 * **Stage 3 — Document OCR Parsing**: Extracts certificate text, student names, and completion dates.
 * **Cryptographic Tier Classification**:

@@ -25,7 +25,6 @@ model User {
   githubUrl     String?   @map("github_url")
   linkedinUrl   String?   @map("linkedin_url")
   portfolioUrl  String?   @map("portfolio_url")
-  courseraUrl   String?   @map("coursera_url")
   credlyUrl     String?   @map("credly_url")
   skills        String[]  @default([])
   createdAt     DateTime  @default(now()) @map("created_at")

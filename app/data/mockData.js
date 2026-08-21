@@ -33,16 +33,16 @@ export const INITIAL_EVIDENCE = [
     id: "ev-103",
     studentId: "std-101",
     type: "micro-credential",
-    title: "Deep Learning Specialization - Coursera",
-    description: "5-course series covering Neural Networks, Convolutional Networks, and Sequence Models.",
-    fileUrl: "https://coursera.org/verify/specialization/DL99201",
+    title: "AWS Certified Solutions Architect – Associate",
+    description: "Official digital badge covering Cloud Architecture, EC2, S3, and Distributed Systems.",
+    fileUrl: "https://www.credly.com/badges/aws-certified-solutions-architect-associate",
     fileHash: "sha256:7c8b9a0f1e2d3c4b5a697887960514233445566778899aabbccddeeff0011223",
     verificationTier: "verified-high",
-    verificationReason: "Automated API verification with Coursera credential registry",
+    verificationReason: "Automated cryptographic verification via Credly Public Badge Registry",
     verificationStage: "completed",
     verifiedAt: "2026-08-12T16:45:00Z",
     adminOverride: null,
-    claimedSkills: ["Python", "TensorFlow", "Deep Learning"]
+    claimedSkills: ["AWS", "Cloud Computing", "Architecture"]
   },
   {
     id: "ev-104",
@@ -121,7 +121,7 @@ export const INITIAL_PASSPORT = {
       endorsements: 19,
       evidence: [
         { id: "ev-101", title: "ETL Data Pipeline & Pandas Pipeline Demo", tier: "verified-high", hash: "sha256:9f86d081" },
-        { id: "ev-103", title: "Deep Learning Specialization - Coursera", tier: "verified-high", hash: "sha256:7c8b9a0f" }
+        { id: "ev-103", title: "AWS Certified Solutions Architect – Associate", tier: "verified-high", hash: "sha256:7c8b9a0f" }
       ]
     },
     {

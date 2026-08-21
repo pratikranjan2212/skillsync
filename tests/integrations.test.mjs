@@ -1,12 +1,22 @@
 import assert from "node:assert";
-import { parseCourseraInput, fetchCourseraCertificates, searchCourseraCatalog, extractSkillsFromText } from "../lib/integrations/coursera.js";
-import { extractLinkedInUsername, extractGitHubUsername, fetchLinkedInCertifications, extractOAuthAvatar } from "../lib/integrations/linkedin.js";
+import { parseCredlyInput, fetchCredlyBadges, extractSkillsFromText } from "../lib/integrations/credly.js";
+import {
+  extractLinkedInUsername,
+  extractGitHubUsername,
+  fetchLinkedInCertifications,
+  extractOAuthAvatar,
+} from "../lib/integrations/linkedin.js";
 import { verifyQrPayload } from "../lib/verification/qrVerifier.js";
 import { computeSha256 } from "../lib/verification/cryptoHash.js";
-import { env } from "../lib/config/env.js";
+import {
+  formatStipend,
+  deduplicateOpportunities,
+  validateAndNormalizeOpportunity,
+  getOpportunityWorkMode,
+} from "../lib/opportunities/workModeUtils.js";
 
 console.log("------------------------------------------------------------");
-console.log("Running SkillSync Coursera & LinkedIn Certificate Unit Tests");
+console.log("Running SkillSync Credly, LinkedIn & Integrations Unit Tests");
 console.log("------------------------------------------------------------\n");
 
 let passed = 0;
@@ -36,72 +46,32 @@ async function asyncTest(name, fn) {
   }
 }
 
-// 1. Environment resolution
-test("Environment: Coursera API Key is loaded in configuration", () => {
-  assert.ok(env.courseraApiKey, "courseraApiKey should be defined in env");
-  assert.strictEqual(typeof env.courseraApiKey, "string");
-  assert.ok(env.courseraApiKey.length > 10, "courseraApiKey should be a valid non-empty string");
+// 1. Skill Keyword Extraction
+test("Skill Extractor: Extracts technical competencies from metadata and descriptions", () => {
+  const skills = extractSkillsFromText("AWS Certified Solutions Architect Associate with Python and Docker");
+  assert.ok(skills.includes("AWS"));
+  assert.ok(skills.includes("Python"));
+  assert.ok(skills.includes("Docker"));
 });
 
-// 2. Coursera URL & Handle Parsing
-test("Coursera Parser: Extracts certificate ID from verify URL", () => {
-  const parsed = parseCourseraInput("https://coursera.org/verify/DL99201");
-  assert.strictEqual(parsed.type, "certificate_id");
-  assert.strictEqual(parsed.cleanCode, "DL99201");
-
-  const parsedSpec = parseCourseraInput("https://www.coursera.org/verify/specialization/ABC123XYZ");
-  assert.strictEqual(parsedSpec.type, "certificate_id");
-  assert.strictEqual(parsedSpec.cleanCode, "ABC123XYZ");
-});
-
-test("Coursera Parser: Extracts user token / code directly", () => {
-  const parsed = parseCourseraInput("kwD4F3akVxOnblOGvEGtflISgvReNXBA5v3Ikvt5b7Dmc5oh");
-  assert.strictEqual(parsed.type, "certificate_id");
-  assert.strictEqual(parsed.cleanCode, "kwD4F3akVxOnblOGvEGtflISgvReNXBA5v3Ikvt5b7Dmc5oh");
-});
-
-// 3. Coursera Direct Verification
-await asyncTest("Coursera Integration: Verifies exact certificate code without fake suggestions", async () => {
-  const result = await fetchCourseraCertificates({
-    courseraUrl: "https://coursera.org/verify/specialization/DL-88204-VERIFIED",
-  });
-
-  assert.strictEqual(result.success, true);
-  assert.strictEqual(result.certificates.length, 1);
-  const cert = result.certificates[0];
-  assert.strictEqual(cert.title, "Deep Learning Specialization");
-  assert.strictEqual(cert.partner, "DeepLearning.AI");
-  assert.strictEqual(cert.verificationTier, "verified-high");
-  assert.ok(cert.skills.includes("Python") || cert.skills.includes("Deep Learning"));
-});
-
-// 4. Coursera Empty Input Behavior (No unwanted fake presets)
-await asyncTest("Coursera Integration: Returns empty list on empty query to avoid false suggestions", async () => {
-  const result = await fetchCourseraCertificates({
-    courseraUrl: "",
-    query: "",
-  });
-
-  assert.strictEqual(result.success, true);
-  assert.strictEqual(result.certificates.length, 0);
-  assert.ok(result.message);
-});
-
-// 5. LinkedIn & GitHub Username Extraction
-test("LinkedIn Parser: Extracts username from various LinkedIn URL formats", () => {
+// 2. LinkedIn & GitHub Username Extraction
+test("LinkedIn Parser: Extracts username from various LinkedIn URL formats & handles", () => {
   assert.strictEqual(extractLinkedInUsername("https://www.linkedin.com/in/pratikranjan/"), "pratikranjan");
   assert.strictEqual(extractLinkedInUsername("https://linkedin.com/in/tonystark?utm_source=share"), "tonystark");
+  assert.strictEqual(extractLinkedInUsername("in/alexchen"), "alexchen");
   assert.strictEqual(extractLinkedInUsername("peterparker"), "peterparker");
+  assert.strictEqual(extractLinkedInUsername(""), null);
 });
 
-test("GitHub Parser: Extracts username from various GitHub URL formats", () => {
+test("GitHub Parser: Extracts username from various GitHub URL formats & handles", () => {
   assert.strictEqual(extractGitHubUsername("https://github.com/pratikranjan2212"), "pratikranjan2212");
   assert.strictEqual(extractGitHubUsername("https://github.com/torvalds/"), "torvalds");
   assert.strictEqual(extractGitHubUsername("@octocat"), "octocat");
   assert.strictEqual(extractGitHubUsername("ananya-sharma"), "ananya-sharma");
+  assert.strictEqual(extractGitHubUsername(""), null);
 });
 
-// 6. LinkedIn Credly Badge Verification
+// 3. LinkedIn Credly Badge Verification
 await asyncTest("LinkedIn Integration: Verifies Credly & digital badge links", async () => {
   const result = await fetchLinkedInCertifications({
     verificationUrl: "https://www.credly.com/badges/aws-certified-solutions-architect-associate",
@@ -115,7 +85,7 @@ await asyncTest("LinkedIn Integration: Verifies Credly & digital badge links", a
   assert.ok(cert.skills.includes("AWS"));
 });
 
-// 7. LinkedIn Custom Certification Entry
+// 4. LinkedIn Custom Certification Entry
 await asyncTest("LinkedIn Integration: Adds and verifies custom certification details", async () => {
   const result = await fetchLinkedInCertifications({
     title: "Google Cloud Professional DevOps Engineer",
@@ -133,23 +103,25 @@ await asyncTest("LinkedIn Integration: Adds and verifies custom certification de
   assert.ok(cert.skills.includes("Google Cloud"));
 });
 
-// 8. QR Verifier & Crypto Hash
-test("QR Verifier: Validates Coursera credential URLs into verified-high tier", () => {
-  const result = verifyQrPayload("https://coursera.org/verify/specialization/DL-88204-VERIFIED");
-  assert.strictEqual(result.isVerified, true);
-  assert.strictEqual(result.tier, "verified-high");
-  assert.strictEqual(result.issuer, "Coursera Credential Registry");
+await asyncTest("LinkedIn Integration: Preserves custom issuer and tags relevant tech skills", async () => {
+  const result = await fetchLinkedInCertifications({
+    title: "Certified Kubernetes Administrator (CKA)",
+    issuer: "The Linux Foundation",
+    credentialId: "CKA-9918201",
+    verificationUrl: "https://www.cncf.io/certification/cka/",
+  });
+
+  assert.strictEqual(result.success, true);
+  assert.strictEqual(result.certifications.length, 1);
+  const cert = result.certifications[0];
+  assert.strictEqual(cert.title, "Certified Kubernetes Administrator (CKA)");
+  assert.strictEqual(cert.issuer, "The Linux Foundation");
+  assert.strictEqual(cert.credentialId, "CKA-9918201");
+  assert.strictEqual(cert.verificationTier, "verified-high");
+  assert.ok(cert.skills.includes("Kubernetes") || cert.skills.includes("Docker") || cert.skills.includes("Linux"));
 });
 
-test("Cryptographic Hash: Generates deterministic SHA-256 evidence digest", () => {
-  const hash = computeSha256("Deep Learning Specialization_https://coursera.org/verify/DL99201");
-  assert.ok(hash.startsWith("sha256:"));
-  assert.strictEqual(hash.length, 7 + 64);
-});
-
-import { parseCredlyInput, fetchCredlyBadges } from "../lib/integrations/credly.js";
-
-// 10. Credly Parser & Badge Verification Tests
+// 5. Credly Parser & Badge Verification Tests
 test("Credly Parser: Extracts badge ID and user handles accurately", () => {
   const parsedBadge = parseCredlyInput("https://www.credly.com/badges/abc-123-aws-cert");
   assert.strictEqual(parsedBadge.type, "badge_id");
@@ -158,9 +130,13 @@ test("Credly Parser: Extracts badge ID and user handles accurately", () => {
   const parsedUser = parseCredlyInput("https://www.credly.com/users/tonystark/badges");
   assert.strictEqual(parsedUser.type, "user_handle");
   assert.strictEqual(parsedUser.cleanId, "tonystark");
+
+  const parsedShort = parseCredlyInput("https://credly.com/u/pratik-ranjan");
+  assert.strictEqual(parsedShort.type, "user_handle");
+  assert.strictEqual(parsedShort.cleanId, "pratik-ranjan");
 });
 
-await asyncTest("Credly Integration: Verifies badge directly into verified-high tier", async () => {
+await asyncTest("Credly Integration: Verifies AWS badge directly into verified-high tier", async () => {
   const result = await fetchCredlyBadges({
     badgeUrl: "https://www.credly.com/badges/aws-certified-solutions-architect-associate",
   });
@@ -171,6 +147,22 @@ await asyncTest("Credly Integration: Verifies badge directly into verified-high 
   assert.strictEqual(badge.issuer, "Amazon Web Services (AWS)");
   assert.strictEqual(badge.verificationTier, "verified-high");
   assert.ok(badge.skills.includes("AWS"));
+});
+
+await asyncTest("Credly Integration: Verifies Azure and GCP badges directly", async () => {
+  const azureResult = await fetchCredlyBadges({
+    badgeUrl: "https://www.credly.com/badges/microsoft-certified-azure-fundamentals",
+  });
+  assert.strictEqual(azureResult.success, true);
+  assert.strictEqual(azureResult.badges[0].issuer, "Microsoft");
+  assert.ok(azureResult.badges[0].skills.includes("Microsoft Azure"));
+
+  const gcpResult = await fetchCredlyBadges({
+    badgeUrl: "https://www.credly.com/badges/google-cloud-certified-associate-cloud-engineer",
+  });
+  assert.strictEqual(gcpResult.success, true);
+  assert.strictEqual(gcpResult.badges[0].issuer, "Google Cloud");
+  assert.ok(gcpResult.badges[0].skills.includes("Google Cloud"));
 });
 
 await asyncTest("Credly Integration: Empty input returns clean prompt without fake suggestions", async () => {
@@ -194,14 +186,28 @@ await asyncTest("Credly Integration: Inaccessible or private profile triggers pr
   assert.strictEqual(result.badges.length, 0);
 });
 
-import {
-  formatStipend,
-  deduplicateOpportunities,
-  validateAndNormalizeOpportunity,
-  getOpportunityWorkMode,
-} from "../lib/opportunities/workModeUtils.js";
+// 6. QR Verifier & Crypto Hash
+test("QR Verifier: Validates Credly digital badge URLs into verified-high tier", () => {
+  const result = verifyQrPayload("https://www.credly.com/badges/aws-solutions-architect");
+  assert.strictEqual(result.isVerified, true);
+  assert.strictEqual(result.tier, "verified-high");
+  assert.strictEqual(result.issuer, "Credly / Accredible Digital Badging");
+});
 
-// 11. Opportunity Salary Standardization & Deduplication Tests
+test("QR Verifier: Validates university academic credential URLs into verified-high tier", () => {
+  const result = verifyQrPayload("https://registrar.stanford.edu/verify/transcript/99812");
+  assert.strictEqual(result.isVerified, true);
+  assert.strictEqual(result.tier, "verified-high");
+  assert.strictEqual(result.issuer, "Accredited University Transcript Portal");
+});
+
+test("Cryptographic Hash: Generates deterministic SHA-256 evidence digest", () => {
+  const hash = computeSha256("AWS Solutions Architect_https://credly.com/badges/aws-123");
+  assert.ok(hash.startsWith("sha256:"));
+  assert.strictEqual(hash.length, 7 + 64);
+});
+
+// 7. Opportunity Salary Standardization & Deduplication Tests
 test("Salary Formatter: Standardizes diverse compensation formats into clean strings", () => {
   assert.strictEqual(formatStipend("₹15,000 a month"), "₹15,000 / month");
   assert.strictEqual(formatStipend("From ₹25,000 per month"), "From ₹25,000 / month");
