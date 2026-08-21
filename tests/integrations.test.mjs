@@ -121,6 +121,66 @@ await asyncTest("LinkedIn Integration: Preserves custom issuer and tags relevant
   assert.ok(cert.skills.includes("Kubernetes") || cert.skills.includes("Docker") || cert.skills.includes("Linux"));
 });
 
+// 4.1. LinkedIn Profile Scraper Tests (New Profile Scraper API)
+await asyncTest("LinkedIn Profile Scraper: Fetches and parses certifications from full profile URL", async () => {
+  const result = await fetchLinkedInCertifications({
+    linkedinUrl: "https://www.linkedin.com/in/pratikranjan/",
+  });
+
+  assert.strictEqual(result.success, true);
+  assert.strictEqual(result.source, "linkedin_profile_scraper");
+  assert.strictEqual(result.username, "pratikranjan");
+  assert.ok(result.certifications.length > 0);
+  
+  const firstCert = result.certifications[0];
+  assert.ok(firstCert.title.length > 0);
+  assert.ok(firstCert.issuer.length > 0);
+  assert.strictEqual(firstCert.verificationTier, "verified-high");
+  assert.strictEqual(firstCert.isVerified, true);
+  assert.ok(Array.isArray(firstCert.skills) && firstCert.skills.length > 0);
+});
+
+await asyncTest("LinkedIn Profile Scraper: Fetches certifications from shorthand in/username format", async () => {
+  const result = await fetchLinkedInCertifications({
+    linkedinUrl: "in/alexchen",
+  });
+
+  assert.strictEqual(result.success, true);
+  assert.strictEqual(result.source, "linkedin_profile_scraper");
+  assert.strictEqual(result.username, "alexchen");
+  assert.ok(result.certifications.length > 0);
+  
+  result.certifications.forEach((c) => {
+    assert.ok(c.title);
+    assert.ok(c.issuer);
+    assert.ok(c.credentialId);
+    assert.strictEqual(c.verificationTier, "verified-high");
+  });
+});
+
+await asyncTest("LinkedIn Profile Scraper: Fetches certifications for direct handle name", async () => {
+  const result = await fetchLinkedInCertifications({
+    linkedinUrl: "satyanadella",
+  });
+
+  assert.strictEqual(result.success, true);
+  assert.strictEqual(result.source, "linkedin_profile_scraper");
+  assert.strictEqual(result.username, "satyanadella");
+  assert.ok(result.certifications.length > 0);
+});
+
+await asyncTest("LinkedIn Integration: Empty input returns clean prompt message without false items", async () => {
+  const result = await fetchLinkedInCertifications({
+    linkedinUrl: "",
+    title: "",
+  });
+
+  assert.strictEqual(result.success, true);
+  assert.strictEqual(result.source, "empty_prompt");
+  assert.strictEqual(result.certifications.length, 0);
+  assert.ok(result.message.length > 0);
+});
+
 // 5. Credly Parser & Badge Verification Tests
 test("Credly Parser: Extracts badge ID and user handles accurately", () => {
   const parsedBadge = parseCredlyInput("https://www.credly.com/badges/abc-123-aws-cert");
