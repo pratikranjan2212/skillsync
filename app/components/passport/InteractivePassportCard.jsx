@@ -41,12 +41,27 @@ function SkillSyncLogo() {
   );
 }
 
+function formatPassportDob(rawDob) {
+  if (!rawDob || rawDob === "Not Specified") return "Not Specified";
+  if (/^\d{4}-\d{2}-\d{2}$/.test(rawDob)) {
+    try {
+      const [year, month, day] = rawDob.split("-");
+      const d = new Date(Number(year), Number(month) - 1, Number(day));
+      if (!isNaN(d.getTime())) {
+        return d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+      }
+    } catch {
+      return rawDob;
+    }
+  }
+  return rawDob;
+}
+
 export default function InteractivePassportCard({
   passportData,
-  className = "",
-  showControls = true,
-  onTogglePublic,
-  onClose
+  onUpdateVisibility,
+  isOwnPassport = false,
+  showActions = true,
 }) {
   const [isFlipped, setIsFlipped] = useState(false);
   const [copiedId, setCopiedId] = useState(false);
@@ -61,7 +76,7 @@ export default function InteractivePassportCard({
     id: passportData?.studentId || "SS-2026-STU01",
     name: passportData?.studentName || "Student User",
     gender: passportData?.gender && passportData.gender !== "Student" ? passportData.gender : "Male",
-    dob: passportData?.dob || "Not Specified",
+    dob: formatPassportDob(passportData?.dob),
     college: passportData?.college || "Institution Not Specified",
     degree: passportData?.degree || "Degree Not Specified",
     batch: passportData?.batch || "Batch Not Specified",
@@ -257,13 +272,13 @@ export default function InteractivePassportCard({
         </div>
 
         {/* Content Body */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 items-start my-auto">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-3.5 sm:gap-4 md:gap-5 items-start my-auto">
           
           {/* Student Info */}
-          <div className="md:col-span-5 flex flex-col gap-2.5 sm:gap-3">
-            <div className="flex items-center gap-3 sm:gap-3.5">
+          <div className="md:col-span-6 flex flex-col gap-2 sm:gap-2.5 min-w-0">
+            <div className="flex items-center gap-2.5 sm:gap-3.5">
               <div className="relative shrink-0">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-emerald-400 shadow-[0_0_24px_rgba(52,211,153,0.35)] bg-neutral-900 relative flex items-center justify-center">
+                <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-18 md:h-18 lg:w-20 lg:h-20 rounded-full overflow-hidden border-2 border-emerald-400 shadow-[0_0_24px_rgba(52,211,153,0.35)] bg-neutral-900 relative flex items-center justify-center">
                   {student.photoUrl ? (
                     <Image
                       src={student.photoUrl}
@@ -287,53 +302,53 @@ export default function InteractivePassportCard({
                 </div>
               </div>
 
-              <div className="flex flex-col gap-0.5 sm:gap-1 min-w-0">
+              <div className="flex flex-col gap-0.5 sm:gap-1 min-w-0 flex-1">
                 <div>
                   <div className="flex items-center gap-1 text-[9px] sm:text-[11px] font-bold text-emerald-400 uppercase tracking-wider">
                     <User className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-400" />
                     <span>NAME</span>
                   </div>
-                  <div className="text-sm sm:text-lg font-black text-white leading-tight truncate mt-0.5">
+                  <div className="text-sm sm:text-base md:text-lg font-black text-white leading-tight truncate mt-0.5">
                     {student.name}
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 text-xs whitespace-nowrap mt-0.5">
-                  <div>
-                    <span className="text-neutral-400 font-bold block text-[8px] sm:text-[10px] uppercase tracking-wider">GENDER</span>
-                    <span className="text-white font-bold text-[11px] sm:text-xs">{student.gender}</span>
+                <div className="flex items-center gap-2.5 sm:gap-4 text-xs mt-0.5">
+                  <div className="shrink-0">
+                    <span className="text-neutral-400 font-bold block text-[8px] sm:text-[9px] uppercase tracking-wider">GENDER</span>
+                    <span className="text-white font-bold text-[11px] sm:text-xs whitespace-nowrap">{student.gender}</span>
                   </div>
-                  <div>
-                    <span className="text-neutral-400 font-bold block text-[8px] sm:text-[10px] uppercase tracking-wider">DOB</span>
-                    <span className="text-white font-bold text-[11px] sm:text-xs">{student.dob}</span>
+                  <div className="min-w-0">
+                    <span className="text-neutral-400 font-bold block text-[8px] sm:text-[9px] uppercase tracking-wider">DOB</span>
+                    <span className="text-white font-bold text-[11px] sm:text-xs whitespace-nowrap block" title={student.dob}>{student.dob}</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-col gap-1.5 sm:gap-2 pt-2 sm:pt-2.5 border-t border-white/10">
+            <div className="flex flex-col gap-1 sm:gap-1.5 pt-1.5 sm:pt-2 border-t border-white/10">
               <div className="flex items-center gap-2 sm:gap-2.5">
-                <div className="w-5.5 h-5.5 sm:w-6.5 sm:h-6.5 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-emerald-400">
+                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-emerald-400">
                   <GraduationCap className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 </div>
                 <div className="min-w-0 flex items-baseline gap-1.5 text-xs">
                   <span className="text-[9px] sm:text-[10px] font-bold text-neutral-400 uppercase tracking-wider shrink-0">COLLEGE:</span>
-                  <span className="font-bold text-white truncate text-[11px] sm:text-xs">{student.college}</span>
+                  <span className="font-bold text-white truncate text-[11px] sm:text-xs" title={student.college}>{student.college}</span>
                 </div>
               </div>
 
               <div className="flex items-center gap-2 sm:gap-2.5">
-                <div className="w-5.5 h-5.5 sm:w-6.5 sm:h-6.5 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-emerald-400">
+                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-emerald-400">
                   <BookOpen className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 </div>
                 <div className="min-w-0 flex items-baseline gap-1.5 text-xs">
                   <span className="text-[9px] sm:text-[10px] font-bold text-neutral-400 uppercase tracking-wider shrink-0">DEGREE:</span>
-                  <span className="font-bold text-white truncate text-[11px] sm:text-xs">{student.degree}</span>
+                  <span className="font-bold text-white truncate text-[11px] sm:text-xs" title={student.degree}>{student.degree}</span>
                 </div>
               </div>
 
               <div className="flex items-center gap-2 sm:gap-2.5">
-                <div className="w-5.5 h-5.5 sm:w-6.5 sm:h-6.5 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-emerald-400">
+                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-emerald-400">
                   <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 </div>
                 <div className="min-w-0 flex items-baseline gap-1.5 text-xs">
@@ -345,7 +360,7 @@ export default function InteractivePassportCard({
           </div>
 
           {/* Right Column: Projects & Verified Coursework */}
-          <div className="md:col-span-7 flex flex-col gap-2 sm:gap-2.5 relative">
+          <div className="md:col-span-6 flex flex-col gap-2 sm:gap-2.5 relative min-w-0">
             {hasProjects && (
               /* Projects: Render verified projects with embedded skills */
               <div className="flex flex-col gap-1.5">
