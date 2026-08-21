@@ -4,14 +4,12 @@ import { auth } from "@/lib/auth";
 import { INITIAL_PASSPORT } from "@/app/data/mockData";
 import { checkRateLimit, createRateLimitResponse, RATE_LIMIT_PRESETS, getClientIp } from "@/lib/security/rateLimit";
 
-export const dynamic = "force-dynamic";
-
 export async function GET(request, { params }) {
   const clientIp = getClientIp(request);
   const rateLimit = checkRateLimit(
     `share-token:${clientIp}`,
-    RATE_LIMIT_PRESETS.GENERAL_API.maxRequests,
-    RATE_LIMIT_PRESETS.GENERAL_API.windowMs
+    RATE_LIMIT_PRESETS.FEED_SCRAPING.maxRequests,
+    RATE_LIMIT_PRESETS.FEED_SCRAPING.windowMs
   );
   if (!rateLimit.success) {
     return createRateLimitResponse(rateLimit.resetTime);
