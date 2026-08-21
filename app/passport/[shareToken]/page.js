@@ -1,13 +1,15 @@
 "use client";
 
-import React, { use } from "react";
+import React from "react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { Lock, ExternalLink, ArrowLeft, Loader2, AlertTriangle, ShieldCheck } from "lucide-react";
 import SkillPassportFolder from "@/app/components/passport/SkillPassportFolder";
 import Navbar from "@/app/components/layout/Navbar";
 
 async function fetchPublicPassport(token) {
+  if (!token) throw new Error("Share token is missing.");
   const res = await fetch(`/api/passport/${encodeURIComponent(token)}`);
   const data = await res.json();
   if (!res.ok) {
@@ -19,10 +21,12 @@ async function fetchPublicPassport(token) {
   return data.passport;
 }
 
-export default function PublicPassportPage({ params }) {
-  // Unwrap Next.js dynamic params safely
-  const resolvedParams = params instanceof Promise ? use(params) : params;
-  const shareToken = resolvedParams?.shareToken;
+export default function PublicPassportPage({ params: paramsProp }) {
+  const urlParams = useParams();
+  const tokenFromUrl = urlParams?.shareToken;
+  const tokenFromProp = paramsProp?.shareToken;
+  const rawToken = tokenFromUrl || tokenFromProp;
+  const shareToken = Array.isArray(rawToken) ? rawToken[0] : rawToken;
 
   const {
     data: passport,
@@ -46,7 +50,7 @@ export default function PublicPassportPage({ params }) {
             <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
           </div>
           <h2 className="text-base font-bold text-neutral-800">Verifying Skill Passport...</h2>
-          <p className="text-xs text-neutral-500 font-mono">Token: {shareToken}</p>
+          <p className="text-xs text-neutral-500 font-mono">Token: {shareToken || "Loading..."}</p>
         </main>
       </div>
     );
