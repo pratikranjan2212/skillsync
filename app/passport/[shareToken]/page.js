@@ -1,138 +1,98 @@
-import React from "react";
+"use client";
+
+import React, { use } from "react";
 import Link from "next/link";
-import { Lock, ExternalLink, ArrowLeft } from "lucide-react";
-import InteractivePassportCard from "@/app/components/passport/InteractivePassportCard";
+import { useQuery } from "@tanstack/react-query";
+import { Lock, ExternalLink, ArrowLeft, Loader2, AlertTriangle, ShieldCheck } from "lucide-react";
 import SkillPassportFolder from "@/app/components/passport/SkillPassportFolder";
-import prisma from "@/lib/prisma";
-import { auth } from "@/lib/auth";
-import { INITIAL_PASSPORT } from "@/app/data/mockData";
+import Navbar from "@/app/components/layout/Navbar";
 
-export default async function PublicPassportPage({ params }) {
-  const { shareToken } = await params;
+async function fetchPublicPassport(token) {
+  const res = await fetch(`/api/passport/${encodeURIComponent(token)}`);
+  const data = await res.json();
+  if (!res.ok) {
+    const errorMsg = data?.error || `Passport unavailable (${res.status})`;
+    const err = new Error(errorMsg);
+    err.status = res.status;
+    throw err;
+  }
+  return data.passport;
+}
 
-  let passport = null;
-  let errorState = null;
+export default function PublicPassportPage({ params }) {
+  // Unwrap Next.js dynamic params safely
+  const resolvedParams = params instanceof Promise ? use(params) : params;
+  const shareToken = resolvedParams?.shareToken;
 
-  try {
-    const session = await auth();
-    const sessionUserId = session?.user?.id;
-    const sessionUserEmail = session?.user?.email;
+  const {
+    data: passport,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["public-passport", shareToken],
+    queryFn: () => fetchPublicPassport(shareToken),
+    enabled: Boolean(shareToken),
+    retry: 1,
+    staleTime: 60 * 1000,
+  });
 
-    const dbPassport = await prisma.passport.findUnique({
-      where: { shareToken },
-      include: {
-        user: {
-          include: {
-            evidences: true,
-          },
-        },
-      },
-    });
-
-    if (dbPassport) {
-      const isOwner =
-        (sessionUserId && dbPassport.userId === sessionUserId) ||
-        (sessionUserEmail && dbPassport.user.email === sessionUserEmail);
-
-      if (!dbPassport.isPublic && !isOwner) {
-        errorState = "This Skill Passport is private and cannot be viewed publicly.";
-      } else {
-        const user = dbPassport.user;
-        const skillsMap = [];
-
-        for (const ev of user.evidences || []) {
-          for (const skillName of ev.claimedSkills || []) {
-            const existing = skillsMap.find((s) => s.name.toLowerCase() === skillName.toLowerCase());
-            if (existing) {
-              existing.evidence.push({
-                id: ev.id,
-                title: ev.title,
-                tier: ev.verificationTier,
-                hash: ev.fileHash,
-              });
-            } else {
-              skillsMap.push({
-                name: skillName,
-                category: "Technical Competency",
-                tier: ev.verificationTier,
-                evidence: [
-                  {
-                    id: ev.id,
-                    title: ev.title,
-                    tier: ev.verificationTier,
-                    hash: ev.fileHash,
-                  },
-                ],
-              });
-            }
-          }
-        }
-
-        for (const userSkill of user.skills || []) {
-          if (!skillsMap.some((s) => s.name.toLowerCase() === userSkill.toLowerCase())) {
-            skillsMap.push({
-              name: userSkill,
-              category: "Self-Reported Competency",
-              tier: "verified-medium",
-              evidence: [],
-            });
-          }
-        }
-
-        passport = {
-          studentId: dbPassport.studentId,
-          studentName: user.name || "Student User",
-          gender: user.gender && user.gender !== "Student" ? user.gender : "Male",
-          dob: user.dob || "Not Specified",
-          college: user.college || "Institution Not Specified",
-          degree: user.degree || "Degree Not Specified",
-          batch: user.batch || "Batch Not Specified",
-          photoUrl: user.image || null,
-          verified: (user.evidences && user.evidences.length > 0) || (user.skills && user.skills.length > 0),
-          issuer: dbPassport.issuer,
-          credentialHash: dbPassport.credentialHash,
-          shareToken: dbPassport.shareToken,
-          isPublic: dbPassport.isPublic,
-          updatedAt: dbPassport.updatedAt.toISOString(),
-          skills: skillsMap,
-        };
-      }
-    } else if (shareToken === INITIAL_PASSPORT.shareToken) {
-      passport = INITIAL_PASSPORT;
-    } else {
-      errorState = "Invalid or expired share link token.";
-    }
-  } catch (err) {
-    console.warn("Error fetching public passport:", err);
-    if (shareToken === INITIAL_PASSPORT.shareToken) {
-      passport = INITIAL_PASSPORT;
-    } else {
-      errorState = "Could not fetch public passport.";
-    }
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#F5F5F3] text-[#111111] flex flex-col justify-start">
+        <Navbar />
+        <main className="max-w-5xl 2xl:max-w-6xl w-full mx-auto px-4 sm:px-8 py-20 flex flex-col items-center justify-center gap-4">
+          <div className="w-16 h-16 rounded-3xl bg-white shadow-xl border border-black/5 flex items-center justify-center">
+            <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+          </div>
+          <h2 className="text-base font-bold text-neutral-800">Verifying Skill Passport...</h2>
+          <p className="text-xs text-neutral-500 font-mono">Token: {shareToken}</p>
+        </main>
+      </div>
+    );
   }
 
-  if (errorState || !passport) {
+  if (isError || !passport) {
+    const errorMessage = error?.message || "Invalid or expired share link token.";
+    const isPrivate = error?.status === 403 || errorMessage.toLowerCase().includes("private");
+
     return (
-      <div className="min-h-screen bg-[#F5F5F3] flex items-center justify-center p-4">
-        <div className="bg-white rounded-[32px] p-8 max-w-md w-full border border-black/5 shadow-xl text-center flex flex-col items-center gap-4">
-          <div className="w-14 h-14 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center">
-            <Lock className="w-7 h-7" />
+      <div className="min-h-screen bg-[#F5F5F3] text-[#111111] flex flex-col justify-start">
+        <Navbar />
+        <main className="max-w-md w-full mx-auto px-4 py-20 flex flex-col items-center justify-center">
+          <div className="bg-white rounded-3xl p-8 w-full border border-black/5 shadow-xl text-center flex flex-col items-center gap-4">
+            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner ${isPrivate ? "bg-amber-50 text-amber-600" : "bg-rose-50 text-rose-600"}`}>
+              {isPrivate ? <Lock className="w-7 h-7" /> : <AlertTriangle className="w-7 h-7" />}
+            </div>
+            <div>
+              <h1 className="text-lg font-bold text-[#111111]">{isPrivate ? "Private Passport" : "Passport Unavailable"}</h1>
+              <p className="text-xs text-neutral-600 mt-1">{errorMessage}</p>
+            </div>
+
+            <div className="pt-2 flex flex-col gap-2 w-full">
+              <Link
+                href="/"
+                className="w-full py-2.5 bg-neutral-900 text-white rounded-xl text-xs font-bold hover:bg-neutral-800 transition-colors shadow-xs flex items-center justify-center gap-1.5"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Return to SkillSync Home</span>
+              </Link>
+              <Link
+                href="/passport/sp-token-9942a"
+                className="w-full py-2.5 bg-white text-neutral-800 border border-neutral-200 rounded-xl text-xs font-bold hover:bg-neutral-50 transition-colors shadow-2xs flex items-center justify-center gap-1.5"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+                <span>View Sample Public Passport</span>
+              </Link>
+            </div>
           </div>
-          <h1 className="text-xl font-bold text-[#111111]">Passport Unavailable</h1>
-          <p className="text-xs text-[#494D4D]">{errorState}</p>
-          <Link
-            href="/"
-            className="mt-2 px-5 py-2.5 bg-neutral-900 text-white rounded-xl text-xs font-bold hover:bg-neutral-800 transition-colors"
-          >
-            Back to SkillSync Home
-          </Link>
-        </div>
+        </main>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F5F3] text-[#111111] py-6 sm:py-12 flex flex-col items-center">
+    <div className="min-h-screen bg-[#F5F5F3] text-[#111111] py-6 sm:py-10 flex flex-col items-center">
       <main className="max-w-5xl 2xl:max-w-6xl w-full mx-auto px-3.5 sm:px-8 md:px-12 flex flex-col gap-6">
         <div className="w-full flex items-center justify-between">
           <Link
@@ -152,7 +112,7 @@ export default async function PublicPassportPage({ params }) {
           </Link>
         </div>
 
-        <div className="w-full flex justify-center py-6">
+        <div className="w-full flex justify-center py-4 sm:py-8">
           <SkillPassportFolder passportData={passport} />
         </div>
       </main>
