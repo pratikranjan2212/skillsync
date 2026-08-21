@@ -513,14 +513,19 @@ export default function InteractivePassportCard({
                 </div>
 
                 <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                  {student.skills.map((skill, idx) => (
-                    <div
-                      key={skill.skillId || skill.id || skill.name || `skill-${idx}`}
-                      className="inline-flex items-center px-2.5 sm:px-3 py-1 sm:py-1.5 bg-neutral-900/90 border border-white/10 hover:border-emerald-500/40 rounded-xl text-[11px] sm:text-xs font-bold text-white transition-all shadow-xs"
-                    >
-                      <span>{skill.name}</span>
-                    </div>
-                  ))}
+                  {student.skills.map((skill, idx) => {
+                    const skillName = typeof skill === "object" ? skill?.name || skill?.title || String(skill || "") : String(skill || "");
+                    if (!skillName) return null;
+                    const keyVal = typeof skill === "object" ? skill?.skillId || skill?.id || skillName : `skill-${idx}-${skillName}`;
+                    return (
+                      <div
+                        key={keyVal}
+                        className="inline-flex items-center px-2.5 sm:px-3 py-1 sm:py-1.5 bg-neutral-900/90 border border-white/10 hover:border-emerald-500/40 rounded-xl text-[11px] sm:text-xs font-bold text-white transition-all shadow-xs"
+                      >
+                        <span>{skillName}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
