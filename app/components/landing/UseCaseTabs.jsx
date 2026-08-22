@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { USE_CASE_TABS, AUDIENCE_TAGS } from "@/app/data/skillsyncData.js";
-import { GraduationCap, Briefcase, Users, Shield, ArrowRight } from "lucide-react";
+import { GraduationCap, Briefcase, Users, ArrowRight } from "lucide-react";
 import RollingText from "@/app/components/ui/RollingText";
 import { FadeIn } from "@/app/components/ui/FadeIn";
 
@@ -18,15 +18,14 @@ export default function UseCaseTabs() {
       case "students": return GraduationCap;
       case "graduates": return Briefcase;
       case "recruiters": return Users;
-      case "admin-auditors": return Shield;
       default: return GraduationCap;
     }
   };
 
   return (
-    <section id="use-cases" className="py-14 sm:py-16 md:py-24 px-3.5 sm:px-6 2xl:px-8 max-w-7xl 2xl:max-w-[1536px] mx-auto scroll-mt-24">
+    <section id="use-cases" className="py-14 sm:py-16 md:py-24 px-3.5 sm:px-6 2xl:px-8 max-w-7xl 2xl:max-w-384 mx-auto scroll-mt-24">
       <FadeIn distance={20} duration={0.5}>
-        <div 
+        <div
           className="relative bg-white rounded-3xl sm:rounded-[40px] border border-black/8 p-4 sm:p-8 md:p-14 shadow-sm overflow-hidden"
           style={{
             backgroundImage: 'radial-gradient(rgba(0, 0, 0, 0.12) 1.25px, transparent 1.25px)',
@@ -60,11 +59,10 @@ export default function UseCaseTabs() {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTabId(tab.id)}
-                    className={`flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-5 py-2 sm:py-3 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
-                      isActive
+                    className={`flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-5 py-2 sm:py-3 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${isActive
                         ? "bg-white text-neutral-950 border-2 border-neutral-900 shadow-sm font-bold scale-[1.02]"
                         : "bg-white/90 hover:bg-white text-neutral-600 hover:text-neutral-900 border border-neutral-200/90 shadow-2xs"
-                    }`}
+                      }`}
                   >
                     <Icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isActive ? "text-neutral-950" : "text-neutral-500"}`} />
                     <span>{tab.label}</span>
@@ -75,7 +73,7 @@ export default function UseCaseTabs() {
           </FadeIn>
 
           <FadeIn delay={0.12} distance={20} duration={0.5}>
-            <div className="relative w-full rounded-2xl sm:rounded-[32px] overflow-hidden bg-neutral-950 min-h-[360px] sm:min-h-[460px] md:min-h-[520px] shadow-lg border border-black/10 flex items-end justify-end px-3 sm:px-5 md:px-6 py-4 sm:py-6 md:py-7">
+            <div className="relative w-full rounded-2xl sm:rounded-4xl overflow-hidden bg-neutral-950 min-h-90 sm:min-h-115 md:min-h-130 shadow-lg border border-black/10 flex items-end justify-end px-3 sm:px-5 md:px-6 py-4 sm:py-6 md:py-7">
               <img
                 key={activeTab.id}
                 src={activeTab.imageUrl}
@@ -83,11 +81,11 @@ export default function UseCaseTabs() {
                 className="absolute inset-0 w-full h-full object-cover object-center transition-all duration-700 ease-out"
               />
 
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/15 pointer-events-none" />
+              <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-black/15 pointer-events-none" />
               <div className="absolute inset-0 bg-black/10 pointer-events-none" />
 
-              <div 
-                className="relative z-10 w-full sm:max-w-[460px] md:max-w-[490px] bg-black/40 backdrop-blur-md sm:backdrop-blur-xl border border-white/20 rounded-2xl sm:rounded-3xl p-4 sm:p-7 text-white shadow-2xl transition-all duration-300 flex flex-col gap-2.5 sm:gap-4"
+              <div
+                className="relative z-10 w-full sm:max-w-115 md:max-w-122.5 bg-black/40 backdrop-blur-md sm:backdrop-blur-xl border border-white/20 rounded-2xl sm:rounded-3xl p-4 sm:p-7 text-white shadow-2xl transition-all duration-300 flex flex-col gap-2.5 sm:gap-4"
                 style={{
                   backdropFilter: 'blur(16px)',
                   WebkitBackdropFilter: 'blur(16px)',
@@ -147,7 +145,7 @@ export default function UseCaseTabs() {
           </FadeIn>
         </div>
       </FadeIn>
-  </section>
-);
+    </section>
+  );
 }
 

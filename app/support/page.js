@@ -73,7 +73,7 @@ export default function SupportPage() {
     <div className="min-h-screen bg-[#F5F5F3] text-[#111111] flex flex-col justify-between">
       <Navbar />
 
-      <main className="max-w-7xl 2xl:max-w-[1536px] mx-auto px-3.5 sm:px-6 2xl:px-8 py-6 sm:py-8 w-full flex-1">
+      <main className="max-w-7xl 2xl:max-w-384 mx-auto px-3.5 sm:px-6 2xl:px-8 py-6 sm:py-8 w-full flex-1">
         <div className="bg-white rounded-3xl sm:rounded-4xl p-5 sm:p-10 shadow-md border border-black/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-8">
           <div>
             <div className="flex items-center gap-2">
@@ -156,8 +156,8 @@ export default function SupportPage() {
                   <Mail className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
                   <div>
                     <div className="text-xs font-bold text-[#111111]">Student & User Support</div>
-                    <a href="mailto:support@skillsync.dev" className="text-xs text-emerald-700 font-mono hover:underline">
-                      support@skillsync.dev
+                    <a href="mailto:skillsyncauto@gmail.com" className="text-xs text-emerald-700 font-mono hover:underline">
+                      skillsyncauto@gmail.com
                     </a>
                   </div>
                 </div>

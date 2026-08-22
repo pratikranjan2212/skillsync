@@ -15,7 +15,7 @@ export default function FAQSection() {
   };
 
   return (
-    <section id="faq" className="pt-20 sm:pt-32 pb-14 sm:pb-24 px-3.5 sm:px-6 2xl:px-8 max-w-7xl 2xl:max-w-[1536px] mx-auto scroll-mt-24">
+    <section id="faq" className="pt-20 sm:pt-32 pb-14 sm:pb-24 px-3.5 sm:px-6 2xl:px-8 max-w-7xl 2xl:max-w-384 mx-auto scroll-mt-24">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-stretch">
         <div className="lg:col-span-5 flex flex-col justify-between h-full gap-8 sm:gap-10">
           <FadeIn distance={28} duration={0.85} delay={0.1} className="flex flex-col justify-between h-full gap-8 sm:gap-10">
@@ -42,7 +42,7 @@ export default function FAQSection() {
               </h3>
 
               <a
-                href="mailto:support@skillsync.dev"
+                href="mailto:skillsyncauto@gmail.com"
                 onMouseEnter={() => setHovered(true)}
                 onMouseLeave={() => setHovered(false)}
                 className="w-full sm:w-auto px-6 py-3.5 bg-[#111111] hover:bg-black text-white text-xs sm:text-sm font-bold rounded-full shadow-[0_18px_40px_rgba(0,0,0,0.35)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.25)] transition-all hover:scale-95 active:scale-90 inline-flex items-center justify-center"
@@ -77,27 +77,24 @@ export default function FAQSection() {
                       <span className="leading-snug">{faq.question}</span>
                       <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-neutral-100 group-hover:bg-neutral-200/80 flex items-center justify-center shrink-0 transition-colors">
                         <Plus
-                          className={`w-4 h-4 sm:w-6 sm:h-6 text-neutral-700 stroke-[2.5] transition-transform duration-500 ease-out ${
-                            isOpen ? "rotate-45" : "rotate-0"
-                          }`}
+                          className={`w-4 h-4 sm:w-6 sm:h-6 text-neutral-700 stroke-[2.5] transition-transform duration-500 ease-out ${isOpen ? "rotate-45" : "rotate-0"
+                            }`}
                         />
                       </div>
                     </button>
 
                     <div
-                      className={`grid transition-all duration-500 ease-in-out ${
-                        isOpen
+                      className={`grid transition-all duration-500 ease-in-out ${isOpen
                           ? "grid-rows-[1fr] opacity-100 mt-3.5"
                           : "grid-rows-[0fr] opacity-0 mt-0"
-                      }`}
+                        }`}
                     >
                       <div className="overflow-hidden">
                         <p
-                          className={`text-xs sm:text-[15px] text-[#494D4D] leading-relaxed font-medium transition-all duration-500 ease-out transform ${
-                            isOpen
+                          className={`text-xs sm:text-[15px] text-[#494D4D] leading-relaxed font-medium transition-all duration-500 ease-out transform ${isOpen
                               ? "translate-y-0 opacity-100"
                               : "translate-y-3 opacity-0"
-                          }`}
+                            }`}
                         >
                           {faq.answer}
                         </p>
