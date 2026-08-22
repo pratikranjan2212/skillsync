@@ -14,13 +14,23 @@ import {
   Sparkles,
   Check,
   FileText,
-  Lock
+  Lock,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 export default function Metrics() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [activeModal, setActiveModal] = useState(null);
+
+  const handlePrev = () => {
+    setCurrentIndex((prevIndex) => (prevIndex - 1 + metricsData.length) % metricsData.length);
+  };
+
+  const handleNext = () => {
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % metricsData.length);
+  };
 
   const metricsData = [
     {
@@ -289,19 +299,41 @@ export default function Metrics() {
           </AnimatePresence>
         </div>
 
-        {/* Centered Pagination Dots */}
-        <div className="mt-6 sm:mt-8 pt-5 sm:pt-6 border-t border-black/8 flex items-center justify-center">
+        {/* Bottom Navigation Row: Left Arrow (Bottom-Left) + Centered Dots + Right Arrow (Bottom-Right) */}
+        <div className="mt-6 sm:mt-8 pt-5 sm:pt-6 border-t border-black/8 flex items-center justify-between">
+          {/* Left Arrow (Bottom-Left) */}
+          <button
+            type="button"
+            onClick={handlePrev}
+            aria-label="Previous benchmark tab"
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-neutral-100 dark:bg-white/5 hover:bg-emerald-500 hover:text-black text-neutral-700 dark:text-neutral-300 border border-black/5 dark:border-white/10 hover:border-emerald-500 shadow-xs hover:shadow-md hover:scale-105 active:scale-95 transition-all flex items-center justify-center cursor-pointer group"
+          >
+            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.2] transition-transform group-hover:-translate-x-0.5" />
+          </button>
+
+          {/* Centered Pagination Dots */}
           <div className="flex items-center gap-2.5">
             {metricsData.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => setCurrentIndex(idx)}
-                className={`h-2.5 rounded-full transition-all cursor-pointer ${
-                  currentIndex === idx ? "w-8 sm:w-9 bg-emerald-500 shadow-xs" : "w-2.5 bg-neutral-200 hover:bg-neutral-400"
+                aria-label={`Slide ${idx + 1}`}
+                className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
+                  currentIndex === idx ? "w-8 sm:w-9 bg-emerald-500 shadow-xs" : "w-2.5 bg-neutral-200 dark:bg-neutral-800 hover:bg-neutral-400"
                 }`}
               />
             ))}
           </div>
+
+          {/* Right Arrow (Bottom-Right) */}
+          <button
+            type="button"
+            onClick={handleNext}
+            aria-label="Next benchmark tab"
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-neutral-100 dark:bg-white/5 hover:bg-emerald-500 hover:text-black text-neutral-700 dark:text-neutral-300 border border-black/5 dark:border-white/10 hover:border-emerald-500 shadow-xs hover:shadow-md hover:scale-105 active:scale-95 transition-all flex items-center justify-center cursor-pointer group"
+          >
+            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.2] transition-transform group-hover:translate-x-0.5" />
+          </button>
         </div>
       </div>
 
