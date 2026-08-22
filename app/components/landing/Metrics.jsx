@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Zap,
@@ -14,14 +14,11 @@ import {
   Sparkles,
   Check,
   FileText,
-  Lock,
-  ChevronLeft,
-  ChevronRight,
+  Lock
 } from "lucide-react";
 
 export default function Metrics() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [direction, setDirection] = useState(1);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [activeModal, setActiveModal] = useState(null);
 
@@ -68,53 +65,17 @@ export default function Metrics() {
     }
   ];
 
-  const handlePrev = useCallback(() => {
-    setDirection(-1);
-    setCurrentIndex((prevIndex) => (prevIndex - 1 + metricsData.length) % metricsData.length);
-  }, [metricsData.length]);
-
-  const handleNext = useCallback(() => {
-    setDirection(1);
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % metricsData.length);
-  }, [metricsData.length]);
-
   // Auto-play interval timer (4.5 seconds per slide)
   useEffect(() => {
     if (!isAutoPlaying || activeModal) return;
     const timer = setInterval(() => {
-      handleNext();
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % metricsData.length);
     }, 4500);
     return () => clearInterval(timer);
-  }, [isAutoPlaying, activeModal, handleNext]);
+  }, [isAutoPlaying, activeModal, metricsData.length]);
 
   const activeMetric = metricsData[currentIndex];
   const Icon = activeMetric.icon;
-
-  const slideVariants = {
-    enter: (dir) => ({
-      opacity: 0,
-      x: dir > 0 ? 50 : -50,
-      scale: 0.97,
-    }),
-    center: {
-      opacity: 1,
-      x: 0,
-      scale: 1,
-      transition: {
-        duration: 0.45,
-        ease: [0.16, 1, 0.3, 1],
-      },
-    },
-    exit: (dir) => ({
-      opacity: 0,
-      x: dir > 0 ? -50 : 50,
-      scale: 0.97,
-      transition: {
-        duration: 0.35,
-        ease: [0.16, 1, 0.3, 1],
-      },
-    }),
-  };
 
   return (
     <motion.section
@@ -139,33 +100,12 @@ export default function Metrics() {
               Platform Impact Showcase
             </div>
             <h2 className="text-xl sm:text-3xl md:text-4xl font-black text-[#111111] tracking-tight">
-              Engine Benchmarks &amp; Guarantee Standards
+              Engine Benchmarks & Guarantee Standards
             </h2>
           </div>
-          <div className="flex items-center justify-between md:justify-end gap-4">
-            <p className="text-xs sm:text-sm md:text-base text-[#494D4D] font-medium max-w-md leading-relaxed">
-              Real-time quantitative performance metrics powering candidate verification, bias elimination, and explainable job matching.
-            </p>
-            {/* Top Quick Arrow Navigation for Desktop */}
-            <div className="hidden lg:flex items-center gap-2 shrink-0">
-              <button
-                type="button"
-                onClick={handlePrev}
-                aria-label="Previous benchmark tab"
-                className="w-10 h-10 rounded-full bg-neutral-100 hover:bg-[#111111] text-neutral-700 hover:text-white border border-black/5 hover:border-black shadow-xs hover:shadow-md hover:scale-105 active:scale-95 transition-all flex items-center justify-center cursor-pointer group"
-              >
-                <ChevronLeft className="w-5 h-5 stroke-[2.5] transition-transform group-hover:-translate-x-0.5" />
-              </button>
-              <button
-                type="button"
-                onClick={handleNext}
-                aria-label="Next benchmark tab"
-                className="w-10 h-10 rounded-full bg-neutral-100 hover:bg-[#111111] text-neutral-700 hover:text-white border border-black/5 hover:border-black shadow-xs hover:shadow-md hover:scale-105 active:scale-95 transition-all flex items-center justify-center cursor-pointer group"
-              >
-                <ChevronRight className="w-5 h-5 stroke-[2.5] transition-transform group-hover:translate-x-0.5" />
-              </button>
-            </div>
-          </div>
+          <p className="text-xs sm:text-sm md:text-base text-[#494D4D] font-medium max-w-md leading-relaxed">
+            Real-time quantitative performance metrics powering candidate verification, bias elimination, and explainable job matching.
+          </p>
         </div>
 
         {/* Dynamic Carousel Stage with Easing & Ambient Radial Glow */}
@@ -176,34 +116,13 @@ export default function Metrics() {
             style={{ background: activeMetric.glowColor }}
           />
 
-          {/* Floating Left Navigation Arrow */}
-          <button
-            type="button"
-            onClick={handlePrev}
-            aria-label="Previous benchmark tab"
-            className="hidden md:flex absolute left-2 lg:-left-2 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white/95 backdrop-blur-md text-neutral-700 hover:text-black hover:bg-white border border-black/10 shadow-lg hover:shadow-xl hover:scale-110 active:scale-90 transition-all items-center justify-center cursor-pointer group"
-          >
-            <ChevronLeft className="w-5 h-5 stroke-[2.5] transition-transform group-hover:-translate-x-0.5" />
-          </button>
-
-          {/* Floating Right Navigation Arrow */}
-          <button
-            type="button"
-            onClick={handleNext}
-            aria-label="Next benchmark tab"
-            className="hidden md:flex absolute right-2 lg:-right-2 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white/95 backdrop-blur-md text-neutral-700 hover:text-black hover:bg-white border border-black/10 shadow-lg hover:shadow-xl hover:scale-110 active:scale-90 transition-all items-center justify-center cursor-pointer group"
-          >
-            <ChevronRight className="w-5 h-5 stroke-[2.5] transition-transform group-hover:translate-x-0.5" />
-          </button>
-
-          <AnimatePresence mode="wait" custom={direction}>
+          <AnimatePresence mode="wait">
             <motion.div
               key={currentIndex}
-              custom={direction}
-              variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
+              initial={{ opacity: 0, x: 40, scale: 0.97 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: -40, scale: 0.97 }}
+              transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
               className="relative z-10 w-full grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center bg-[#F8F9FA]/90 backdrop-blur-sm rounded-2xl sm:rounded-[30px] p-5 sm:p-8 md:p-10 border border-black/8 shadow-xl"
             >
               {/* Left Column: Big Numeric Metric */}
@@ -370,57 +289,18 @@ export default function Metrics() {
           </AnimatePresence>
         </div>
 
-        {/* Bottom Navigation Bar: Counter + Centered Pagination Dots + Arrow Buttons */}
-        <div className="mt-6 sm:mt-8 pt-5 sm:pt-6 border-t border-black/8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          {/* Active Benchmark Indicator */}
-          <div className="flex items-center gap-2 text-xs font-bold text-neutral-500">
-            <span className="text-emerald-700 font-extrabold font-mono text-xs sm:text-sm bg-emerald-50 border border-emerald-200/80 px-2.5 py-1 rounded-full">
-              0{currentIndex + 1} / 0{metricsData.length}
-            </span>
-            <span className="text-neutral-300">•</span>
-            <span className="text-neutral-800 font-extrabold">{activeMetric.badgeText}</span>
-          </div>
-
-          {/* Centered Pagination Pill Dots */}
-          <div className="flex items-center gap-2 sm:gap-2.5">
-            {metricsData.map((metric, idx) => (
+        {/* Centered Pagination Dots */}
+        <div className="mt-6 sm:mt-8 pt-5 sm:pt-6 border-t border-black/8 flex items-center justify-center">
+          <div className="flex items-center gap-2.5">
+            {metricsData.map((_, idx) => (
               <button
                 key={idx}
-                onClick={() => {
-                  setDirection(idx > currentIndex ? 1 : -1);
-                  setCurrentIndex(idx);
-                }}
-                aria-label={`Go to ${metric.badgeText}`}
-                className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
-                  currentIndex === idx
-                    ? "w-8 sm:w-10 bg-emerald-500 shadow-sm shadow-emerald-500/30"
-                    : "w-2.5 bg-neutral-200 hover:bg-neutral-400"
+                onClick={() => setCurrentIndex(idx)}
+                className={`h-2.5 rounded-full transition-all cursor-pointer ${
+                  currentIndex === idx ? "w-8 sm:w-9 bg-emerald-500 shadow-xs" : "w-2.5 bg-neutral-200 hover:bg-neutral-400"
                 }`}
               />
             ))}
-          </div>
-
-          {/* Left & Right Arrow Navigation Controls */}
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={handlePrev}
-              aria-label="Previous benchmark tab"
-              className="px-3.5 py-2 rounded-2xl bg-neutral-100 hover:bg-[#111111] text-neutral-700 hover:text-white border border-black/5 hover:border-black shadow-2xs hover:shadow-md hover:scale-105 active:scale-95 transition-all flex items-center gap-1.5 text-xs font-bold cursor-pointer group"
-            >
-              <ChevronLeft className="w-4 h-4 stroke-[2.5] transition-transform group-hover:-translate-x-0.5" />
-              <span className="hidden sm:inline">Prev</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={handleNext}
-              aria-label="Next benchmark tab"
-              className="px-3.5 py-2 rounded-2xl bg-neutral-100 hover:bg-[#111111] text-neutral-700 hover:text-white border border-black/5 hover:border-black shadow-2xs hover:shadow-md hover:scale-105 active:scale-95 transition-all flex items-center gap-1.5 text-xs font-bold cursor-pointer group"
-            >
-              <span className="hidden sm:inline">Next</span>
-              <ChevronRight className="w-4 h-4 stroke-[2.5] transition-transform group-hover:translate-x-0.5" />
-            </button>
           </div>
         </div>
       </div>
