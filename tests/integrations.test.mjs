@@ -293,6 +293,35 @@ test("DOB Formatter: Formats full month names and date formats to short 3-letter
   assert.strictEqual(formatDob("Not Specified"), "Not Specified");
 });
 
+await asyncTest("LinkedIn Integration: Extracts certifications from pasted text with AI/fallback", async () => {
+  const sampleText = `Licenses & certifications
+Meta Front-End Developer Certificate
+Meta
+Issued Jun 2024 · Credential ID META-9988
+Skills: React, JavaScript, HTML5`;
+
+  const result = await fetchLinkedInCertifications({ text: sampleText });
+  assert.strictEqual(result.success, true);
+  assert.ok(result.certifications.length >= 1);
+  assert.ok(result.certifications[0].title.includes("Meta") || result.certifications[0].title.includes("Front-End"));
+  assert.ok(result.certifications[0].isVerified);
+});
+
+await asyncTest("LinkedIn Integration: Recognizes Coursera, Udemy, and HackerRank links", async () => {
+  const courseraRes = await fetchLinkedInCertifications({
+    verificationUrl: "https://coursera.org/verify/specialization/ABCXYZ123",
+  });
+  assert.strictEqual(courseraRes.success, true);
+  assert.strictEqual(courseraRes.certifications[0].issuer, "Coursera");
+  assert.ok(courseraRes.certifications[0].isVerified);
+
+  const udemyRes = await fetchLinkedInCertifications({
+    verificationUrl: "https://www.udemy.com/certificate/UC-123456789/",
+  });
+  assert.strictEqual(udemyRes.success, true);
+  assert.strictEqual(udemyRes.certifications[0].issuer, "Udemy");
+});
+
 console.log("\n------------------------------------------------------------");
 console.log(`Results: ${passed} / ${total} tests passed (${Math.round((passed / total) * 100)}%)`);
 console.log("------------------------------------------------------------\n");

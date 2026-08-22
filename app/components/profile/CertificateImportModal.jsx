@@ -12,8 +12,10 @@ import {
   FileCheck2,
   AlertCircle,
   Lock,
-  ArrowRight,
   Sparkles,
+  Link as LinkIcon,
+  FileText,
+  Copy,
 } from "lucide-react";
 import { LinkedInIcon, CredlyIcon } from "@/app/components/icons";
 
@@ -25,7 +27,9 @@ export default function CertificateImportModal({
   onImportSuccess,
 }) {
   const isCredly = provider === "credly";
+  const [activeTab, setActiveTab] = useState(isCredly ? "link" : "ai_paste"); // "ai_paste" | "link"
   const [inputValue, setInputValue] = useState("");
+  const [pasteText, setPasteText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [items, setItems] = useState([]);
@@ -39,21 +43,23 @@ export default function CertificateImportModal({
   const brandHoverColor = isCredly ? "hover:bg-[#E05E00]" : "hover:bg-[#084E96]";
   const brandLabel = isCredly
     ? "Credly Public Profile URL or Badge Link"
-    : "LinkedIn Profile URL or Certificate Link";
+    : "Certificate Verification Link or Credential URL";
   const brandPlaceholder = isCredly
     ? "https://www.credly.com/users/username/badges or badge URL..."
-    : "https://linkedin.com/in/username or certificate link...";
+    : "https://coursera.org/verify/..., https://udemy.com/certificate/..., AWS, Credly link...";
 
   useEffect(() => {
     if (isOpen) {
       setInputValue(initialUrl || "");
+      setPasteText("");
       setErrorMessage("");
       setIsPrivateProfile(false);
       setSuccessResult(null);
       setItems([]);
       setSelectedIds(new Set());
+      setActiveTab(isCredly ? "link" : "ai_paste");
 
-      if (initialUrl) {
+      if (initialUrl && isCredly) {
         verifyCredentials(initialUrl);
       }
     }
@@ -65,7 +71,7 @@ export default function CertificateImportModal({
       setErrorMessage(
         isCredly
           ? "Please enter a valid Credly public profile URL (https://www.credly.com/users/username/badges) or badge link."
-          : "Please enter your LinkedIn profile URL or certificate link."
+          : "Please enter a certificate verification link (Coursera, Credly, Udemy, AWS, etc.)."
       );
       return;
     }
@@ -78,9 +84,7 @@ export default function CertificateImportModal({
     try {
       const endpoint = isCredly
         ? `/api/credly/badges?badgeUrl=${encodeURIComponent(target)}&credlyUrl=${encodeURIComponent(target)}`
-        : `/api/linkedin/certifications?verificationUrl=${encodeURIComponent(
-            target
-          )}&linkedinUrl=${encodeURIComponent(target)}`;
+        : `/api/linkedin/certifications?verificationUrl=${encodeURIComponent(target)}&linkedinUrl=${encodeURIComponent(target)}`;
 
       const res = await fetch(endpoint);
       const data = await res.json();
@@ -105,7 +109,7 @@ export default function CertificateImportModal({
         setErrorMessage(
           isCredly
             ? "No public badges found on this profile. Please make sure your profile has public badges or try entering an individual badge URL."
-            : "No certifications found for this profile or link."
+            : "No certifications found for this link. Try the 'AI Smart Extract' tab to paste your LinkedIn certificates text directly!"
         );
         setItems([]);
         setSelectedIds(new Set());
@@ -116,6 +120,48 @@ export default function CertificateImportModal({
     } catch (err) {
       console.error(`Verification error for ${provider}:`, err);
       setErrorMessage(err.message || "Failed to verify credentials.");
+      setItems([]);
+      setSelectedIds(new Set());
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAiExtract = async () => {
+    const raw = pasteText.trim();
+    if (!raw) {
+      setErrorMessage("Please paste the text from your LinkedIn 'Licenses & certifications' section or resume.");
+      return;
+    }
+
+    setIsLoading(true);
+    setErrorMessage("");
+    setSuccessResult(null);
+
+    try {
+      const res = await fetch("/api/linkedin/certifications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: raw, linkedinUrl: inputValue }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to extract certificates with Gemini AI.");
+      }
+
+      const list = data.certifications || [];
+      if (list.length === 0) {
+        setErrorMessage("Gemini AI could not detect any certificates in the pasted text. Please make sure to copy your LinkedIn certifications including titles and issuers.");
+        setItems([]);
+        setSelectedIds(new Set());
+      } else {
+        setItems(list);
+        setSelectedIds(new Set(list.map((item) => item.id)));
+      }
+    } catch (err) {
+      console.error("AI extraction error:", err);
+      setErrorMessage(err.message || "Failed to process text with Gemini AI.");
       setItems([]);
       setSelectedIds(new Set());
     } finally {
@@ -194,14 +240,15 @@ export default function CertificateImportModal({
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-base sm:text-lg font-black text-[#111111] tracking-tight">{brandTitle}</h3>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-800">
-                  Direct API Verification
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-800 flex items-center gap-1">
+                  <Sparkles className="w-2.5 h-2.5 text-emerald-600" />
+                  Gemini AI Verified
                 </span>
               </div>
               <p className="text-xs text-[#494D4D] mt-0.5">
                 {isCredly
                   ? "Fetch and choose which verified badges to add from your public Credly profile into your Skill Passport."
-                  : "Import verified licenses and certifications directly into your Skill Passport."}
+                  : "Import verified licenses, credentials, and certifications directly into your Skill Passport."}
               </p>
             </div>
           </div>
@@ -214,41 +261,126 @@ export default function CertificateImportModal({
           </button>
         </div>
 
+        {/* Tab Switcher (For LinkedIn) */}
+        {!isCredly && (
+          <div className="px-5 sm:px-6 pt-4 pb-0 bg-white flex items-center gap-2 border-b border-neutral-100">
+            <button
+              type="button"
+              onClick={() => setActiveTab("ai_paste")}
+              className={`pb-3 px-3 text-xs font-bold transition-all border-b-2 cursor-pointer flex items-center gap-1.5 ${
+                activeTab === "ai_paste"
+                  ? "border-[#0A66C2] text-[#0A66C2]"
+                  : "border-transparent text-neutral-500 hover:text-neutral-900"
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>AI Smart Extract (From Profile)</span>
+              <span className="px-1.5 py-0.2 rounded text-[9px] bg-blue-100 text-[#0A66C2] font-black">
+                Recommended
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("link")}
+              className={`pb-3 px-3 text-xs font-bold transition-all border-b-2 cursor-pointer flex items-center gap-1.5 ${
+                activeTab === "link"
+                  ? "border-[#0A66C2] text-[#0A66C2]"
+                  : "border-transparent text-neutral-500 hover:text-neutral-900"
+              }`}
+            >
+              <LinkIcon className="w-3.5 h-3.5" />
+              <span>Certificate Link / Registry</span>
+            </button>
+          </div>
+        )}
+
         {/* Sync Controls / Form Area */}
         <div className="p-5 sm:p-6 border-b border-neutral-100 bg-white flex flex-col gap-3">
-          <div>
-            <label className="block text-xs font-bold text-[#111111] mb-1.5">{brandLabel}</label>
-            <div className="flex flex-col sm:flex-row items-center gap-2">
-              <div className="relative flex-1 w-full">
-                <input
-                  type="text"
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && verifyCredentials(inputValue)}
-                  placeholder={brandPlaceholder}
-                  className="w-full pl-3.5 pr-3.5 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-semibold text-[#111111] focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                />
+          {activeTab === "ai_paste" && !isCredly ? (
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-bold text-[#111111]">
+                  Paste Text from LinkedIn &quot;Licenses &amp; certifications&quot; or Resume:
+                </label>
+                <span className="text-[11px] text-[#0A66C2] font-semibold flex items-center gap-1">
+                  <Sparkles className="w-3 h-3" />
+                  Powered by Gemini AI
+                </span>
               </div>
-              <button
-                type="button"
-                onClick={() => verifyCredentials(inputValue)}
-                disabled={isLoading || isImporting}
-                className={`w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-bold text-white ${brandColor} ${brandHoverColor} transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer disabled:opacity-50`}
-              >
-                {isLoading ? (
-                  <>
-                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                    <span>Fetching Badges...</span>
-                  </>
-                ) : (
-                  <>
-                    <ShieldCheck className="w-3.5 h-3.5" />
-                    <span>{isCredly ? "Fetch Badges" : "Verify & Fetch"}</span>
-                  </>
-                )}
-              </button>
+              <textarea
+                rows={4}
+                value={pasteText}
+                onChange={(e) => setPasteText(e.target.value)}
+                placeholder={`Example:
+AWS Certified Solutions Architect – Associate
+Amazon Web Services (AWS)
+Issued May 2024 · Credential ID AWS-123456
+Skills: AWS, EC2, S3, CloudFormation, Cloud Security
+
+Meta Front-End Developer Certificate
+Meta · Issued Jan 2024
+Skills: React, JavaScript, HTML5, CSS3`}
+                className="w-full p-3 rounded-2xl bg-[#F5F5F3] border border-black/5 text-xs font-medium text-[#111111] focus:outline-none focus:ring-2 focus:ring-[#0A66C2] resize-none"
+              />
+              <div className="flex items-center justify-between pt-1">
+                <p className="text-[11px] text-[#494D4D]">
+                  Tip: On your LinkedIn Profile, scroll to <strong>Licenses &amp; certifications</strong>, select all text and copy.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleAiExtract}
+                  disabled={isLoading || isImporting || !pasteText.trim()}
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#0A66C2] hover:bg-[#084E96] transition-all flex items-center gap-2 shadow-xs cursor-pointer disabled:opacity-50"
+                >
+                  {isLoading ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>Gemini AI Parsing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>Extract &amp; Verify with AI</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div>
+              <label className="block text-xs font-bold text-[#111111] mb-1.5">{brandLabel}</label>
+              <div className="flex flex-col sm:flex-row items-center gap-2">
+                <div className="relative flex-1 w-full">
+                  <input
+                    type="text"
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && verifyCredentials(inputValue)}
+                    placeholder={brandPlaceholder}
+                    className="w-full pl-3.5 pr-3.5 py-2.5 rounded-xl bg-[#F5F5F3] border border-black/5 text-xs font-semibold text-[#111111] focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => verifyCredentials(inputValue)}
+                  disabled={isLoading || isImporting}
+                  className={`w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-bold text-white ${brandColor} ${brandHoverColor} transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer disabled:opacity-50`}
+                >
+                  {isLoading ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>Fetching Badges...</span>
+                    </>
+                  ) : (
+                    <>
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      <span>{isCredly ? "Fetch Badges" : "Verify & Fetch"}</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
 
           <div className="flex items-center justify-between text-[11px] text-[#494D4D] pt-1">
             <div className="flex items-center gap-1.5 text-emerald-700 font-medium">
@@ -256,12 +388,12 @@ export default function CertificateImportModal({
               <span>
                 {isCredly
                   ? "Live API sync with Credly public badge registry & skill taxonomy extraction"
-                  : "Verified with LinkedIn credential registry & skill taxonomy extraction"}
+                  : "Cryptographic SHA-256 verification & verified skill taxonomy mapping"}
               </span>
             </div>
             {items.length > 0 && (
               <span className="font-bold text-neutral-600">
-                {items.length} {items.length === 1 ? "badge" : "badges"} found
+                {items.length} {items.length === 1 ? "credential" : "credentials"} ready
               </span>
             )}
           </div>
@@ -269,7 +401,7 @@ export default function CertificateImportModal({
 
         {/* Body: Certificates list, Private Profile Alert, or empty states */}
         <div className="flex-1 overflow-y-auto p-5 sm:p-6 bg-[#F8F9FA] flex flex-col gap-3">
-          {/* Private Profile Warning Dialog / Alert Box */}
+          {/* Private Profile Warning Dialog */}
           {isPrivateProfile && (
             <div className="p-5 bg-amber-50/90 border border-amber-300/80 rounded-3xl flex flex-col gap-3.5 animate-in fade-in zoom-in-95 duration-200">
               <div className="flex items-start gap-3">
@@ -342,19 +474,19 @@ export default function CertificateImportModal({
 
           {isLoading ? (
             <div className="py-12 flex flex-col items-center justify-center gap-3 text-center">
-              <RefreshCw className="w-8 h-8 text-[#FF6B00] animate-spin" />
+              <RefreshCw className="w-8 h-8 text-[#0A66C2] animate-spin" />
               <div className="text-xs font-bold text-[#111111]">
-                {isCredly ? "Connecting to Credly Registry API..." : "Verifying Credential Details..."}
+                {isCredly ? "Connecting to Credly Registry API..." : "Gemini AI Analyzing & Verifying Credentials..."}
               </div>
               <p className="text-[11px] text-[#494D4D] max-w-xs">
-                Extracting official badge templates, cryptographic hashes, issuing organizations, and verified skills.
+                Extracting certification titles, credential IDs, issuing bodies, and mapping verified skills to your passport.
               </p>
             </div>
           ) : items.length > 0 ? (
             <>
               <div className="flex items-center justify-between pb-1">
                 <span className="text-xs font-extrabold uppercase tracking-wider text-[#111111]">
-                  Choose Badges to Add ({selectedIds.size} of {items.length} Selected)
+                  Choose Credentials to Add ({selectedIds.size} of {items.length} Selected)
                 </span>
                 <button
                   type="button"
@@ -395,7 +527,7 @@ export default function CertificateImportModal({
                           className="w-12 h-12 object-contain shrink-0 rounded-lg p-1 bg-neutral-50 border border-black/5"
                         />
                       ) : (
-                        <div className="w-11 h-11 rounded-xl bg-[#FF6B00]/10 text-[#FF6B00] flex items-center justify-center shrink-0 border border-[#FF6B00]/20">
+                        <div className="w-11 h-11 rounded-xl bg-[#0A66C2]/10 text-[#0A66C2] flex items-center justify-center shrink-0 border border-[#0A66C2]/20">
                           <Award className="w-6 h-6" />
                         </div>
                       )}
@@ -445,23 +577,11 @@ export default function CertificateImportModal({
                           </div>
                         )}
 
-                        {/* Verification Link */}
-                        {item.verificationUrl && (
-                          <div className="mt-2.5 pt-2 border-t border-neutral-100 flex items-center justify-between">
-                            <a
-                              href={item.verificationUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              onClick={(e) => e.stopPropagation()}
-                              className="text-[11px] font-bold text-neutral-500 hover:text-emerald-700 flex items-center gap-1 transition-colors"
-                            >
-                              <span>View Public Credly Registry</span>
-                              <ExternalLink className="w-3 h-3" />
-                            </a>
-                            <span className="text-[10px] text-neutral-400 font-medium">
-                              Tier: High Institutional Trust
-                            </span>
-                          </div>
+                        {/* Description */}
+                        {item.description && (
+                          <p className="text-[11px] text-neutral-500 mt-2 line-clamp-2 leading-relaxed">
+                            {item.description}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -470,15 +590,21 @@ export default function CertificateImportModal({
               </div>
             </>
           ) : !isPrivateProfile ? (
-            <div className="py-12 flex flex-col items-center justify-center gap-2 text-center">
+            <div className="py-10 flex flex-col items-center justify-center gap-2 text-center">
               <Award className="w-10 h-10 text-neutral-300" />
               <div className="text-xs font-bold text-[#111111]">
-                {isCredly ? "Enter Your Credly Public Profile URL" : "Enter Your LinkedIn Certification Link"}
-              </div>
-              <p className="text-[11px] text-[#494D4D] max-w-sm">
                 {isCredly
-                  ? "Enter your Credly public profile (e.g. https://www.credly.com/users/username/badges) to fetch all your verified badges with individual selection choices."
-                  : "Paste your LinkedIn certification link or profile URL above to verify and attach it directly to your Skill Passport."}
+                  ? "Enter Your Credly Public Profile URL"
+                  : activeTab === "ai_paste"
+                  ? "Paste your LinkedIn Certificates or Resume above"
+                  : "Enter Your Certificate Link"}
+              </div>
+              <p className="text-[11px] text-[#494D4D] max-w-sm leading-relaxed">
+                {isCredly
+                  ? "Enter your Credly public profile (e.g. https://www.credly.com/users/username/badges) to fetch all verified badges."
+                  : activeTab === "ai_paste"
+                  ? "Gemini AI will instantly extract all credentials, credential IDs, issuing bodies, and skill tags with 100% precision."
+                  : "Paste any certificate verification link (Credly, Coursera, Udemy, AWS, Google Cloud, Microsoft Learn) to verify and import."}
               </p>
             </div>
           ) : null}
@@ -487,7 +613,7 @@ export default function CertificateImportModal({
         {/* Footer actions */}
         <div className="p-4 sm:p-5 border-t border-neutral-100 bg-white flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="text-xs font-semibold text-[#494D4D]">
-            {selectedIds.size} of {items.length} {items.length === 1 ? "badge" : "badges"} selected
+            {selectedIds.size} of {items.length} {items.length === 1 ? "credential" : "credentials"} selected
           </div>
 
           <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -508,7 +634,7 @@ export default function CertificateImportModal({
               {isImporting ? (
                 <>
                   <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                  <span>Importing Badges to Passport...</span>
+                  <span>Importing Credentials to Passport...</span>
                 </>
               ) : (
                 <>

@@ -23,7 +23,7 @@ export default function UseCaseTabs() {
   };
 
   return (
-    <section id="use-cases" className="py-14 sm:py-16 md:py-24 px-3.5 sm:px-6 2xl:px-8 max-w-7xl 2xl:max-w-384 mx-auto scroll-mt-24">
+    <section id="use-cases" className="py-14 sm:py-16 md:py-24 px-3.5 sm:px-6 2xl:px-8 max-w-7xl 2xl:max-w-[1536px] mx-auto scroll-mt-24">
       <FadeIn distance={20} duration={0.5}>
         <div
           className="relative bg-white rounded-3xl sm:rounded-[40px] border border-black/8 p-4 sm:p-8 md:p-14 shadow-sm overflow-hidden"
