@@ -295,16 +295,31 @@ test("DOB Formatter: Formats full month names and date formats to short 3-letter
 
 await asyncTest("LinkedIn Integration: Extracts certifications from pasted text with AI/fallback", async () => {
   const sampleText = `Licenses & certifications
-Meta Front-End Developer Certificate
-Meta
-Issued Jun 2024 · Credential ID META-9988
-Skills: React, JavaScript, HTML5`;
+AWS Cloud Practitioner Essentials
+Amazon Web Services
+Issued Aug 2026
+Credential ID AWS-12345
+Skills: AWS, Cloud Computing
+
+Google AI Professional Certificate
+Google
+Issued Feb 2024
+Credential ID GCP-9988
+Skills: Python, TensorFlow, Machine Learning`;
 
   const result = await fetchLinkedInCertifications({ text: sampleText });
   assert.strictEqual(result.success, true);
-  assert.ok(result.certifications.length >= 1);
-  assert.ok(result.certifications[0].title.includes("Meta") || result.certifications[0].title.includes("Front-End"));
-  assert.ok(result.certifications[0].isVerified);
+  assert.strictEqual(result.certifications.length, 2);
+  
+  const awsCert = result.certifications.find(c => c.title.includes("Cloud Practitioner"));
+  assert.ok(awsCert, "Should extract AWS Cloud Practitioner Essentials");
+  assert.strictEqual(awsCert.issueDate, "Aug 2026");
+  assert.ok(awsCert.issuer.includes("Amazon") || awsCert.issuer.includes("AWS"));
+
+  const googleCert = result.certifications.find(c => c.title.includes("Google AI"));
+  assert.ok(googleCert, "Should extract Google AI Professional Certificate");
+  assert.strictEqual(googleCert.issueDate, "Feb 2024");
+  assert.ok(googleCert.issuer.includes("Google"));
 });
 
 await asyncTest("LinkedIn Integration: Recognizes Coursera, Udemy, and HackerRank links", async () => {

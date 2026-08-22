@@ -14,8 +14,9 @@ import {
   Lock,
   Sparkles,
   Link as LinkIcon,
-  FileText,
-  Copy,
+  Edit2,
+  Save,
+  Calendar,
 } from "lucide-react";
 import { LinkedInIcon, CredlyIcon } from "@/app/components/icons";
 
@@ -37,6 +38,8 @@ export default function CertificateImportModal({
   const [errorMessage, setErrorMessage] = useState("");
   const [isPrivateProfile, setIsPrivateProfile] = useState(false);
   const [successResult, setSuccessResult] = useState(null);
+  const [editingId, setEditingId] = useState(null);
+  const [editForm, setEditForm] = useState({ title: "", issuer: "", issueDate: "", credentialId: "" });
 
   const brandTitle = isCredly ? "Credly Digital Badges" : "LinkedIn Certifications & Licenses";
   const brandColor = isCredly ? "bg-[#FF6B00]" : "bg-[#0A66C2]";
@@ -57,6 +60,7 @@ export default function CertificateImportModal({
       setSuccessResult(null);
       setItems([]);
       setSelectedIds(new Set());
+      setEditingId(null);
       setActiveTab(isCredly ? "link" : "ai_paste");
 
       if (initialUrl && isCredly) {
@@ -152,7 +156,7 @@ export default function CertificateImportModal({
 
       const list = data.certifications || [];
       if (list.length === 0) {
-        setErrorMessage("Gemini AI could not detect any certificates in the pasted text. Please make sure to copy your LinkedIn certifications including titles and issuers.");
+        setErrorMessage("Could not detect certificates in the pasted text. Please make sure to copy your LinkedIn certifications including titles and dates.");
         setItems([]);
         setSelectedIds(new Set());
       } else {
@@ -167,6 +171,35 @@ export default function CertificateImportModal({
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const startEdit = (item, e) => {
+    e.stopPropagation();
+    setEditingId(item.id);
+    setEditForm({
+      title: item.title || "",
+      issuer: item.issuer || "",
+      issueDate: item.issueDate || "",
+      credentialId: item.credentialId || "",
+    });
+  };
+
+  const saveEdit = (id, e) => {
+    e.stopPropagation();
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              title: editForm.title.trim() || item.title,
+              issuer: editForm.issuer.trim() || item.issuer,
+              issueDate: editForm.issueDate.trim() || item.issueDate,
+              credentialId: editForm.credentialId.trim() || item.credentialId,
+            }
+          : item
+      )
+    );
+    setEditingId(null);
   };
 
   const handleToggleSelect = (id) => {
@@ -312,14 +345,15 @@ export default function CertificateImportModal({
                 value={pasteText}
                 onChange={(e) => setPasteText(e.target.value)}
                 placeholder={`Example:
-AWS Certified Solutions Architect – Associate
-Amazon Web Services (AWS)
-Issued May 2024 · Credential ID AWS-123456
-Skills: AWS, EC2, S3, CloudFormation, Cloud Security
+AWS Cloud Practitioner Essentials
+Amazon Web Services
+Issued Aug 2026
+Credential ID AWS-12345
+Skills: AWS, EC2, Cloud Architecture
 
-Meta Front-End Developer Certificate
-Meta · Issued Jan 2024
-Skills: React, JavaScript, HTML5, CSS3`}
+Google AI Professional Certificate
+Google
+Issued Feb 2024 · Credential ID GCP-7788`}
                 className="w-full p-3 rounded-2xl bg-[#F5F5F3] border border-black/5 text-xs font-medium text-[#111111] focus:outline-none focus:ring-2 focus:ring-[#0A66C2] resize-none"
               />
               <div className="flex items-center justify-between pt-1">
@@ -335,7 +369,7 @@ Skills: React, JavaScript, HTML5, CSS3`}
                   {isLoading ? (
                     <>
                       <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                      <span>Gemini AI Parsing...</span>
+                      <span>Extracting Certificates...</span>
                     </>
                   ) : (
                     <>
@@ -476,10 +510,10 @@ Skills: React, JavaScript, HTML5, CSS3`}
             <div className="py-12 flex flex-col items-center justify-center gap-3 text-center">
               <RefreshCw className="w-8 h-8 text-[#0A66C2] animate-spin" />
               <div className="text-xs font-bold text-[#111111]">
-                {isCredly ? "Connecting to Credly Registry API..." : "Gemini AI Analyzing & Verifying Credentials..."}
+                {isCredly ? "Connecting to Credly Registry API..." : "Analyzing & Extracting Certificates..."}
               </div>
               <p className="text-[11px] text-[#494D4D] max-w-xs">
-                Extracting certification titles, credential IDs, issuing bodies, and mapping verified skills to your passport.
+                Extracting exact certification titles, issuing bodies, dates of issue, credential IDs, and mapped skill tags.
               </p>
             </div>
           ) : items.length > 0 ? (
@@ -500,90 +534,168 @@ Skills: React, JavaScript, HTML5, CSS3`}
               <div className="flex flex-col gap-2.5">
                 {items.map((item) => {
                   const isSelected = selectedIds.has(item.id);
+                  const isEditingThis = editingId === item.id;
+
                   return (
                     <div
                       key={item.id}
-                      onClick={() => handleToggleSelect(item.id)}
-                      className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-start gap-3.5 ${
-                        isSelected
-                          ? "bg-white border-emerald-500 shadow-md ring-2 ring-emerald-500/15"
-                          : "bg-white/80 border-black/5 hover:border-black/15 hover:bg-white"
+                      onClick={() => !isEditingThis && handleToggleSelect(item.id)}
+                      className={`p-4 rounded-2xl border transition-all flex flex-col gap-3 ${
+                        isEditingThis
+                          ? "bg-white border-blue-500 shadow-md ring-2 ring-blue-500/15"
+                          : isSelected
+                          ? "bg-white border-emerald-500 shadow-md ring-2 ring-emerald-500/15 cursor-pointer"
+                          : "bg-white/80 border-black/5 hover:border-black/15 hover:bg-white cursor-pointer"
                       }`}
                     >
-                      {/* Checkbox */}
-                      <div
-                        className={`w-5 h-5 rounded-lg flex items-center justify-center mt-1 shrink-0 transition-colors ${
-                          isSelected ? "bg-emerald-600 text-white" : "border border-neutral-300 bg-neutral-50"
-                        }`}
-                      >
-                        {isSelected && <Check className="w-3.5 h-3.5 stroke-3" />}
-                      </div>
+                      {isEditingThis ? (
+                        <div className="flex flex-col gap-2.5" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-black text-neutral-800 flex items-center gap-1.5">
+                              <Edit2 className="w-3.5 h-3.5 text-blue-600" />
+                              Edit Certificate Details
+                            </span>
+                            <button
+                              type="button"
+                              onClick={(e) => saveEdit(item.id, e)}
+                              className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                            >
+                              <Save className="w-3 h-3" />
+                              Save
+                            </button>
+                          </div>
 
-                      {/* Badge Thumbnail / Icon */}
-                      {item.imageUrl ? (
-                        <img
-                          src={item.imageUrl}
-                          alt={item.title}
-                          className="w-12 h-12 object-contain shrink-0 rounded-lg p-1 bg-neutral-50 border border-black/5"
-                        />
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div>
+                              <label className="text-[10px] font-bold text-neutral-600 block mb-0.5">Certificate Title</label>
+                              <input
+                                type="text"
+                                value={editForm.title}
+                                onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                                className="w-full px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-neutral-50 border border-black/10 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[10px] font-bold text-neutral-600 block mb-0.5">Issuing Organization</label>
+                              <input
+                                type="text"
+                                value={editForm.issuer}
+                                onChange={(e) => setEditForm({ ...editForm, issuer: e.target.value })}
+                                className="w-full px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-neutral-50 border border-black/10 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[10px] font-bold text-neutral-600 block mb-0.5">Date of Issue (e.g. Aug 2026, May 2024)</label>
+                              <input
+                                type="text"
+                                value={editForm.issueDate}
+                                onChange={(e) => setEditForm({ ...editForm, issueDate: e.target.value })}
+                                className="w-full px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-neutral-50 border border-black/10 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[10px] font-bold text-neutral-600 block mb-0.5">Credential ID</label>
+                              <input
+                                type="text"
+                                value={editForm.credentialId}
+                                onChange={(e) => setEditForm({ ...editForm, credentialId: e.target.value })}
+                                className="w-full px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-neutral-50 border border-black/10 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                              />
+                            </div>
+                          </div>
+                        </div>
                       ) : (
-                        <div className="w-11 h-11 rounded-xl bg-[#0A66C2]/10 text-[#0A66C2] flex items-center justify-center shrink-0 border border-[#0A66C2]/20">
-                          <Award className="w-6 h-6" />
-                        </div>
-                      )}
+                        <div className="flex items-start gap-3.5">
+                          {/* Checkbox */}
+                          <div
+                            className={`w-5 h-5 rounded-lg flex items-center justify-center mt-1 shrink-0 transition-colors ${
+                              isSelected ? "bg-emerald-600 text-white" : "border border-neutral-300 bg-neutral-50"
+                            }`}
+                          >
+                            {isSelected && <Check className="w-3.5 h-3.5 stroke-3" />}
+                          </div>
 
-                      {/* Info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2">
-                          <h4 className="text-xs sm:text-sm font-extrabold text-[#111111] leading-snug">
-                            {item.title}
-                          </h4>
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 shrink-0">
-                            <ShieldCheck className="w-3 h-3 text-emerald-600" />
-                            <span>Verified</span>
-                          </span>
-                        </div>
-
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-[#494D4D] mt-1 font-medium">
-                          <span>{item.issuer}</span>
-                          <span>•</span>
-                          <span>Issued: {item.issueDate}</span>
-                          {item.credentialId && (
-                            <>
-                              <span>•</span>
-                              <span className="font-mono text-[10px] bg-neutral-100 px-1.5 py-0.2 rounded">
-                                ID: {item.credentialId}
-                              </span>
-                            </>
+                          {/* Badge Thumbnail / Icon */}
+                          {item.imageUrl ? (
+                            <img
+                              src={item.imageUrl}
+                              alt={item.title}
+                              className="w-12 h-12 object-contain shrink-0 rounded-lg p-1 bg-neutral-50 border border-black/5"
+                            />
+                          ) : (
+                            <div className="w-11 h-11 rounded-xl bg-[#0A66C2]/10 text-[#0A66C2] flex items-center justify-center shrink-0 border border-[#0A66C2]/20">
+                              <Award className="w-6 h-6" />
+                            </div>
                           )}
-                        </div>
 
-                        {/* Skills */}
-                        {item.skills && item.skills.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-2.5">
-                            {item.skills.slice(0, 6).map((sk) => (
-                              <span
-                                key={sk}
-                                className="px-2 py-0.5 rounded-md bg-[#F5F5F3] text-[10px] font-bold text-neutral-700 border border-black/5"
-                              >
-                                {sk}
+                          {/* Info */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-2">
+                              <h4 className="text-xs sm:text-sm font-extrabold text-[#111111] leading-snug">
+                                {item.title}
+                              </h4>
+                              <div className="flex items-center gap-1.5 shrink-0">
+                                <button
+                                  type="button"
+                                  onClick={(e) => startEdit(item, e)}
+                                  className="px-2 py-0.5 rounded text-[10px] font-bold text-neutral-500 hover:text-blue-600 hover:bg-neutral-100 flex items-center gap-1 transition-colors cursor-pointer"
+                                  title="Edit details"
+                                >
+                                  <Edit2 className="w-3 h-3" />
+                                  <span>Edit</span>
+                                </button>
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                                  <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                                  <span>Verified</span>
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-[#494D4D] mt-1 font-medium">
+                              <span className="font-semibold text-neutral-900">{item.issuer}</span>
+                              <span>•</span>
+                              <span className="inline-flex items-center gap-1 text-blue-900 font-semibold bg-blue-50 px-2 py-0.5 rounded">
+                                <Calendar className="w-3 h-3 text-blue-600" />
+                                Issued: {item.issueDate}
                               </span>
-                            ))}
-                            {item.skills.length > 6 && (
-                              <span className="text-[10px] text-neutral-400 font-bold self-center">
-                                +{item.skills.length - 6} more
-                              </span>
+                              {item.credentialId && (
+                                <>
+                                  <span>•</span>
+                                  <span className="font-mono text-[10px] bg-neutral-100 px-1.5 py-0.2 rounded text-neutral-600">
+                                    ID: {item.credentialId}
+                                  </span>
+                                </>
+                              )}
+                            </div>
+
+                            {/* Skills */}
+                            {item.skills && item.skills.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mt-2.5">
+                                {item.skills.slice(0, 6).map((sk) => (
+                                  <span
+                                    key={sk}
+                                    className="px-2 py-0.5 rounded-md bg-[#F5F5F3] text-[10px] font-bold text-neutral-700 border border-black/5"
+                                  >
+                                    {sk}
+                                  </span>
+                                ))}
+                                {item.skills.length > 6 && (
+                                  <span className="text-[10px] text-neutral-400 font-bold self-center">
+                                    +{item.skills.length - 6} more
+                                  </span>
+                                )}
+                              </div>
+                            )}
+
+                            {/* Description */}
+                            {item.description && (
+                              <p className="text-[11px] text-neutral-500 mt-2 line-clamp-2 leading-relaxed">
+                                {item.description}
+                              </p>
                             )}
                           </div>
-                        )}
-
-                        {/* Description */}
-                        {item.description && (
-                          <p className="text-[11px] text-neutral-500 mt-2 line-clamp-2 leading-relaxed">
-                            {item.description}
-                          </p>
-                        )}
-                      </div>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -603,7 +715,7 @@ Skills: React, JavaScript, HTML5, CSS3`}
                 {isCredly
                   ? "Enter your Credly public profile (e.g. https://www.credly.com/users/username/badges) to fetch all verified badges."
                   : activeTab === "ai_paste"
-                  ? "Gemini AI will instantly extract all credentials, credential IDs, issuing bodies, and skill tags with 100% precision."
+                  ? "Gemini AI will instantly extract all credentials, exact dates of issue, credential IDs, issuing bodies, and skill tags."
                   : "Paste any certificate verification link (Credly, Coursera, Udemy, AWS, Google Cloud, Microsoft Learn) to verify and import."}
               </p>
             </div>
