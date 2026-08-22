@@ -57,12 +57,12 @@ export default function Hero() {
             <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl 2xl:text-8xl font-black tracking-tight text-white leading-[1.14] sm:leading-[1.08] mb-6">
               Your Journey Through Coursework, <br className="hidden sm:inline" />
               <span 
-                className="inline-block mt-1 sm:mt-0"
+                className="inline-block mt-1 sm:mt-0 pr-1.5"
                 style={{
-                  background: "linear-gradient(90deg, #10b981 0%, #6ee7b7 45%, #ffffff 100%)",
+                  background: "linear-gradient(90deg, #10b981 0%, #34d399 35%, #6ee7b7 70%, #a7f3d0 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
-                  color: "transparent"
+                  color: "transparent",
                 }}
               >
                 Stamped With Real-World Skills
