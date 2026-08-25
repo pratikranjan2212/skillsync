@@ -15,6 +15,7 @@ import {
   getOpportunityWorkMode,
   formatDob,
 } from "../lib/opportunities/workModeUtils.js";
+import { normalizeUrlForComparison } from "../lib/security/validator.js";
 
 console.log("------------------------------------------------------------");
 console.log("Running SkillSync Credly, LinkedIn & Integrations Unit Tests");
@@ -335,6 +336,122 @@ await asyncTest("LinkedIn Integration: Recognizes Coursera, Udemy, and HackerRan
   });
   assert.strictEqual(udemyRes.success, true);
   assert.strictEqual(udemyRes.certifications[0].issuer, "Udemy");
+});
+
+// 8. Evidence & Passport Project Deduplication Tests
+test("URL Normalizer: Standardizes GitHub and evidence URLs across protocols, slashes, and .git", () => {
+  const base = normalizeUrlForComparison("https://github.com/tonystark/jarvis-core");
+  assert.strictEqual(base, "github.com/tonystark/jarvis-core");
+  assert.strictEqual(normalizeUrlForComparison("http://github.com/tonystark/jarvis-core/"), base);
+  assert.strictEqual(normalizeUrlForComparison("https://www.github.com/tonystark/jarvis-core.git"), base);
+  assert.strictEqual(normalizeUrlForComparison("https://GITHUB.COM/TonyStark/Jarvis-Core/"), base);
+  assert.strictEqual(normalizeUrlForComparison(""), "");
+  assert.strictEqual(normalizeUrlForComparison(null), "");
+});
+
+test("Evidence Deduplication: Detects duplicate repository submissions and titles", () => {
+  const existingEvidences = [
+    {
+      id: "ev-1",
+      userId: "usr-1",
+      type: "project",
+      title: "Jarvis Core AI",
+      fileUrl: "https://github.com/tonystark/jarvis-core",
+      fileHash: "sha256:abc12345",
+    },
+    {
+      id: "ev-2",
+      userId: "usr-1",
+      type: "coursework",
+      title: "CS229 Machine Learning",
+      fileUrl: "https://stanford.edu/verify/cs229",
+      fileHash: "sha256:def67890",
+    },
+  ];
+
+  // Helper simulating backend duplicate check
+  const checkDuplicate = (url, title, type, hash) => {
+    const normTargetUrl = normalizeUrlForComparison(url);
+    const normTargetTitle = (title || "").trim().toLowerCase();
+
+    const isDuplicateUrl = normTargetUrl && existingEvidences.some(
+      (ev) => normalizeUrlForComparison(ev.fileUrl) === normTargetUrl
+    );
+
+    const isDuplicateTitle = existingEvidences.some(
+      (ev) => (ev.title || "").trim().toLowerCase() === normTargetTitle && (ev.type === type || type === "project")
+    );
+
+    const isDuplicateHash = hash && existingEvidences.some((ev) => ev.fileHash === hash);
+
+    return isDuplicateUrl || isDuplicateTitle || isDuplicateHash;
+  };
+
+  // Same repo URL with trailing slash -> duplicate
+  assert.strictEqual(checkDuplicate("https://github.com/tonystark/jarvis-core/", "New Name", "project"), true);
+  // Same repo URL with .git -> duplicate
+  assert.strictEqual(checkDuplicate("https://www.github.com/tonystark/jarvis-core.git", "Another Name", "project"), true);
+  // Same project title -> duplicate
+  assert.strictEqual(checkDuplicate("https://github.com/tonystark/different-repo", "Jarvis Core AI", "project"), true);
+  // Same file hash -> duplicate
+  assert.strictEqual(checkDuplicate("https://other.org", "Different Title", "coursework", "sha256:abc12345"), true);
+  // Brand new unique project -> not duplicate
+  assert.strictEqual(checkDuplicate("https://github.com/tonystark/arc-reactor", "Arc Reactor Engine", "project", "sha256:unique999"), false);
+});
+
+test("Passport Aggregation: Deduplicates project records with matching URLs or titles", () => {
+  const rawEvidences = [
+    {
+      id: "ev-1",
+      type: "project",
+      title: "EcoTrack Waste Platform",
+      fileUrl: "https://github.com/student/ecotrack",
+      claimedSkills: ["React", "Node.js"],
+      verificationTier: "verified-high",
+    },
+    {
+      id: "ev-2",
+      type: "project",
+      title: "EcoTrack Waste Platform",
+      fileUrl: "https://github.com/student/ecotrack/",
+      claimedSkills: ["React", "Node.js"],
+      verificationTier: "verified-high",
+    },
+    {
+      id: "ev-3",
+      type: "project",
+      title: "ShopNest eCommerce",
+      fileUrl: "https://github.com/student/shopnest",
+      claimedSkills: ["Next.js", "PostgreSQL"],
+      verificationTier: "verified-medium",
+    },
+  ];
+
+  const projects = [];
+  const seenUrls = new Set();
+  const seenTitles = new Set();
+
+  for (const ev of rawEvidences) {
+    const normUrl = normalizeUrlForComparison(ev.fileUrl);
+    const normTitle = (ev.title || "").trim().toLowerCase();
+
+    if ((normUrl && seenUrls.has(normUrl)) || (normTitle && seenTitles.has(normTitle))) {
+      continue;
+    }
+    if (normUrl) seenUrls.add(normUrl);
+    if (normTitle) seenTitles.add(normTitle);
+
+    projects.push({
+      id: ev.id,
+      title: ev.title,
+      githubUrl: ev.fileUrl,
+      skills: ev.claimedSkills,
+    });
+  }
+
+  assert.strictEqual(projects.length, 2);
+  assert.strictEqual(projects[0].title, "EcoTrack Waste Platform");
+  assert.strictEqual(projects[1].title, "ShopNest eCommerce");
 });
 
 console.log("\n------------------------------------------------------------");

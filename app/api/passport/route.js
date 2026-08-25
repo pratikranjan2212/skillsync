@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { auth, formatDisplayName } from "@/lib/auth";
 import { formatDob } from "@/lib/opportunities/workModeUtils";
+import { normalizeUrlForComparison } from "@/lib/security/validator";
 
 export const dynamic = "force-dynamic";
 
@@ -97,19 +98,35 @@ export async function GET(request) {
       }
     }
 
-    // Extract verified projects
+    // Extract verified projects and coursework (with deduplication)
     const projects = [];
+    const seenProjectUrls = new Set();
+    const seenProjectTitles = new Set();
+
     const coursework = [];
+    const seenCourseUrls = new Set();
+    const seenCourseTitles = new Set();
+
     for (const ev of user.evidences || []) {
+      const normUrl = normalizeUrlForComparison(ev.fileUrl);
+      const normTitle = (ev.title || "").trim().toLowerCase();
+
       if (
         ev.type === "project" ||
         ev.type === "competition" ||
         (ev.fileUrl && ev.fileUrl.includes("github.com"))
       ) {
+        // Prevent duplicate projects from rendering in passport
+        if ((normUrl && seenProjectUrls.has(normUrl)) || (normTitle && seenProjectTitles.has(normTitle))) {
+          continue;
+        }
+        if (normUrl) seenProjectUrls.add(normUrl);
+        if (normTitle) seenProjectTitles.add(normTitle);
+
         projects.push({
           id: ev.id,
           title: ev.title,
-          description: ev.description || `Verified evidence repository for ${ev.claimedSkills.join(", ")}`,
+          description: ev.description || `Verified evidence repository for ${(ev.claimedSkills || []).join(", ")}`,
           githubUrl: ev.fileUrl || "",
           skills: ev.claimedSkills || [],
           tier: ev.verificationTier,
@@ -121,6 +138,12 @@ export async function GET(request) {
         ev.type === "micro-credential" ||
         (ev.title && (ev.title.toLowerCase().includes("course") || ev.title.toLowerCase().includes("learning") || ev.title.toLowerCase().includes("dbms") || ev.title.toLowerCase().includes("specialization")))
       ) {
+        if ((normUrl && seenCourseUrls.has(normUrl)) || (normTitle && seenCourseTitles.has(normTitle))) {
+          continue;
+        }
+        if (normUrl) seenCourseUrls.add(normUrl);
+        if (normTitle) seenCourseTitles.add(normTitle);
+
         coursework.push({
           id: ev.id,
           title: ev.title,

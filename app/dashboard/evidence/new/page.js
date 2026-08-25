@@ -26,6 +26,7 @@ import {
   ExternalLink,
   Search,
   Plus,
+  AlertCircle,
 } from "lucide-react";
 import Navbar from "@/app/components/layout/Navbar";
 import Badge from "@/app/components/ui/Badge";
@@ -45,6 +46,22 @@ async function fetchUserGitHubRepos() {
   return res.json();
 }
 
+async function fetchUserEvidence() {
+  const res = await fetch("/api/evidence");
+  if (!res.ok) return [];
+  const json = await res.json();
+  return json.evidence || [];
+}
+
+const normalizeUrl = (url) => {
+  if (!url || typeof url !== "string") return "";
+  let cleaned = url.trim().toLowerCase();
+  cleaned = cleaned.replace(/^https?:\/\//, "").replace(/^www\./, "");
+  cleaned = cleaned.replace(/\.git\/?$/, "");
+  cleaned = cleaned.replace(/\/+$/, "");
+  return cleaned;
+};
+
 export default function AddEvidencePage() {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -57,6 +74,7 @@ export default function AddEvidencePage() {
   const [qrCodeData, setQrCodeData] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [assignedResult, setAssignedResult] = useState(null);
+  const [submitError, setSubmitError] = useState("");
 
   const {
     data: ghData,
@@ -67,6 +85,13 @@ export default function AddEvidencePage() {
     queryFn: fetchUserGitHubRepos,
     enabled: isAuthenticated,
     staleTime: 60000,
+  });
+
+  const { data: existingEvidence = [] } = useQuery({
+    queryKey: ["dash-evidence"],
+    queryFn: fetchUserEvidence,
+    enabled: isAuthenticated,
+    staleTime: 30000,
   });
 
   const ghRepos = ghData?.repos || [];
@@ -86,6 +111,48 @@ export default function AddEvidencePage() {
     },
   });
 
+  const watchedFileUrl = watch("fileUrl");
+  const watchedTitle = watch("title");
+  const watchedType = watch("type");
+
+  const isRepoAlreadyAdded = (repoUrl, repoName) => {
+    const normRepoUrl = normalizeUrl(repoUrl);
+    const normRepoName = (repoName || "").trim().toLowerCase();
+    return existingEvidence.some((ev) => {
+      const evUrl = normalizeUrl(ev.fileUrl);
+      const evTitle = (ev.title || "").trim().toLowerCase();
+      return (normRepoUrl && evUrl && evUrl === normRepoUrl) || (normRepoName && evTitle && evTitle === normRepoName);
+    });
+  };
+
+  const isCurrentDuplicate = React.useMemo(() => {
+    const normUrl = normalizeUrl(watchedFileUrl);
+    const normTitle = (watchedTitle || "").trim().toLowerCase();
+    if (normUrl) {
+      const match = existingEvidence.find((ev) => normalizeUrl(ev.fileUrl) === normUrl);
+      if (match) {
+        return {
+          isDuplicate: true,
+          reason: `This repository or evidence URL has already been added to your Skill Passport ("${match.title}").`,
+        };
+      }
+    }
+    if (normTitle && watchedType === "project") {
+      const match = existingEvidence.find(
+        (ev) =>
+          (ev.title || "").trim().toLowerCase() === normTitle &&
+          (ev.type === "project" || (ev.fileUrl && ev.fileUrl.includes("github.com")))
+      );
+      if (match) {
+        return {
+          isDuplicate: true,
+          reason: `A project titled "${match.title}" has already been verified in your Skill Passport.`,
+        };
+      }
+    }
+    return { isDuplicate: false, reason: "" };
+  }, [watchedFileUrl, watchedTitle, watchedType, existingEvidence]);
+
   const addCustomSkill = (skillName) => {
     const trimmed = skillName.trim();
     if (!trimmed) return;
@@ -97,6 +164,7 @@ export default function AddEvidencePage() {
 
   const handleSelectRepo = (repoUrl) => {
     setValue("fileUrl", repoUrl);
+    setSubmitError("");
     const matchedRepo = ghRepos.find((r) => r.htmlUrl === repoUrl);
     if (matchedRepo) {
       setValue("type", "project");
@@ -155,6 +223,12 @@ export default function AddEvidencePage() {
   };
 
   const onSubmit = async (data) => {
+    setSubmitError("");
+    if (isCurrentDuplicate.isDuplicate) {
+      setSubmitError(isCurrentDuplicate.reason);
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const res = await fetch("/api/evidence", {
@@ -169,6 +243,7 @@ export default function AddEvidencePage() {
 
       const json = await res.json();
       if (res.ok) {
+        setSubmitError("");
         setAssignedResult(json.evidence);
         // Instantly invalidate all query caches across the application
         await Promise.allSettled([
@@ -184,9 +259,12 @@ export default function AddEvidencePage() {
         setTimeout(() => {
           router.push("/dashboard");
         }, 1500);
+      } else {
+        setSubmitError(json.error || "Failed to submit evidence. Please try again.");
       }
     } catch (err) {
       console.error("Submission error:", err);
+      setSubmitError("An unexpected error occurred while submitting evidence.");
     } finally {
       setIsSubmitting(false);
     }
@@ -359,15 +437,18 @@ export default function AddEvidencePage() {
                       <option value="" disabled>
                         -- Select from your GitHub Repositories ({ghRepos.length}) --
                       </option>
-                      {ghRepos.map((repo) => (
-                        <option key={repo.id} value={repo.htmlUrl}>
-                          📁 {repo.name} {repo.language ? `• ${repo.language}` : ""} {repo.isPrivate ? "• [Private]" : ""}
-                        </option>
-                      ))}
+                      {ghRepos.map((repo) => {
+                        const alreadyAdded = isRepoAlreadyAdded(repo.htmlUrl, repo.name);
+                        return (
+                          <option key={repo.id} value={repo.htmlUrl} disabled={alreadyAdded}>
+                            {alreadyAdded ? "✓" : "📁"} {repo.name} {repo.language ? `• ${repo.language}` : ""} {alreadyAdded ? "• [Already in Passport]" : (repo.isPrivate ? "• [Private]" : "")}
+                          </option>
+                        );
+                      })}
                     </select>
                   </div>
                   <p className="text-[10px] text-neutral-500 px-1">
-                    Selecting a repository automatically fills the URL, title, description, and matching skills.
+                    Selecting a repository automatically fills the URL, title, description, and matching skills. Already added projects are disabled.
                   </p>
                 </div>
               ) : (
@@ -402,8 +483,23 @@ export default function AddEvidencePage() {
                 type="url"
                 placeholder="https://github.com/username/project or any credential URL"
                 {...register("fileUrl")}
+                onChange={(e) => {
+                  setSubmitError("");
+                  register("fileUrl").onChange(e);
+                }}
                 className="w-full px-4 py-3 rounded-2xl bg-[#F5F5F3] border border-black/5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
+
+              {/* Duplicate Warning Banner */}
+              {isCurrentDuplicate.isDuplicate && (
+                <div className="p-3.5 bg-amber-50 border border-amber-300 text-amber-900 rounded-2xl text-xs font-semibold flex items-center gap-2.5 animate-in fade-in">
+                  <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+                  <div className="flex-1">
+                    <div className="font-bold">Project Already Added to Passport</div>
+                    <div className="text-[11px] text-amber-800 mt-0.5">{isCurrentDuplicate.reason}</div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Claimed Skills Selector */}
@@ -602,15 +698,30 @@ export default function AddEvidencePage() {
               )}
             </div>
 
+            {submitError && (
+              <div className="p-4 bg-rose-50 border border-rose-300 text-rose-900 rounded-2xl text-xs font-semibold flex items-center gap-2.5 animate-in fade-in">
+                <AlertCircle className="w-4.5 h-4.5 text-rose-600 shrink-0" />
+                <div className="flex-1">
+                  <div className="font-bold">Submission Not Allowed</div>
+                  <div className="text-[11px] text-rose-700 mt-0.5">{submitError}</div>
+                </div>
+              </div>
+            )}
+
             <button
               type="submit"
-              disabled={isSubmitting}
-              className="mt-2 w-full py-4 px-6 bg-neutral-900 text-white rounded-2xl font-bold text-xs hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2 shadow-lg disabled:opacity-50"
+              disabled={isSubmitting || isCurrentDuplicate.isDuplicate}
+              className="mt-2 w-full py-4 px-6 bg-neutral-900 text-white rounded-2xl font-bold text-xs hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 text-emerald-400 animate-spin" />
                   <span>Running Automated Verification Engine...</span>
+                </>
+              ) : isCurrentDuplicate.isDuplicate ? (
+                <>
+                  <AlertCircle className="w-4 h-4 text-amber-400" />
+                  <span>Project Already in Skill Passport</span>
                 </>
               ) : (
                 <>

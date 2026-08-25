@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth";
 import { runVerificationPipeline } from "@/lib/verification/pipeline";
 import { checkRateLimit, createRateLimitResponse, RATE_LIMIT_PRESETS, getClientIp } from "@/lib/security/rateLimit";
 import { logSecurityEvent, SecurityEvent, LogLevel } from "@/lib/security/logger";
-import { sanitizeString, sanitizeUrl, sanitizeSkillList, sanitizeIdentifier } from "@/lib/security/validator";
+import { sanitizeString, sanitizeUrl, sanitizeSkillList, sanitizeIdentifier, normalizeUrlForComparison } from "@/lib/security/validator";
 
 export async function GET(request) {
   try {
@@ -100,6 +100,48 @@ export async function POST(request) {
       return NextResponse.json({ error: "Evidence title must be at least 2 characters long." }, { status: 400 });
     }
 
+    // Check for duplicate evidence submissions for this user
+    const existingEvidences = await prisma.evidence.findMany({
+      where: { userId: user.id },
+    });
+
+    const normalizedTargetUrl = normalizeUrlForComparison(validatedFileUrl);
+    const normalizedTargetTitle = sanitizedTitle.toLowerCase();
+
+    const duplicateUrlMatch = normalizedTargetUrl
+      ? existingEvidences.find((ev) => {
+          const normExisting = normalizeUrlForComparison(ev.fileUrl);
+          return normExisting && normExisting === normalizedTargetUrl;
+        })
+      : null;
+
+    const duplicateTitleMatch = existingEvidences.find((ev) => {
+      const normTitle = (ev.title || "").trim().toLowerCase();
+      return normTitle && normTitle === normalizedTargetTitle && (ev.type === sanitizedType || sanitizedType === "project");
+    });
+
+    if (duplicateUrlMatch) {
+      return NextResponse.json(
+        {
+          error: "This GitHub project or evidence URL has already been added to your Skill Passport.",
+          duplicate: true,
+          existingEvidenceId: duplicateUrlMatch.id,
+        },
+        { status: 409 }
+      );
+    }
+
+    if (duplicateTitleMatch && sanitizedType === "project") {
+      return NextResponse.json(
+        {
+          error: "A project with this title has already been added to your Skill Passport.",
+          duplicate: true,
+          existingEvidenceId: duplicateTitleMatch.id,
+        },
+        { status: 409 }
+      );
+    }
+
     const verifiedData = await runVerificationPipeline({
       ...body,
       title: sanitizedTitle,
@@ -108,6 +150,22 @@ export async function POST(request) {
       fileUrl: validatedFileUrl,
       claimedSkills: sanitizedSkills,
     });
+
+    if (verifiedData.fileHash) {
+      const duplicateHashMatch = existingEvidences.find(
+        (ev) => ev.fileHash && ev.fileHash === verifiedData.fileHash
+      );
+      if (duplicateHashMatch) {
+        return NextResponse.json(
+          {
+            error: "This evidence file or cryptographic proof has already been added to your Skill Passport.",
+            duplicate: true,
+            existingEvidenceId: duplicateHashMatch.id,
+          },
+          { status: 409 }
+        );
+      }
+    }
 
     const created = await prisma.evidence.create({
       data: {
