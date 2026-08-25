@@ -97,19 +97,32 @@ export async function GET(request) {
   const hasSkillsOrEvidence = allUserSkills.length > 0;
 
   if (!hasSkillsOrEvidence) {
-    const defaultTailored = generateTailoredOpportunities([
-      "React", "Python", "SQL", "JavaScript", "TypeScript", "Node.js", "Docker"
-    ]);
+    let guestScrapedIndeed = [];
+    let guestScrapedLinkedIn = [];
+    try {
+      const results = await Promise.allSettled([
+        fetchIndeedJobs("software engineer intern", "India"),
+        fetchLinkedInJobs("software developer intern", "India"),
+      ]);
+      for (const r of results) {
+        if (r.status === "fulfilled" && Array.isArray(r.value)) {
+          for (const j of r.value) {
+            if (j.source === "Indeed") guestScrapedIndeed.push(j);
+            else if (j.source === "LinkedIn") guestScrapedLinkedIn.push(j);
+          }
+        }
+      }
+    } catch (_) {}
 
     const normalizedDbOpps = dbOpps
       .map((opp) => validateAndNormalizeOpportunity(opp))
       .filter(Boolean);
 
-    const normalizedTailored = defaultTailored
-      .map((opp) => validateAndNormalizeOpportunity(opp))
-      .filter(Boolean);
-
-    const combinedGuestOpps = deduplicateOpportunities([...normalizedTailored, ...normalizedDbOpps]);
+    const combinedGuestOpps = deduplicateOpportunities([
+      ...guestScrapedIndeed.map(validateAndNormalizeOpportunity),
+      ...guestScrapedLinkedIn.map(validateAndNormalizeOpportunity),
+      ...normalizedDbOpps,
+    ]);
 
     return NextResponse.json({
       success: true,
@@ -142,11 +155,7 @@ export async function GET(request) {
     });
   }
 
-  // 1. Generate tailored partner opportunities based on skills
-  const rawTailoredOpps = generateTailoredOpportunities(allUserSkills);
-  const tailoredOpps = rawTailoredOpps.map((opp) => validateAndNormalizeOpportunity(opp)).filter(Boolean);
-
-  // 2. Fetch live LinkedIn and Indeed scraped jobs in parallel
+  // 1. Fetch live LinkedIn and Indeed scraped jobs in parallel directly
   let scrapedLinkedInJobs = [];
   let scrapedIndeedJobs = [];
 
@@ -155,13 +164,16 @@ export async function GET(request) {
 
     if (allUserSkills.length >= 2) {
       const combo = `${allUserSkills[0]} ${allUserSkills[1]}`;
-      fetchPromises.push(fetchLinkedInJobs(`${combo} developer intern`, "India"));
       fetchPromises.push(fetchIndeedJobs(`${combo} intern`, "India"));
-      fetchPromises.push(fetchLinkedInJobs(`${allUserSkills[0]} developer intern`, "India"));
+      fetchPromises.push(fetchLinkedInJobs(`${combo} developer intern`, "India"));
       fetchPromises.push(fetchIndeedJobs(`${allUserSkills[0]} intern`, "India"));
+      fetchPromises.push(fetchLinkedInJobs(`${allUserSkills[0]} developer intern`, "India"));
     } else if (allUserSkills.length === 1) {
-      fetchPromises.push(fetchLinkedInJobs(`${allUserSkills[0]} developer intern`, "India"));
       fetchPromises.push(fetchIndeedJobs(`${allUserSkills[0]} intern`, "India"));
+      fetchPromises.push(fetchLinkedInJobs(`${allUserSkills[0]} developer intern`, "India"));
+    } else {
+      fetchPromises.push(fetchIndeedJobs("software engineer intern", "India"));
+      fetchPromises.push(fetchLinkedInJobs("software developer intern", "India"));
     }
 
     const settledResults = await Promise.allSettled(fetchPromises);
@@ -182,26 +194,26 @@ export async function GET(request) {
   }
 
   // Deduplicate and normalize scraped jobs immediately
-  const uniqueScrapedLinkedIn = deduplicateOpportunities(
-    scrapedLinkedInJobs.map((opp) => validateAndNormalizeOpportunity(opp)).filter(Boolean)
-  );
   const uniqueScrapedIndeed = deduplicateOpportunities(
     scrapedIndeedJobs.map((opp) => validateAndNormalizeOpportunity(opp)).filter(Boolean)
   );
+  const uniqueScrapedLinkedIn = deduplicateOpportunities(
+    scrapedLinkedInJobs.map((opp) => validateAndNormalizeOpportunity(opp)).filter(Boolean)
+  );
 
-  // 3. Persist to DB in background
-  syncOpportunitiesToDb([...uniqueScrapedLinkedIn, ...uniqueScrapedIndeed, ...tailoredOpps]).catch(() => {});
+  // 2. Persist real scraped jobs to DB in background
+  syncOpportunitiesToDb([...uniqueScrapedIndeed, ...uniqueScrapedLinkedIn]).catch(() => {});
 
-  // 4. Normalize existing DB opportunities
+  // 3. Normalize existing DB opportunities
   const normalizedDbOpps = dbOpps
     .map((opp) => validateAndNormalizeOpportunity(opp))
     .filter(Boolean);
 
-  // 5. Combine and strictly deduplicate all opportunities (real live scraped jobs first)
-  const rawCombined = [...uniqueScrapedIndeed, ...uniqueScrapedLinkedIn, ...tailoredOpps, ...normalizedDbOpps];
+  // 4. Combine real scraped jobs + persistent scraped DB jobs
+  const rawCombined = [...uniqueScrapedIndeed, ...uniqueScrapedLinkedIn, ...normalizedDbOpps];
   const combinedOpportunities = deduplicateOpportunities(rawCombined);
 
-  // 6. Extract matching features and score
+  // 5. Extract matching features and score
   const matchingFeatures = getMatchingFeatures(user || { skills: allUserSkills }, userEvidences);
   const lowerUserSkills = allUserSkills.map((s) => s.toLowerCase().trim());
 
