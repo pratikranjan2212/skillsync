@@ -264,7 +264,7 @@ export default function OpportunityCard({ opportunity }) {
               />
             </svg>
           </a>
-        ) : isLinkedIn ? (
+        ) : (
           <a
             href={directLinkedInUrl}
             target="_blank"
@@ -295,14 +295,6 @@ export default function OpportunityCard({ opportunity }) {
               />
             </svg>
           </a>
-        ) : (
-          <Link
-            href={`/opportunities/${id}`}
-            className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1 rounded-xl border border-emerald-200 transition-colors"
-          >
-            <span>Partner Role</span>
-            <span className="text-[9px]">&rarr;</span>
-          </Link>
         )}
       </div>
     </div>
