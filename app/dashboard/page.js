@@ -54,6 +54,8 @@ export default function UnifiedDashboardPage() {
   const medCount = evidenceList.filter((e) => e.verificationTier === "verified-medium").length;
   const lowCount = evidenceList.filter((e) => e.verificationTier === "flagged-low").length;
 
+  const isDashboardLoading = authLoading || (isAuthenticated && (loadingEv || loadingPass));
+
   if (!authLoading && !isAuthenticated) {
     return (
       <div className="min-h-screen pb-12 bg-[#F5F5F3] text-[#111111] flex flex-col justify-start">
@@ -84,6 +86,70 @@ export default function UnifiedDashboardPage() {
               },
             ]}
           />
+        </main>
+      </div>
+    );
+  }
+
+  if (isDashboardLoading) {
+    return (
+      <div className="min-h-screen bg-[#F5F5F3] text-[#111111] pb-16">
+        <Navbar />
+
+        <main className="max-w-7xl 2xl:max-w-384 mx-auto px-3.5 sm:px-6 2xl:px-8 flex flex-col gap-6 sm:gap-8 animate-pulse">
+          {/* Header Card Skeleton */}
+          <div className="bg-white rounded-3xl sm:rounded-4xl p-5 sm:p-8 shadow-md border border-black/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="h-6 w-44 bg-neutral-200 rounded-full" />
+                <div className="h-4 w-24 bg-neutral-200 rounded-md" />
+              </div>
+              <div className="h-8 sm:h-9 w-64 sm:w-80 bg-neutral-200 rounded-xl" />
+              <div className="h-4 w-72 sm:w-96 bg-neutral-200 rounded-md" />
+            </div>
+
+            <div className="h-12 w-44 bg-neutral-200 rounded-2xl w-full md:w-auto shrink-0" />
+          </div>
+
+          {/* Metric Cards Skeleton */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-xs border border-black/5 flex items-center justify-between">
+                <div className="space-y-2">
+                  <div className="h-3 w-28 bg-neutral-200 rounded-md" />
+                  <div className="h-7 w-20 bg-neutral-200 rounded-lg" />
+                </div>
+                <div className="w-10 h-10 rounded-2xl bg-neutral-200 shrink-0" />
+              </div>
+            ))}
+          </div>
+
+          {/* Evidence Grid Skeleton */}
+          <div className="flex flex-col gap-6">
+            <div className="flex items-center justify-between gap-4">
+              <div className="h-6 w-56 bg-neutral-200 rounded-md" />
+              <div className="h-8 w-24 bg-neutral-200 rounded-xl" />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4 sm:gap-6">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="bg-white rounded-3xl p-6 border border-black/5 shadow-xs flex flex-col gap-4">
+                  <div className="flex justify-between items-center">
+                    <div className="h-6 w-28 bg-neutral-200 rounded-xl" />
+                    <div className="h-6 w-20 bg-neutral-200 rounded-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-5 w-3/4 bg-neutral-200 rounded-md" />
+                    <div className="h-4 w-full bg-neutral-100 rounded-md" />
+                  </div>
+                  <div className="flex gap-2 pt-2">
+                    <div className="h-6 w-16 bg-neutral-200 rounded-lg" />
+                    <div className="h-6 w-16 bg-neutral-200 rounded-lg" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </main>
       </div>
     );

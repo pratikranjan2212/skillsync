@@ -46,6 +46,8 @@ export default function SkillPassportPage() {
     }
   };
 
+  const isPassportLoading = authLoading || (isAuthenticated && (isLoading || (!passport && !isError)));
+
   if (!authLoading && !isAuthenticated) {
     return (
       <div className="min-h-screen pb-12 bg-[#F5F5F3] text-[#111111] flex flex-col justify-start">
@@ -88,14 +90,14 @@ export default function SkillPassportPage() {
       <Navbar />
 
       <main className="flex-1 max-w-6xl 2xl:max-w-7xl mx-auto px-4 sm:px-8 md:px-12 flex flex-col items-center justify-center w-full min-h-0">
-        {isLoading && (
+        {isPassportLoading && (
           <div className="w-full bg-white rounded-4xl p-16 text-center border border-black/5 flex flex-col items-center gap-4 shadow-sm animate-pulse">
             <div className="w-10 h-10 rounded-full border-4 border-emerald-500 border-t-transparent animate-spin"></div>
             <p className="text-sm font-bold text-neutral-600">Loading Verifiable Skill Passport...</p>
           </div>
         )}
 
-        {isError && (
+        {isError && !passport && (
           <div className="w-full bg-rose-50 rounded-[28px] p-8 border border-rose-200 text-center flex flex-col items-center gap-3">
             <AlertCircle className="w-8 h-8 text-rose-600" />
             <h3 className="text-lg font-bold text-rose-900">Failed to load Skill Passport</h3>

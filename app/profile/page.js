@@ -216,7 +216,12 @@ export default function ProfilePage() {
     }
   };
 
-  const { data: profile } = useQuery({
+  const {
+    data: profile,
+    isLoading: isProfileLoading,
+    isError: isProfileError,
+    refetch: refetchProfile,
+  } = useQuery({
     queryKey: ["user-profile"],
     queryFn: fetchUserProfile,
     enabled: isAuthenticated,
@@ -248,7 +253,7 @@ export default function ProfilePage() {
 
     if (profile) {
       setFormData({
-        name: profile.name || formatNameClient(profile.name, authUser?.name),
+        name: profile.name || formatNameClient(authUser?.name, authUser?.email ? authUser.email.split("@")[0] : ""),
         dob: profile.dob || "",
         gender: profile.gender && profile.gender !== "Student" ? profile.gender : "Male",
         image: profile.image || authUser?.image || "",
@@ -256,22 +261,16 @@ export default function ProfilePage() {
         degree: profile.degree || "",
         batch: profile.batch || "",
         bio: profile.bio || "",
-        github: profile.github || "",
-        linkedin: profile.linkedin || "",
+        github: profile.github || profile.githubUrl || "",
+        linkedin: profile.linkedin || profile.linkedinUrl || "",
         credly: profile.credly || profile.credlyUrl || "",
-        portfolio: profile.portfolio || "",
+        portfolio: profile.portfolio || profile.portfolioUrl || "",
         skills: profile.skills || [],
         emailNotifications: true,
         publicPassport: profile.passport?.isPublic ?? true,
       });
       setIsSkillsInitialized(true);
       if (profile.image) setCustomPhotoUrl(profile.image);
-    } else if (authUser) {
-      setFormData((prev) => ({
-        ...prev,
-        name: formatNameClient(authUser.name, authUser.email ? authUser.email.split("@")[0] : ""),
-        image: authUser.image || "",
-      }));
     }
   }, [profile, authUser, isEditing]);
 
@@ -472,11 +471,165 @@ export default function ProfilePage() {
     );
   }
 
+  const isPageLoading = authLoading || (isAuthenticated && (isProfileLoading || (!profile && !isProfileError)));
+
+  if (isPageLoading) {
+    return (
+      <div className="min-h-screen bg-[#F5F5F3] text-[#111111] pb-16">
+        <Navbar />
+
+        <main className="max-w-6xl 2xl:max-w-7xl mx-auto px-3.5 sm:px-6 pt-4 sm:pt-6 animate-pulse">
+          {/* Profile Header Card Skeleton */}
+          <div className="bg-white rounded-3xl sm:rounded-4xl p-5 sm:p-8 shadow-xl border border-black/5 mb-6 sm:mb-8">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-6 border-b border-neutral-100">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
+                {/* Avatar Skeleton */}
+                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-neutral-200 ring-4 ring-neutral-200/50 shadow-md shrink-0" />
+
+                <div className="flex flex-col gap-2.5">
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <div className="h-8 sm:h-9 w-48 sm:w-64 bg-neutral-200 rounded-xl" />
+                    <div className="h-5 w-20 bg-neutral-200 rounded-full" />
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <div className="h-4 w-44 bg-neutral-200 rounded-md" />
+                    <div className="h-5 w-32 bg-neutral-200 rounded-md" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
+                <div className="h-10 w-36 bg-neutral-200 rounded-xl flex-1 md:flex-none" />
+                <div className="h-10 w-32 bg-neutral-200 rounded-xl flex-1 md:flex-none" />
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 pt-6">
+              <div className="h-8 w-32 bg-neutral-200 rounded-xl" />
+              <div className="h-8 w-36 bg-neutral-200 rounded-xl" />
+            </div>
+          </div>
+
+          {/* 2-Column Bento Grid Skeleton */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 flex flex-col gap-6">
+              {/* Academic Info Card Skeleton */}
+              <div className="bg-white rounded-4xl p-6 sm:p-8 shadow-xl border border-black/5">
+                <div className="flex items-center justify-between gap-3 mb-6 pb-4 border-b border-neutral-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-neutral-200 shrink-0" />
+                    <div className="flex flex-col gap-1.5">
+                      <div className="h-5 w-48 bg-neutral-200 rounded-md" />
+                      <div className="h-3 w-64 bg-neutral-200 rounded-md" />
+                    </div>
+                  </div>
+                  <div className="h-8 w-28 bg-neutral-200 rounded-xl" />
+                </div>
+
+                {/* 2x2 Bento Grid Skeleton */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-6">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="p-4 rounded-2xl bg-[#F8F9FA] border border-black/5 flex items-start gap-3.5">
+                      <div className="w-9 h-9 rounded-xl bg-neutral-200 shrink-0" />
+                      <div className="flex-1 space-y-2">
+                        <div className="h-3 w-24 bg-neutral-200 rounded-md" />
+                        <div className="h-4 w-36 bg-neutral-200 rounded-md" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Connected Links Skeleton */}
+                <div className="pt-4 border-t border-neutral-100">
+                  <div className="h-4 w-44 bg-neutral-200 rounded-md mb-3" />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                    {[1, 2, 3, 4].map((i) => (
+                      <div key={i} className="p-3.5 bg-[#F8F9FA] rounded-2xl border border-black/5 flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-xl bg-neutral-200 shrink-0" />
+                        <div className="flex-1 space-y-1.5">
+                          <div className="h-3.5 w-16 bg-neutral-200 rounded-md" />
+                          <div className="h-3 w-12 bg-neutral-200 rounded-md" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Active Skills Card Skeleton */}
+              <div className="bg-white rounded-4xl p-6 sm:p-8 shadow-xl border border-black/5">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="h-6 w-44 bg-neutral-200 rounded-md" />
+                  <div className="h-4 w-20 bg-neutral-200 rounded-md" />
+                </div>
+                <div className="h-12 w-full bg-neutral-100 rounded-2xl mb-5" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <div key={i} className="p-3 bg-[#F8F9FA] rounded-2xl border border-black/5 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-neutral-300" />
+                        <div className="h-4 w-24 bg-neutral-200 rounded-md" />
+                      </div>
+                      <div className="w-4 h-4 rounded-md bg-neutral-200" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Right Sidebar Skeleton */}
+            <div className="flex flex-col gap-6">
+              <div className="bg-white rounded-4xl p-6 sm:p-8 shadow-xl border border-black/5">
+                <div className="h-5 w-40 bg-neutral-200 rounded-md mb-4" />
+                <div className="h-28 bg-neutral-100 rounded-2xl mb-4" />
+                <div className="space-y-3 mb-5">
+                  <div className="h-4 w-full bg-neutral-200 rounded-md" />
+                  <div className="h-4 w-5/6 bg-neutral-200 rounded-md" />
+                  <div className="h-4 w-4/6 bg-neutral-200 rounded-md" />
+                </div>
+                <div className="space-y-2.5 pt-4 border-t border-neutral-100">
+                  <div className="h-10 w-full bg-neutral-200 rounded-xl" />
+                  <div className="h-10 w-full bg-neutral-200 rounded-xl" />
+                  <div className="h-10 w-full bg-neutral-200 rounded-xl" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (isProfileError && !profile) {
+    return (
+      <div className="min-h-screen bg-[#F5F5F3] text-[#111111] pb-16">
+        <Navbar />
+        <main className="max-w-6xl mx-auto px-4 py-12 flex justify-center">
+          <div className="bg-white rounded-3xl p-8 max-w-md w-full border border-rose-200 shadow-xl text-center flex flex-col items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+            <h2 className="text-lg font-bold text-[#111111]">Failed to load profile</h2>
+            <p className="text-xs text-[#494D4D]">We encountered an error while fetching your profile data.</p>
+            <button
+              type="button"
+              onClick={() => refetchProfile()}
+              className="px-5 py-2.5 bg-neutral-900 text-white rounded-xl text-xs font-bold hover:bg-neutral-800 transition-colors cursor-pointer"
+            >
+              Retry
+            </button>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   const displayName = formatNameClient(formData.name || profile?.name || authUser?.name, authUser?.name);
-  const displayEmail = profile?.email || authUser?.email || "student@skillsync.edu";
+  const displayEmail = profile?.email || authUser?.email || "";
   const displayRole = profile?.role || authUser?.role || "student";
-  const displayStudentId = profile?.studentId || "SS-2026-STU01";
-  const displayImage = formData.image || profile?.image || authUser?.image;
+  const displayStudentId = profile?.studentId || (profile?.passport?.studentId ?? "");
+  const displayImage = formData.image || profile?.image || authUser?.image || "";
   const userInitials = displayName
     ? displayName
       .split(" ")
