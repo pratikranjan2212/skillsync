@@ -209,7 +209,8 @@ export async function GET(request) {
   const scoredOpportunities = combinedOpportunities.map((opp) => {
     const scoreResult = calculateMatchScore(matchingFeatures, opp.requiredSkills || []);
     const isIndeed = opp.source === "Indeed" || opp.isIndeedScraped === true;
-    const isLinkedIn = !isIndeed;
+    const isLinkedIn = (opp.source === "LinkedIn" || opp.isLinkedInScraped === true) && !isIndeed;
+    const source = isIndeed ? "Indeed" : isLinkedIn ? "LinkedIn" : (opp.source || "SkillSync Partner");
 
     const directIndeedUrl =
       opp.indeedUrl ||
@@ -222,6 +223,12 @@ export async function GET(request) {
       opp.url ||
       opp.externalUrl ||
       `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(`${opp.title} ${opp.company}`.trim())}`;
+
+    const finalUrl = isIndeed
+      ? directIndeedUrl
+      : isLinkedIn
+      ? directLinkedInUrl
+      : (opp.url || opp.externalUrl || `/opportunities/${opp.id || "partner"}`);
 
     const matchedNames = scoreResult.matchedSkills.map((m) => m.name);
     const missingNames = scoreResult.missingSkills.map((m) => m.name);
@@ -254,13 +261,13 @@ export async function GET(request) {
       missingSkills: missingNames,
       matchedUserSkillCount,
       primarySkillIndex,
-      source: isIndeed ? "Indeed" : "LinkedIn",
+      source,
       isLinkedInScraped: isLinkedIn,
       isIndeedScraped: isIndeed,
       linkedinUrl: isLinkedIn ? directLinkedInUrl : undefined,
       indeedUrl: isIndeed ? directIndeedUrl : undefined,
-      url: isIndeed ? directIndeedUrl : directLinkedInUrl,
-      externalUrl: isIndeed ? directIndeedUrl : directLinkedInUrl,
+      url: finalUrl,
+      externalUrl: finalUrl,
     };
   });
 

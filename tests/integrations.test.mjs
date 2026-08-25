@@ -268,6 +268,7 @@ test("Opportunity Validator: Ensures complete data integrity, workMode and clean
     location: "Bengaluru, KA (Hybrid)",
     workMode: null,
     stipend: null,
+    source: "LinkedIn",
     requiredSkills: ["React", "&lt;Python&gt;", ""],
   };
 

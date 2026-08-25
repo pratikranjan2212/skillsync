@@ -250,7 +250,7 @@ export default function InteractivePassportCard({
 
   // Passport Front Surface (Focused Layout)
   const renderPassportFront = () => (
-    <div className="w-full bg-linear-to-br from-[#121212] via-[#080808] to-[#000000] text-white rounded-3xl p-4 sm:p-6 md:p-7 border border-white/10 shadow-[0_28px_64px_-12px_rgba(0,0,0,0.95),_0_0_0_1px_rgba(255,255,255,0.08)] overflow-hidden relative flex flex-col justify-between min-h-[350px] sm:min-h-[360px]">
+    <div className="w-full bg-linear-to-br from-[#121212] via-[#080808] to-[#000000] text-white rounded-3xl p-4 sm:p-6 md:p-7 border border-white/10 shadow-[0_28px_64px_-12px_rgba(0,0,0,0.95),0_0_0_1px_rgba(255,255,255,0.08)] overflow-hidden relative flex flex-col justify-between min-h-87.5 sm:min-h-90">
       {/* Ambient Lighting */}
       <div className="absolute -top-24 -left-24 w-80 h-80 bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none" />
       <div className="absolute top-1/2 -right-24 w-80 h-80 bg-white/5 rounded-full blur-[80px] pointer-events-none" />
@@ -413,9 +413,9 @@ export default function InteractivePassportCard({
                           )}
                         </div>
 
-                        {/* Bottom Row: Skills on Left & "Verified" on Bottom Right */}
-                        <div className="flex items-center justify-between gap-2 pt-1 sm:pt-1.5 border-t border-white/5">
-                          <div className="flex flex-wrap gap-1 min-w-0">
+                        {/* Bottom Row: Skills on Left & Verified Icon on Bottom Right */}
+                        <div className="flex items-end justify-between gap-2 pt-1 sm:pt-1.5 border-t border-white/5">
+                          <div className="flex flex-wrap gap-1 min-w-0 flex-1">
                             {projSkills.length > 0 ? (
                               projSkills.map((skName, skIdx) => (
                                 <span
@@ -430,9 +430,11 @@ export default function InteractivePassportCard({
                             )}
                           </div>
 
-                          <span className="inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-emerald-400 shrink-0 bg-emerald-950/50 px-2 py-0.5 rounded-md border border-emerald-500/25 shadow-2xs">
-                            <ShieldCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-400" />
-                            <span>Verified</span>
+                          <span 
+                            className="inline-flex items-center justify-center p-1 rounded-lg bg-emerald-950/70 border border-emerald-500/30 text-emerald-400 shrink-0 self-end shadow-2xs" 
+                            title="Verified Project"
+                          >
+                            <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" />
                           </span>
                         </div>
                       </div>
@@ -489,9 +491,9 @@ export default function InteractivePassportCard({
                           )}
                         </div>
 
-                        {/* Bottom Row: Skills on Left & "Verified" on Bottom Right */}
-                        <div className="flex items-center justify-between gap-2 pt-1 sm:pt-1.5 border-t border-white/5">
-                          <div className="flex flex-wrap gap-1 min-w-0">
+                        {/* Bottom Row: Skills on Left & Verified Icon on Bottom Right */}
+                        <div className="flex items-end justify-between gap-2 pt-1 sm:pt-1.5 border-t border-white/5">
+                          <div className="flex flex-wrap gap-1 min-w-0 flex-1">
                             {courseSkills.length > 0 ? (
                               courseSkills.map((skName, skIdx) => (
                                 <span
@@ -506,9 +508,11 @@ export default function InteractivePassportCard({
                             )}
                           </div>
 
-                          <span className="inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-emerald-400 shrink-0 bg-emerald-950/50 px-2 py-0.5 rounded-md border border-emerald-500/25 shadow-2xs">
-                            <ShieldCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-400" />
-                            <span>Verified</span>
+                          <span 
+                            className="inline-flex items-center justify-center p-1 rounded-lg bg-emerald-950/70 border border-emerald-500/30 text-emerald-400 shrink-0 self-end shadow-2xs" 
+                            title="Verified Coursework"
+                          >
+                            <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" />
                           </span>
                         </div>
                       </div>
@@ -554,7 +558,7 @@ export default function InteractivePassportCard({
 
   // Cryptographic Proof Back Surface (Focused Layout)
   const renderPassportBack = () => (
-    <div className="w-full h-full bg-linear-to-br from-[#121212] via-[#080808] to-[#000000] text-white rounded-3xl p-4 sm:p-6 md:p-7 border border-white/10 shadow-[0_28px_64px_-12px_rgba(0,0,0,0.95),_0_0_0_1px_rgba(255,255,255,0.08)] overflow-hidden flex flex-col justify-between relative min-h-[350px] sm:min-h-[360px]">
+    <div className="w-full h-full bg-linear-to-br from-[#121212] via-[#080808] to-[#000000] text-white rounded-3xl p-4 sm:p-6 md:p-7 border border-white/10 shadow-[0_28px_64px_-12px_rgba(0,0,0,0.95),0_0_0_1px_rgba(255,255,255,0.08)] overflow-hidden flex flex-col justify-between relative min-h-87.5 sm:min-h-90">
       <div className="absolute -top-24 -right-24 w-80 h-80 bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none" />
       
       {/* Header */}
@@ -620,7 +624,7 @@ export default function InteractivePassportCard({
               setIsQrExpanded(true);
             }
           }}
-          className="col-span-5 flex flex-col items-center justify-center p-2 sm:p-3 md:p-3.5 bg-gradient-to-b from-[#141414] via-[#0c0c0c] to-[#040404] rounded-2xl border border-emerald-500/25 hover:border-emerald-400/60 shadow-[inset_0_1px_1px_rgba(255,255,255,0.08),_0_8px_20px_-4px_rgba(0,0,0,0.7)] hover:shadow-[0_0_25px_rgba(52,211,153,0.25)] transition-all duration-300 gap-1 text-center group cursor-pointer relative overflow-hidden h-full min-h-[130px] sm:min-h-[150px]"
+          className="col-span-5 flex flex-col items-center justify-center p-2 sm:p-3 md:p-3.5 bg-linear-to-b from-[#141414] via-[#0c0c0c] to-[#040404] rounded-2xl border border-emerald-500/25 hover:border-emerald-400/60 shadow-[inset_0_1px_1px_rgba(255,255,255,0.08),0_8px_20px_-4px_rgba(0,0,0,0.7)] hover:shadow-[0_0_25px_rgba(52,211,153,0.25)] transition-all duration-300 gap-1 text-center group cursor-pointer relative overflow-hidden h-full min-h-32.5 sm:min-h-37.5"
           title="Click to expand QR Code"
           aria-label="Click to enlarge verification QR code"
         >
@@ -662,7 +666,7 @@ export default function InteractivePassportCard({
   );
 
   return (
-    <div className={`w-full max-w-[640px] flex flex-col items-center select-none ${className}`}>
+    <div className={`w-full max-w-160 flex flex-col items-center select-none ${className}`}>
       {/* Top Action Bar in Focused Card Window: Flip + Close */}
       {showControls && (
         <motion.div
@@ -758,7 +762,7 @@ export default function InteractivePassportCard({
               exit={{ scale: 0.82, opacity: 0, y: 24 }}
               transition={{ type: "spring", stiffness: 360, damping: 26 }}
               onClick={(e) => e.stopPropagation()}
-              className="relative max-w-sm sm:max-w-md w-full bg-gradient-to-b from-[#181818] via-[#101010] to-[#080808] border border-emerald-500/40 rounded-3xl p-6 sm:p-7 shadow-[0_0_60px_rgba(16,185,129,0.25),_0_24px_48px_rgba(0,0,0,0.9)] flex flex-col items-center gap-5 cursor-default text-white"
+              className="relative max-w-sm sm:max-w-md w-full bg-linear-to-b from-[#181818] via-[#101010] to-[#080808] border border-emerald-500/40 rounded-3xl p-6 sm:p-7 shadow-[0_0_60px_rgba(16,185,129,0.25),0_24px_48px_rgba(0,0,0,0.9)] flex flex-col items-center gap-5 cursor-default text-white"
             >
               {/* Ambient Radial Lighting */}
               <div className="absolute -top-16 -right-16 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none" />
@@ -789,7 +793,7 @@ export default function InteractivePassportCard({
               </div>
 
               {/* High-res Crisp White QR Code */}
-              <div className="relative p-4 sm:p-5 bg-black/90 rounded-2xl border-2 border-emerald-500/40 shadow-[inset_0_0_20px_rgba(0,0,0,0.8),_0_0_30px_rgba(16,185,129,0.2)] flex items-center justify-center">
+              <div className="relative p-4 sm:p-5 bg-black/90 rounded-2xl border-2 border-emerald-500/40 shadow-[inset_0_0_20px_rgba(0,0,0,0.8),0_0_30px_rgba(16,185,129,0.2)] flex items-center justify-center">
                 {/* Glowing Corner Accents */}
                 <div className="absolute top-2 left-2 w-3.5 h-3.5 border-t-2 border-l-2 border-emerald-400 rounded-tl-xs pointer-events-none" />
                 <div className="absolute top-2 right-2 w-3.5 h-3.5 border-t-2 border-r-2 border-emerald-400 rounded-tr-xs pointer-events-none" />
