@@ -15,7 +15,7 @@ export default function FAQSection() {
   };
 
   return (
-    <section id="faq" className="pt-20 sm:pt-32 pb-14 sm:pb-24 px-3.5 sm:px-6 2xl:px-8 max-w-7xl 2xl:max-w-[1536px] mx-auto scroll-mt-24">
+    <section id="faq" className="pt-20 sm:pt-32 pb-14 sm:pb-24 px-3.5 sm:px-6 2xl:px-8 max-w-7xl 2xl:max-w-384 mx-auto scroll-mt-24">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-stretch">
         <div className="lg:col-span-5 flex flex-col justify-between h-full gap-8 sm:gap-10">
           <FadeIn distance={28} duration={0.85} delay={0.1} className="flex flex-col justify-between h-full gap-8 sm:gap-10">

@@ -52,7 +52,7 @@ export default function SkillPassportPage() {
     return (
       <div className="min-h-screen pb-12 bg-[#F5F5F3] text-[#111111] flex flex-col justify-start">
         <Navbar />
-        <main className="max-w-7xl 2xl:max-w-[1536px] mx-auto px-3.5 sm:px-6 2xl:px-8 w-full">
+        <main className="max-w-7xl 2xl:max-w-384 mx-auto px-3.5 sm:px-6 2xl:px-8 w-full">
           <AuthRequiredView
             badgeText="Verified Portable Skill Passport"
             badgeIcon={Award}

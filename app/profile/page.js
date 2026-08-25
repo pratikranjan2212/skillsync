@@ -837,7 +837,7 @@ export default function ProfilePage() {
                 {photoSyncError && (
                   <div className="w-full p-3 bg-rose-50 border border-rose-200 rounded-2xl flex items-start gap-2.5 text-rose-800 text-xs font-medium animate-in fade-in duration-200">
                     <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-                    <div className="flex-1 min-w-0 break-words">{photoSyncError}</div>
+                    <div className="flex-1 min-w-0 wrap-break-word">{photoSyncError}</div>
                     <button
                       type="button"
                       onClick={() => setPhotoSyncError("")}

@@ -108,7 +108,7 @@ export default function UnifiedDashboardPage() {
               <div className="h-4 w-72 sm:w-96 bg-neutral-200 rounded-md" />
             </div>
 
-            <div className="h-12 w-44 bg-neutral-200 rounded-2xl w-full md:w-auto shrink-0" />
+            <div className="h-12 bg-neutral-200 rounded-2xl w-full md:w-44 shrink-0" />
           </div>
 
           {/* Metric Cards Skeleton */}

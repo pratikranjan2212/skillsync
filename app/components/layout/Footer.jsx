@@ -29,7 +29,7 @@ export default function Footer() {
   return (
     <footer className="w-full bg-white text-neutral-900 antialiased border-t border-neutral-100">
       <FadeIn distance={32} duration={0.85} delay={0.1}>
-        <div className="max-w-7xl 2xl:max-w-[1536px] mx-auto px-5 sm:px-8 lg:px-12 2xl:px-16 pt-14 sm:pt-20 pb-10 sm:pb-12">
+        <div className="max-w-7xl 2xl:max-w-384 mx-auto px-5 sm:px-8 lg:px-12 2xl:px-16 pt-14 sm:pt-20 pb-10 sm:pb-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-start">
           
           <div className="lg:col-span-6 flex flex-col items-start pr-0 lg:pr-8">
