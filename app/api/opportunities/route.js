@@ -197,8 +197,8 @@ export async function GET(request) {
     .map((opp) => validateAndNormalizeOpportunity(opp))
     .filter(Boolean);
 
-  // 5. Combine and strictly deduplicate all opportunities
-  const rawCombined = [...uniqueScrapedLinkedIn, ...uniqueScrapedIndeed, ...tailoredOpps, ...normalizedDbOpps];
+  // 5. Combine and strictly deduplicate all opportunities (real live scraped jobs first)
+  const rawCombined = [...uniqueScrapedIndeed, ...uniqueScrapedLinkedIn, ...tailoredOpps, ...normalizedDbOpps];
   const combinedOpportunities = deduplicateOpportunities(rawCombined);
 
   // 6. Extract matching features and score
@@ -216,13 +216,13 @@ export async function GET(request) {
       opp.indeedUrl ||
       opp.url ||
       opp.externalUrl ||
-      `https://in.indeed.com/jobs?q=${encodeURIComponent(`${opp.title} ${opp.company}`.trim())}&l=India`;
+      `https://in.indeed.com/jobs?q=${encodeURIComponent(`${opp.company} ${opp.title}`.trim())}&l=India`;
 
     const directLinkedInUrl =
       opp.linkedinUrl ||
       opp.url ||
       opp.externalUrl ||
-      `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(`${opp.title} ${opp.company}`.trim())}`;
+      `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(`${opp.company} ${opp.title}`.trim())}`;
 
     const finalUrl = isIndeed ? directIndeedUrl : directLinkedInUrl;
 
