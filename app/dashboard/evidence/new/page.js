@@ -8,6 +8,7 @@ import { signIn } from "next-auth/react";
 import jsQR from "jsqr";
 import {
   FilePlus,
+  FileEdit,
   QrCode,
   Sparkles,
   Check,
@@ -24,6 +25,10 @@ import {
   Search,
   Plus,
   AlertCircle,
+  FolderGit2,
+  CheckSquare,
+  Square,
+  ExternalLink,
 } from "lucide-react";
 import Navbar from "@/app/components/layout/Navbar";
 import Badge from "@/app/components/ui/Badge";
@@ -63,10 +68,17 @@ export default function AddEvidencePage() {
   const queryClient = useQueryClient();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
 
-  // Upload mode: "bulk" (default/recommended) vs "single"
+  // Mode: "bulk" (AI multi-certificate upload) vs "manual" (Manual upload / single submission)
   const [uploadMode, setUploadMode] = useState("bulk");
 
-  // Single form states
+  // GitHub Multi-Select state
+  const [isGhMultiModalOpen, setIsGhMultiModalOpen] = useState(false);
+  const [selectedGhRepoUrls, setSelectedGhRepoUrls] = useState(new Set());
+  const [ghRepoSearch, setGhRepoSearch] = useState("");
+  const [isImportingGhRepos, setIsImportingGhRepos] = useState(false);
+  const [ghImportSuccess, setGhImportSuccess] = useState(null);
+
+  // Manual form states
   const [selectedSkills, setSelectedSkills] = useState([]);
   const [customSkillInput, setCustomSkillInput] = useState("");
   const [isSkillFocused, setIsSkillFocused] = useState(false);
@@ -77,7 +89,7 @@ export default function AddEvidencePage() {
   const [assignedResult, setAssignedResult] = useState(null);
   const [submitError, setSubmitError] = useState("");
 
-  // Bulk upload states
+  // Bulk certificate upload states
   const [bulkFiles, setBulkFiles] = useState([]);
   const [isBulkExtracting, setIsBulkExtracting] = useState(false);
   const [extractedItems, setExtractedItems] = useState([]);
@@ -145,9 +157,9 @@ export default function AddEvidencePage() {
 
     const urlMatch = normUrl
       ? existingEvidence.find((ev) => {
-        const evUrl = normalizeUrl(ev.fileUrl);
-        return evUrl && evUrl === normUrl;
-      })
+          const evUrl = normalizeUrl(ev.fileUrl);
+          return evUrl && evUrl === normUrl;
+        })
       : null;
 
     if (urlMatch) {
@@ -171,6 +183,7 @@ export default function AddEvidencePage() {
     return { isDuplicate: false, reason: "" };
   }, [watchedFileUrl, watchedTitle, existingEvidence]);
 
+  // Single repo selection handler
   const handleSelectRepo = (repoUrl) => {
     const selected = ghRepos.find((r) => r.htmlUrl === repoUrl);
     if (!selected) return;
@@ -204,6 +217,83 @@ export default function AddEvidencePage() {
     }
 
     setSelectedSkills(newSkills);
+  };
+
+  // GitHub Multi-Select handlers
+  const handleToggleSelectGhRepo = (url) => {
+    const next = new Set(selectedGhRepoUrls);
+    if (next.has(url)) next.delete(url);
+    else next.add(url);
+    setSelectedGhRepoUrls(next);
+  };
+
+  const handleToggleSelectAllGhRepos = (availableRepos) => {
+    if (selectedGhRepoUrls.size === availableRepos.length) {
+      setSelectedGhRepoUrls(new Set());
+    } else {
+      setSelectedGhRepoUrls(new Set(availableRepos.map((r) => r.htmlUrl)));
+    }
+  };
+
+  // Bulk import multiple GitHub projects at once
+  const handleBulkImportGhRepos = async () => {
+    const selectedRepos = ghRepos.filter((r) => selectedGhRepoUrls.has(r.htmlUrl));
+    if (selectedRepos.length === 0) return;
+
+    setIsImportingGhRepos(true);
+    setSubmitError("");
+
+    const items = selectedRepos.map((repo) => {
+      const skills = [repo.language, ...(repo.topics || [])].filter(Boolean);
+      const title = repo.name
+        .replace(/[-_]/g, " ")
+        .replace(/\b\w/g, (c) => c.toUpperCase());
+
+      return {
+        title,
+        description: repo.description || `GitHub project repository (${repo.language || "Codebase"}).`,
+        type: "project",
+        fileUrl: repo.htmlUrl,
+        claimedSkills: skills,
+        verificationTier: "verified-high",
+        verificationReason: `GitHub repository verified: ${repo.name} (${repo.language || "Software Engineering"})`,
+      };
+    });
+
+    try {
+      const res = await fetch("/api/evidence/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to import GitHub repositories.");
+      }
+
+      setGhImportSuccess(data);
+      setIsGhMultiModalOpen(false);
+      setSelectedGhRepoUrls(new Set());
+
+      await Promise.allSettled([
+        queryClient.invalidateQueries({ queryKey: ["skill-passport"] }),
+        queryClient.invalidateQueries({ queryKey: ["dash-passport"] }),
+        queryClient.invalidateQueries({ queryKey: ["dash-evidence"] }),
+        queryClient.invalidateQueries({ queryKey: ["evidence"] }),
+        queryClient.invalidateQueries({ queryKey: ["user-profile"] }),
+        queryClient.invalidateQueries({ queryKey: ["profile"] }),
+      ]);
+
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 2000);
+    } catch (err) {
+      console.error("GitHub bulk import error:", err);
+      setSubmitError(err.message || "Failed to import GitHub repositories.");
+    } finally {
+      setIsImportingGhRepos(false);
+    }
   };
 
   const addCustomSkill = (skillName) => {
@@ -260,7 +350,7 @@ export default function AddEvidencePage() {
     setBulkImportSuccess(null);
 
     const validFiles = files.filter((f) => f.type.startsWith("image/") || f.name.endsWith(".pdf") || f.type === "application/pdf");
-
+    
     if (validFiles.length === 0) {
       setBulkError("Please select valid image (PNG, JPG, WEBP) or PDF certificate files.");
       return;
@@ -366,12 +456,12 @@ export default function AddEvidencePage() {
       prev.map((c) =>
         c.id === id
           ? {
-            ...c,
-            title: editingCertData.title.trim() || c.title,
-            issuer: editingCertData.issuer.trim() || c.issuer,
-            issueDate: editingCertData.issueDate.trim() || c.issueDate,
-            credentialId: editingCertData.credentialId.trim() || c.credentialId,
-          }
+              ...c,
+              title: editingCertData.title.trim() || c.title,
+              issuer: editingCertData.issuer.trim() || c.issuer,
+              issueDate: editingCertData.issueDate.trim() || c.issueDate,
+              credentialId: editingCertData.credentialId.trim() || c.credentialId,
+            }
           : c
       )
     );
@@ -504,6 +594,18 @@ export default function AddEvidencePage() {
     );
   }
 
+  // Filtered available GitHub repositories for multi-select
+  const availableGhRepos = ghRepos.filter((r) => {
+    if (isRepoAlreadyAdded(r.htmlUrl, r.name)) return false;
+    if (!ghRepoSearch.trim()) return true;
+    const q = ghRepoSearch.toLowerCase();
+    return (
+      r.name.toLowerCase().includes(q) ||
+      (r.language && r.language.toLowerCase().includes(q)) ||
+      (r.description && r.description.toLowerCase().includes(q))
+    );
+  });
+
   return (
     <div className="min-h-screen bg-[#F5F5F3] text-[#111111] pb-16">
       <Navbar />
@@ -515,25 +617,26 @@ export default function AddEvidencePage() {
             <div>
               <span className="inline-flex items-center gap-1.5 px-3.5 py-1 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-full border border-emerald-200">
                 <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-                Gemini AI Evidence Ingestion
+                Evidence Ingestion &amp; Verification
               </span>
               <h1 className="text-xl sm:text-3xl font-extrabold text-[#111111] mt-2">
                 Submit Certificates &amp; Evidence
               </h1>
               <p className="text-xs text-[#494D4D] mt-1">
-                Upload certificates or GitHub projects for automated AI extraction and cryptographic Passport verification.
+                Upload certificates or GitHub projects for automated AI extraction, multi-repo import, and cryptographic Passport verification.
               </p>
             </div>
 
-            {/* Mode Switcher */}
+            {/* Mode Switcher: Bulk AI Upload vs Manual Upload */}
             <div className="inline-flex p-1 bg-[#F5F5F3] rounded-2xl border border-black/5 shrink-0 self-start sm:self-center">
               <button
                 type="button"
                 onClick={() => setUploadMode("bulk")}
-                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${uploadMode === "bulk"
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                  uploadMode === "bulk"
                     ? "bg-neutral-900 text-white shadow-xs"
                     : "text-neutral-600 hover:text-neutral-900"
-                  }`}
+                }`}
               >
                 <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
                 <span>Bulk AI Upload</span>
@@ -543,17 +646,41 @@ export default function AddEvidencePage() {
               </button>
               <button
                 type="button"
-                onClick={() => setUploadMode("single")}
-                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${uploadMode === "single"
+                onClick={() => setUploadMode("manual")}
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                  uploadMode === "manual"
                     ? "bg-neutral-900 text-white shadow-xs"
                     : "text-neutral-600 hover:text-neutral-900"
-                  }`}
+                }`}
               >
-                <FilePlus className="w-3.5 h-3.5" />
-                <span>Single Record</span>
+                <FileEdit className="w-3.5 h-3.5" />
+                <span>Manual Upload</span>
               </button>
             </div>
           </div>
+
+          {/* GitHub Bulk Import Success Notification */}
+          {ghImportSuccess && (
+            <div className="p-5 bg-emerald-50 rounded-2xl border border-emerald-200 flex items-center justify-between gap-4 animate-in fade-in">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                  <Check className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold uppercase tracking-wider text-emerald-800">
+                    GitHub Projects Added!
+                  </div>
+                  <div className="text-sm font-bold text-emerald-950 mt-0.5">
+                    {ghImportSuccess.message}
+                  </div>
+                  <div className="text-xs text-emerald-700 mt-0.5">
+                    Redirecting to your dashboard...
+                  </div>
+                </div>
+              </div>
+              <Badge tier="verified-high" />
+            </div>
+          )}
 
           {/* ======================================================== */}
           {/* BULK UPLOAD MODE (GEMINI AI MULTIMODAL EXTRACTION) */}
@@ -735,10 +862,11 @@ export default function AddEvidencePage() {
                       return (
                         <div
                           key={item.id}
-                          className={`p-4 sm:p-5 rounded-2xl border transition-all ${isSelected
+                          className={`p-4 sm:p-5 rounded-2xl border transition-all ${
+                            isSelected
                               ? "bg-white border-emerald-500/60 shadow-md ring-2 ring-emerald-500/10"
                               : "bg-neutral-50/70 border-black/5 opacity-75"
-                            }`}
+                          }`}
                         >
                           {isEditing ? (
                             /* Inline Edit Mode */
@@ -823,10 +951,11 @@ export default function AddEvidencePage() {
                                 <button
                                   type="button"
                                   onClick={() => handleToggleSelectCert(item.id)}
-                                  className={`w-5 h-5 rounded-lg flex items-center justify-center mt-0.5 shrink-0 transition-colors cursor-pointer ${isSelected
+                                  className={`w-5 h-5 rounded-lg flex items-center justify-center mt-0.5 shrink-0 transition-colors cursor-pointer ${
+                                    isSelected
                                       ? "bg-emerald-600 text-white"
                                       : "border border-neutral-300 hover:border-neutral-500 bg-white"
-                                    }`}
+                                  }`}
                                 >
                                   {isSelected && <Check className="w-3.5 h-3.5" />}
                                 </button>
@@ -925,9 +1054,9 @@ export default function AddEvidencePage() {
           )}
 
           {/* ======================================================== */}
-          {/* SINGLE EVIDENCE RECORD MODE */}
+          {/* MANUAL UPLOAD MODE (SINGLE FORM + MULTI-REPO SUPPORT) */}
           {/* ======================================================== */}
-          {uploadMode === "single" && (
+          {uploadMode === "manual" && (
             <div className="flex flex-col gap-6 animate-in fade-in duration-200">
               {assignedResult && (
                 <div className="p-5 bg-emerald-50 rounded-2xl border border-emerald-200 flex items-center justify-between gap-4 animate-in fade-in">
@@ -1011,21 +1140,27 @@ export default function AddEvidencePage() {
                       <span>External Link (GitHub Repo / Credential URL / Transcript Link)</span>
                     </label>
                     {ghData?.hasPermissions && ghRepos.length > 0 && (
-                      <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 inline-flex items-center gap-1">
-                        <Check className="w-3 h-3 text-emerald-600" />
-                        <span>{ghRepos.length} Repos Linked</span>
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setIsGhMultiModalOpen(true)}
+                          className="text-[11px] text-emerald-700 font-extrabold bg-emerald-50 hover:bg-emerald-100 px-3 py-1 rounded-full border border-emerald-200 inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                        >
+                          <FolderGit2 className="w-3.5 h-3.5 text-emerald-600" />
+                          <span>Select Multiple Repos ({ghRepos.length})</span>
+                        </button>
+                      </div>
                     )}
                   </div>
 
-                  {/* GitHub Repositories Dropdown */}
+                  {/* GitHub Repositories Dropdown or Permission Action Banner */}
                   {isGhLoading ? (
                     <div className="px-4 py-3 bg-[#F8F9FA] rounded-2xl border border-black/5 flex items-center gap-2 text-xs text-neutral-500">
                       <Loader2 className="w-4 h-4 animate-spin text-emerald-600" />
                       <span>Checking linked GitHub repositories...</span>
                     </div>
                   ) : ghData?.hasPermissions && ghRepos.length > 0 ? (
-                    <div className="flex flex-col gap-1.5">
+                    <div className="flex flex-col gap-2">
                       <div className="relative">
                         <select
                           onChange={(e) => {
@@ -1038,7 +1173,7 @@ export default function AddEvidencePage() {
                           className="w-full px-4 py-3 rounded-2xl bg-emerald-50/60 border border-emerald-300/80 text-xs font-bold text-neutral-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer shadow-2xs"
                         >
                           <option value="" disabled>
-                            -- Select from your GitHub Repositories ({ghRepos.length}) --
+                            -- Choose a GitHub Repository ({ghRepos.length} available) --
                           </option>
                           {ghRepos.map((repo) => {
                             const alreadyAdded = isRepoAlreadyAdded(repo.htmlUrl, repo.name);
@@ -1050,9 +1185,19 @@ export default function AddEvidencePage() {
                           })}
                         </select>
                       </div>
-                      <p className="text-[10px] text-neutral-500 px-1">
-                        Selecting a repository automatically fills the URL, title, description, and matching skills. Already added projects are disabled.
-                      </p>
+                      
+                      <div className="flex items-center justify-between px-1">
+                        <p className="text-[10px] text-neutral-500">
+                          Selecting fills fields automatically. Want to import multiple projects?
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => setIsGhMultiModalOpen(true)}
+                          className="text-[11px] font-bold text-emerald-700 hover:text-emerald-900 underline cursor-pointer"
+                        >
+                          Select Multiple at Once &rarr;
+                        </button>
+                      </div>
                     </div>
                   ) : (
                     <div className="p-3.5 bg-neutral-900 text-white rounded-2xl border border-neutral-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
@@ -1065,7 +1210,7 @@ export default function AddEvidencePage() {
                             <span>Load Your GitHub Repositories in Dropdown</span>
                           </div>
                           <div className="text-[10px] text-neutral-400">
-                            Allow repository permissions to auto-select projects from your GitHub account
+                            Allow repository permissions to auto-select or bulk import projects from your GitHub account
                           </div>
                         </div>
                       </div>
@@ -1114,14 +1259,16 @@ export default function AddEvidencePage() {
 
                   <div className="relative mb-3">
                     <div
-                      className={`relative flex items-center bg-[#F8F9FA] rounded-2xl border transition-all duration-300 ease-out ${isSkillFocused
+                      className={`relative flex items-center bg-[#F8F9FA] rounded-2xl border transition-all duration-300 ease-out ${
+                        isSkillFocused
                           ? "scale-[1.015] bg-white border-emerald-500 shadow-xl shadow-emerald-500/10 ring-4 ring-emerald-500/15"
                           : "border-black/5 hover:border-black/10"
-                        }`}
+                      }`}
                     >
                       <Search
-                        className={`w-4 h-4 ml-4 shrink-0 transition-colors duration-300 ${isSkillFocused ? "text-emerald-600" : "text-neutral-400"
-                          }`}
+                        className={`w-4 h-4 ml-4 shrink-0 transition-colors duration-300 ${
+                          isSkillFocused ? "text-emerald-600" : "text-neutral-400"
+                        }`}
                       />
                       <input
                         ref={skillInputRef}
@@ -1338,6 +1485,208 @@ export default function AddEvidencePage() {
           </div>
         </div>
       </main>
+
+      {/* ======================================================== */}
+      {/* GITHUB MULTI-SELECT REPOSITORIES MODAL */}
+      {/* ======================================================== */}
+      {isGhMultiModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="bg-white rounded-3xl sm:rounded-4xl max-w-2xl w-full shadow-2xl border border-black/10 flex flex-col max-h-[88vh] overflow-hidden animate-in zoom-in-95 duration-200"
+          >
+            {/* Modal Header */}
+            <div className="p-5 sm:p-6 border-b border-neutral-100 flex items-start justify-between gap-4 bg-[#FBFBFB]">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-2xl bg-neutral-900 text-white flex items-center justify-center shrink-0 shadow-md">
+                  <GitHubLogo className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base sm:text-lg font-black text-[#111111] tracking-tight">
+                      Select Multiple GitHub Projects
+                    </h3>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-800">
+                      Bulk Import
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#494D4D] mt-0.5">
+                    Select all the repositories you want to verify and add to your Skill Passport simultaneously.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsGhMultiModalOpen(false)}
+                className="p-2 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 rounded-xl transition-colors cursor-pointer shrink-0"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Filter & Search Bar */}
+            <div className="p-4 sm:px-6 bg-white border-b border-neutral-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+              <div className="relative flex-1">
+                <Search className="w-4 h-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={ghRepoSearch}
+                  onChange={(e) => setGhRepoSearch(e.target.value)}
+                  placeholder="Filter repositories by name or tech stack (e.g. React, Python)..."
+                  className="w-full pl-10 pr-4 py-2.5 bg-[#F5F5F3] rounded-xl border border-black/5 text-xs font-semibold text-neutral-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={() => handleToggleSelectAllGhRepos(availableGhRepos)}
+                className="text-xs font-bold text-emerald-700 hover:text-emerald-900 whitespace-nowrap self-end sm:self-center cursor-pointer underline"
+              >
+                {selectedGhRepoUrls.size === availableGhRepos.length && availableGhRepos.length > 0
+                  ? "Deselect All"
+                  : `Select All Available (${availableGhRepos.length})`}
+              </button>
+            </div>
+
+            {/* Repositories List */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-[#F8F9FA] flex flex-col gap-2.5">
+              {availableGhRepos.length === 0 && ghRepos.length > 0 ? (
+                <div className="py-12 text-center text-xs text-neutral-500 flex flex-col items-center gap-2">
+                  <FolderGit2 className="w-8 h-8 text-neutral-300" />
+                  <span className="font-bold">No unadded repositories match your search.</span>
+                  <span className="text-[11px] text-neutral-400">All matching repositories may already be in your Skill Passport.</span>
+                </div>
+              ) : (
+                ghRepos.map((repo) => {
+                  const alreadyAdded = isRepoAlreadyAdded(repo.htmlUrl, repo.name);
+                  const isSelected = selectedGhRepoUrls.has(repo.htmlUrl);
+
+                  return (
+                    <div
+                      key={repo.id}
+                      onClick={() => !alreadyAdded && handleToggleSelectGhRepo(repo.htmlUrl)}
+                      className={`p-3.5 sm:p-4 rounded-2xl border transition-all flex items-start justify-between gap-3 cursor-pointer ${
+                        alreadyAdded
+                          ? "bg-neutral-100/60 border-neutral-200 opacity-60 cursor-not-allowed"
+                          : isSelected
+                          ? "bg-white border-emerald-500/80 shadow-sm ring-2 ring-emerald-500/15"
+                          : "bg-white border-black/5 hover:border-black/15 shadow-2xs"
+                      }`}
+                    >
+                      <div className="flex items-start gap-3 flex-1 min-w-0">
+                        <div className="mt-0.5 shrink-0">
+                          {alreadyAdded ? (
+                            <div className="w-5 h-5 rounded-md bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                              <Check className="w-3.5 h-3.5" />
+                            </div>
+                          ) : (
+                            <div
+                              className={`w-5 h-5 rounded-md flex items-center justify-center transition-colors ${
+                                isSelected
+                                  ? "bg-emerald-600 text-white"
+                                  : "border border-neutral-300 bg-white"
+                              }`}
+                            >
+                              {isSelected && <Check className="w-3.5 h-3.5" />}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="text-xs sm:text-sm font-extrabold text-neutral-900 truncate">
+                              📁 {repo.name}
+                            </span>
+                            {repo.language && (
+                              <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-neutral-100 text-neutral-800">
+                                {repo.language}
+                              </span>
+                            )}
+                            {repo.isPrivate && (
+                              <span className="px-1.5 py-0.2 rounded text-[9px] bg-amber-100 text-amber-800 font-bold">
+                                Private
+                              </span>
+                            )}
+                            {alreadyAdded && (
+                              <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-emerald-100 text-emerald-800">
+                                ✓ In Passport
+                              </span>
+                            )}
+                          </div>
+
+                          {repo.description && (
+                            <p className="text-[11px] text-neutral-600 mt-1 line-clamp-2">
+                              {repo.description}
+                            </p>
+                          )}
+
+                          {repo.topics && repo.topics.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-2">
+                              {repo.topics.slice(0, 5).map((t, idx) => (
+                                <span key={idx} className="text-[9px] font-semibold text-neutral-500 bg-neutral-100 px-1.5 py-0.2 rounded">
+                                  #{t}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <a
+                        href={repo.htmlUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="p-1.5 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors shrink-0"
+                        title="View on GitHub"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 sm:p-5 border-t border-neutral-100 bg-white flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="text-xs font-semibold text-neutral-700">
+                <strong>{selectedGhRepoUrls.size}</strong> projects selected for import
+              </div>
+
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={() => setIsGhMultiModalOpen(false)}
+                  className="flex-1 sm:flex-none px-4 py-2.5 bg-neutral-100 hover:bg-neutral-200 text-xs font-bold text-neutral-700 rounded-xl transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleBulkImportGhRepos}
+                  disabled={isImportingGhRepos || selectedGhRepoUrls.size === 0}
+                  className="flex-1 sm:flex-none px-5 py-2.5 bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  {isImportingGhRepos ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-emerald-400" />
+                      <span>Importing Projects...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4 text-emerald-400" />
+                      <span>Add {selectedGhRepoUrls.size} Projects to Passport</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

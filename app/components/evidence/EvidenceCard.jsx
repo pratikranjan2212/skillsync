@@ -15,17 +15,19 @@ export default function EvidenceCard({ evidence, onOverride }) {
     verificationTier,
     verificationReason,
     verifiedAt,
+    createdAt,
     claimedSkills,
     adminOverride,
   } = evidence;
 
-  const formattedDate = verifiedAt
-    ? new Date(verifiedAt).toLocaleDateString("en-US", {
+  const dateToFormat = verifiedAt || createdAt;
+  const formattedDate = dateToFormat
+    ? new Date(dateToFormat).toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
       year: "numeric",
     })
-    : "Pending";
+    : "Verified";
 
   return (
     <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-md hover:shadow-lg transition-all border border-black/5 flex flex-col justify-between gap-4">

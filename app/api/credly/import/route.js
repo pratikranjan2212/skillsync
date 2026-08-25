@@ -76,6 +76,7 @@ export async function POST(request) {
             claimedSkills,
             verificationStage: "completed",
             verificationTier: "verified-high",
+            verifiedAt: new Date(),
             verificationReason:
               badge.verificationReason ||
               `Automated verification via Credly Badge Registry (${badge.credentialId || badge.title})`,
