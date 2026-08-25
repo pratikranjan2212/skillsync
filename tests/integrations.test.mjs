@@ -454,6 +454,42 @@ test("Passport Aggregation: Deduplicates project records with matching URLs or t
   assert.strictEqual(projects[1].title, "ShopNest eCommerce");
 });
 
+// 9. Bulk Multimodal Certificate Extraction Tests
+await asyncTest("Bulk Certificate Extractor: Parses multiple certificate documents in parallel", async () => {
+  const { extractCertificatesFromFiles } = await import("../lib/integrations/geminiMultimodalExtractor.js");
+
+  const sampleFiles = [
+    {
+      name: "aws_solutions_architect_associate.pdf",
+      type: "application/pdf",
+      base64: "dGVzdC1hd3MtY2VydA==",
+    },
+    {
+      name: "google_cloud_associate_engineer.png",
+      type: "image/png",
+      base64: "dGVzdC1nY3AtY2VydA==",
+    },
+    {
+      name: "deeplearning_ai_neural_networks.jpg",
+      type: "image/jpeg",
+      base64: "dGVzdC1kZWVwbGVhcm5pbmctY2VydA==",
+    },
+  ];
+
+  const extracted = await extractCertificatesFromFiles(sampleFiles);
+  assert.strictEqual(extracted.length, 3);
+
+  const aws = extracted.find((c) => c.title.toLowerCase().includes("aws") || c.issuer.toLowerCase().includes("amazon"));
+  assert.ok(aws, "Should extract AWS certificate");
+  assert.ok(aws.skills.some((s) => s.includes("AWS") || s.includes("Cloud")));
+
+  const gcp = extracted.find((c) => c.title.toLowerCase().includes("google") || c.issuer.toLowerCase().includes("google"));
+  assert.ok(gcp, "Should extract GCP certificate");
+
+  const dl = extracted.find((c) => c.issuer.toLowerCase().includes("deeplearning") || c.title.toLowerCase().includes("neural") || c.skills.includes("Deep Learning"));
+  assert.ok(dl, "Should extract DeepLearning.AI certificate");
+});
+
 console.log("\n------------------------------------------------------------");
 console.log(`Results: ${passed} / ${total} tests passed (${Math.round((passed / total) * 100)}%)`);
 console.log("------------------------------------------------------------\n");
